@@ -37,57 +37,57 @@ public:
 // variables
 private:
 
-	uint32_t ix;
-	T* data;
-	const FifoIndexing* fifo;
+    uint32_t ix;
+    T* data;
+    const FifoIndexing* fifo;
 
 // functions
 public:
 
-	AFifoIterator(const AFifoIterator &other) = default;
-	AFifoIterator &operator=(const AFifoIterator &other) = default;
+    AFifoIterator(const AFifoIterator &other) = default;
+    AFifoIterator &operator=(const AFifoIterator &other) = default;
 
-	bool operator==(const AFifoIterator &other) const {
-		return ((ix == other.ix) && (fifo == other.fifo));
-	}
+    bool operator==(const AFifoIterator &other) const {
+        return ((ix == other.ix) && (fifo == other.fifo));
+    }
 
-	inline bool operator!=(const AFifoIterator &other) const {
-		return (!operator==(other));
-	}
+    inline bool operator!=(const AFifoIterator &other) const {
+        return (!operator==(other));
+    }
 
-	AFifoIterator &operator++() {
-		++ix;
-		return *this;
-	}
+    AFifoIterator &operator++() {
+        ++ix;
+        return *this;
+    }
 
-	const AFifoIterator &operator++(int) {
-		AFifoIterator old = *this;
-		this->operator++();
-		return old;
-	}
+    const AFifoIterator &operator++(int) {
+        AFifoIterator old = *this;
+        this->operator++();
+        return old;
+    }
 
-	T &operator*() const {
-		return *(get());
-	};
+    T &operator*() const {
+        return *(get());
+    };
 
-	T* operator->() const {
-		return get();
-	};
+    T* operator->() const {
+        return get();
+    };
 
 protected:
 
-	AFifoIterator(T* data, const FifoIndexing* indexing, uint32_t index) :
-		ix(index),
-		data(data),
-		fifo(indexing) {};
+    AFifoIterator(T* data, const FifoIndexing* indexing, uint32_t index) :
+        ix(index),
+        data(data),
+        fifo(indexing) {};
 
-	const FifoIndexing* getFifoIndexing() const {
-		return fifo;
-	}
+    const FifoIndexing* getFifoIndexing() const {
+        return fifo;
+    }
 
-	inline T* get() const {
-		return data + fifo->getIndexFromFront(ix);
-	}
+    inline T* get() const {
+        return data + fifo->getIndexFromFront(ix);
+    }
 
 };
 

@@ -32,74 +32,74 @@ class DoubleLinkedList {
 // types
 public:
 
-	class Node {
+    class Node {
 
-	public:
+    public:
 
-		Node* prev;
-		Node* next;
+        Node* prev;
+        Node* next;
 
-		Node() :
-			prev(nullptr),
-			next(nullptr) {};
+        Node() :
+            prev(nullptr),
+            next(nullptr) {};
 
-		Node(Node* p, Node* n) :
-			prev(p),
-			next(n) {};
+        Node(Node* p, Node* n) :
+            prev(p),
+            next(n) {};
 
-		virtual ~Node() {};
+        virtual ~Node() {};
 
-	};
+    };
 
 // variables
 private:
 
-	Node frontNode;
-	Node backNode;
-	uint32_t size;
+    Node frontNode;
+    Node backNode;
+    uint32_t size;
 
 // functions
 public:
 
-	DoubleLinkedList() :
-		frontNode(nullptr, &backNode),
-		backNode(&frontNode, nullptr),
-		size(0) {};
+    DoubleLinkedList() :
+        frontNode(nullptr, &backNode),
+        backNode(&frontNode, nullptr),
+        size(0) {};
 
-	DoubleLinkedList(DoubleLinkedList &&other);
-	DoubleLinkedList &operator=(DoubleLinkedList &&other);
+    DoubleLinkedList(DoubleLinkedList &&other);
+    DoubleLinkedList &operator=(DoubleLinkedList &&other);
 
-	DoubleLinkedList(const DoubleLinkedList &other) = delete;
-	DoubleLinkedList &operator=(const DoubleLinkedList &other) = delete;
+    DoubleLinkedList(const DoubleLinkedList &other) = delete;
+    DoubleLinkedList &operator=(const DoubleLinkedList &other) = delete;
 
-	bool isEmpty() const {
-		return size == 0;
-	}
+    bool isEmpty() const {
+        return size == 0;
+    }
 
-	uint32_t getSize() const {
-		return size;
-	}
+    uint32_t getSize() const {
+        return size;
+    }
 
-	Node* getFirst() const {
-		return frontNode.next;
-	}
+    Node* getFirst() const {
+        return frontNode.next;
+    }
 
-	Node* getLast() const {
-		return backNode.prev;
-	}
+    Node* getLast() const {
+        return backNode.prev;
+    }
 
-	void insertAfter(Node* pos, Node* node);
-	void insertBefore(Node* pos, Node* node);
+    void insertAfter(Node* pos, Node* node);
+    void insertBefore(Node* pos, Node* node);
 
-	Node* remove(Node* node);
+    Node* remove(Node* node);
 
-	void copy(const DoubleLinkedList &other);
-	void swap(DoubleLinkedList &other);
-	void setEmpty();
+    void copy(const DoubleLinkedList &other);
+    void swap(DoubleLinkedList &other);
+    void setEmpty();
 
 protected:
 
-	static void linkNodes(Node* a, Node* b);
+    static void linkNodes(Node* a, Node* b);
 
 };
 

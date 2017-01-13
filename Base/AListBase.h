@@ -35,109 +35,109 @@ class AListBase {
 // types
 public:
 
-	class Node : public DoubleLinkedList::Node {
+    class Node : public DoubleLinkedList::Node {
 
-	public:
+    public:
 
-		Node() :
-			DoubleLinkedList::Node() {};
+        Node() :
+            DoubleLinkedList::Node() {};
 
-		explicit Node(const DoubleLinkedList::Node &other) :
-			DoubleLinkedList::Node(other) {};
+        explicit Node(const DoubleLinkedList::Node &other) :
+            DoubleLinkedList::Node(other) {};
 
-		virtual ~Node() {};
+        virtual ~Node() {};
 
-	};
+    };
 
-	class Iterator {
-		friend class AListBase;
+    class Iterator {
+        friend class AListBase;
 
-	protected:
+    protected:
 
-		AListBase::Node* node;
+        AListBase::Node* node;
 
-	public:
+    public:
 
-		bool operator==(const Iterator &other) const {
-			return (node == other.node);
-		}
+        bool operator==(const Iterator &other) const {
+            return (node == other.node);
+        }
 
-		bool operator!=(const Iterator &other) const {
-			return !(operator==(other));
-		}
+        bool operator!=(const Iterator &other) const {
+            return !(operator==(other));
+        }
 
-		Iterator &operator++() {
-			node = static_cast<AListBase::Node*>(node->next);
-			return *this;
-		}
+        Iterator &operator++() {
+            node = static_cast<AListBase::Node*>(node->next);
+            return *this;
+        }
 
-		Iterator &operator--() {
-			node = static_cast<AListBase::Node*>(node->prev);
-			return *this;
-		}
+        Iterator &operator--() {
+            node = static_cast<AListBase::Node*>(node->prev);
+            return *this;
+        }
 
-	protected:
+    protected:
 
-		explicit Iterator(AListBase::Node* n) :
-			node(n) {};
+        explicit Iterator(AListBase::Node* n) :
+            node(n) {};
 
-	};
+    };
 
 // variables
 protected:
 
-	DoubleLinkedList list;
+    DoubleLinkedList list;
 
 // functions
 public:
 
-	AListBase() = default;
+    AListBase() = default;
 
-	AListBase(AListBase &&other) :
-		list(std::move(other.list)) {};
+    AListBase(AListBase &&other) :
+        list(std::move(other.list)) {};
 
-	AListBase &operator=(AListBase &&other) {
-		list = std::move(other.list);
-		return *this;
-	}
+    AListBase &operator=(AListBase &&other) {
+        list = std::move(other.list);
+        return *this;
+    }
 
-	virtual ~AListBase() {}
+    virtual ~AListBase() {}
 
-	inline uint32_t getSize() const {
-		return list.getSize();
-	}
+    inline uint32_t getSize() const {
+        return list.getSize();
+    }
 
 protected:
 
-	inline Iterator begin() const {
-		return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
-	}
+    inline Iterator begin() const {
+        return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
+    }
 
-	inline Iterator end() const {
-		return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
-	}
+    inline Iterator end() const {
+        return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
+    }
 
-	/// \name Műveletek elemekkel
-	/// @{
-	void pushFront(Node* item) {
-		list.insertBefore(list.getFirst(), item);
-	}
+    /// \name Műveletek elemekkel
+    /// @{
+    void pushFront(Node* item) {
+        list.insertBefore(list.getFirst(), item);
+    }
 
-	void pushBack(Node* item) {
-		list.insertAfter(list.getLast(), item);
-	}
+    void pushBack(Node* item) {
+        list.insertAfter(list.getLast(), item);
+    }
 
-	Node* popFront();
-	Node* popBack();
+    Node* popFront();
+    Node* popBack();
 
-	void insert(Iterator pos, Node* item) {
-		list.insertBefore(pos.node, item);
-	}
+    void insert(Iterator pos, Node* item) {
+        list.insertBefore(pos.node, item);
+    }
 
-	Node* remove(Iterator pos) {
-		return static_cast<AListBase::Node*>(list.remove(pos.node));
-	}
-	/// @}
+    Node* remove(Iterator pos) {
+        return static_cast<AListBase::Node*>(list.remove(pos.node));
+    }
+    /// @}
 
 };
 

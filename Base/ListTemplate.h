@@ -40,172 +40,172 @@ class ListTemplate : protected AListBase {
 // types
 public:
 
-	class Node : public AListBase::Node {
+    class Node : public AListBase::Node {
 
-	public:
+    public:
 
-		T item;
+        T item;
 
-		template<typename... Args>
-		Node(Args &&... args) :
-			item(std::forward<Args>(args)...) {};
+        template<typename... Args>
+        Node(Args &&... args) :
+            item(std::forward<Args>(args)...) {};
 
-	};
+    };
 
-	class Iterator : public AListBase::Iterator {
-		friend class ListTemplate<T>;
+    class Iterator : public AListBase::Iterator {
+        friend class ListTemplate<T>;
 
-	public:
+    public:
 
-		T &operator*() const {
-			return static_cast<ListTemplate<T>::Node*>(node)->item;
-		};
+        T &operator*() const {
+            return static_cast<ListTemplate<T>::Node*>(node)->item;
+        };
 
-		T* operator->() const {
-			return &(static_cast<ListTemplate<T>::Node*>(node)->item);
-		};
+        T* operator->() const {
+            return &(static_cast<ListTemplate<T>::Node*>(node)->item);
+        };
 
-		bool operator==(const Iterator &other) {
-			return AListBase::Iterator::operator==(other);
-		}
+        bool operator==(const Iterator &other) {
+            return AListBase::Iterator::operator==(other);
+        }
 
-		bool operator!=(const Iterator &other) {
-			return !(operator==(other));
-		}
+        bool operator!=(const Iterator &other) {
+            return !(operator==(other));
+        }
 
-		Iterator &operator++() {
-			AListBase::Iterator::operator++();
-			return *this;
-		}
+        Iterator &operator++() {
+            AListBase::Iterator::operator++();
+            return *this;
+        }
 
-		Iterator &operator--() {
-			AListBase::Iterator::operator--();
-			return *this;
-		}
+        Iterator &operator--() {
+            AListBase::Iterator::operator--();
+            return *this;
+        }
 
-		const Iterator operator++(int) {
-			Iterator old = *this;
-			this->operator++();
-			return old;
-		}
+        const Iterator operator++(int) {
+            Iterator old = *this;
+            this->operator++();
+            return old;
+        }
 
-		const Iterator operator--(int) {
-			Iterator old = *this;
-			this->operator--();
-			return old;
-		}
+        const Iterator operator--(int) {
+            Iterator old = *this;
+            this->operator--();
+            return old;
+        }
 
-		Iterator(const AListBase::Iterator &it) :
-			AListBase::Iterator(it) {};
+        Iterator(const AListBase::Iterator &it) :
+            AListBase::Iterator(it) {};
 
-	protected:
+    protected:
 
-		Iterator(ListTemplate<T>::Node* n) :
-			AListBase::Iterator(n) {};
+        Iterator(ListTemplate<T>::Node* n) :
+            AListBase::Iterator(n) {};
 
-	};
+    };
 
 // functions
 public:
 
-	ListTemplate() = default;
+    ListTemplate() = default;
 
-	ListTemplate(ListTemplate &&other) :
-		AListBase(std::move(other)) {};
+    ListTemplate(ListTemplate &&other) :
+        AListBase(std::move(other)) {};
 
-	ListTemplate &operator=(ListTemplate &&other) {
-		AListBase::operator=(other);
-		return *this;
-	}
+    ListTemplate &operator=(ListTemplate &&other) {
+        AListBase::operator=(other);
+        return *this;
+    }
 
-	ListTemplate(const std::initializer_list<T> &initList);
+    ListTemplate(const std::initializer_list<T> &initList);
 
-	~ListTemplate() {
-		clear();
-	}
+    ~ListTemplate() {
+        clear();
+    }
 
-	void clear();
+    void clear();
 
-	///\name Általános AListBase forward
-	/// @{
-	inline uint32_t getSize() const {
-		return AListBase::getSize();
-	}
+    ///\name Általános AListBase forward
+    /// @{
+    inline uint32_t getSize() const {
+        return AListBase::getSize();
+    }
 
-	inline Iterator begin() const {
-		return Iterator(AListBase::begin());
-	}
+    inline Iterator begin() const {
+        return Iterator(AListBase::begin());
+    }
 
-	inline Iterator end() const {
-		return Iterator(AListBase::end());
-	}
-	/// @}
+    inline Iterator end() const {
+        return Iterator(AListBase::end());
+    }
+    /// @}
 
-	virtual T* createItem() {
-		return nullptr;
-	}
+    virtual T* createItem() {
+        return nullptr;
+    }
 
-	/// \name Műveletek elemekkel
-	/// @{
-	inline void pushFront(const T &item) {
-		return AListBase::pushFront(new Node(item));
-	}
+    /// \name Műveletek elemekkel
+    /// @{
+    inline void pushFront(const T &item) {
+        return AListBase::pushFront(new Node(item));
+    }
 
-	inline void pushBack(const T &item) {
-		return AListBase::pushBack(new Node(item));
-	}
+    inline void pushBack(const T &item) {
+        return AListBase::pushBack(new Node(item));
+    }
 
-	inline void popFront() {
-		delete AListBase::popBack();
-	}
+    inline void popFront() {
+        delete AListBase::popBack();
+    }
 
-	inline void popBack() {
-		delete AListBase::popBack();
-	}
+    inline void popBack() {
+        delete AListBase::popBack();
+    }
 
-	inline Iterator insert(Iterator pos, const T &item) {
-		return emplace(pos, item);
-	}
+    inline Iterator insert(Iterator pos, const T &item) {
+        return emplace(pos, item);
+    }
 
-	template<typename... Args >
-	Iterator emplace(Iterator pos, Args &&... args);
+    template<typename... Args >
+    Iterator emplace(Iterator pos, Args &&... args);
 
-	inline void erase(Iterator pos) {
-		delete AListBase::remove(pos);
-	}
-	/// @}
+    inline void erase(Iterator pos) {
+        delete AListBase::remove(pos);
+    }
+    /// @}
 
-	Iterator find(std::function<bool(const T &)> &&matchCall) const {
-		return find(begin(), end(), std::move(matchCall));
-	}
+    Iterator find(std::function<bool(const T &)> &&matchCall) const {
+        return find(begin(), end(), std::move(matchCall));
+    }
 
-	Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const T &)> &&matchCall) const;
+    Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const T &)> &&matchCall) const;
 
-	template<typename F, typename V>
-	Iterator find(F f, const V &v) const {
-		return find(begin(), end(), f, v);
-	}
+    template<typename F, typename V>
+    Iterator find(F f, const V &v) const {
+        return find(begin(), end(), f, v);
+    }
 
-	template<typename F, typename V>
-	Iterator find(Iterator startPos, Iterator endPos, F f, const V &v) const;
+    template<typename F, typename V>
+    Iterator find(Iterator startPos, Iterator endPos, F f, const V &v) const;
 
 };
 
 template<class T>
 ListTemplate<T>::ListTemplate(const std::initializer_list<T> &initList) {
 
-	for(auto &it : initList) {
-		pushBack(it);
-	}
+    for(auto &it : initList) {
+        pushBack(it);
+    }
 }
 
 
 template<class T>
 void ListTemplate<T>::clear() {
 
-	while(getSize() > 0) {
-		popBack();
-	}
+    while(getSize() > 0) {
+        popBack();
+    }
 }
 
 
@@ -213,51 +213,51 @@ template<class T>
 template<typename... Args >
 typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(Iterator pos, Args &&... args) {
 
-	Node* inserted = new Node(std::forward<Args>(args)...);
-	AListBase::insert(pos, inserted);
-	return Iterator(inserted);
+    Node* inserted = new Node(std::forward<Args>(args)...);
+    AListBase::insert(pos, inserted);
+    return Iterator(inserted);
 }
 
 
 template<class T>
 typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
-														 Iterator endPos,
-														 std::function<bool(const T &)> &&matchCall) const {
+                                                         Iterator endPos,
+                                                         std::function<bool(const T &)> &&matchCall) const {
 
-	bool match = false;
+    bool match = false;
 
-	while(!match && (startPos != endPos)) {
+    while(!match && (startPos != endPos)) {
 
-		match = matchCall(*startPos);
+        match = matchCall(*startPos);
 
-		if(!match) {
-			++startPos;
-		}
-	}
+        if(!match) {
+            ++startPos;
+        }
+    }
 
-	return startPos;
+    return startPos;
 }
 
 
 template<class T>
 template<typename F, typename V>
 typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
-														 Iterator endPos,
-														 F f,
-														 const V &v) const {
+                                                         Iterator endPos,
+                                                         F f,
+                                                         const V &v) const {
 
-	bool match = false;
+    bool match = false;
 
-	while(!match && (startPos != endPos)) {
+    while(!match && (startPos != endPos)) {
 
-		match = (((*startPos).*f)() == v);
+        match = (((*startPos).*f)() == v);
 
-		if(!match) {
-			++startPos;
-		}
-	}
+        if(!match) {
+            ++startPos;
+        }
+    }
 
-	return startPos;
+    return startPos;
 }
 
 #endif /* __LISTTEMPLATE_H__ */

@@ -33,39 +33,39 @@ class TypedArrayBase : public AArrayBase {
 // types
 public:
 
-	typedef T* Iterator;
+    typedef T* Iterator;
 
 // functions
 public:
 
-	TypedArrayBase(void* dataPointer, uint32_t len) :
-		AArrayBase(sizeof(T), dataPointer, len) {};
+    TypedArrayBase(void* dataPointer, uint32_t len) :
+        AArrayBase(sizeof(T), dataPointer, len) {};
 
-	inline T &operator[](uint32_t ix) {
-		return *(static_cast<T*>(data) + ix);
-	}
+    inline T &operator[](uint32_t ix) {
+        return *(static_cast<T*>(data) + ix);
+    }
 
-	inline const T &operator[](uint32_t ix) const {
-		return *(static_cast<T*>(data) + ix);
-	}
+    inline const T &operator[](uint32_t ix) const {
+        return *(static_cast<T*>(data) + ix);
+    }
 
-	inline Iterator begin() const {
-		return static_cast<Iterator>(data);
-	}
+    inline Iterator begin() const {
+        return static_cast<Iterator>(data);
+    }
 
-	inline Iterator end() const {
-		return static_cast<Iterator>(getItemPointer(capacity));
-	}
+    inline Iterator end() const {
+        return static_cast<Iterator>(getItemPointer(capacity));
+    }
 
-	inline T* getData() {
-		return static_cast<T*>(data);
-	}
+    inline T* getData() {
+        return static_cast<T*>(data);
+    }
 
-	inline const T* getData() const {
-		return static_cast<T*>(data);
-	}
+    inline const T* getData() const {
+        return static_cast<T*>(data);
+    }
 
-	void fill(const T &value);
+    void fill(const T &value);
 
 };
 
@@ -73,9 +73,9 @@ public:
 template<typename T>
 void TypedArrayBase<T>::fill(const T &value) {
 
-	for(uint32_t i = 0; i < getSize(); ++i) {
-		operator[](i) = value;
-	}
+    for(uint32_t i = 0; i < getSize(); ++i) {
+        operator[](i) = value;
+    }
 }
 
 #endif /* __TYPEDARRAYBASE_H__ */

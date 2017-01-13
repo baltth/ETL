@@ -32,54 +32,54 @@ class AVectorBase : protected AArrayBase {
 // types
 public:
 
-	typedef AArrayBase::ItemType ItemType;
+    typedef AArrayBase::ItemType ItemType;
 
-	static const uint32_t RESIZE_STEP		= 8;
+    static const uint32_t RESIZE_STEP        = 8;
 
 // variables
 protected:
 
-	uint32_t numElements = 0;
+    uint32_t numElements = 0;
 
 // functions
 public:
 
-	uint32_t getSize() const {
-		return numElements;
-	}
+    uint32_t getSize() const {
+        return numElements;
+    }
 
-	uint32_t getCapacity() const {
-		return AArrayBase::getSize();
-	}
+    uint32_t getCapacity() const {
+        return AArrayBase::getSize();
+    }
 
-	inline void* getItemPointer(uint32_t ix) const {
-		return AArrayBase::getItemPointer(ix);
-	}
+    inline void* getItemPointer(uint32_t ix) const {
+        return AArrayBase::getItemPointer(ix);
+    }
 
-	virtual void reserve(uint32_t length) = 0;
-	virtual void shrinkToFit() = 0;
-	virtual void resize(uint32_t newLength) = 0;
-	virtual void clear() = 0;
+    virtual void reserve(uint32_t length) = 0;
+    virtual void shrinkToFit() = 0;
+    virtual void resize(uint32_t newLength) = 0;
+    virtual void clear() = 0;
 
 
 protected:
 
-	explicit AVectorBase(size_t itemSize) :
-		AArrayBase(itemSize, nullptr, 0) {};
+    explicit AVectorBase(size_t itemSize) :
+        AArrayBase(itemSize, nullptr, 0) {};
 
-	~AVectorBase() {
-		deallocate();
-	}
+    ~AVectorBase() {
+        deallocate();
+    }
 
-	void allocate(uint32_t len);
+    void allocate(uint32_t len);
 
-	void deallocate() {
-		AVectorBase::deallocatePtr(data);
-	}
+    void deallocate() {
+        AVectorBase::deallocatePtr(data);
+    }
 
-	static void deallocatePtr(void* ptr);
+    static void deallocatePtr(void* ptr);
 
-	void swap(AVectorBase &other);
+    void swap(AVectorBase &other);
 
 };
 

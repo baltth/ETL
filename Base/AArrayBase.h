@@ -33,47 +33,47 @@ class AArrayBase {
 // types
 public:
 
-	typedef void* ItemType;
+    typedef void* ItemType;
 
 // variables
 protected:
 
-	void* data;
-	uint32_t capacity;
-	const size_t itemSize;
+    void* data;
+    uint32_t capacity;
+    const size_t itemSize;
 
 // functions
 public:
 
-	AArrayBase(const AArrayBase &other) = delete;
-	AArrayBase &operator=(const AArrayBase &other) = delete;
+    AArrayBase(const AArrayBase &other) = delete;
+    AArrayBase &operator=(const AArrayBase &other) = delete;
 
-	void* getItemPointer(uint32_t ix) const {
-		return reinterpret_cast<void*>(reinterpret_cast<uint32_t>(data) + (ix * itemSize));
-	}
+    void* getItemPointer(uint32_t ix) const {
+        return reinterpret_cast<void*>(reinterpret_cast<uint32_t>(data) + (ix * itemSize));
+    }
 
-	void* getData() {
-		return data;
-	}
+    void* getData() {
+        return data;
+    }
 
-	const void* getData() const {
-		return data;
-	}
+    const void* getData() const {
+        return data;
+    }
 
-	uint32_t getSize() const {
-		return capacity;
-	}
+    uint32_t getSize() const {
+        return capacity;
+    }
 
-	uint32_t getItemSize() const {
-		return itemSize;
-	}
+    uint32_t getItemSize() const {
+        return itemSize;
+    }
 
 protected:
 
-	AArrayBase(size_t itemSize, void* dataPointer, uint32_t len) :
-		data(dataPointer),
-		capacity(len),
-		itemSize(itemSize) {};
+    AArrayBase(size_t itemSize, void* dataPointer, uint32_t len) :
+        data(dataPointer),
+        capacity(len),
+        itemSize(itemSize) {};
 
 };
 

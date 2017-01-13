@@ -37,33 +37,33 @@ class Array : public TypedArrayBase<T> {
 // types
 public:
 
-	typedef typename TypedArrayBase<T>::Iterator Iterator;
-	typedef T ItemType;
+    typedef typename TypedArrayBase<T>::Iterator Iterator;
+    typedef T ItemType;
 
 // variables
 private:
 
-	T data[N];
+    T data[N];
 
 // functions
 public:
 
-	Array<T, N>() :
-		TypedArrayBase<T>(data, N) {};
+    Array<T, N>() :
+        TypedArrayBase<T>(data, N) {};
 
-	Array<T, N>(const Array<T, N> &other) :
-		Array<T, N>() {
+    Array<T, N>(const Array<T, N> &other) :
+        Array<T, N>() {
 
-		operator=(other);
-	}
+        operator=(other);
+    }
 
-	Array<T, N>(const std::initializer_list<T> &initList):
-		Array<T, N>() {
-		operator=(initList);
-	}
+    Array<T, N>(const std::initializer_list<T> &initList):
+        Array<T, N>() {
+        operator=(initList);
+    }
 
-	Array<T, N> &operator=(const Array<T, N> &other);
-	Array<T, N> &operator=(const std::initializer_list<T> &initList);
+    Array<T, N> &operator=(const Array<T, N> &other);
+    Array<T, N> &operator=(const std::initializer_list<T> &initList);
 
 };
 
@@ -71,29 +71,29 @@ public:
 template<typename T, uint32_t N>
 Array<T, N> &Array<T, N>::operator=(const Array<T, N> &other) {
 
-	uint32_t i = 0;
+    uint32_t i = 0;
 
-	for(auto &item : other) {
-		TypedArrayBase<T>::operator[](i++) = item;
-	}
+    for(auto &item : other) {
+        TypedArrayBase<T>::operator[](i++) = item;
+    }
 
-	return *this;
+    return *this;
 }
 
 
 template<typename T, uint32_t N>
 Array<T, N> &Array<T, N>::operator=(const std::initializer_list<T> &initList) {
 
-	//static_assert(N == initList.size(), "Invalid initializer list size");
-	///\todo
+    //static_assert(N == initList.size(), "Invalid initializer list size");
+    ///\todo
 
-	uint32_t i = 0;
+    uint32_t i = 0;
 
-	for(auto &item : initList) {
-		TypedArrayBase<T>::operator[](i++) = item;
-	}
+    for(auto &item : initList) {
+        TypedArrayBase<T>::operator[](i++) = item;
+    }
 
-	return *this;
+    return *this;
 }
 
 #endif /* __ARRAY_H__ */

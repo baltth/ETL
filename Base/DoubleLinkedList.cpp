@@ -26,104 +26,104 @@ limitations under the License.
 
 DoubleLinkedList::DoubleLinkedList(DoubleLinkedList &&other) {
 
-	setEmpty();
-	swap(other);
+    setEmpty();
+    swap(other);
 }
 
 
 DoubleLinkedList &DoubleLinkedList::operator=(DoubleLinkedList &&other) {
 
-	swap(other);
-	return *this;
+    swap(other);
+    return *this;
 }
 
 
 void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
-	if(pos != &backNode) {
-		Node* next = pos->next;
-		linkNodes(pos, node);
-		linkNodes(node, next);
-		++size;
-	}
+    if(pos != &backNode) {
+        Node* next = pos->next;
+        linkNodes(pos, node);
+        linkNodes(node, next);
+        ++size;
+    }
 }
 
 
 void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
-	if(pos != &frontNode) {
-		Node* prev = pos->prev;
-		linkNodes(node, pos);
-		linkNodes(prev, node);
-		++size;
-	}
+    if(pos != &frontNode) {
+        Node* prev = pos->prev;
+        linkNodes(node, pos);
+        linkNodes(prev, node);
+        ++size;
+    }
 }
 
 
 DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
-	if(size > 0) {
+    if(size > 0) {
 
-		if((node != &frontNode) && (node != &backNode)) {
-			linkNodes(node->prev, node->next);
-		}
+        if((node != &frontNode) && (node != &backNode)) {
+            linkNodes(node->prev, node->next);
+        }
 
-		--size;
+        --size;
 
-		node->prev = nullptr;
-		node->next = nullptr;
-	}
+        node->prev = nullptr;
+        node->next = nullptr;
+    }
 
-	return node;
+    return node;
 }
 
 
 void DoubleLinkedList::copy(const DoubleLinkedList &other) {
 
-	frontNode.next = other.getFirst();
-	backNode.prev = other.getLast();
-	size = other.getSize();
+    frontNode.next = other.getFirst();
+    backNode.prev = other.getLast();
+    size = other.getSize();
 }
 
 
 void DoubleLinkedList::swap(DoubleLinkedList &other) {
 
-	if((getSize() > 0) && (other.getSize() > 0)) {
+    if((getSize() > 0) && (other.getSize() > 0)) {
 
-		Node* tmpFirst = getFirst();
-		Node* tmpLast = getLast();
-		uint32_t tmpSize = getSize();
+        Node* tmpFirst = getFirst();
+        Node* tmpLast = getLast();
+        uint32_t tmpSize = getSize();
 
-		copy(other);
+        copy(other);
 
-		other.frontNode.next = tmpFirst;
-		other.backNode.prev = tmpLast;
-		other.size = tmpSize;
+        other.frontNode.next = tmpFirst;
+        other.backNode.prev = tmpLast;
+        other.size = tmpSize;
 
-	} else if(getSize() > 0) {
+    } else if(getSize() > 0) {
 
-		other.copy(*this);
-		setEmpty();
+        other.copy(*this);
+        setEmpty();
 
-	} else if(other.getSize() > 0) {
+    } else if(other.getSize() > 0) {
 
-		copy(other);
-		other.setEmpty();
-	}
+        copy(other);
+        other.setEmpty();
+    }
 }
 
 
 void DoubleLinkedList::setEmpty() {
 
-	frontNode.next = &backNode;
-	backNode.prev = &frontNode;
-	size = 0;
+    frontNode.next = &backNode;
+    backNode.prev = &frontNode;
+    size = 0;
 }
 
 
 void DoubleLinkedList::linkNodes(Node* a, Node* b) {
 
-	a->next = b;
-	b->prev = a;
+    a->next = b;
+    b->prev = a;
 }
 

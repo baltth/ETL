@@ -33,75 +33,75 @@ class SortedTemplate {
 // types
 protected:
 
-	class Node : public ListTemplate<T>::Node {
+    class Node : public ListTemplate<T>::Node {
 
-	public:
+    public:
 
-		template<typename... Args>
-		Node(Args &&... args) :
-			ListTemplate<T>::Node(args...) {};
+        template<typename... Args>
+        Node(Args &&... args) :
+            ListTemplate<T>::Node(args...) {};
 
-	};
+    };
 
 public:
 
-	typedef typename ListTemplate<T>::Iterator Iterator;
+    typedef typename ListTemplate<T>::Iterator Iterator;
 
 // variables
 protected:
 
-	static Comp comp;
+    static Comp comp;
 
-	mutable ListTemplate<T> list;
+    mutable ListTemplate<T> list;
 
 // functions
 public:
 
-	SortedTemplate() = default;
-	SortedTemplate(const std::initializer_list<T> &initList) :
-		list(initList) {};
+    SortedTemplate() = default;
+    SortedTemplate(const std::initializer_list<T> &initList) :
+        list(initList) {};
 
-	///\name ListTemplate forward
-	/// @{
-	inline uint32_t getSize() const {
-		return list.getSize();
-	}
+    ///\name ListTemplate forward
+    /// @{
+    inline uint32_t getSize() const {
+        return list.getSize();
+    }
 
-	inline Iterator begin() const {
-		return Iterator(list.begin());
-	}
+    inline Iterator begin() const {
+        return Iterator(list.begin());
+    }
 
-	inline Iterator end() const {
-		return Iterator(list.end());
-	}
+    inline Iterator end() const {
+        return Iterator(list.end());
+    }
 
-	inline void clear() {
-		list.clear();
-	}
-	/// @}
+    inline void clear() {
+        list.clear();
+    }
+    /// @}
 
 protected:
 
-	Iterator insert(const T &item);
-	std::pair<Iterator, bool> insertUnique(const T &item);
+    Iterator insert(const T &item);
+    std::pair<Iterator, bool> insertUnique(const T &item);
 
-	std::pair<Iterator, bool> findSortedPosition(const T &item) const;
+    std::pair<Iterator, bool> findSortedPosition(const T &item) const;
 
-	template<typename F, typename V, class ValComp = std::less<V>>
-	std::pair<Iterator, bool> findSortedPosition(F f, const V &v) const;
+    template<typename F, typename V, class ValComp = std::less<V>>
+    std::pair<Iterator, bool> findSortedPosition(F f, const V &v) const;
 
-	Iterator insertTo(Iterator pos, const T &item) const {
-		return list.insert(pos, item);
-	}
+    Iterator insertTo(Iterator pos, const T &item) const {
+        return list.insert(pos, item);
+    }
 
-	template<typename... Args>
-	Iterator emplaceTo(Iterator pos, Args &&... args) const {
-		return list.emplace(pos, std::forward<Args>(args)...);
-	}
+    template<typename... Args>
+    Iterator emplaceTo(Iterator pos, Args &&... args) const {
+        return list.emplace(pos, std::forward<Args>(args)...);
+    }
 
-	void erase(Iterator pos) {
-		list.erase(pos);
-	}
+    void erase(Iterator pos) {
+        list.erase(pos);
+    }
 
 };
 
@@ -113,60 +113,60 @@ Comp SortedTemplate<T, Comp>::comp;
 template<class T, class Comp /*= std::less<T>*/>
 typename SortedTemplate<T, Comp>::Iterator SortedTemplate<T, Comp>::insert(const T &item) {
 
-	std::pair<Iterator, bool> found = findSortedPosition(item);
-	return list.insert(found.first, item);
+    std::pair<Iterator, bool> found = findSortedPosition(item);
+    return list.insert(found.first, item);
 }
 
 
 template<class T, class Comp /*= std::less<T>*/>
 std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::insertUnique(const T &item) {
 
-	std::pair<Iterator, bool> found = findSortedPosition(item);
+    std::pair<Iterator, bool> found = findSortedPosition(item);
 
-	if(found.second == false) {
-		found.first = list.insert(found.first, item);
-	}
+    if(found.second == false) {
+        found.first = list.insert(found.first, item);
+    }
 
-	found.second = !found.second;
+    found.second = !found.second;
 
-	return found;
+    return found;
 }
 
 
 template<class T, class Comp /*= std::less<T>*/>
 std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::findSortedPosition(const T &item) const {
 
-	Iterator startIt = begin();
-	Iterator endIt = end();
-	Iterator it = startIt;
+    Iterator startIt = begin();
+    Iterator endIt = end();
+    Iterator it = startIt;
 
-	if(it == endIt) {
-		return {it, false};
-	}
+    if(it == endIt) {
+        return {it, false};
+    }
 
-	bool notLessFound = false;
-	bool equalFound = false;
+    bool notLessFound = false;
+    bool equalFound = false;
 
-	while((!notLessFound) && (it != endIt)) {
+    while((!notLessFound) && (it != endIt)) {
 
-		if(comp(*it, item)) {
-			++it;
-		} else {
-			notLessFound = true;
-		}
-	}
+        if(comp(*it, item)) {
+            ++it;
+        } else {
+            notLessFound = true;
+        }
+    }
 
-	while(notLessFound && (it != endIt)) {
+    while(notLessFound && (it != endIt)) {
 
-		if(comp(item, *it)) {
-			notLessFound = false;
-		} else {
-			equalFound = true;
-			++it;
-		}
-	}
+        if(comp(item, *it)) {
+            notLessFound = false;
+        } else {
+            equalFound = true;
+            ++it;
+        }
+    }
 
-	return {it, equalFound};
+    return {it, equalFound};
 }
 
 
@@ -174,39 +174,39 @@ template<class T, class Comp /*= std::less<T>*/>
 template<typename F, typename V, class ValComp /*= std::less<V>*/>
 std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::findSortedPosition(F f, const V &v) const {
 
-	static ValComp valComp;
+    static ValComp valComp;
 
-	Iterator startIt = begin();
-	Iterator endIt = end();
-	Iterator it = startIt;
+    Iterator startIt = begin();
+    Iterator endIt = end();
+    Iterator it = startIt;
 
-	if(it == endIt) {
-		return {it, false};
-	}
+    if(it == endIt) {
+        return {it, false};
+    }
 
-	bool notLessFound = false;
-	bool equalFound = false;
+    bool notLessFound = false;
+    bool equalFound = false;
 
-	while((!notLessFound) && (it != endIt)) {
+    while((!notLessFound) && (it != endIt)) {
 
-		if(valComp(((*it).*f)(), v)) {
-			++it;
-		} else {
-			notLessFound = true;
-		}
-	}
+        if(valComp(((*it).*f)(), v)) {
+            ++it;
+        } else {
+            notLessFound = true;
+        }
+    }
 
-	while(notLessFound && (it != endIt)) {
+    while(notLessFound && (it != endIt)) {
 
-		if(valComp(v, ((*it).*f)())) {
-			notLessFound = false;
-		} else {
-			equalFound = true;
-			++it;
-		}
-	}
+        if(valComp(v, ((*it).*f)())) {
+            notLessFound = false;
+        } else {
+            equalFound = true;
+            ++it;
+        }
+    }
 
-	return {it, equalFound};
+    return {it, equalFound};
 }
 
 #endif /* __SORTEDTEMPLATE_H__ */

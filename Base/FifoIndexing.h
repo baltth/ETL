@@ -32,55 +32,55 @@ class FifoIndexing {
 // variables
 protected:
 
-	uint32_t capcity;
-	uint32_t numItems;
+    uint32_t capcity;
+    uint32_t numItems;
 
-	uint32_t writeIx;
-	uint32_t readIx;
+    uint32_t writeIx;
+    uint32_t readIx;
 
 // functions
 public:
 
-	explicit FifoIndexing(uint32_t fifoSize, uint32_t num = 0) :
-		capcity(fifoSize),
-		numItems(num),
-		writeIx(0),
-		readIx(0) {};
+    explicit FifoIndexing(uint32_t fifoSize, uint32_t num = 0) :
+        capcity(fifoSize),
+        numItems(num),
+        writeIx(0),
+        readIx(0) {};
 
-	uint32_t getIndexFromFront(uint32_t ix) const;
-	uint32_t getIndexFromBack(uint32_t ix) const;
+    uint32_t getIndexFromFront(uint32_t ix) const;
+    uint32_t getIndexFromBack(uint32_t ix) const;
 
-	uint32_t nextIndex(uint32_t ix) const;
-	uint32_t previousIndex(uint32_t ix) const;
+    uint32_t nextIndex(uint32_t ix) const;
+    uint32_t previousIndex(uint32_t ix) const;
 
-	void resetIndexes();
+    void resetIndexes();
 
-	void setCapacity(uint32_t fifoSize) {
-		capcity = fifoSize;
-	}
+    void setCapacity(uint32_t fifoSize) {
+        capcity = fifoSize;
+    }
 
-	uint32_t getCapacity() const {
-		return capcity;
-	}
+    uint32_t getCapacity() const {
+        return capcity;
+    }
 
-	uint32_t getNumItems() const {
-		return numItems;
-	}
+    uint32_t getNumItems() const {
+        return numItems;
+    }
 
-	void push();
-	void pop();
+    void push();
+    void pop();
 
-	uint32_t getWriteIx() const {
-		return writeIx;
-	}
+    uint32_t getWriteIx() const {
+        return writeIx;
+    }
 
-	uint32_t getReadIx() const {
-		return readIx;
-	}
+    uint32_t getReadIx() const {
+        return readIx;
+    }
 
 protected:
 
-	uint32_t limitIndexForNumItems(uint32_t ix) const;
+    uint32_t limitIndexForNumItems(uint32_t ix) const;
 
 };
 

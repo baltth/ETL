@@ -33,43 +33,43 @@ class MapItem {
 // variables
 private:
 
-	const K key;
-	mutable E element;
+    const K key;
+    mutable E element;
 
 // functions
 public:
 
-	explicit MapItem<K, E>(const K &k) :
-		key(k) {};
+    explicit MapItem<K, E>(const K &k) :
+        key(k) {};
 
-	MapItem<K, E>(const K &k, const E &e) :
-		key(k),
-		element(e) {};
+    MapItem<K, E>(const K &k, const E &e) :
+        key(k),
+        element(e) {};
 
-	template<typename... Args>
-	MapItem<K, E>(const K &k, Args &&... args) :
-		key(k),
-		element(std::forward<Args>(args)...) {};
+    template<typename... Args>
+    MapItem<K, E>(const K &k, Args &&... args) :
+        key(k),
+        element(std::forward<Args>(args)...) {};
 
-	K getKey() const {
-		return key;
-	}
+    K getKey() const {
+        return key;
+    }
 
-	E &getElement() const {
-		return element;
-	}
+    E &getElement() const {
+        return element;
+    }
 
-	void setElement(const E &newElement) {
-		element = newElement;
-	}
+    void setElement(const E &newElement) {
+        element = newElement;
+    }
 
-	void setElement(E &&newElement) {
-		element = std::move(newElement);
-	}
+    void setElement(E &&newElement) {
+        element = std::move(newElement);
+    }
 
-	bool operator<(const MapItem<K, E> &other) const {
-		return (key < other.key);
-	}
+    bool operator<(const MapItem<K, E> &other) const {
+        return (key < other.key);
+    }
 
 };
 
@@ -83,31 +83,31 @@ class MapItem<K, E*> {
 // variables
 protected:
 
-	const K key;
-	mutable E* element;
+    const K key;
+    mutable E* element;
 
 // functions
 public:
 
-	explicit MapItem<K, E*>(const K &k) :
-		key(k),
-		element(nullptr) {};
+    explicit MapItem<K, E*>(const K &k) :
+        key(k),
+        element(nullptr) {};
 
-	MapItem<K, E*>(const K &k, E* e) :
-		key(k),
-		element(e) {};
+    MapItem<K, E*>(const K &k, E* e) :
+        key(k),
+        element(e) {};
 
-	K getKey() const {
-		return key;
-	}
+    K getKey() const {
+        return key;
+    }
 
-	E* &getElement() const {
-		return element;
-	}
+    E* &getElement() const {
+        return element;
+    }
 
-	void setElement(E* newElement) {
-		element = newElement;
-	}
+    void setElement(E* newElement) {
+        element = newElement;
+    }
 
 };
 
@@ -115,7 +115,7 @@ public:
 template<typename K, class E>
 bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
 
-	return (lhs.getKey() < rhs.getKey());
+    return (lhs.getKey() < rhs.getKey());
 }
 
 #endif /* __MAPITEM_H__ */

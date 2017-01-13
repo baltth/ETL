@@ -26,89 +26,89 @@ limitations under the License.
 
 void FifoIndexing::resetIndexes() {
 
-	writeIx = 0;
-	readIx = 0;
-	numItems = 0;
+    writeIx = 0;
+    readIx = 0;
+    numItems = 0;
 }
 
 
 uint32_t FifoIndexing::getIndexFromFront(uint32_t ix) const {
 
-	uint32_t bufferIx = nextIndex(readIx) + limitIndexForNumItems(ix);
+    uint32_t bufferIx = nextIndex(readIx) + limitIndexForNumItems(ix);
 
-	if(bufferIx >= getCapacity()) {
-		bufferIx -= getCapacity();
-	}
+    if(bufferIx >= getCapacity()) {
+        bufferIx -= getCapacity();
+    }
 
-	return bufferIx;
+    return bufferIx;
 }
 
 
 uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 
-	int32_t bufferIx = writeIx - limitIndexForNumItems(ix);
+    int32_t bufferIx = writeIx - limitIndexForNumItems(ix);
 
-	if(bufferIx < 0) {
-		bufferIx += getCapacity();
-	}
+    if(bufferIx < 0) {
+        bufferIx += getCapacity();
+    }
 
-	return bufferIx;
+    return bufferIx;
 }
 
 
 uint32_t FifoIndexing::limitIndexForNumItems(uint32_t ix) const {
 
-	if(ix >= getNumItems()) {
-		if(getNumItems() == 0) {
-			ix = 0;
-		} else {
-			ix = getNumItems() - 1;
-		}
-	}
+    if(ix >= getNumItems()) {
+        if(getNumItems() == 0) {
+            ix = 0;
+        } else {
+            ix = getNumItems() - 1;
+        }
+    }
 
-	return ix;
+    return ix;
 }
 
 
 uint32_t FifoIndexing::nextIndex(uint32_t ix) const {
 
-	++ix;
+    ++ix;
 
-	if(ix >= getCapacity()) {
-		ix = 0;
-	}
+    if(ix >= getCapacity()) {
+        ix = 0;
+    }
 
-	return ix;
+    return ix;
 }
 
 
 uint32_t FifoIndexing::previousIndex(uint32_t ix) const {
 
-	if((ix == 0) && (getCapacity() > 0)) {
-		ix = getCapacity() - 1;
-	} else {
-		--ix;
-	}
+    if((ix == 0) && (getCapacity() > 0)) {
+        ix = getCapacity() - 1;
+    } else {
+        --ix;
+    }
 
-	return ix;
+    return ix;
 }
 
 void FifoIndexing::push() {
 
-	writeIx = nextIndex(writeIx);
+    writeIx = nextIndex(writeIx);
 
-	if(writeIx == readIx) {
-		readIx = nextIndex(readIx);
-	} else {
-		++numItems;
-	}
+    if(writeIx == readIx) {
+        readIx = nextIndex(readIx);
+    } else {
+        ++numItems;
+    }
 
 }
 
 void FifoIndexing::pop() {
 
-	if(numItems > 0) {
-		readIx = nextIndex(readIx);
-		--numItems;
-	}
+    if(numItems > 0) {
+        readIx = nextIndex(readIx);
+        --numItems;
+    }
 }

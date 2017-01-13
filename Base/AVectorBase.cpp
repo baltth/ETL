@@ -26,38 +26,38 @@ limitations under the License.
 
 void AVectorBase::allocate(uint32_t len) {
 
-	if(len > 0) {
-		data = operator new(len * itemSize);
-	} else {
-		data = nullptr;
-	}
+    if(len > 0) {
+        data = operator new(len * itemSize);
+    } else {
+        data = nullptr;
+    }
 
-	if(data != nullptr) {
-		capacity = len;
-	} else {
-		capacity = 0;
-	}
+    if(data != nullptr) {
+        capacity = len;
+    } else {
+        capacity = 0;
+    }
 }
 
 
 void AVectorBase::deallocatePtr(void* ptr) {
 
-	operator delete(ptr);
+    operator delete(ptr);
 }
 
 
 void AVectorBase::swap(AVectorBase &other) {
 
-	void* tmpData = data;
-	uint32_t tmpNumElements = numElements;
-	uint32_t tmpCapacity = capacity;
+    void* tmpData = data;
+    uint32_t tmpNumElements = numElements;
+    uint32_t tmpCapacity = capacity;
 
-	data = other.data;
-	numElements = other.numElements;
-	capacity = other.capacity;
+    data = other.data;
+    numElements = other.numElements;
+    capacity = other.capacity;
 
-	other.data = tmpData;
-	other.numElements = tmpNumElements;
-	other.capacity = tmpCapacity;
+    other.data = tmpData;
+    other.numElements = tmpNumElements;
+    other.capacity = tmpCapacity;
 }
 

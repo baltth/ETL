@@ -35,16 +35,16 @@ class List : public ListTemplate<T> {
 // types
 public:
 
-	typedef typename ListTemplate<T>::Iterator Iterator;
+    typedef typename ListTemplate<T>::Iterator Iterator;
 
 // functions
 public:
 
-	List() = default;
-	List(const std::initializer_list<T> &initList) :
-		ListTemplate<T>(initList) {};
+    List() = default;
+    List(const std::initializer_list<T> &initList) :
+        ListTemplate<T>(initList) {};
 
-	Iterator insert(const T &item);
+    Iterator insert(const T &item);
 
 };
 

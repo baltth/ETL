@@ -39,25 +39,25 @@ class Set : public SetBase<E> {
 // types
 public:
 
-	typedef E ItemType;
-	typedef typename SetBase<E>::Iterator Iterator;
+    typedef E ItemType;
+    typedef typename SetBase<E>::Iterator Iterator;
 
 // functions
 public:
 
-	Set() {};
-	Set(const std::initializer_list<E> &initList);
+    Set() {};
+    Set(const std::initializer_list<E> &initList);
 
-	std::pair<Iterator, bool> insert(const E &e) {
-		return SetBase<E>::insertUnique(e);
-	}
+    std::pair<Iterator, bool> insert(const E &e) {
+        return SetBase<E>::insertUnique(e);
+    }
 
-	std::pair<Iterator, bool> insertOrAssign(const E &e);
+    std::pair<Iterator, bool> insertOrAssign(const E &e);
 
-	void erase(const E &e);
-	Iterator find(const E &e) const;
+    void erase(const E &e);
+    Iterator find(const E &e) const;
 
-	void copyElementsFrom(const Set<E> &other);
+    void copyElementsFrom(const Set<E> &other);
 
 };
 
@@ -65,42 +65,42 @@ public:
 template<class E>
 Set<E>::Set(const std::initializer_list<E> &initList) {
 
-	for(auto &item : initList) {
-		SetBase<E>::insertUnique(item);
-	}
+    for(auto &item : initList) {
+        SetBase<E>::insertUnique(item);
+    }
 }
 
 
 template<class E>
 void Set<E>::erase(const E &e) {
 
-	auto found = SetBase<E>::findSortedPosition(e);
+    auto found = SetBase<E>::findSortedPosition(e);
 
-	if(found.second == true) {
-		SetBase<E>::erase(--found.first);
-	}
+    if(found.second == true) {
+        SetBase<E>::erase(--found.first);
+    }
 }
 
 
 template<class E>
 typename Set<E>::Iterator  Set<E>::find(const E &e) const {
 
-	auto found = SetBase<E>::findSortedPosition(e);
+    auto found = SetBase<E>::findSortedPosition(e);
 
-	if(found.second == true) {
-		return --found.first;
-	} else {
-		return SetBase<E>::end();
-	}
+    if(found.second == true) {
+        return --found.first;
+    } else {
+        return SetBase<E>::end();
+    }
 }
 
 
 template<class E>
 void Set<E>::copyElementsFrom(const Set<E> &other) {
 
-	for(ItemType &item : other) {
-		insertOrAssign(item.getKey(), item.getElement());
-	}
+    for(ItemType &item : other) {
+        insertOrAssign(item.getKey(), item.getElement());
+    }
 }
 
 #endif /* __SET_H__ */

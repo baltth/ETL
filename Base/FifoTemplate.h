@@ -34,62 +34,62 @@ class FifoTemplate : protected T, protected FifoIndexing {
 // types
 public:
 
-	typedef typename T::ItemType ItemType;
+    typedef typename T::ItemType ItemType;
 
-	class Iterator : public AFifoIterator<ItemType> {
-		friend class FifoTemplate<T>;
+    class Iterator : public AFifoIterator<ItemType> {
+        friend class FifoTemplate<T>;
 
-	private:
+    private:
 
-		Iterator(const FifoTemplate<T>* fifoArray, uint32_t ix) :
-			AFifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
+        Iterator(const FifoTemplate<T>* fifoArray, uint32_t ix) :
+            AFifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
 
-	};
+    };
 
 // functions
 public:
 
-	template<typename... Args>
-	explicit FifoTemplate(Args... args) :
-		T(args...),
-		FifoIndexing(T::getSize(), 0) {};
+    template<typename... Args>
+    explicit FifoTemplate(Args... args) :
+        T(args...),
+        FifoIndexing(T::getSize(), 0) {};
 
-	void createFifo(uint32_t len);
+    void createFifo(uint32_t len);
 
-	uint32_t getCapacity() const {
-		return T::getCapacity();
-	}
+    uint32_t getCapacity() const {
+        return T::getCapacity();
+    }
 
-	void push(const ItemType &item);
-	ItemType pop();
+    void push(const ItemType &item);
+    ItemType pop();
 
-	ItemType getFromBack(uint32_t ix) const;
-	ItemType getFromFront(uint32_t ix) const;
+    ItemType getFromBack(uint32_t ix) const;
+    ItemType getFromFront(uint32_t ix) const;
 
-	uint32_t getLength() const {
-		return numItems;
-	}
+    uint32_t getLength() const {
+        return numItems;
+    }
 
-	void setLength(uint32_t len);
+    void setLength(uint32_t len);
 
-	inline void setEmpty() {
-		setLength(0);
-	}
+    inline void setEmpty() {
+        setLength(0);
+    }
 
-	ItemType &operator[](int32_t ix);
-	const ItemType &operator[](int32_t ix) const;
+    ItemType &operator[](int32_t ix);
+    const ItemType &operator[](int32_t ix) const;
 
-	Iterator begin() const {
-		return iteratorFor(0);
-	}
+    Iterator begin() const {
+        return iteratorFor(0);
+    }
 
-	Iterator end() const {
-		return iteratorFor(getLength());
-	}
+    Iterator end() const {
+        return iteratorFor(getLength());
+    }
 
-	Iterator iteratorFor(uint32_t ix) const {
-		return Iterator(this, ix);
-	}
+    Iterator iteratorFor(uint32_t ix) const {
+        return Iterator(this, ix);
+    }
 
 };
 
@@ -97,76 +97,76 @@ public:
 template<class T>
 void FifoTemplate<T>::push(const ItemType &item) {
 
-	FifoIndexing::push();
-	T::operator[](FifoIndexing::getWriteIx()) = item;
+    FifoIndexing::push();
+    T::operator[](FifoIndexing::getWriteIx()) = item;
 }
 
 
 template<class T>
 typename FifoTemplate<T>::ItemType FifoTemplate<T>::pop() {
 
-	FifoIndexing::pop();
-	return T::operator[](FifoIndexing::getReadIx());
+    FifoIndexing::pop();
+    return T::operator[](FifoIndexing::getReadIx());
 }
 
 
 template<class T>
 typename FifoTemplate<T>::ItemType FifoTemplate<T>::getFromBack(uint32_t ix) const {
 
-	return T::operator[](FifoIndexing::getIndexFromFront(ix));
+    return T::operator[](FifoIndexing::getIndexFromFront(ix));
 }
 
 
 template<class T>
 typename FifoTemplate<T>::ItemType FifoTemplate<T>::getFromFront(uint32_t ix) const {
 
-	return T::operator[](FifoIndexing::getIndexFromBack(ix));
+    return T::operator[](FifoIndexing::getIndexFromBack(ix));
 }
 
 
 template<class T>
 typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix) {
 
-	if(ix < 0) {
-		ix = -1 - ix;
-		ix = FifoIndexing::getIndexFromBack(ix);
-	} else {
-		ix = FifoIndexing::getIndexFromFront(ix);
-	}
+    if(ix < 0) {
+        ix = -1 - ix;
+        ix = FifoIndexing::getIndexFromBack(ix);
+    } else {
+        ix = FifoIndexing::getIndexFromFront(ix);
+    }
 
-	return T::operator[](ix);
+    return T::operator[](ix);
 }
 
 
 template<class T>
 const typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix) const {
 
-	if(ix < 0) {
-		ix = -1 - ix;
-		ix = FifoIndexing::getIndexFromBack(ix);
-	} else {
-		ix = FifoIndexing::getIndexFromFront(ix);
-	}
+    if(ix < 0) {
+        ix = -1 - ix;
+        ix = FifoIndexing::getIndexFromBack(ix);
+    } else {
+        ix = FifoIndexing::getIndexFromFront(ix);
+    }
 
-	return T::operator[](ix);
+    return T::operator[](ix);
 }
 
 
 template<class T>
 void FifoTemplate<T>::setLength(uint32_t len) {
 
-	if(len >= FifoIndexing::getCapacity()) {
-		len = FifoIndexing::getCapacity() - 1;
-	}
+    if(len >= FifoIndexing::getCapacity()) {
+        len = FifoIndexing::getCapacity() - 1;
+    }
 
-	if(len > writeIx) {
-		readIx = writeIx + FifoIndexing::getCapacity();
-	} else {
-		readIx = writeIx;
-	}
+    if(len > writeIx) {
+        readIx = writeIx + FifoIndexing::getCapacity();
+    } else {
+        readIx = writeIx;
+    }
 
-	readIx -= len;
-	numItems = len;
+    readIx -= len;
+    numItems = len;
 }
 
 #endif /* __FIFOTEMPLATE_H__ */

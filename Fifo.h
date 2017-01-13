@@ -36,17 +36,17 @@ class Fifo : public FifoTemplate<T> {
 // types
 public:
 
-	typedef typename FifoTemplate<T>::ItemType ItemType;
-	typedef typename FifoTemplate<T>::Iterator Iterator;
+    typedef typename FifoTemplate<T>::ItemType ItemType;
+    typedef typename FifoTemplate<T>::Iterator Iterator;
 
 // functions
 public:
 
-	template<typename... Args>
-	explicit Fifo(Args &&... args) :
-		FifoTemplate<T>(args...) {};
+    template<typename... Args>
+    explicit Fifo(Args &&... args) :
+        FifoTemplate<T>(args...) {};
 
-	void setupFifo(uint32_t len);
+    void setupFifo(uint32_t len);
 
 };
 
@@ -54,9 +54,9 @@ public:
 template<class T>
 void Fifo<T>::setupFifo(uint32_t len) {
 
-	T::resize(len);
-	FifoIndexing::setCapacity(T::getSize());
-	FifoIndexing::resetIndexes();
+    T::resize(len);
+    FifoIndexing::setCapacity(T::getSize());
+    FifoIndexing::resetIndexes();
 }
 
 
@@ -67,17 +67,17 @@ class Fifo<Array<T, N>> : public FifoTemplate<Array<T, N>> {
 // types
 public:
 
-	typedef typename FifoTemplate<Array<T, N>>::ItemType ItemType;
-	typedef typename FifoTemplate<Array<T, N>>::Iterator Iterator;
+    typedef typename FifoTemplate<Array<T, N>>::ItemType ItemType;
+    typedef typename FifoTemplate<Array<T, N>>::Iterator Iterator;
 
 // functions
 public:
 
-	template<typename... Args>
-	explicit Fifo(Args &&... args) :
-		FifoTemplate<Array<T, N>>(args...) {};
+    template<typename... Args>
+    explicit Fifo(Args &&... args) :
+        FifoTemplate<Array<T, N>>(args...) {};
 
-	void setupFifo(uint32_t len) {};
+    void setupFifo(uint32_t len) {};
 
 };
 
