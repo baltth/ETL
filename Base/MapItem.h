@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __MAPITEM_H__
-#define __MAPITEM_H__
+#ifndef __ETL_MAPITEM_H__
+#define __ETL_MAPITEM_H__
 
 /**
 \ingroup container
@@ -118,4 +118,4 @@ bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
     return (lhs.getKey() < rhs.getKey());
 }
 
-#endif /* __MAPITEM_H__ */
+#endif /* __ETL_MAPITEM_H__ */

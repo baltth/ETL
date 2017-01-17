@@ -21,12 +21,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __TESTMAP_H__
-#define __TESTMAP_H__
+#ifndef __ETL_TESTMAP_H__
+#define __ETL_TESTMAP_H__
 
 #include "EFpp/Process/ADebugInterface.h"
 
 
 void testMap(ADebugInterface* debugIf);
 
-#endif /* __TESTMAP_H__ */
+#endif /* __ETL_TESTMAP_H__ */

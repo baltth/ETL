@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __VECTORTEMPLATE_H__
-#define __VECTORTEMPLATE_H__
+#ifndef __ETL_VECTORTEMPLATE_H__
+#define __ETL_VECTORTEMPLATE_H__
 
 #undef min
 #undef max
@@ -32,7 +32,7 @@ limitations under the License.
 #include <initializer_list>
 #include <functional>
 
-#include "EFpp/Utility/Container/Base/AVectorBase.h"
+#include "ETL/Base/AVectorBase.h"
 
 
 template<class T>
@@ -545,4 +545,4 @@ void VectorTemplate<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
     }
 }
 
-#endif /* __VECTORTEMPLATE_H__ */
+#endif /* __ETL_VECTORTEMPLATE_H__ */

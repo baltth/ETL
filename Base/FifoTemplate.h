@@ -21,11 +21,11 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __FIFOTEMPLATE_H__
-#define __FIFOTEMPLATE_H__
+#ifndef __ETL_FIFOTEMPLATE_H__
+#define __ETL_FIFOTEMPLATE_H__
 
-#include "EFpp/Utility/Container/Base/FifoIndexing.h"
-#include "EFpp/Utility/Container/Base/AFifoIterator.h"
+#include "ETL/Base/FifoIndexing.h"
+#include "ETL/Base/AFifoIterator.h"
 
 
 template<class T>
@@ -169,4 +169,4 @@ void FifoTemplate<T>::setLength(uint32_t len) {
     numItems = len;
 }
 
-#endif /* __FIFOTEMPLATE_H__ */
+#endif /* __ETL_FIFOTEMPLATE_H__ */

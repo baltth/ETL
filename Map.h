@@ -21,20 +21,18 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __MAP_H__
-#define __MAP_H__
+#ifndef __ETL_MAP_H__
+#define __ETL_MAP_H__
 
 #include <utility>
 
-#include "EFpp/Utility/Container/Base/SortedTemplate.h"
-#include "EFpp/Utility/Container/Base/MapItem.h"
+#include "ETL/Base/SortedTemplate.h"
+#include "ETL/Base/MapItem.h"
 
 template<typename K, class E>
 using MapBase = SortedTemplate<MapItem<K, E>>;
 
-/**
-\ingroup container
-*/
+
 template<typename K, class E>
 class Map : public MapBase<K, E> {
 
@@ -76,6 +74,7 @@ public:
     }
 
 };
+
 
 template<typename K, class E>
 Map<K, E>::Map(const std::initializer_list<std::pair<K, E>> &initList) {
@@ -165,4 +164,4 @@ void Map<K, E>::copyElementsFrom(const Map<K, E> &other) {
     }
 }
 
-#endif /* __MAP_H__ */
+#endif /* __ETL_MAP_H__ */

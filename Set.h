@@ -21,13 +21,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __SET_H__
-#define __SET_H__
+#ifndef __ETL_SET_H__
+#define __ETL_SET_H__
 
 #include <utility>
 
-#include "EFpp/Utility/Container/Base/SortedTemplate.h"
-#include "EFpp/Utility/Container/Base/MapItem.h"
+#include "ETL/Base/SortedTemplate.h"
 
 template<class E>
 using SetBase = SortedTemplate<E>;
@@ -103,4 +102,4 @@ void Set<E>::copyElementsFrom(const Set<E> &other) {
     }
 }
 
-#endif /* __SET_H__ */
+#endif /* __ETL_SET_H__ */

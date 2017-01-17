@@ -21,14 +21,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __LIST_H__
-#define __LIST_H__
+#ifndef __ETL_LIST_H__
+#define __ETL_LIST_H__
 
-#include "EFpp/Utility/Container/Base/ListTemplate.h"
+#include "ETL/Base/ListTemplate.h"
 
-/**
-\ingroup container
-*/
+
 template<class T>
 class List : public ListTemplate<T> {
 
@@ -48,5 +46,5 @@ public:
 
 };
 
-#endif /* __LIST_H__ */
+#endif /* __ETL_LIST_H__ */
 

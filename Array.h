@@ -21,16 +21,14 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ARRAY_H__
-#define __ARRAY_H__
+#ifndef __ETL_ARRAY_H__
+#define __ETL_ARRAY_H__
 
 #include <initializer_list>
 
-#include "EFpp/Utility/Container/Base/TypedArrayBase.h"
+#include "ETL/Base/TypedArrayBase.h"
 
-/**
-\ingroup container
-*/
+
 template<typename T, uint32_t N>
 class Array : public TypedArrayBase<T> {
 
@@ -96,4 +94,4 @@ Array<T, N> &Array<T, N>::operator=(const std::initializer_list<T> &initList) {
     return *this;
 }
 
-#endif /* __ARRAY_H__ */
+#endif /* __ETL_ARRAY_H__ */

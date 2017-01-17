@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __AARRAYBASE_H__
-#define __AARRAYBASE_H__
+#ifndef __ETL_AARRAYBASE_H__
+#define __ETL_AARRAYBASE_H__
 
 #include <cstddef>
 #include <cstdint>
@@ -77,4 +77,4 @@ protected:
 
 };
 
-#endif /* __AARRAYBASE_H__ */
+#endif /* __ETL_AARRAYBASE_H__ */

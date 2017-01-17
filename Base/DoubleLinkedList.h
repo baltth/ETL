@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __DOUBLELINKEDLIST_H__
-#define __DOUBLELINKEDLIST_H__
+#ifndef __ETL_DOUBLELINKEDLIST_H__
+#define __ETL_DOUBLELINKEDLIST_H__
 
 #include <cstdint>
 
@@ -103,4 +103,4 @@ protected:
 
 };
 
-#endif /* __DOUBLELINKEDLIST_H__ */
+#endif /* __ETL_DOUBLELINKEDLIST_H__ */

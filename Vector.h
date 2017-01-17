@@ -21,14 +21,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+#ifndef __ETL_VECTOR_H__
+#define __ETL_VECTOR_H__
 
-#include "EFpp/Utility/Container/Base/VectorTemplate.h"
+#include "ETL/Base/VectorTemplate.h"
 
-/**
-\ingroup container
-*/
+
 template<class T>
 class Vector : public VectorTemplate<T> {
 
@@ -102,9 +100,6 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
 
 using PtrVectorBase = VectorTemplate<void*>;
 
-/**
-\ingroup container
-*/
 template<class T>
 class Vector<T*> : public PtrVectorBase {
 
@@ -251,4 +246,4 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
     return startPos;
 }
 
-#endif /* __VECTOR_H__ */
+#endif /* __ETL_VECTOR_H__ */

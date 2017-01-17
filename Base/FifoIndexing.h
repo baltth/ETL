@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __AFIFOINDEXING_H__
-#define __AFIFOINDEXING_H__
+#ifndef __ETL_AFIFOINDEXING_H__
+#define __ETL_AFIFOINDEXING_H__
 
 #include <cstdint>
 
@@ -84,4 +84,4 @@ protected:
 
 };
 
-#endif /* __AFIFOINDEXING_H__ */
+#endif /* __ETL_AFIFOINDEXING_H__ */

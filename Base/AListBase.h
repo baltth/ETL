@@ -21,13 +21,13 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ALISTBASE_H__
-#define __ALISTBASE_H__
+#ifndef __ETL_ALISTBASE_H__
+#define __ETL_ALISTBASE_H__
 
 #include <cstdint>
 #include <utility>
 
-#include "EFpp/Utility/Container/Base/DoubleLinkedList.h"
+#include "ETL/Base/DoubleLinkedList.h"
 
 
 class AListBase {
@@ -141,4 +141,4 @@ protected:
 
 };
 
-#endif /* __ALISTBASE_H__ */
+#endif /* __ETL_ALISTBASE_H__ */

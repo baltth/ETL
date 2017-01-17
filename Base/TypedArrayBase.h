@@ -21,10 +21,10 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __TYPEDARRAYBASE_H__
-#define __TYPEDARRAYBASE_H__
+#ifndef __ETL_TYPEDARRAYBASE_H__
+#define __ETL_TYPEDARRAYBASE_H__
 
-#include "EFpp/Utility/Container/Base/AArrayBase.h"
+#include "ETL/Base/AArrayBase.h"
 
 
 template<typename T>
@@ -78,4 +78,4 @@ void TypedArrayBase<T>::fill(const T &value) {
     }
 }
 
-#endif /* __TYPEDARRAYBASE_H__ */
+#endif /* __ETL_TYPEDARRAYBASE_H__ */

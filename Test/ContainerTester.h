@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __CONTAINERTESTER_H__
-#define __CONTAINERTESTER_H__
+#ifndef __ETL_CONTAINERTESTER_H__
+#define __ETL_CONTAINERTESTER_H__
 
 #include "EFpp/Process/ADebugInterface.h"
 
@@ -139,4 +139,4 @@ public:
 
 };
 
-#endif /* __CONTAINERTESTER_H__ */
+#endif /* __ETL_CONTAINERTESTER_H__ */

@@ -21,10 +21,10 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __AVECTORBASE_H__
-#define __AVECTORBASE_H__
+#ifndef __ETL_AVECTORBASE_H__
+#define __ETL_AVECTORBASE_H__
 
-#include "EFpp/Utility/Container/Base/AArrayBase.h"
+#include "ETL/Base/AArrayBase.h"
 
 
 class AVectorBase : protected AArrayBase {
@@ -83,4 +83,4 @@ protected:
 
 };
 
-#endif /* __AVECTORBASE_H__ */
+#endif /* __ETL_AVECTORBASE_H__ */

@@ -21,10 +21,10 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __SORTEDTEMPLATE_H__
-#define __SORTEDTEMPLATE_H__
+#ifndef __ETL_SORTEDTEMPLATE_H__
+#define __ETL_SORTEDTEMPLATE_H__
 
-#include "EFpp/Utility/Container/Base/ListTemplate.h"
+#include "ETL/Base/ListTemplate.h"
 
 
 template<class T, class Comp = std::less<T>>
@@ -209,4 +209,4 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
     return {it, equalFound};
 }
 
-#endif /* __SORTEDTEMPLATE_H__ */
+#endif /* __ETL_SORTEDTEMPLATE_H__ */

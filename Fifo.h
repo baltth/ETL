@@ -21,15 +21,13 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __FIFOVECTOR_H__
-#define __FIFOVECTOR_H__
+#ifndef __ETL_FIFOVECTOR_H__
+#define __ETL_FIFOVECTOR_H__
 
-#include "EFpp/Utility/Container/Base/FifoTemplate.h"
-#include "EFpp/Utility/Container/Array.h"
+#include "ETL/Base/FifoTemplate.h"
+#include "ETL/Array.h"
 
-/**
-\ingroup container
-*/
+
 template<class T>
 class Fifo : public FifoTemplate<T> {
 
@@ -81,4 +79,4 @@ public:
 
 };
 
-#endif /* __FIFOVECTOR_H__ */
+#endif /* __ETL_FIFOVECTOR_H__ */

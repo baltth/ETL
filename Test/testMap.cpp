@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#include "EFpp/Utility/Container/Map.h"
-#include "EFpp/Utility/Container/Test/ContainerTester.h"
+#include "ETL/Map.h"
+#include "ETL/Test/ContainerTester.h"
 
 #include "testMap.h"
 

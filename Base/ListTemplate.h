@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __LISTTEMPLATE_H__
-#define __LISTTEMPLATE_H__
+#ifndef __ETL_LISTTEMPLATE_H__
+#define __ETL_LISTTEMPLATE_H__
 
 #undef min
 #undef max
@@ -31,7 +31,7 @@ limitations under the License.
 #include <functional>
 #include <initializer_list>
 
-#include "EFpp/Utility/Container/Base/AListBase.h"
+#include "ETL/Base/AListBase.h"
 
 
 template<class T>
@@ -260,4 +260,4 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
     return startPos;
 }
 
-#endif /* __LISTTEMPLATE_H__ */
+#endif /* __ETL_LISTTEMPLATE_H__ */

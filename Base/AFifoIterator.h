@@ -21,10 +21,10 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __AFIFOITERATOR_H__
-#define __AFIFOITERATOR_H__
+#ifndef __ETL_AFIFOITERATOR_H__
+#define __ETL_AFIFOITERATOR_H__
 
-#include "EFpp/Utility/Container/Base/FifoIndexing.h"
+#include "ETL/Base/FifoIndexing.h"
 
 
 template<class T>
@@ -91,4 +91,4 @@ protected:
 
 };
 
-#endif /* __AFIFOITERATOR_H__ */
+#endif /* __ETL_AFIFOITERATOR_H__ */
