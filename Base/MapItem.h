@@ -24,9 +24,13 @@ limitations under the License.
 #ifndef __ETL_MAPITEM_H__
 #define __ETL_MAPITEM_H__
 
-/**
-\ingroup container
-*/
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
+
 template<typename K, class E>
 class MapItem {
 
@@ -74,9 +78,6 @@ public:
 };
 
 
-/**
-\ingroup container
-*/
 template<typename K, class E>
 class MapItem<K, E*> {
 
@@ -116,6 +117,8 @@ template<typename K, class E>
 bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
 
     return (lhs.getKey() < rhs.getKey());
+}
+
 }
 
 #endif /* __ETL_MAPITEM_H__ */

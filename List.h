@@ -26,6 +26,12 @@ limitations under the License.
 
 #include "ETL/Base/ListTemplate.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class List : public ListTemplate<T> {
@@ -45,6 +51,8 @@ public:
     Iterator insert(const T &item);
 
 };
+
+}
 
 #endif /* __ETL_LIST_H__ */
 

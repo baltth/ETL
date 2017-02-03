@@ -29,7 +29,7 @@ limitations under the License.
 
 void testMap(ADebugInterface* debugIf) {
 
-	Map<uint32_t, ContainerTester> numMap;
+    Etl::Map<uint32_t, ContainerTester> numMap;
 
 	auto printMap = [&numMap, debugIf]() {
 
@@ -47,12 +47,12 @@ void testMap(ADebugInterface* debugIf) {
 		debugIf->debugPrint(dbg, debugIf->getDebugLevel());
 	};
 
-	ContainerTester a(4, debugIf);
+    ContainerTester a(4, debugIf);
 	numMap.insertOrAssign(4, a);
 	printMap();
 	numMap.emplace(5, -5, debugIf);
 	printMap();
-	ContainerTester b(-4, debugIf);
+    ContainerTester b(-4, debugIf);
 	numMap.insertOrAssign(4, b);
 	printMap();
 	numMap.emplace(2, -2, debugIf);
@@ -64,7 +64,8 @@ void testMap(ADebugInterface* debugIf) {
 
 	debugIf->debugPrint("[4]", debugIf->getDebugLevel());
 	numMap[4].reportValue();
-	ContainerTester &c = numMap[4];
+    ContainerTester &c = numMap[4];
 	c.reportValue();
 
 }
+

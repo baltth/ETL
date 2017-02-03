@@ -26,6 +26,12 @@ limitations under the License.
 
 #include <cstdint>
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 class FifoIndexing {
 
@@ -83,5 +89,7 @@ protected:
     uint32_t limitIndexForNumItems(uint32_t ix) const;
 
 };
+
+}
 
 #endif /* __ETL_AFIFOINDEXING_H__ */

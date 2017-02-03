@@ -27,6 +27,12 @@ limitations under the License.
 #include "ETL/Base/FifoTemplate.h"
 #include "ETL/Array.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class Fifo : public FifoTemplate<T> {
@@ -78,5 +84,7 @@ public:
     void setupFifo(uint32_t len) {};
 
 };
+
+}
 
 #endif /* __ETL_FIFOVECTOR_H__ */

@@ -28,6 +28,13 @@ limitations under the License.
 
 #include "ETL/Base/SortedTemplate.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
+    
 template<class E>
 using SetBase = SortedTemplate<E>;
 
@@ -100,6 +107,8 @@ void Set<E>::copyElementsFrom(const Set<E> &other) {
     for(ItemType &item : other) {
         insertOrAssign(item.getKey(), item.getElement());
     }
+}
+
 }
 
 #endif /* __ETL_SET_H__ */

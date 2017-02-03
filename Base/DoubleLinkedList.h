@@ -26,6 +26,12 @@ limitations under the License.
 
 #include <cstdint>
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 class DoubleLinkedList {
 
@@ -102,5 +108,7 @@ protected:
     static void linkNodes(Node* a, Node* b);
 
 };
+
+}
 
 #endif /* __ETL_DOUBLELINKEDLIST_H__ */

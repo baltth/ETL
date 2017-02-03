@@ -26,6 +26,12 @@ limitations under the License.
 
 #include "ETL/Base/AArrayBase.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<typename T>
 class TypedArrayBase : public AArrayBase {
@@ -76,6 +82,8 @@ void TypedArrayBase<T>::fill(const T &value) {
     for(uint32_t i = 0; i < getSize(); ++i) {
         operator[](i) = value;
     }
+}
+
 }
 
 #endif /* __ETL_TYPEDARRAYBASE_H__ */

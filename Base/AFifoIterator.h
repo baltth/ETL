@@ -26,6 +26,12 @@ limitations under the License.
 
 #include "ETL/Base/FifoIndexing.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class AFifoIterator {
@@ -90,5 +96,7 @@ protected:
     }
 
 };
+
+}
 
 #endif /* __ETL_AFIFOITERATOR_H__ */

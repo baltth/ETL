@@ -27,6 +27,13 @@ limitations under the License.
 #include "ETL/Base/VectorTemplate.h"
 
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
+
 template<class T>
 class Vector : public VectorTemplate<T> {
 
@@ -244,6 +251,8 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
     }
 
     return startPos;
+}
+
 }
 
 #endif /* __ETL_VECTOR_H__ */

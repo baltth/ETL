@@ -26,6 +26,12 @@ limitations under the License.
 
 #include "ETL/Base/AArrayBase.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 class AVectorBase : protected AArrayBase {
 
@@ -82,5 +88,7 @@ protected:
     void swap(AVectorBase &other);
 
 };
+
+}
 
 #endif /* __ETL_AVECTORBASE_H__ */

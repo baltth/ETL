@@ -27,6 +27,12 @@ limitations under the License.
 #include "ETL/Base/FifoIndexing.h"
 #include "ETL/Base/AFifoIterator.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class FifoTemplate : protected T, protected FifoIndexing {
@@ -167,6 +173,8 @@ void FifoTemplate<T>::setLength(uint32_t len) {
 
     readIx -= len;
     numItems = len;
+}
+
 }
 
 #endif /* __ETL_FIFOTEMPLATE_H__ */

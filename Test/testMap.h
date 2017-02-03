@@ -26,7 +26,6 @@ limitations under the License.
 
 #include "EFpp/Process/ADebugInterface.h"
 
-
 void testMap(ADebugInterface* debugIf);
 
 #endif /* __ETL_TESTMAP_H__ */

@@ -26,6 +26,7 @@ limitations under the License.
 
 #include "EFpp/Process/ADebugInterface.h"
 
+
 class ContainerTester {
 
 // variables
@@ -138,5 +139,7 @@ public:
 	}
 
 };
+
+}
 
 #endif /* __ETL_CONTAINERTESTER_H__ */

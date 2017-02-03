@@ -26,6 +26,12 @@ limitations under the License.
 
 #include "ETL/Base/ListTemplate.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T, class Comp = std::less<T>>
 class SortedTemplate {
@@ -207,6 +213,8 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
     }
 
     return {it, equalFound};
+}
+
 }
 
 #endif /* __ETL_SORTEDTEMPLATE_H__ */

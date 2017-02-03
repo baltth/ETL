@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "AVectorBase.h"
 
+using namespace ETL_NAMESPACE;
+
 
 void AVectorBase::allocate(uint32_t len) {
 

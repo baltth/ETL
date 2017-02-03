@@ -27,6 +27,12 @@ limitations under the License.
 #include <cstddef>
 #include <cstdint>
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 class AArrayBase {
 
@@ -76,5 +82,7 @@ protected:
         itemSize(itemSize) {};
 
 };
+
+}
 
 #endif /* __ETL_AARRAYBASE_H__ */

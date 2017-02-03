@@ -28,6 +28,12 @@ limitations under the License.
 
 #include "ETL/Base/TypedArrayBase.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<typename T, uint32_t N>
 class Array : public TypedArrayBase<T> {
@@ -92,6 +98,8 @@ Array<T, N> &Array<T, N>::operator=(const std::initializer_list<T> &initList) {
     }
 
     return *this;
+}
+
 }
 
 #endif /* __ETL_ARRAY_H__ */

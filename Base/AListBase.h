@@ -29,6 +29,12 @@ limitations under the License.
 
 #include "ETL/Base/DoubleLinkedList.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 class AListBase {
 
@@ -140,5 +146,7 @@ protected:
     /// @}
 
 };
+
+}
 
 #endif /* __ETL_ALISTBASE_H__ */

@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "FifoIndexing.h"
 
+using namespace ETL_NAMESPACE;
+
 
 void FifoIndexing::resetIndexes() {
 
@@ -112,3 +114,4 @@ void FifoIndexing::pop() {
         --numItems;
     }
 }
+

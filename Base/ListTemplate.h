@@ -33,6 +33,12 @@ limitations under the License.
 
 #include "ETL/Base/AListBase.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class ListTemplate : protected AListBase {
@@ -258,6 +264,8 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
     }
 
     return startPos;
+}
+
 }
 
 #endif /* __ETL_LISTTEMPLATE_H__ */

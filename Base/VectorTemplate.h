@@ -34,6 +34,12 @@ limitations under the License.
 
 #include "ETL/Base/AVectorBase.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
 
 template<class T>
 class VectorTemplate : public AVectorBase {
@@ -543,6 +549,8 @@ void VectorTemplate<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
             assignValueTo((dst + i), std::move(src[i]));
         }
     }
+}
+
 }
 
 #endif /* __ETL_VECTORTEMPLATE_H__ */

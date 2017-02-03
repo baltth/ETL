@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "AListBase.h"
 
+using namespace ETL_NAMESPACE;
+
 
 AListBase::Node* AListBase::popFront() {
 

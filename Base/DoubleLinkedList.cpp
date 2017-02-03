@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "DoubleLinkedList.h"
 
+using namespace ETL_NAMESPACE;
+
 
 DoubleLinkedList::DoubleLinkedList(DoubleLinkedList &&other) {
 

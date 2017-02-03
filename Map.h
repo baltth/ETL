@@ -29,6 +29,13 @@ limitations under the License.
 #include "ETL/Base/SortedTemplate.h"
 #include "ETL/Base/MapItem.h"
 
+#ifndef ETL_NAMESPACE
+#define ETL_NAMESPACE   Etl
+#endif
+
+namespace ETL_NAMESPACE {
+
+
 template<typename K, class E>
 using MapBase = SortedTemplate<MapItem<K, E>>;
 
@@ -162,6 +169,8 @@ void Map<K, E>::copyElementsFrom(const Map<K, E> &other) {
     for(ItemType &item : other) {
         insertOrAssign(item.getKey(), item.getElement());
     }
+}
+
 }
 
 #endif /* __ETL_MAP_H__ */
