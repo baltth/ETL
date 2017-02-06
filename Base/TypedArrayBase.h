@@ -24,7 +24,7 @@ limitations under the License.
 #ifndef __ETL_TYPEDARRAYBASE_H__
 #define __ETL_TYPEDARRAYBASE_H__
 
-#include "ETL/Base/AArrayBase.h"
+#include "Base/AArrayBase.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

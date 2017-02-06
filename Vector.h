@@ -24,8 +24,7 @@ limitations under the License.
 #ifndef __ETL_VECTOR_H__
 #define __ETL_VECTOR_H__
 
-#include "ETL/Base/VectorTemplate.h"
-
+#include "Base/VectorTemplate.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

@@ -21,51 +21,50 @@ limitations under the License.
 \endparblock
 */
 
-#include "ETL/Map.h"
-#include "ETL/Test/ContainerTester.h"
+#include <iostream>
+
+#include "Map.h"
+#include "Test/ContainerTester.h"
 
 #include "testMap.h"
 
 
-void testMap(ADebugInterface* debugIf) {
+void testMap() {
 
     Etl::Map<uint32_t, ContainerTester> numMap;
 
-	auto printMap = [&numMap, debugIf]() {
+    auto printMap = [&numMap]() {
 
-		StrBuffer dbg("\r\nMap<uint32_t, ContainerTester> test:\r\n", 256);
+        std::cout << std::endl << "Map<uint32_t, ContainerTester> test:" << std::endl;
 
-		for(auto &item : numMap) {
+        for(auto &item : numMap) {
+            std::cout << item.getKey() << ": ";
+            item.getElement().reportValue();
+        }
 
-			dbg.putDec(item.getKey());
-			dbg.concat(": ");
-			item.getElement().writeValueTo(dbg);
-			dbg.concat("\r\n");
-		}
+        std::cout << std::endl;
+    };
 
-		dbg.concat("\r\n");
-		debugIf->debugPrint(dbg, debugIf->getDebugLevel());
-	};
+    ContainerTester a(4);
+    numMap.insertOrAssign(4, a);
+    printMap();
+    numMap.emplace(5, -5);
+    printMap();
+    ContainerTester b(-4);
+    numMap.insertOrAssign(4, b);
+    printMap();
+    numMap.emplace(2, -2);
+    printMap();
+    numMap.emplace(3, -3);
+    printMap();
+    numMap.erase(3);
+    printMap();
 
-    ContainerTester a(4, debugIf);
-	numMap.insertOrAssign(4, a);
-	printMap();
-	numMap.emplace(5, -5, debugIf);
-	printMap();
-    ContainerTester b(-4, debugIf);
-	numMap.insertOrAssign(4, b);
-	printMap();
-	numMap.emplace(2, -2, debugIf);
-	printMap();
-	numMap.emplace(3, -3, debugIf);
-	printMap();
-	numMap.erase(3);
-	printMap();
-
-	debugIf->debugPrint("[4]", debugIf->getDebugLevel());
-	numMap[4].reportValue();
+    std::cout << "[4]" << std::endl;
+    numMap[4].reportValue();
     ContainerTester &c = numMap[4];
-	c.reportValue();
+    c.reportValue();
 
+    std::cout << std::endl;
 }
 

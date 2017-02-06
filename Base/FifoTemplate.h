@@ -24,8 +24,8 @@ limitations under the License.
 #ifndef __ETL_FIFOTEMPLATE_H__
 #define __ETL_FIFOTEMPLATE_H__
 
-#include "ETL/Base/FifoIndexing.h"
-#include "ETL/Base/AFifoIterator.h"
+#include "Base/FifoIndexing.h"
+#include "Base/AFifoIterator.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

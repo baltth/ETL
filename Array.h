@@ -26,7 +26,7 @@ limitations under the License.
 
 #include <initializer_list>
 
-#include "ETL/Base/TypedArrayBase.h"
+#include "Base/TypedArrayBase.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

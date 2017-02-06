@@ -24,7 +24,7 @@ limitations under the License.
 #ifndef __ETL_CONTAINERTESTER_H__
 #define __ETL_CONTAINERTESTER_H__
 
-#include "EFpp/Process/ADebugInterface.h"
+#include <iostream>
 
 
 class ContainerTester {
@@ -33,21 +33,18 @@ class ContainerTester {
 private:
 
 	int32_t value;
-	ADebugInterface* debugIf;
 
 // functions
 public:
 
-	explicit ContainerTester(int32_t v = 0, ADebugInterface* dbgIf = nullptr) :
-		value(v),
-		debugIf(dbgIf) {
+	explicit ContainerTester(int32_t v = 0) :
+		value(v) {
 		reportConstructor();
 		reportValue();
 	}
 
 	ContainerTester(const ContainerTester &other) :
-		value(other.value),
-		debugIf(other.debugIf) {
+		value(other.value) {
 		reportCopyConstructor();
 		reportValue();
 	}
@@ -55,22 +52,19 @@ public:
 	ContainerTester &operator=(const ContainerTester &other) {
 
 		value = other.value;
-		debugIf = other.debugIf;
 		reportCopyAssignment();
 		reportValue();
 		return *this;
 	}
 
 	ContainerTester(ContainerTester &&other) :
-		value(other.value),
-		debugIf(other.debugIf) {
+		value(other.value) {
 		reportMoveConstructor();
 		reportValue();
 	}
 
 	ContainerTester &operator=(ContainerTester &&other) {
 		value = other.value;
-		debugIf = other.debugIf;
 		reportMoveAssignment();
 		reportValue();
 		return *this;
@@ -86,60 +80,33 @@ public:
 	}
 
 	void reportConstructor() {
-		if(debugIf) {
-			debugIf->debugPrint("C()     ", debugIf->getDebugLevel(), false, false);
-		}
+	    std::cout << "C()     ";
 	}
 
 	void reportCopyConstructor() {
-		if(debugIf) {
-			debugIf->debugPrint("C(C&)   ", debugIf->getDebugLevel(), false, false);
-		}
+		std::cout << "C(C&)   ";
 	}
 
 	void reportCopyAssignment() {
-		if(debugIf) {
-			debugIf->debugPrint("C=(C&)  ", debugIf->getDebugLevel(), false, false);
-		}
+	    std::cout << "C=(C&)  ";
 	}
 
 	void reportMoveConstructor() {
-		if(debugIf) {
-			debugIf->debugPrint("C(C&&)  ", debugIf->getDebugLevel(), false, false);
-		}
+		std::cout << "C(C&&)  ";
 	}
 
 	void reportMoveAssignment() {
-		if(debugIf) {
-			debugIf->debugPrint("C=(C&&) ", debugIf->getDebugLevel(), false, false);
-		}
+	    std::cout << "C=(C&&) ";
 	}
 
 	void reportDesctructor() {
-		if(debugIf) {
-			debugIf->debugPrint("~C()    ", debugIf->getDebugLevel(), false, false);
-		}
+		std::cout << "~C()    ";
 	}
 
-	void reportValue() {
-
-		if(debugIf) {
-			StrBuffer dbg("", 32);
-			writeValueTo(dbg);
-			debugIf->debugPrint(dbg, debugIf->getDebugLevel());
-		}
-	}
-
-	void writeValueTo(StrBuffer &str) {
-		str.concat("value @ ");
-		str.putHex(reinterpret_cast<uint32_t>(this), 8);
-		str.concat(": ");
-		str.putDec(value);
-		str.endString();
+    void reportValue() {
+        std::cout << "value @ " << this << ": " << value << std::endl;
 	}
 
 };
-
-}
 
 #endif /* __ETL_CONTAINERTESTER_H__ */

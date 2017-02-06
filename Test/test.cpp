@@ -1,6 +1,6 @@
-﻿/**
+/**
 \file
-\date 2016.03.16. 11:29:46
+\date 2017.02.06. 11:27:49
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,10 +21,14 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TESTMAP_H__
-#define __ETL_TESTMAP_H__
+
+#include "testMap.h"
 
 
-void testMap();
+int main(int p_s32_argc, const char* p_ast_argv[]) {
 
-#endif /* __ETL_TESTMAP_H__ */
+    testMap();
+
+    return 0;
+}
+

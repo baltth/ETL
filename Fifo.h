@@ -24,8 +24,8 @@ limitations under the License.
 #ifndef __ETL_FIFOVECTOR_H__
 #define __ETL_FIFOVECTOR_H__
 
-#include "ETL/Base/FifoTemplate.h"
-#include "ETL/Array.h"
+#include "Base/FifoTemplate.h"
+#include "Array.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

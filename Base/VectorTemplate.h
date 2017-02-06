@@ -32,7 +32,7 @@ limitations under the License.
 #include <initializer_list>
 #include <functional>
 
-#include "ETL/Base/AVectorBase.h"
+#include "Base/AVectorBase.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

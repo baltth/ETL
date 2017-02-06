@@ -27,7 +27,7 @@ limitations under the License.
 #include <cstdint>
 #include <utility>
 
-#include "ETL/Base/DoubleLinkedList.h"
+#include "Base/DoubleLinkedList.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

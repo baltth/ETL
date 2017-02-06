@@ -26,8 +26,8 @@ limitations under the License.
 
 #include <utility>
 
-#include "ETL/Base/SortedTemplate.h"
-#include "ETL/Base/MapItem.h"
+#include "Base/SortedTemplate.h"
+#include "Base/MapItem.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl
