@@ -21,14 +21,6 @@ limitations under the License.
 \endparblock
 */
 
-
-#include "testMap.h"
-
-
-int main(int p_s32_argc, const char* p_ast_argv[]) {
-
-    testMap();
-
-    return 0;
-}
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch.hpp"
 

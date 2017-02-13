@@ -12,6 +12,10 @@ list(APPEND ETL_TEST_SRCS "Base/AListBase.cpp")
 list(APPEND ETL_TEST_SRCS "Base/DoubleLinkedList.cpp")
 
 list(APPEND ETL_TEST_SRCS "Test/testMap.cpp")
-list(APPEND ETL_TEST_SRCS "Test/test.cpp")
+#list(APPEND ETL_TEST_SRCS "Test/test.cpp")
 
-add_executable(etl_test ${ETL_TEST_SRCS})
+add_executable(testEtl "Test/testEtl.cpp" ${ETL_TEST_SRCS})
+
+enable_testing()
+add_test(testMap testEtl "[map]")
+

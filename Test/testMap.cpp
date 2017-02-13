@@ -21,15 +21,15 @@ limitations under the License.
 \endparblock
 */
 
+#include "catch.hpp"
+
 #include <iostream>
 
 #include "Map.h"
 #include "Test/ContainerTester.h"
 
-#include "testMap.h"
 
-
-void testMap() {
+TEST_CASE("Map test", "[map]" ) {
 
     Etl::Map<uint32_t, ContainerTester> numMap;
 
@@ -48,23 +48,33 @@ void testMap() {
     ContainerTester a(4);
     numMap.insertOrAssign(4, a);
     printMap();
+
+    REQUIRE(numMap.getSize() == 1);
+    REQUIRE(numMap[4].getValue() == a.getValue());
+
     numMap.emplace(5, -5);
     printMap();
+
+    REQUIRE(numMap.getSize() == 2);
+
     ContainerTester b(-4);
     numMap.insertOrAssign(4, b);
     printMap();
+
+    REQUIRE(numMap.getSize() == 2);
+    REQUIRE(numMap[4].getValue() == b.getValue());
+
     numMap.emplace(2, -2);
     printMap();
     numMap.emplace(3, -3);
     printMap();
+
+    REQUIRE(numMap.getSize() == 4);
+
     numMap.erase(3);
     printMap();
 
-    std::cout << "[4]" << std::endl;
-    numMap[4].reportValue();
-    ContainerTester &c = numMap[4];
-    c.reportValue();
+    REQUIRE(numMap.getSize() == 3);
 
-    std::cout << std::endl;
 }
 
