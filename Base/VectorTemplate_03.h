@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTORTEMPLATE_H__
-#define __ETL_VECTORTEMPLATE_H__
+#ifndef __ETL_VECTORTEMPLATE_03_H__
+#define __ETL_VECTORTEMPLATE_03_H__
 
 #undef min
 #undef max
@@ -30,13 +30,9 @@ limitations under the License.
 #include "support.h"
 
 #if (ETL_USE_CPP11 == 0)
-#include "Base/VectorTemplate_03.h"
-#else
 
 #include <new>
 #include <utility>
-#include <initializer_list>
-#include <functional>
 
 #include "Base/AVectorBase.h"
 
@@ -108,15 +104,6 @@ public:
     }
 
     Iterator insert(Iterator position, uint32_t num, const T &value);
-    Iterator insert(Iterator position, T &&value);
-
-    template<typename... Args >
-    Iterator emplace(Iterator pos, Args &&... args);
-
-    template<typename... Args >
-    inline void emplaceBack(Args &&... args) {
-        emplace(end(), args...);
-    }
 
     inline Iterator erase(Iterator pos) {
         Iterator next = pos;
@@ -156,12 +143,7 @@ protected:
     VectorTemplate<T>(uint32_t len, const T &item);
 
     VectorTemplate<T>(const VectorTemplate<T> &other);
-    VectorTemplate<T>(VectorTemplate<T> &&other);
-    VectorTemplate<T>(const std::initializer_list<T> &initList);
-
     VectorTemplate<T> &operator=(const VectorTemplate<T> &other);
-    VectorTemplate<T> &operator=(VectorTemplate<T> &&other);
-    VectorTemplate<T> &operator=(const std::initializer_list<T> &initList);
 
     ~VectorTemplate<T>() {
         clear();
@@ -187,30 +169,6 @@ protected:
         new(ptr) T();
     }
 
-    static void insertValueTo(T* ptr, bool place, T &&value) {
-        if(place) {
-            placeValueTo(ptr, std::move(value));
-        } else {
-            assignValueTo(ptr, std::move(value));
-        }
-    }
-
-    static void assignValueTo(T* ptr, T &&value) {
-        *ptr = std::move(value);
-    }
-
-    static void placeValueTo(T* ptr, T &&value) {
-        new(ptr) T(std::move(value));
-    }
-
-    static void insertValueTo(T* ptr, bool place, const T &value) {
-        if(place) {
-            placeValueTo(ptr, value);
-        } else {
-            assignValueTo(ptr, value);
-        }
-    }
-
     static void assignValueTo(T* ptr, const T &value) {
         *ptr = value;
     }
@@ -230,9 +188,9 @@ private:
     void initializedCopyUp(T* src, T* dst, uint32_t num);
     void initializedCopyDown(T* src, T* dst, uint32_t num);
 
-    Iterator insertWithCreator(Iterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
-
     void destruct(Iterator startPos, Iterator endPos);
+
+    Iterator insertWithCreator(Iterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
 
 };
 
@@ -264,41 +222,9 @@ VectorTemplate<T>::VectorTemplate(const VectorTemplate<T> &other) :
 
 
 template<class T>
-VectorTemplate<T>::VectorTemplate(VectorTemplate<T> &&other) :
-    AVectorBase(sizeof(T)) {
-
-    swap(other);
-}
-
-
-template<class T>
-VectorTemplate<T>::VectorTemplate(const std::initializer_list<T> &initList) :
-    AVectorBase(sizeof(T)) {
-
-    initWith(initList.begin(), initList.size());
-}
-
-
-template<class T>
 VectorTemplate<T> &VectorTemplate<T>::operator=(const VectorTemplate<T> &other) {
 
     copyOperation(other.begin(), other.getSize());
-    return *this;
-}
-
-
-template<class T>
-VectorTemplate<T> &VectorTemplate<T>::operator=(VectorTemplate<T> &&other) {
-
-    swap(other);
-    return *this;
-}
-
-
-template<class T>
-VectorTemplate<T> &VectorTemplate<T>::operator=(const std::initializer_list<T> &initList) {
-
-    copyOperation(initList.begin(), initList.size());
     return *this;
 }
 
@@ -421,29 +347,6 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, T &&value) {
-
-    return insertWithCreator(position, 1, [&value](T * item, bool place) {
-        insertValueTo(item, place, std::move(value));
-    });
-}
-
-
-template<class T>
-template<typename... Args >
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::emplace(Iterator position, Args &&... args) {
-
-    return insertWithCreator(position, 1, [&](T * item, bool place) {
-        if(place) {
-            new(item) T(args...);
-        } else {
-            *item = T(args...);
-        }
-    });
-}
-
-
-template<class T>
 typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterator position,
                                                                           uint32_t numToInsert,
                                                                           std::function<void(T*, bool)> &&creatorCall) {
@@ -561,4 +464,7 @@ void VectorTemplate<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
 
 }
 
-#endif /* __ETL_VECTORTEMPLATE_H__ */
+#endif
+
+#endif /* __ETL_VECTORTEMPLATE_03_H__ */
+
