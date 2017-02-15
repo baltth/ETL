@@ -24,25 +24,25 @@ limitations under the License.
 #ifndef __ETL_ARRAY_H__
 #define __ETL_ARRAY_H__
 
-#include <initializer_list>
-
-#include "Base/TypedArrayBase.h"
-
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl
+#endif
+
+#ifdef ETL_USE_EXCEPTIONS
+#include <Exception.h>
 #endif
 
 namespace ETL_NAMESPACE {
 
 
 template<typename T, uint32_t N>
-class Array : public TypedArrayBase<T> {
+class Array {
 
 // types
 public:
 
-    typedef typename TypedArrayBase<T>::Iterator Iterator;
     typedef T ItemType;
+    typedef T* Iterator;
 
 // variables
 private:
@@ -52,22 +52,58 @@ private:
 // functions
 public:
 
-    Array<T, N>() :
-        TypedArrayBase<T>(data, N) {};
+    Array<T, N>() {};
 
-    Array<T, N>(const Array<T, N> &other) :
-        Array<T, N>() {
-
+    Array<T, N>(const Array<T, N> &other) {
         operator=(other);
     }
 
-    Array<T, N>(const std::initializer_list<T> &initList):
-        Array<T, N>() {
-        operator=(initList);
+    Array<T, N> &operator=(const Array<T, N> &other);
+
+    inline T &operator[](uint32_t ix) {
+        return data[ix];
     }
 
-    Array<T, N> &operator=(const Array<T, N> &other);
-    Array<T, N> &operator=(const std::initializer_list<T> &initList);
+    inline const T &operator[](uint32_t ix) const {
+        return data[ix];
+    }
+
+    inline Iterator begin() {
+        return static_cast<Iterator>(data);
+    }
+
+    inline const Iterator begin() const {
+        return static_cast<const Iterator>(data);
+    }
+
+    inline Iterator end() {
+        return static_cast<Iterator>(&data[N]);
+    }
+
+    inline const Iterator end() const {
+        return static_cast<const Iterator>(&data[N]);
+    }
+
+    inline T* getData() {
+        return data;
+    }
+
+    inline const T* getData() const {
+        return data;
+    }
+
+    inline uint32_t getSize() const {
+        return N;
+    }
+
+    void fill(const T &value);
+
+#ifdef ETL_USE_EXCEPTIONS
+
+    T& at(uint32_t ix);
+    const T& at(uint32_t ix) const;
+
+#endif
 
 };
 
@@ -75,10 +111,8 @@ public:
 template<typename T, uint32_t N>
 Array<T, N> &Array<T, N>::operator=(const Array<T, N> &other) {
 
-    uint32_t i = 0;
-
-    for(auto &item : other) {
-        TypedArrayBase<T>::operator[](i++) = item;
+    for(uint32_t i = 0; i < N; ++i) {
+        operator[](i) = other.operator[](i);
     }
 
     return *this;
@@ -86,20 +120,40 @@ Array<T, N> &Array<T, N>::operator=(const Array<T, N> &other) {
 
 
 template<typename T, uint32_t N>
-Array<T, N> &Array<T, N>::operator=(const std::initializer_list<T> &initList) {
+void Array<T, N>::fill(const T &value) {
 
-    //static_assert(N == initList.size(), "Invalid initializer list size");
-    ///\todo
+    for(uint32_t i = 0; i < N; ++i) {
+        operator[](i) = value;
+    }
+}
 
-    uint32_t i = 0;
 
-    for(auto &item : initList) {
-        TypedArrayBase<T>::operator[](i++) = item;
+#ifdef ETL_USE_EXCEPTIONS
+
+template<typename T, uint32_t N>
+T& Array<T, N>::at(uint32_t ix) {
+
+    if(ix >= N) {
+        throw ETL_NAMESPACE::OutOfRangeException();
     }
 
-    return *this;
+    return operator[](ix);
 }
+
+
+template<typename T, uint32_t N>
+const T& Array<T, N>::at(uint32_t ix) const {
+
+    if(ix >= N) {
+        throw ETL_NAMESPACE::OutOfRangeException();
+    }
+
+    return operator[](ix);
+}
+
+#endif
 
 }
 
 #endif /* __ETL_ARRAY_H__ */
+
