@@ -27,7 +27,7 @@ limitations under the License.
 #undef min
 #undef max
 
-#include "support.h"
+#include "langSupport.h"
 
 #if (ETL_USE_CPP11 == 0)
 #include "Base/VectorTemplate_03.h"

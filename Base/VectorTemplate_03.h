@@ -27,7 +27,7 @@ limitations under the License.
 #undef min
 #undef max
 
-#include "support.h"
+#include "langSupport.h"
 
 #if (ETL_USE_CPP11 == 0)
 
@@ -50,6 +50,41 @@ class VectorTemplate : public AVectorBase {
 public:
 
     typedef T* Iterator;
+
+private:
+
+    class CreatorFunctor {
+        public:
+            virtual void call(T* pos, bool place) const = 0;
+    }
+
+    class DefaultCreator : public CreatorFunctor {
+        public:
+            virtual void call(T* pos, bool place) const {
+                if(place) {
+                    placeDefaultTo(ptr);
+                } else {
+                    assignDefaultTo(ptr);
+                }
+            }
+    }
+
+    class CopyCreator : public CreatorFunctor {
+        private:
+            const T& ref;    
+
+        public:
+            CopyCreator(const T& refValue) :
+                ref(refValue) {};
+
+            virtual void call(T* pos, bool place) const {
+                if(place) {
+                    placeValueTo(ptr, ref);
+                } else {
+                    assignValueTo(ptr, ref);
+                }
+            }
+    }
 
 // functions
 public:
@@ -153,14 +188,6 @@ protected:
         return (length + (RESIZE_STEP - 1)) & ~(RESIZE_STEP - 1);
     }
 
-    static void insertDefaultTo(T* ptr, bool place) {
-        if(place) {
-            placeDefaultTo(ptr);
-        } else {
-            assignDefaultTo(ptr);
-        }
-    }
-
     static inline void assignDefaultTo(T* ptr) {
         *ptr = T();
     }
@@ -190,7 +217,7 @@ private:
 
     void destruct(Iterator startPos, Iterator endPos);
 
-    Iterator insertWithCreator(Iterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
+    Iterator insertWithCreator(Iterator position, uint32_t num, const CreatorFunctor& creatorCall);
 
 };
 
@@ -199,9 +226,8 @@ template<class T>
 VectorTemplate<T>::VectorTemplate(uint32_t len) :
     AVectorBase(sizeof(T)) {
 
-    insertWithCreator(begin(), len, [](T * item, bool place) {
-        insertDefaultTo(item, place);
-    });
+    DefaultCreator dc;
+    insertWithCreator(begin(), len, dc);
 }
 
 
@@ -340,16 +366,15 @@ void VectorTemplate<T>::reallocateAndCopyFor(uint32_t len) {
 template<class T>
 typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, uint32_t num, const T &value) {
 
-    return insertWithCreator(position, num, [&value](T * item, bool place) {
-        insertValueTo(item, place, value);
-    });
+    CopyCreator cc(value);
+    return insertWithCreator(position, num, cc);
 }
 
 
 template<class T>
 typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterator position,
                                                                           uint32_t numToInsert,
-                                                                          std::function<void(T*, bool)> &&creatorCall) {
+                                                                          const CreatorFunctor& creatorCall) {
 
     if(numToInsert > 0) {
 
@@ -382,14 +407,14 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterat
 
         while(uninitedInsertPos > dst) {
             --uninitedInsertPos;
-            creatorCall(uninitedInsertPos, true);
+            creatorCall.call(uninitedInsertPos, true);
         }
 
         dst -= initedInsertNumber;
 
         while(uninitedInsertPos > dst) {
             --uninitedInsertPos;
-            creatorCall(uninitedInsertPos, false);
+            creatorCall.call(uninitedInsertPos, false);
         }
 
         numElements += numToInsert;

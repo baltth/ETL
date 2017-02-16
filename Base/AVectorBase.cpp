@@ -21,6 +21,8 @@ limitations under the License.
 \endparblock
 */
 
+#include "support.h"
+
 #include "AVectorBase.h"
 
 using namespace ETL_NAMESPACE;
@@ -29,15 +31,15 @@ using namespace ETL_NAMESPACE;
 void AVectorBase::allocate(uint32_t len) {
 
     if(len > 0) {
-        data = operator new(len * itemSize);
+        proxy.data = operator new(len * proxy.itemSize);
     } else {
-        data = nullptr;
+        proxy.data = NULLPTR;
     }
 
-    if(data != nullptr) {
-        capacity = len;
+    if(proxy.data != NULLPTR) {
+        proxy.capacity = len;
     } else {
-        capacity = 0;
+        proxy.capacity = 0;
     }
 }
 
@@ -50,16 +52,15 @@ void AVectorBase::deallocatePtr(void* ptr) {
 
 void AVectorBase::swap(AVectorBase &other) {
 
-    void* tmpData = data;
+    VectorProxy tmpProxy(proxy);
     uint32_t tmpNumElements = numElements;
-    uint32_t tmpCapacity = capacity;
 
-    data = other.data;
+    proxy.data = other.proxy.data;
+    proxy.capacity = other.proxy.capacity;
     numElements = other.numElements;
-    capacity = other.capacity;
 
-    other.data = tmpData;
+    other.proxy.data = tmpProxy.data;
+    other.proxy.capacity = tmpProxy.capacity;
     other.numElements = tmpNumElements;
-    other.capacity = tmpCapacity;
 }
 

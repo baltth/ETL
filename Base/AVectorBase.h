@@ -24,7 +24,8 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include "Base/AArrayBase.h"
+#include "support.h"
+#include "VectorProxy.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl
@@ -33,19 +34,18 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-class AVectorBase : protected AArrayBase {
+class AVectorBase {
 
 // types
 public:
-
-    typedef AArrayBase::ItemType ItemType;
 
     static const uint32_t RESIZE_STEP        = 8;
 
 // variables
 protected:
 
-    uint32_t numElements = 0;
+    VectorProxy proxy;
+    uint32_t numElements;
 
 // functions
 public:
@@ -55,11 +55,11 @@ public:
     }
 
     uint32_t getCapacity() const {
-        return AArrayBase::getSize();
+        return proxy.getCapacity();
     }
 
     inline void* getItemPointer(uint32_t ix) const {
-        return AArrayBase::getItemPointer(ix);
+        return proxy.getItemPointer(ix);
     }
 
     virtual void reserve(uint32_t length) = 0;
@@ -67,11 +67,11 @@ public:
     virtual void resize(uint32_t newLength) = 0;
     virtual void clear() = 0;
 
-
 protected:
 
     explicit AVectorBase(size_t itemSize) :
-        AArrayBase(itemSize, nullptr, 0) {};
+        proxy(itemSize, NULLPTR, 0),
+        numElements(0) {};
 
     ~AVectorBase() {
         deallocate();
@@ -80,7 +80,7 @@ protected:
     void allocate(uint32_t len);
 
     void deallocate() {
-        AVectorBase::deallocatePtr(data);
+        AVectorBase::deallocatePtr(proxy.data);
     }
 
     static void deallocatePtr(void* ptr);
