@@ -39,13 +39,13 @@ namespace ETL_NAMESPACE {
 
 #else
 
-#if __cplusplus < 201103L
+#if __cplusplus > 201103L
 #define ETL_USE_CPP11   1
 #endif
 
 #endif
 
-#if ETL_USE_CPP11
+#if (ETL_USE_CPP11 == 0)
 
 // nullptr idiom from https://en.wikibooks.org/wiki/More_C++_Idioms/nullptr
 
@@ -66,9 +66,14 @@ class NullptrT
 
 } NULLPTR = {};
 
+#define OVERRIDE
+#define FINAL
+
 #else
 
 #define NULLPTR         nullptr
+#define OVERRIDE        override
+#define FINAL           final
 
 #endif
 

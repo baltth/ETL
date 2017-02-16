@@ -1,3 +1,7 @@
 build
 doxygen
 .vscode
+.refresh_cscope.sh
+cscope.files
+cscope.out
+tags

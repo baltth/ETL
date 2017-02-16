@@ -24,7 +24,8 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include "support.h"
+#include "langSupport.h"
+
 #include "VectorProxy.h"
 
 #ifndef ETL_NAMESPACE
@@ -58,7 +59,7 @@ public:
         return proxy.getCapacity();
     }
 
-    inline void* getItemPointer(uint32_t ix) const {
+    void* getItemPointer(uint32_t ix) const {
         return proxy.getItemPointer(ix);
     }
 

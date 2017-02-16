@@ -91,11 +91,11 @@ public:
     }
 
     inline T* getData() {
-        return static_cast<T*>(data);
+        return static_cast<T*>(getItemPointer(0));
     }
 
     inline const T* getData() const {
-        return static_cast<T*>(data);
+        return static_cast<T*>(getItemPointer(0));
     }
 
     void reserve(uint32_t length) override;
@@ -560,5 +560,7 @@ void VectorTemplate<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
 }
 
 }
+
+#endif
 
 #endif /* __ETL_VECTORTEMPLATE_H__ */

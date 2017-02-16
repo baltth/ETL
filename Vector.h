@@ -144,7 +144,7 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
 #endif
 
 
-using PtrVectorBase = VectorTemplate<void*>;
+typedef VectorTemplate<void*> PtrVectorBase;
 
 template<class T>
 class Vector<T*> : public PtrVectorBase {
@@ -162,7 +162,7 @@ public:
         PtrVectorBase() {};
 
     explicit Vector<ItemType>(uint32_t len) :
-        PtrVectorBase(len, nullptr) {};
+        PtrVectorBase(len, NULLPTR) {};
 
     Vector<ItemType>(uint32_t len, const ItemType &item) :
         PtrVectorBase(len, item) {};
@@ -265,7 +265,7 @@ public:
     }
 
     virtual ItemType createItem() {     /// \todo
-        return nullptr;
+        return NULLPTR;
     }
 
 #if ETL_USE_CPP11
@@ -278,11 +278,11 @@ public:
 
 #else 
 
-    Iterator find(const Mathcer<T> &matcher) const {
-        return find(begin(), end(), std::move(matcher));
+    Iterator find(const Matcher<T*> &matcher) const {
+        return find(begin(), end(), matcher);
     }
 
-    inline Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matcher) const;
+    inline Iterator find(Iterator startPos, Iterator endPos, const Matcher<T*> &matcher) const;
     
 #endif
 
@@ -315,7 +315,7 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
 template<class T>
 typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
                                                Iterator endPos,
-                                               const Matcher<T> &matcher) const {
+                                               const Matcher<T*> &matcher) const {
 
     bool match = false;
 

@@ -42,7 +42,7 @@ public:
 
     virtual bool call(const T&) const = 0;
 
-}
+};
 
 #endif
 

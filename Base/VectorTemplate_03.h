@@ -56,18 +56,18 @@ private:
     class CreatorFunctor {
         public:
             virtual void call(T* pos, bool place) const = 0;
-    }
+    };
 
     class DefaultCreator : public CreatorFunctor {
         public:
             virtual void call(T* pos, bool place) const {
                 if(place) {
-                    placeDefaultTo(ptr);
+                    placeDefaultTo(pos);
                 } else {
-                    assignDefaultTo(ptr);
+                    assignDefaultTo(pos);
                 }
             }
-    }
+    };
 
     class CopyCreator : public CreatorFunctor {
         private:
@@ -79,12 +79,12 @@ private:
 
             virtual void call(T* pos, bool place) const {
                 if(place) {
-                    placeValueTo(ptr, ref);
+                    placeValueTo(pos, ref);
                 } else {
-                    assignValueTo(ptr, ref);
+                    assignValueTo(pos, ref);
                 }
             }
-    }
+    };
 
 // functions
 public:
@@ -98,7 +98,7 @@ public:
     }
 
     inline Iterator begin() const {
-        return static_cast<Iterator>(data);
+        return static_cast<Iterator>(getItemPointer(0));
     }
 
     inline Iterator end() const {
@@ -122,17 +122,17 @@ public:
     }
 
     inline T* getData() {
-        return static_cast<T*>(data);
+        return static_cast<T*>(getItemPointer(0));
     }
 
     inline const T* getData() const {
-        return static_cast<T*>(data);
+        return static_cast<T*>(getItemPointer(0));
     }
 
-    void reserve(uint32_t length) override;
-    void shrinkToFit() override;
-    void resize(uint32_t newLength) override;
-    void clear() override;
+    void reserve(uint32_t length) OVERRIDE;
+    void shrinkToFit() OVERRIDE;
+    void resize(uint32_t newLength) OVERRIDE;
+    void clear() OVERRIDE;
 
     inline Iterator insert(Iterator position, const T &value) {
         return insert(position, 1, value);
@@ -326,7 +326,7 @@ void VectorTemplate<T>::resize(uint32_t newLength) {
             reallocateAndCopyFor(getRoundedLength(newLength));
         }
 
-        Iterator newEnd = static_cast<T*>(data) + newLength;
+        Iterator newEnd = getData() + newLength;
 
         for(Iterator it = end(); it < newEnd; ++it) {
             placeDefaultTo(it);
@@ -334,7 +334,7 @@ void VectorTemplate<T>::resize(uint32_t newLength) {
 
     } else if(newLength < getSize()) {
 
-        Iterator newEnd = static_cast<T*>(data) + newLength;
+        Iterator newEnd = getData() + newLength;
         destruct(newEnd, end());
     }
 
@@ -352,7 +352,7 @@ void VectorTemplate<T>::reallocateAndCopyFor(uint32_t len) {
 
         uint32_t numToCopy = (len < numElements) ? len : numElements;
 
-        if((data != NULLPTR) && (numToCopy > 0)) {
+        if((getData() != NULLPTR) && (numToCopy > 0)) {
 
             T* dataAlias = getData();
             uninitializedCopy(oldData, dataAlias, numToCopy);
@@ -380,7 +380,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterat
 
         if((getSize() + numToInsert) > getCapacity()) {
 
-            uint32_t positionIx = position - begin()
+            uint32_t positionIx = position - begin();
             reallocateAndCopyFor(getRoundedLength(getSize() + numToInsert));
             position = begin() + positionIx;
         }
@@ -460,7 +460,7 @@ void VectorTemplate<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(int i = (num - 1); i >= 0; --i) {               // uninitializedCopy() always copies upwards
-            placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constuctor
+            placeValueTo((dst + i), src[i]);                // Placement new, copy constuctor
         }
     }
 }
@@ -471,7 +471,7 @@ void VectorTemplate<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(int i = (num - 1); i >= 0; --i) {
-            assignValueTo((dst + i), std::move(src[i]));
+            assignValueTo((dst + i), src[i]);
         }
     }
 }
@@ -482,7 +482,7 @@ void VectorTemplate<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(uint32_t i = 0; i < num; ++i) {
-            assignValueTo((dst + i), std::move(src[i]));
+            assignValueTo((dst + i), src[i]);
         }
     }
 }
