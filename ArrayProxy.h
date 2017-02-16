@@ -82,7 +82,7 @@ public:
 template<typename T>
 void TypedArrayProxy<T>::fill(const T &value) {
 
-    for(uint32_t i = 0; i < getSize(); ++i) {
+    for(uint32_t i = 0; i < getCapacity(); ++i) {
         operator[](i) = value;
     }
 }

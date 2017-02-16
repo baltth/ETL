@@ -39,8 +39,8 @@ class SequenceContainerProxy {
 // variables
 protected:
 
-    void* const data;
-    const uint32_t capacity;
+    void* data;
+    uint32_t capacity;
     const size_t itemSize;
 
 // functions
@@ -63,7 +63,7 @@ public:
         return data;
     }
 
-    uint32_t getSize() const {
+    uint32_t getCapacity() const {
         return capacity;
     }
 
