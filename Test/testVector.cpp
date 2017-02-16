@@ -23,8 +23,8 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Vector.h"
-#include "Test/UnalignedTester.h"
+#include <Vector.h>
+#include <Test/UnalignedTester.h>
 
 
 TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {

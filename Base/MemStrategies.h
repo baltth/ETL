@@ -58,6 +58,90 @@ protected:
 };
 */
 
+
+/** CRTP resize strategy for VectorTemplate<> */
+/*template<class T, uint32_t N>
+class StaticResizeStrategy {
+
+// variables
+private:
+
+    uint8_t data[N * sizeof(T)];
+
+// functions
+public:
+
+    void reserve(uint32_t length);
+    void shrinkToFit();
+    void resize(uint32_t newLength);
+    void clear();
+    
+    void reserveAtLeast(uint32_t length) {
+        reserve(length);
+    }
+
+};
+
+
+template<class T, uint32_t N>
+void StaticResizeStrategy<T, N>::reserve(uint32_t length) {
+
+    T* alias = static_cast<T*>(this);
+   
+    if(length <= N) {
+        if(length > alias.getCapacity() {
+            //alias->proxy. 
+        }
+    }
+}
+
+
+template<class T, class A>
+void StaticResizeStrategy<T, A>::reserveAtLeast(uint32_t length) {
+
+    reserve(getRoundedLength(length));
+}
+
+
+template<class T>
+void StaticResizeStrategy<T>::shrinkToFit() {
+
+    T* alias = static_cast<T*>(this);
+    
+    if(alias->getCapacity() > alias->getSize()) {
+        reallocateAndCopyFor(alias->getSize());
+    }
+}
+
+
+template<class T>
+void StaticResizeStrategy<T>::resize(uint32_t newLength) {
+
+    T* alias = static_cast<T*>(this);
+    
+    if(newLength > alias->getSize()) {
+
+        if(newLength > alias->getCapacity()) {
+            reallocateAndCopyFor(getRoundedLength(newLength));
+        }
+
+        typename T::Iterator newEnd = alias->getData() + newLength;
+
+        for(typename T::Iterator it = alias->end(); it < newEnd; ++it) {
+            alias->placeDefaultTo(it);
+        }
+
+    } else if(newLength < alias->getSize()) {
+
+        typename T::Iterator newEnd = alias->getData() + newLength;
+        alias->destruct(newEnd, alias->end());
+    }
+
+    alias->numElements = newLength;
+}
+*/
+
+/** Helper for DynamicResizeStrategy<> */
 template<class T>
 class DynamicAllocator {
 
@@ -75,6 +159,7 @@ public:
 };
 
 
+/** CRTP resize strategy for VectorTemplate<> */
 template<class T, class A = DynamicAllocator<T> >
 class DynamicResizeStrategy {
 
@@ -93,10 +178,13 @@ public:
     }
 
     void reserve(uint32_t length);
-    void reserveAtLeast(uint32_t length);
     void shrinkToFit();
     void resize(uint32_t newLength);
     void clear();
+    
+    void reserveAtLeast(uint32_t length) {
+        reserve(getRoundedLength(length));
+    }
 
 private:
 
@@ -123,13 +211,6 @@ void DynamicResizeStrategy<T, A>::reserve(uint32_t length) {
     if(length > alias->getCapacity()) {
         reallocateAndCopyFor(length);
     }
-}
-
-
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::reserveAtLeast(uint32_t length) {
-
-    reserve(getRoundedLength(length));
 }
 
 

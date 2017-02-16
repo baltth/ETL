@@ -23,9 +23,9 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Array.h"
-#include "ArrayProxy.h"
-#include "Test/UnalignedTester.h"
+#include <Array.h>
+#include <ArrayProxy.h>
+#include <Test/UnalignedTester.h>
 
 
 TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {

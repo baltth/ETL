@@ -37,11 +37,6 @@ namespace ETL_NAMESPACE {
 
 class AVectorBase {
 
-// types
-public:
-
-    static const uint32_t RESIZE_STEP        = 8;
-
 // variables
 protected:
 
