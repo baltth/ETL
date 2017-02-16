@@ -28,28 +28,6 @@ limitations under the License.
 using namespace ETL_NAMESPACE;
 
 
-void AVectorBase::allocate(uint32_t len) {
-
-    if(len > 0) {
-        proxy.data = operator new(len * proxy.itemSize);
-    } else {
-        proxy.data = NULLPTR;
-    }
-
-    if(proxy.data != NULLPTR) {
-        proxy.capacity = len;
-    } else {
-        proxy.capacity = 0;
-    }
-}
-
-
-void AVectorBase::deallocatePtr(void* ptr) {
-
-    operator delete(ptr);
-}
-
-
 void AVectorBase::swap(AVectorBase &other) {
 
     VectorProxy tmpProxy(proxy);

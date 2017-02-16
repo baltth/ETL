@@ -63,28 +63,11 @@ public:
         return proxy.getItemPointer(ix);
     }
 
-    virtual void reserve(uint32_t length) = 0;
-    virtual void shrinkToFit() = 0;
-    virtual void resize(uint32_t newLength) = 0;
-    virtual void clear() = 0;
-
 protected:
 
     explicit AVectorBase(size_t itemSize) :
         proxy(itemSize, NULLPTR, 0),
         numElements(0) {};
-
-    ~AVectorBase() {
-        deallocate();
-    }
-
-    void allocate(uint32_t len);
-
-    void deallocate() {
-        AVectorBase::deallocatePtr(proxy.data);
-    }
-
-    static void deallocatePtr(void* ptr);
 
     void swap(AVectorBase &other);
 
