@@ -1,11 +1,11 @@
-﻿/**
+/**
 \file
-\date 2016.01.11. 22:13:38
+\date 2017.02.20. 11:44:12
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2017 Tóth Balázs.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,9 +37,8 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T>
-class Vector : public VectorTemplate<T, HeapUser> {
-//friend DynamicResizeStrategy<Vector<T> >;
+template<class T, uint32_t N>
+class FixedVector : public VectorTemplate<T, HeapUser> {
 
 // types
 public:
@@ -48,44 +47,49 @@ public:
     typedef VectorTemplate<T, HeapUser> Base;
     typedef typename Base::Iterator Iterator;
 
+// types
+public:
+
+    typedef typename FixedVectorTemplate<T>::Iterator Iterator;
+    typedef T ItemType;
+
 // functions
 public:
 
-    Vector<T>() :
-        Base() {};
+    FixedVector<T>() :
+        FixedVectorTemplate<T>() {};
 
-    explicit Vector<T>(uint32_t len) :
-        Base(len) {};
+    explicit FixedVector<T>(uint32_t len) :
+        FixedVectorTemplate<T>(len) {};
 
-    Vector<T>(uint32_t len, const T &item) :
-        Base(len, item) {};
+    FixedVector<T>(uint32_t len, const T &item) :
+        FixedVectorTemplate<T>(len, item) {};
 
-    Vector<T>(const Vector<T> &other) :
-        Base(other) {};
+    FixedVector<T>(const FixedVector<T> &other) :
+        FixedVectorTemplate<T>(other) {};
 
-    Vector<T> &operator=(const Vector<T> &other) {
-        Base::operator=(other);
-        return *this;
+    FixedVector<T> &operator=(const FixedVector<T> &other) {
+        return FixedVectorTemplate<T>::operator=(other);
     }
 
 #if ETL_USE_CPP11
 
-    Vector<T>(Vector<T> &&other) :
-        Base(std::move(other)) {};
+    FixedVector<T>(FixedVector<T> &&other) :
+        FixedVectorTemplate<T>(std::move(other)) {};
 
-    Vector<T>(const std::initializer_list<T> &initList) :
-        Base(initList) {};
+    FixedVector<T>(const std::initializer_list<T> &initList) :
+        FixedVectorTemplate<T>(initList) {};
   
-    Vector<T> &operator=(Vector<T> &&other) {
-        return Base::operator=(std::move(other));
+    FixedVector<T> &operator=(FixedVector<T> &&other) {
+        return FixedVectorTemplate<T>::operator=(std::move(other));
     }
 
-    Vector<T> &operator=(const std::initializer_list<T> &initList) {
-        return Base::operator=(initList);
+    FixedVector<T> &operator=(const std::initializer_list<T> &initList) {
+        return FixedVectorTemplate<T>::operator=(initList);
     };
 
     Iterator find(std::function<bool(const T &)> &&matcher) const {
-        return find(Vector<T>::begin(), Vector<T>::end(), std::move(matcher));
+        return find(FixedVector<T>::begin(), FixedVector<T>::end(), std::move(matcher));
     }
 
     Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const T &)> &&matcher) const;
@@ -93,7 +97,7 @@ public:
 #else
 
     Iterator find(const Matcher<T> &matcher) const {
-        return find(Vector<T>::begin(), Vector<T>::end(), matcher);
+        return find(FixedVector<T>::begin(), FixedVector<T>::end(), matcher);
     }
 
     Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matcher) const;
@@ -106,7 +110,7 @@ public:
 #if ETL_USE_CPP11
 
 template<class T>
-typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
+typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
                                              Iterator endPos,
                                              std::function<bool(const T &)> &&matcher) const {
 
@@ -127,7 +131,7 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
 #else
 
 template<class T>
-typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
+typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
                                              Iterator endPos,
                                              const Matcher<T> &matcher) const {
 
@@ -147,11 +151,11 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
 
 #endif
 
-/*
-typedef VectorTemplate<void*, DynamicResizeStrategy<Vector<void*> > > PtrVectorBase;
+
+typedef FixedVectorTemplate<void*> FixedPtrVectorBase;
 
 template<class T>
-class Vector<T*> : public PtrVectorBase {
+class FixedVector<T*> : public FixedPtrVectorBase {
 
 // types
 public:
@@ -162,36 +166,36 @@ public:
 // functions
 public:
 
-    Vector<ItemType>() :
-        PtrVectorBase() {};
+    FixedVector<ItemType>() :
+        FixedPtrVectorBase() {};
 
-    explicit Vector<ItemType>(uint32_t len) :
-        PtrVectorBase(len, NULLPTR) {};
+    explicit FixedVector<ItemType>(uint32_t len) :
+        FixedPtrVectorBase(len, NULLPTR) {};
 
-    Vector<ItemType>(uint32_t len, const ItemType &item) :
-        PtrVectorBase(len, item) {};
+    FixedVector<ItemType>(uint32_t len, const ItemType &item) :
+        FixedPtrVectorBase(len, item) {};
 
-    Vector<ItemType>(const Vector<ItemType> &other) :
-        PtrVectorBase(other) {};
+    FixedVector<ItemType>(const FixedVector<ItemType> &other) :
+        FixedPtrVectorBase(other) {};
     
-    Vector<ItemType> &operator=(const Vector<ItemType> &other) {
-        return PtrVectorBase::operator=(other);
+    FixedVector<ItemType> &operator=(const FixedVector<ItemType> &other) {
+        return FixedPtrVectorBase::operator=(other);
     };
 
 #if ETL_USE_CPP11
 
-    Vector<ItemType>(Vector<ItemType> &&other) :
-        PtrVectorBase(std::move(other)) {};
+    FixedVector<ItemType>(FixedVector<ItemType> &&other) :
+        FixedPtrVectorBase(std::move(other)) {};
 
-    Vector<ItemType>(const std::initializer_list<void*> &initList) :
-        PtrVectorBase(initList) {};
+    FixedVector<ItemType>(const std::initializer_list<void*> &initList) :
+        FixedPtrVectorBase(initList) {};
 
-    Vector<ItemType> &operator=(Vector<ItemType> &&other) {
-        return PtrVectorBase::operator=(std::move(other));
+    FixedVector<ItemType> &operator=(FixedVector<ItemType> &&other) {
+        return FixedPtrVectorBase::operator=(std::move(other));
     };
 
-    Vector<ItemType> &operator=(const std::initializer_list<ItemType> &initList) {
-        return PtrVectorBase::operator=(initList);
+    FixedVector<ItemType> &operator=(const std::initializer_list<ItemType> &initList) {
+        return FixedPtrVectorBase::operator=(initList);
     };
 
 #endif
@@ -205,45 +209,45 @@ public:
     }
 
     inline Iterator begin() const {
-        return reinterpret_cast<Iterator>(PtrVectorBase::begin());
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::begin());
     }
 
     inline Iterator end() const {
-        return reinterpret_cast<Iterator>(PtrVectorBase::end());
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::end());
     }
 
     inline ItemType &front() {
-        return reinterpret_cast<ItemType &>(PtrVectorBase::front());
+        return reinterpret_cast<ItemType &>(FixedPtrVectorBase::front());
     }
 
     inline const ItemType &front() const {
-        return reinterpret_cast<const ItemType &>(PtrVectorBase::front());
+        return reinterpret_cast<const ItemType &>(FixedPtrVectorBase::front());
     }
 
     inline ItemType &back() {
-        return reinterpret_cast<ItemType &>(PtrVectorBase::back());
+        return reinterpret_cast<ItemType &>(FixedPtrVectorBase::back());
     }
 
     inline const ItemType &back() const {
-        return reinterpret_cast<const ItemType &>(PtrVectorBase::back());
+        return reinterpret_cast<const ItemType &>(FixedPtrVectorBase::back());
     }
 
     inline ItemType* getData() {
-        return static_cast<ItemType*>(PtrVectorBase::getData());
+        return static_cast<ItemType*>(FixedPtrVectorBase::getData());
     }
 
     inline const ItemType* getData() const {
-        return static_cast<ItemType*>(PtrVectorBase::getData());
+        return static_cast<ItemType*>(FixedPtrVectorBase::getData());
     }
 
     inline Iterator insert(Iterator position, const ItemType &value) {
-        return reinterpret_cast<Iterator>(PtrVectorBase::insert(reinterpret_cast<PtrVectorBase::Iterator>(position),
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::insert(reinterpret_cast<FixedPtrVectorBase::Iterator>(position),
                                                                 1,
                                                                 value));
     }
 
     inline Iterator insert(Iterator position, uint32_t num, const ItemType &value) {
-        return reinterpret_cast<Iterator>(PtrVectorBase::insert(reinterpret_cast<PtrVectorBase::Iterator>(position),
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::insert(reinterpret_cast<FixedPtrVectorBase::Iterator>(position),
                                                                 num,
                                                                 value));
     }
@@ -251,21 +255,21 @@ public:
     inline Iterator erase(Iterator pos) {
         Iterator next = pos;
         ++next;
-        return reinterpret_cast<Iterator>(PtrVectorBase::erase(reinterpret_cast<PtrVectorBase::Iterator>(pos),
-                                                               reinterpret_cast<PtrVectorBase::Iterator>(next)));
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::erase(reinterpret_cast<FixedPtrVectorBase::Iterator>(pos),
+                                                               reinterpret_cast<FixedPtrVectorBase::Iterator>(next)));
     }
 
     inline Iterator erase(Iterator first, Iterator last) {
-        return reinterpret_cast<Iterator>(PtrVectorBase::erase(reinterpret_cast<PtrVectorBase::Iterator>(first),
-                                                               reinterpret_cast<PtrVectorBase::Iterator>(last)));
+        return reinterpret_cast<Iterator>(FixedPtrVectorBase::erase(reinterpret_cast<FixedPtrVectorBase::Iterator>(first),
+                                                               reinterpret_cast<FixedPtrVectorBase::Iterator>(last)));
     }
 
     inline void pushBack(const ItemType &value) {
-        PtrVectorBase::insert(PtrVectorBase::end(), 1, value);
+        FixedPtrVectorBase::insert(FixedPtrVectorBase::end(), 1, value);
     }
 
     inline void popBack() {
-        PtrVectorBase::erase(PtrVectorBase::end());
+        FixedPtrVectorBase::erase(FixedPtrVectorBase::end());
     }
 
     virtual ItemType createItem() {     /// \todo
@@ -296,7 +300,7 @@ public:
 #if ETL_USE_CPP11
 
 template<class T>
-typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
+typename FixedVector<T*>::Iterator FixedVector<T*>::find(Iterator startPos,
                                                Iterator endPos,
                                                std::function<bool(const ItemType)> &&matcher) const {
 
@@ -317,7 +321,7 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
 #else
 
 template<class T>
-typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
+typename FixedVector<T*>::Iterator FixedVector<T*>::find(Iterator startPos,
                                                Iterator endPos,
                                                const Matcher<T*> &matcher) const {
 
@@ -335,10 +339,9 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
     return startPos;
 }
 
-
 #endif
-*/
 
 }
 
 #endif /* __ETL_VECTOR_H__ */
+

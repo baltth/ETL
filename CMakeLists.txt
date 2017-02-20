@@ -14,6 +14,7 @@ list(APPEND ETL_TEST_SRCS "Base/AVectorBase.cpp")
 
 list(APPEND ETL_TEST_SRCS "Test/testArray.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testVector.cpp")
+#list(APPEND ETL_TEST_SRCS "Test/testFixedVector.cpp")
 #list(APPEND ETL_TEST_SRCS "Test/testMap.cpp")
 
 add_executable(testEtl "Test/testEtl.cpp" ${ETL_TEST_SRCS})
@@ -22,5 +23,6 @@ enable_testing()
 
 add_test(testArray testEtl "[array]")
 add_test(testVector testEtl "[vector]")
+add_test(testFixedVector testEtl "[fixedvector]")
 #add_test(testMap testEtl "[map]")
 

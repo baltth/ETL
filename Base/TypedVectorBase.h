@@ -28,7 +28,6 @@ limitations under the License.
 #undef max
 
 #include "langSupport.h"
-
 #if (ETL_USE_CPP11 == 0)
 
 #include <new>
@@ -86,7 +85,6 @@ protected:
                 }
             }
     };
-
 
 // functions
 public:

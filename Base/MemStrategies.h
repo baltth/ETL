@@ -38,13 +38,13 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 /*
-template<class T>
+template<class C>
 class SampleResizeStrategy {
 
 // types
 public:
 
-    typedef T::ItemType ItemType;
+    typedef C::ItemType ItemType;
 
 // functions
 protected:
@@ -53,115 +53,66 @@ protected:
     void reserveAtLeast(uint32_t length);
     void shrinkToFit();
     void resize(uint32_t newLength);
-    void clear();
 
 };
 */
 
 
 /** CRTP resize strategy for VectorTemplate<> */
-/*template<class T, uint32_t N>
-class StaticResizeStrategy {
+template<class C, uint32_t N>
+class StaticSized : public C {
+
+// types:
+public:
+
+    typedef typename C::ItemType ItemType;
 
 // variables
 private:
 
-    uint8_t data[N * sizeof(T)];
+    uint8_t data[N * sizeof(ItemType)];
 
 // functions
 public:
 
-    void reserve(uint32_t length);
-    void shrinkToFit();
-    void resize(uint32_t newLength);
-    void clear();
-    
+    void reserve(uint32_t length) {
+        setupData(length);
+    }
+
     void reserveAtLeast(uint32_t length) {
-        reserve(length);
+        setupData(length);
     }
+
+    void shrinkToFit() {
+        setupData();
+    }
+
+    void resize(uint32_t newLength) {
+        setupData(newLength);
+    }
+
+private:
+
+    void setupData(uint32_t length = N);
 
 };
 
 
-template<class T, uint32_t N>
-void StaticResizeStrategy<T, N>::reserve(uint32_t length) {
+template<class C, uint32_t N>
+void StaticSized<C, N>::setupData(uint32_t length /* = N */) {
 
-    T* alias = static_cast<T*>(this);
-   
     if(length <= N) {
-        if(length > alias.getCapacity() {
-            //alias->proxy. 
-        }
+        C::proxy.setData(data);
+        C::proxy.setCapacity(N);
+    } else {
+        // TODO throw;
     }
 }
 
 
-template<class T, class A>
-void StaticResizeStrategy<T, A>::reserveAtLeast(uint32_t length) {
 
-    reserve(getRoundedLength(length));
-}
-
-
-template<class T>
-void StaticResizeStrategy<T>::shrinkToFit() {
-
-    T* alias = static_cast<T*>(this);
-    
-    if(alias->getCapacity() > alias->getSize()) {
-        reallocateAndCopyFor(alias->getSize());
-    }
-}
-
-
-template<class T>
-void StaticResizeStrategy<T>::resize(uint32_t newLength) {
-
-    T* alias = static_cast<T*>(this);
-    
-    if(newLength > alias->getSize()) {
-
-        if(newLength > alias->getCapacity()) {
-            reallocateAndCopyFor(getRoundedLength(newLength));
-        }
-
-        typename T::Iterator newEnd = alias->getData() + newLength;
-
-        for(typename T::Iterator it = alias->end(); it < newEnd; ++it) {
-            alias->placeDefaultTo(it);
-        }
-
-    } else if(newLength < alias->getSize()) {
-
-        typename T::Iterator newEnd = alias->getData() + newLength;
-        alias->destruct(newEnd, alias->end());
-    }
-
-    alias->numElements = newLength;
-}
-*/
-
-/** Helper for DynamicResizeStrategy<> */
-template<class T>
-class DynamicAllocator {
-
-// functions
-public:
-
-    static inline void* allocate(uint32_t len) {
-        return operator new(len * sizeof(T));
-    }
-
-    static inline void deallocate(void* ptr) {
-        operator delete(ptr);
-    }
-
-};
-
-
-/** CRTP resize strategy for VectorTemplate<> */
-template<class T, class A = DynamicAllocator<T> >
-class DynamicResizeStrategy {
+template<class C, class A>
+class DynamicSized : public C {
 
 // types
 public:
@@ -173,18 +124,19 @@ public:
 // functions
 public:
 
-    ~DynamicResizeStrategy() {
-       deallocate(); 
+    ~DynamicResized() {
+        C::clear();
+        deallocate();
     }
 
     void reserve(uint32_t length);
-    void shrinkToFit();
-    void resize(uint32_t newLength);
-    void clear();
-    
+
     void reserveAtLeast(uint32_t length) {
         reserve(getRoundedLength(length));
     }
+
+    void shrinkToFit();
+    void resize(uint32_t newLength);
 
 private:
 
@@ -193,9 +145,9 @@ private:
     void allocate(uint32_t len);
 
     void deallocate() {
-        A::deallocate(static_cast<T*>(this)->getData());
+        A::deallocate(C::getData());
     }
-    
+
     static uint32_t getRoundedLength(uint32_t length) {
         return (length + (RESIZE_STEP - 1)) & ~(RESIZE_STEP - 1);
     }
@@ -203,71 +155,64 @@ private:
 };
 
 
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::reserve(uint32_t length) {
+template<class C, class A>
+void DynamicSized<C, A>::reserve(uint32_t length) {
 
-    T* alias = static_cast<T*>(this);
-    
-    if(length > alias->getCapacity()) {
+    if(length > C::getCapacity()) {
         reallocateAndCopyFor(length);
     }
 }
 
 
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::shrinkToFit() {
+template<class C, class A>
+void DynamicSized<C, A>::shrinkToFit() {
 
-    T* alias = static_cast<T*>(this);
-    
-    if(alias->getCapacity() > alias->getSize()) {
-        reallocateAndCopyFor(alias->getSize());
+    if(C::getCapacity() > C::getSize()) {
+        reallocateAndCopyFor(C::getSize());
     }
 }
 
 
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::resize(uint32_t newLength) {
+template<class C, class A>
+void DynamicSized<C, A>::resize(uint32_t newLength) {
 
-    T* alias = static_cast<T*>(this);
-    
-    if(newLength > alias->getSize()) {
+    if(newLength > C::getSize()) {
 
-        if(newLength > alias->getCapacity()) {
+        if(newLength > C::getCapacity()) {
             reallocateAndCopyFor(getRoundedLength(newLength));
         }
 
-        typename T::Iterator newEnd = alias->getData() + newLength;
+        typename C::Iterator newEnd = C::getData() + newLength;
 
-        for(typename T::Iterator it = alias->end(); it < newEnd; ++it) {
-            alias->placeDefaultTo(it);
+        for(typename C::Iterator it = C::end(); it < newEnd; ++it) {
+            C::placeDefaultTo(it);
         }
 
-    } else if(newLength < alias->getSize()) {
+    } else if(newLength < C::getSize()) {
 
-        typename T::Iterator newEnd = alias->getData() + newLength;
-        alias->destruct(newEnd, alias->end());
+        typename C::Iterator newEnd = C::getData() + newLength;
+        C::destruct(newEnd, C::end());
     }
 
-    alias->numElements = newLength;
+    C::setSize(newLength);
 }
 
 
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::reallocateAndCopyFor(uint32_t len) {
+template<class C, class A>
+void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
 
-    T* alias = static_cast<T*>(this);
-    typename T::ItemType* oldData = alias->getData();
-    
+    typename C::ItemType* oldData = C::getData();
+
     allocate(len);
 
     if(oldData != NULLPTR) {
 
-        uint32_t numToCopy = (len < alias->numElements) ? len : alias->numElements;
+        uint32_t numToCopy = (len < C::getSize()) ? len : C::getSize();
 
-        if((alias->getData() != NULLPTR) && (numToCopy > 0)) {
+        if((C::getData() != NULLPTR) && (numToCopy > 0)) {
 
-            typename T::ItemType* dataAlias = alias->getData();
-            alias->uninitializedCopy(oldData, dataAlias, numToCopy);
+            typename C::ItemType* dataAlias = C::getData();
+            C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 
         A::deallocate(oldData);
@@ -275,23 +220,42 @@ void DynamicResizeStrategy<T, A>::reallocateAndCopyFor(uint32_t len) {
 }
 
 
-template<class T, class A>
-void DynamicResizeStrategy<T, A>::allocate(uint32_t len) {
+template<class C, class A>
+void DynamicSized<C, A>::allocate(uint32_t len) {
 
-    T* alias = static_cast<T*>(this);
-    
     if(len > 0) {
-        alias->proxy.setData(A::allocate(len * alias->proxy.getItemSize()));
+        C::proxy.setData(A::allocate(len * C::proxy.getItemSize()));
     } else {
-        alias->proxy.setData(NULLPTR);
+        C::proxy.setData(NULLPTR);
     }
 
-    if(alias->proxy.getData() != NULLPTR) {
-        alias->proxy.setCapacity(len);
+    if(C::getData() != NULLPTR) {
+        C::proxy.setCapacity(len);
     } else {
-        alias->proxy.setCapacity(0);
+        C::proxy.setCapacity(0);
     }
 }
+
+
+/** Helper for HeapUser<> */
+class HeapAllocator {
+
+// functions
+public:
+
+    static inline void* allocate(size_t size) {
+        return operator new(size);
+    }
+
+    static inline void deallocate(void* ptr) {
+        operator delete(ptr);
+    }
+
+};
+
+
+template<class C>
+class HeapUser : public DynamicSized<C, HeapAllocator> {};
 
 }
 

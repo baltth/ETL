@@ -35,7 +35,6 @@ limitations under the License.
 #include <utility>
 
 #include "Base/TypedVectorBase.h"
-#include "Base/MemStrategies.h"
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl
@@ -44,13 +43,13 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T>
-class VectorTemplate : public TypedVectorBase<T>, public DynamicResizeStrategy<VectorTemplate<T> > {
-friend DynamicResizeStrategy<VectorTemplate<T> >;  
+template<class T, template<class> class S>
+class VectorTemplate : public S<TypedVectorBase<T> > {
 
 // types
 public:
 
+    typedef S<TypedVectorBase<T> > Strategy;
     typedef T ItemType;
     typedef T* Iterator;
 
@@ -73,74 +72,73 @@ public:
         insert(TypedVectorBase<T>::end(), value);
     }
 
-    inline void swap(VectorTemplate<T> &other) {
+    inline void swap(VectorTemplate<T, S> &other) {
         AVectorBase::swap(other);
     }
 
 protected:
 
-    VectorTemplate<T>() {};
+    VectorTemplate<T, S>() {};
 
-    explicit VectorTemplate<T>(uint32_t len);
+    explicit VectorTemplate<T, S>(uint32_t len);
 
-    VectorTemplate<T>(uint32_t len, const T &item);
+    VectorTemplate<T, S>(uint32_t len, const T &item);
 
-    VectorTemplate<T>(const VectorTemplate<T> &other);
-    VectorTemplate<T> &operator=(const VectorTemplate<T> &other);
+    VectorTemplate<T, S>(const VectorTemplate<T, S> &other);
+    VectorTemplate<T, S> &operator=(const VectorTemplate<T, S> &other);
 
-    ~VectorTemplate<T>() {
+    ~VectorTemplate<T, S>() {
         TypedVectorBase<T>::clear();
     }
 
 private:
-
 
     Iterator insertWithCreator(Iterator position, uint32_t num, const CreatorFunctor& creatorCall);
 
 };
 
 
-template<class T>
-VectorTemplate<T>::VectorTemplate(uint32_t len) {
+template<class T, template<class> class S>
+VectorTemplate<T, S>::VectorTemplate(uint32_t len) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
     insertWithCreator(TypedVectorBase<T>::begin(), len, dc);
 }
 
 
-template<class T>
-VectorTemplate<T>::VectorTemplate(uint32_t len, const T &item) {
+template<class T, template<class> class S>
+VectorTemplate<T, S>::VectorTemplate(uint32_t len, const T &item) {
 
     insert(TypedVectorBase<T>::begin(), len, item);
 }
 
 
-template<class T>
-VectorTemplate<T>::VectorTemplate(const VectorTemplate<T> &other) {
+template<class T, template<class> class S>
+VectorTemplate<T, S>::VectorTemplate(const VectorTemplate<T, S> &other) {
 
     operator=(other);
 }
 
 
-template<class T>
-VectorTemplate<T> &VectorTemplate<T>::operator=(const VectorTemplate<T> &other) {
+template<class T, template<class> class S>
+VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const VectorTemplate<T, S> &other) {
 
-    reserve(other.getSize());
+    this->reserve(other.getSize());
     copyOperation(other.begin(), other.getSize());
     return *this;
 }
 
 
-template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, uint32_t num, const T &value) {
+template<class T, template<class> class S>
+typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insert(Iterator position, uint32_t num, const T &value) {
 
     typename TypedVectorBase<T>::CopyCreator cc(value);
     return insertWithCreator(position, num, cc);
 }
 
 
-template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterator position,
+template<class T, template<class> class S>
+typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(Iterator position,
                                                                           uint32_t numToInsert,
                                                                           const CreatorFunctor& creatorCall) {
 
