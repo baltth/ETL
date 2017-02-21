@@ -64,6 +64,10 @@ protected:
         proxy(itemSize, NULLPTR, 0),
         numElements(0) {};
 
+    void setSize(uint32_t newSize) {
+        numElements = newSize;
+    }
+
     void swap(AVectorBase &other);
 
 };
