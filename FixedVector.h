@@ -55,9 +55,7 @@ private:
 // functions
 public:
 
-    FixedVector<T, N>() : 
-        Base(data, N) {};
-
+    FixedVector<T, N>(); 
     explicit FixedVector<T, N>(uint32_t len);
     FixedVector<T, N>(uint32_t len, const T &item);
 
@@ -107,18 +105,27 @@ public:
 
 
 template<class T, uint32_t N>
+FixedVector<T, N>::FixedVector() :
+    Base(data, N) {
+    
+    this->reserve(N);
+}
+
+
+template<class T, uint32_t N>
 FixedVector<T, N>::FixedVector(uint32_t len) :
     Base(data, N) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
-    insertWithCreator(this->begin(), len, dc);
+    this->insertWithCreator(this->begin(), len, dc);
 }
+
 
 template<class T, uint32_t N>
 FixedVector<T, N>::FixedVector(uint32_t len, const T &item) :
     Base(data, N) {
 
-    insert(this->begin(), len, item);
+    this->insert(this->begin(), len, item);
 }
 
 
