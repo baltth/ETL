@@ -103,14 +103,14 @@ template<class T>
 Vector<T>::Vector(uint32_t len) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
-    insertWithCreator(this->begin(), len, dc);
+    this->insertWithCreator(this->begin(), len, dc);
 }
 
 
 template<class T>
 Vector<T>::Vector(uint32_t len, const T &item) {
 
-    insert(this->begin(), len, item);
+    this->insert(this->begin(), len, item);
 }
 
 

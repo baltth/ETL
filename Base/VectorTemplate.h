@@ -109,12 +109,6 @@ protected:
     VectorTemplate<T, S> &operator=(VectorTemplate<T, S> &&other);
     VectorTemplate<T, S> &operator=(const std::initializer_list<T> &initList);
 
-#endif
-
-private:
-
-#if ETL_USE_CPP11
-
     Iterator insertWithCreator(Iterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
     void initWith(const T* src, uint32_t num);
 
@@ -137,8 +131,8 @@ VectorTemplate<T, S>::VectorTemplate(const VectorTemplate<T, S> &other) {
 template<class T, template<class> class S>
 VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const VectorTemplate<T, S> &other) {
 
-    reserve(other.getSize());
-    copyOperation(other.begin(), other.getSize());
+    this->reserve(other.getSize());
+    this->copyOperation(other.begin(), other.getSize());
     return *this;
 }
 
@@ -148,7 +142,7 @@ VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const VectorTemplate<T, S>
 template<class T, template<class> class S>
 VectorTemplate<T, S>::VectorTemplate(VectorTemplate<T, S> &&other) {
 
-    swap(other);
+    this->swap(other);
 }
 
 
@@ -162,7 +156,7 @@ VectorTemplate<T, S>::VectorTemplate(const std::initializer_list<T> &initList) {
 template<class T, template<class> class S>
 VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(VectorTemplate<T> &&other) {
 
-    swap(other);
+    this->swap(other);
     return *this;
 }
 
@@ -170,7 +164,7 @@ VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(VectorTemplate<T> &&other)
 template<class T, template<class> class S>
 VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const std::initializer_list<T> &initList) {
 
-    copyOperation(initList.begin(), initList.size());
+    this->copyOperation(initList.begin(), initList.size());
     return *this;
 }
 

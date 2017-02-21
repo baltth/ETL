@@ -146,7 +146,7 @@ public:
     }
 
     inline void popBack() {
-        erase(end());
+        erase(end() - 1);
     }
     
     inline Iterator erase(Iterator pos) {

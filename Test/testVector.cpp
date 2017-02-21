@@ -52,6 +52,9 @@ TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
     ++it;
     *it = 3;
 
+    vector.insert(vector.begin(), 11);
+    REQUIRE(vector[0] == 11);
+    vector.popFront();
     vector.erase(vector.begin());
 
     REQUIRE(*vector.begin() == 3);
@@ -59,61 +62,84 @@ TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
 
 }
 
-TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl][basic]") {
+TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::Vector<ItemType> VectorType;
+
     static const ItemType itemBack1 = 1;
     static const ItemType itemBack2 = 2;
     static const ItemType itemFront1 = 3;
     static const ItemType itemFront2 = 4;
-    static const ItemType itemInsSgl = 5;
-    static const ItemType itemInsMul = 100;
-    int itemsToAdd = 2;
-    int itemsToRemove = 3;
-    int size = 0;
 
     VectorType vector;
 
-    REQUIRE(vector.getSize() == 0);
-
-    vector.reserve(3);
-    REQUIRE(vector.getCapacity() >= 3);
-    REQUIRE(vector.getSize() == 0);
-
     vector.pushBack(itemBack1);
-    size++;
     vector.pushBack(itemBack2);
-    size++;
     vector.pushFront(itemFront1);
-    size++;
     vector.pushFront(itemFront2);
-    size++;
-    vector.insert(static_cast<VectorType::Iterator>(vector.getItemPointer(2)), itemInsSgl);
-    size++;
-    vector.insert(static_cast<VectorType::Iterator>(vector.getItemPointer(4)), itemsToAdd, itemInsMul);
-    size += itemsToAdd;
-    REQUIRE(vector.getSize() == size);
+    
+    REQUIRE(vector.getSize() == 4);
+
     REQUIRE(vector[0] == itemFront2);
     REQUIRE(vector[1] == itemFront1);
-    REQUIRE(vector[2] == itemInsSgl);
-    REQUIRE(vector[3] == itemBack1);
-    REQUIRE(vector[4] == itemInsMul);
-    REQUIRE(vector[5] == itemInsMul);
-    REQUIRE(vector[6] == itemBack2);
+    REQUIRE(vector[2] == itemBack1);
+    REQUIRE(vector[3] == itemBack2);
 
-    vector.erase(static_cast<VectorType::Iterator>(vector.getItemPointer(1)));
-    size--;
-    REQUIRE(vector.getSize() == size);
-    REQUIRE(vector[1] == itemInsSgl);
+    REQUIRE(vector.back() == itemBack2);
+    vector.popBack();
+    REQUIRE(vector.back() == itemBack1);
+    
+    REQUIRE(vector.front() == itemFront2);
+    vector.popFront();
+    REQUIRE(vector.front() == itemFront1);
 
-    vector.erase(static_cast<VectorType::Iterator>(vector.getItemPointer(3)),
-    		     static_cast<VectorType::Iterator>(vector.getItemPointer(3 + itemsToRemove)));
-    size -= itemsToRemove;
-    REQUIRE(vector.getSize() == size);
-    REQUIRE(vector[1] == itemInsSgl);
+    vector.popBack();
+    vector.popFront();
+
+    REQUIRE(vector.getSize() == 0);
+    
+}
+
+TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Vector<ItemType> VectorType;
+
+    VectorType vector(4, 0);
+
+    CHECK(vector.getSize() == 4);
+
+    VectorType::Iterator it = vector.begin() + 2;
+    it = vector.insert(it, 2);
+    REQUIRE(vector[2] == 2);
+    REQUIRE(vector.getSize() == 5);
+    REQUIRE(it == &vector[2]);
+
+    ++it;
+    it = vector.insert(it, 2, 3);
+    REQUIRE(vector[2] == 2);
+    REQUIRE(vector[3] == 3);
+    REQUIRE(vector[4] == 3);
+    REQUIRE(vector.getSize() == 7);
+    REQUIRE(it == &vector[3]);
+    
+    CHECK(vector[1] == 0);
+    CHECK(vector[5] == 0);
+
+    it = vector.begin() + 2;
+    it = vector.erase(it);
+    REQUIRE(vector.getSize() == 6);
+    REQUIRE(vector[2] == 3);
+    REQUIRE(it == &vector[2]);
+
+    it = vector.erase(it, it + 2);
+    REQUIRE(vector.getSize() == 4);
+    REQUIRE(vector[2] == 0);
+    REQUIRE(it == &vector[2]);
 
 }
+
 
 TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl][basic]") {
 
@@ -123,6 +149,7 @@ TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl][basic]") {
     VectorType vector;
 
     REQUIRE(vector.getSize() == 0);
+    REQUIRE(vector.getCapacity() == 0);
 
     vector.reserve(16);
     REQUIRE(vector.getCapacity() >= 16);
@@ -137,32 +164,58 @@ TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl][basic]") {
 
     vector.reserveAtLeast(5);
     REQUIRE(vector.getSize() == 2);
-    REQUIRE(vector.getCapacity() == 8); // Etl::Vector<ItemType>::RESIZE_STEP !
+    REQUIRE(vector.getCapacity() >= 5);
 
-    vector.resize(6);
-    REQUIRE(vector.getSize() == 6);
-    REQUIRE(vector.getCapacity() == 8);
+    uint32_t capacity = vector.getCapacity();
+    uint32_t newSize = capacity + 3;
 
-    vector.insert(static_cast<VectorType::Iterator>(vector.getItemPointer(4)), 3);
-    REQUIRE(vector.getSize() == 7);
-    REQUIRE(vector.getCapacity() == 8);
+    vector.resize(newSize);
+    REQUIRE(vector.getSize() == newSize);
+    REQUIRE(vector.getCapacity() >= newSize);
 
-    vector.insert(static_cast<VectorType::Iterator>(vector.getItemPointer(4)), 4, 4);
-    REQUIRE(vector.getSize() == 11);
-    REQUIRE(vector.getCapacity() == 16);
-
-    vector.popFront();
-    vector.popFront();
-    vector.popFront();
-    vector.popFront();
-    REQUIRE(vector.getSize() == 7);
-    REQUIRE(vector.getCapacity() == 16);
-
-    vector.shrinkToFit();
-    REQUIRE(vector.getCapacity() == 7);
+    capacity = vector.getCapacity();
+    vector.clear();
+    REQUIRE(vector.getSize() == 0);
+    REQUIRE(vector.getCapacity() == capacity);
 
 }
 
+
+TEST_CASE("Etl::Vector<> constructor test", "[vector][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Vector<ItemType> VectorType;
+
+    static const ItemType INIT_VALUE = 123;
+
+    VectorType vector1;
+    REQUIRE(vector1.getSize() == 0);
+    REQUIRE(vector1.getCapacity() == 0);
+
+    VectorType vector2(4);
+    REQUIRE(vector2.getSize() == 4);
+    REQUIRE(vector2.getCapacity() >= 4);
+
+    CAPTURE(INIT_VALUE);
+    VectorType vector3(4, INIT_VALUE);
+    REQUIRE(vector3.getSize() == 4);
+    REQUIRE(vector3.getCapacity() >= 4);
+    REQUIRE(vector3[0] == INIT_VALUE);
+    REQUIRE(vector3[3] == INIT_VALUE);
+
+    VectorType vector4(vector3);
+    REQUIRE(vector4.getSize() == 4);
+    REQUIRE(vector4.getCapacity() >= 4);
+    REQUIRE(vector4[0] == INIT_VALUE);
+    REQUIRE(vector4[3] == INIT_VALUE);
+
+    vector1 = vector4;
+    REQUIRE(vector1.getSize() == 4);
+    REQUIRE(vector1.getCapacity() >= 4);
+    REQUIRE(vector1[0] == INIT_VALUE);
+    REQUIRE(vector1[3] == INIT_VALUE);
+
+}
 
 /*
 TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
