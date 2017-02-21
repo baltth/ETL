@@ -28,7 +28,11 @@ limitations under the License.
 #undef max
 
 #include "langSupport.h"
-#if (ETL_USE_CPP11 == 0)
+
+#if ETL_USE_CPP11
+#include <functional>
+#include <initializer_list>
+#endif
 
 #include <new>
 #include <utility>
@@ -52,6 +56,12 @@ public:
     typedef T* Iterator;
 
 protected:
+
+#if ETL_USE_CPP11
+
+    typedef std::function<void(T*, bool)> CreatorFunctor;
+
+#else 
 
     class CreatorFunctor {
         public:
@@ -85,6 +95,8 @@ protected:
                 }
             }
     };
+
+#endif
 
 // functions
 public:
@@ -172,6 +184,18 @@ protected:
         new(ptr) T(value);
     }
 
+#if ETL_USE_CPP11
+
+    static void assignValueTo(T* ptr, T &&value) {
+        *ptr = std::move(value);
+    }
+
+    static void placeValueTo(T* ptr, T &&value) {
+        new(ptr) T(std::move(value));
+    }
+
+#endif
+
     void copyOperation(const T* src, uint32_t num);
     
     void uninitializedCopy(T* src, T* dst, uint32_t num);
@@ -180,7 +204,15 @@ protected:
 
     void destruct(Iterator startPos, Iterator endPos);
 
+#if ETL_USE_CPP11
+
+    Iterator insertOperation(Iterator position, uint32_t num, CreatorFunctor&& creatorCall);
+
+#else
+
     Iterator insertOperation(Iterator position, uint32_t num, const CreatorFunctor& creatorCall);
+
+#endif
 
 };
 
@@ -223,6 +255,56 @@ void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
     destruct((dataAlias + i), end());
     numElements = num;
 }
+
+
+#if ETL_USE_CPP11
+
+template<class T>
+typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterator position,
+                                                                          uint32_t numToInsert,
+                                                                          CreatorFunctor&& creatorCall) {
+
+    if(numToInsert > 0) {
+
+        uint32_t distanceFromEnd = end() - position;
+
+        uint32_t uninitedCopyNumber = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
+        uint32_t initedCopyNumber = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
+        uint32_t uninitedInsertNumber = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
+        uint32_t initedInsertNumber = uninitedCopyNumber;
+
+        T* src = end() - uninitedCopyNumber;
+        T* dst = end() + numToInsert - uninitedCopyNumber;
+
+        uninitializedCopy(src, dst, uninitedCopyNumber);
+
+        src -= initedCopyNumber;
+        dst -= initedCopyNumber;
+
+        initializedCopyUp(src, dst, initedCopyNumber);
+
+        T* uninitedInsertPos = dst;
+        dst -= uninitedInsertNumber;
+
+        while(uninitedInsertPos > dst) {
+            --uninitedInsertPos;
+            creatorCall(uninitedInsertPos, true);
+        }
+
+        dst -= initedInsertNumber;
+
+        while(uninitedInsertPos > dst) {
+            --uninitedInsertPos;
+            creatorCall(uninitedInsertPos, false);
+        }
+
+        numElements += numToInsert;
+    }
+
+    return position;
+}
+
+#else
 
 template<class T>
 typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterator position,
@@ -269,12 +351,19 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterat
     return position;
 }
 
+#endif
+
+
 template<class T>
 void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(int i = (num - 1); i >= 0; --i) {               // uninitializedCopy() always copies upwards
+#if ETL_USE_CPP11
+            placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constuctor
+#else
             placeValueTo((dst + i), src[i]);                // Placement new, copy constuctor
+#endif
         }
     }
 }
@@ -285,7 +374,11 @@ void TypedVectorBase<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(int i = (num - 1); i >= 0; --i) {
+#if ETL_USE_CPP11
+            assignValueTo((dst + i), std::move(src[i]));
+#else
             assignValueTo((dst + i), src[i]);
+#endif
         }
     }
 }
@@ -296,7 +389,11 @@ void TypedVectorBase<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
 
     if(src != dst) {
         for(uint32_t i = 0; i < num; ++i) {
+#if ETL_USE_CPP11
+            assignValueTo((dst + i), std::move(src[i]));
+#else
             assignValueTo((dst + i), src[i]);
+#endif
         }
     }
 }
@@ -320,8 +417,6 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
 }
 
 }
-
-#endif
 
 #endif /* __ETL_TYPEDVECTORBASE_H__ */
 

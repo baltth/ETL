@@ -29,8 +29,6 @@ limitations under the License.
 
 #include "langSupport.h"
 
-#if (ETL_USE_CPP11 == 0)
-
 #include <new>
 #include <utility>
 
@@ -129,7 +127,6 @@ private:
 };
 
 
-
 template<class T, template<class> class S>
 VectorTemplate<T, S>::VectorTemplate(const VectorTemplate<T, S> &other) {
 
@@ -181,7 +178,11 @@ template<class T, template<class> class S>
 typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, uint32_t num, const T &value) {
 
     return insertWithCreator(position, num, [&value](T * item, bool place) {
-        insertValueTo(item, place, value);
+        if(place) {
+            placeValueTo(ptr, value);
+        } else {
+            assignValueTo(ptr, value);
+        }
     });
 }
 
@@ -190,7 +191,11 @@ template<class T, template<class> class S>
 typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, T &&value) {
 
     return insertWithCreator(position, 1, [&value](T * item, bool place) {
-        insertValueTo(item, place, std::move(value));
+        if(place) {
+            placeValueTo(ptr, std::move(value));
+        } else {
+            assignValueTo(ptr, std::move(value));
+        }
     });
 }
 
@@ -279,8 +284,6 @@ typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(
 #endif
 
 }
-
-#endif
 
 #endif /* __ETL_VECTORTEMPLATE_03_H__ */
 
