@@ -38,54 +38,53 @@ namespace ETL_NAMESPACE {
 
 
 template<class T, uint32_t N>
-class FixedVector : public VectorTemplate<T, HeapUser> {
+class FixedVector : public VectorTemplate<T, StaticSized> {
 
 // types
 public:
 
     typedef T ItemType;
-    typedef VectorTemplate<T, HeapUser> Base;
+    typedef VectorTemplate<T, StaticSized> Base;
     typedef typename Base::Iterator Iterator;
 
-// types
-public:
+// variables
+private:
 
-    typedef typename FixedVectorTemplate<T>::Iterator Iterator;
-    typedef T ItemType;
+    uint8_t data[N * sizeof(T)];
 
 // functions
 public:
 
-    FixedVector<T>() :
-        FixedVectorTemplate<T>() {};
+    FixedVector<T, N>() : 
+        Base(data, N) {};
 
-    explicit FixedVector<T>(uint32_t len) :
-        FixedVectorTemplate<T>(len) {};
+    explicit FixedVector<T, N>(uint32_t len);
+    FixedVector<T, N>(uint32_t len, const T &item);
 
-    FixedVector<T>(uint32_t len, const T &item) :
-        FixedVectorTemplate<T>(len, item) {};
+    FixedVector<T, N>(const FixedVector<T, N> &other) :
+        Base(other) {};
 
-    FixedVector<T>(const FixedVector<T> &other) :
-        FixedVectorTemplate<T>(other) {};
-
-    FixedVector<T> &operator=(const FixedVector<T> &other) {
-        return FixedVectorTemplate<T>::operator=(other);
+    FixedVector<T, N> &operator=(const FixedVector<T, N> &other) {
+        Base::operator=(other);
+        return *this;
     }
 
 #if ETL_USE_CPP11
 
     FixedVector<T>(FixedVector<T> &&other) :
-        FixedVectorTemplate<T>(std::move(other)) {};
+        Base(std::move(other)) {};
 
     FixedVector<T>(const std::initializer_list<T> &initList) :
-        FixedVectorTemplate<T>(initList) {};
+        Bsae(initList) {};
   
     FixedVector<T> &operator=(FixedVector<T> &&other) {
-        return FixedVectorTemplate<T>::operator=(std::move(other));
+        Base::operator=(std::move(other));
+        return *this;
     }
 
     FixedVector<T> &operator=(const std::initializer_list<T> &initList) {
-        return FixedVectorTemplate<T>::operator=(initList);
+        Base::operator=(initList);
+        return *this;
     };
 
     Iterator find(std::function<bool(const T &)> &&matcher) const {
@@ -97,7 +96,7 @@ public:
 #else
 
     Iterator find(const Matcher<T> &matcher) const {
-        return find(FixedVector<T>::begin(), FixedVector<T>::end(), matcher);
+        return find(FixedVector<T, N>::begin(), FixedVector<T, N>::end(), matcher);
     }
 
     Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matcher) const;
@@ -105,6 +104,22 @@ public:
 #endif
 
 };
+
+
+template<class T, uint32_t N>
+FixedVector<T, N>::FixedVector(uint32_t len) :
+    Base(data, N) {
+
+    typename TypedVectorBase<T>::DefaultCreator dc;
+    insertWithCreator(this->begin(), len, dc);
+}
+
+template<class T, uint32_t N>
+FixedVector<T, N>::FixedVector(uint32_t len, const T &item) :
+    Base(data, N) {
+
+    insert(this->begin(), len, item);
+}
 
 
 #if ETL_USE_CPP11
@@ -130,10 +145,10 @@ typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
 
 #else
 
-template<class T>
-typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
-                                             Iterator endPos,
-                                             const Matcher<T> &matcher) const {
+template<class T, uint32_t N>
+typename FixedVector<T, N>::Iterator FixedVector<T, N>::find(Iterator startPos,
+                                                             Iterator endPos,
+                                                             const Matcher<T> &matcher) const {
 
     bool match = false;
 
@@ -151,11 +166,11 @@ typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
 
 #endif
 
+/*
+typedef FixedVector<void*> FixedPtrVectorBase;
 
-typedef FixedVectorTemplate<void*> FixedPtrVectorBase;
-
-template<class T>
-class FixedVector<T*> : public FixedPtrVectorBase {
+template<class T, uint32_t N>
+class FixedVector<T*, N> : public FixedPtrVectorBase {
 
 // types
 public:
@@ -340,7 +355,7 @@ typename FixedVector<T*>::Iterator FixedVector<T*>::find(Iterator startPos,
 }
 
 #endif
-
+*/
 }
 
 #endif /* __ETL_VECTOR_H__ */

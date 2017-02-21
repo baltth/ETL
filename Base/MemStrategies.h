@@ -39,7 +39,7 @@ namespace ETL_NAMESPACE {
 
 /*
 template<class C>
-class SampleResizeStrategy {
+class SampleStrategy : public C {
 
 // types
 public:
@@ -47,8 +47,9 @@ public:
     typedef C::ItemType ItemType;
 
 // functions
-protected:
+public:
 
+    SampleStrategy(void* initData, uint32_t initCapacity);
     void reserve(uint32_t length);
     void reserveAtLeast(uint32_t length);
     void shrinkToFit();
@@ -58,8 +59,8 @@ protected:
 */
 
 
-/** CRTP resize strategy for VectorTemplate<> */
-template<class C, uint32_t N>
+/** Mem strategy with static size, allocated externally */
+template<class C>
 class StaticSized : public C {
 
 // types:
@@ -70,10 +71,21 @@ public:
 // variables
 private:
 
-    uint8_t data[N * sizeof(ItemType)];
+    void* const data;
+    const uint32_t capacity;
 
 // functions
 public:
+
+    // No StaticSized();
+
+    StaticSized(void* initData, uint32_t initCapacity) :
+        data(initData),
+        capacity(initCapacity) {};
+
+    ~StaticSized() {
+        C::clear();
+    }
 
     void reserve(uint32_t length) {
         setupData(length);
@@ -84,7 +96,7 @@ public:
     }
 
     void shrinkToFit() {
-        setupData();
+        setupData(capacity);
     }
 
     void resize(uint32_t newLength) {
@@ -93,17 +105,17 @@ public:
 
 private:
 
-    void setupData(uint32_t length = N);
+    void setupData(uint32_t length);
 
 };
 
 
-template<class C, uint32_t N>
-void StaticSized<C, N>::setupData(uint32_t length /* = N */) {
+template<class C>
+void StaticSized<C>::setupData(uint32_t length) {
 
-    if(length <= N) {
+    if(length <= capacity) {
         C::proxy.setData(data);
-        C::proxy.setCapacity(N);
+        C::proxy.setCapacity(capacity);
     } else {
         // TODO throw;
     }
@@ -111,6 +123,7 @@ void StaticSized<C, N>::setupData(uint32_t length /* = N */) {
 
 
 
+/** Mem strategy with dynamic size, allocated with Allocator */
 template<class C, class A>
 class DynamicSized : public C {
 
@@ -124,7 +137,9 @@ public:
 // functions
 public:
 
-    ~DynamicResized() {
+    // No DynamicSized(void* initData, uint32_t initCapacity);
+    
+    ~DynamicSized() {
         C::clear();
         deallocate();
     }
@@ -254,10 +269,12 @@ public:
 };
 
 
+/** Heap allocated mem strategy */
 template<class C>
 class HeapUser : public DynamicSized<C, HeapAllocator> {};
 
 }
+
 
 #endif /* __ETL_MEMSTARTEGIES_H__ */
 

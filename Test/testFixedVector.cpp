@@ -30,7 +30,7 @@ limitations under the License.
 TEST_CASE("Etl::FixedVector<> basic test", "[fixedvector][etl][basic]") {
 
     typedef int ItemType;
-    typedef Etl::FixedVector<ItemType> VectorType;
+    typedef Etl::FixedVector<ItemType, 16> VectorType;
     
     VectorType vector;
 

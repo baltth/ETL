@@ -79,13 +79,11 @@ public:
 protected:
 
     VectorTemplate<T, S>() {};
-
-    explicit VectorTemplate<T, S>(uint32_t len);
-
-    VectorTemplate<T, S>(uint32_t len, const T &item);
-
     VectorTemplate<T, S>(const VectorTemplate<T, S> &other);
     VectorTemplate<T, S> &operator=(const VectorTemplate<T, S> &other);
+
+    VectorTemplate<T, S>(void* initData, uint32_t initCapacity) :
+        Strategy(initData, initCapacity) {};
 
     ~VectorTemplate<T, S>() {
         TypedVectorBase<T>::clear();
@@ -99,21 +97,6 @@ private:
 
 
 template<class T, template<class> class S>
-VectorTemplate<T, S>::VectorTemplate(uint32_t len) {
-
-    typename TypedVectorBase<T>::DefaultCreator dc;
-    insertWithCreator(TypedVectorBase<T>::begin(), len, dc);
-}
-
-
-template<class T, template<class> class S>
-VectorTemplate<T, S>::VectorTemplate(uint32_t len, const T &item) {
-
-    insert(TypedVectorBase<T>::begin(), len, item);
-}
-
-
-template<class T, template<class> class S>
 VectorTemplate<T, S>::VectorTemplate(const VectorTemplate<T, S> &other) {
 
     operator=(other);
@@ -123,7 +106,7 @@ VectorTemplate<T, S>::VectorTemplate(const VectorTemplate<T, S> &other) {
 template<class T, template<class> class S>
 VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const VectorTemplate<T, S> &other) {
 
-    this->reserve(other.getSize());
+    reserve(other.getSize());
     copyOperation(other.begin(), other.getSize());
     return *this;
 }

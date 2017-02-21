@@ -51,14 +51,10 @@ public:
 // functions
 public:
 
-    Vector<T>() :
-        Base() {};
+    Vector<T>() {};
 
-    explicit Vector<T>(uint32_t len) :
-        Base(len) {};
-
-    Vector<T>(uint32_t len, const T &item) :
-        Base(len, item) {};
+    explicit Vector<T>(uint32_t len);
+    Vector<T>(uint32_t len, const T &item);
 
     Vector<T>(const Vector<T> &other) :
         Base(other) {};
@@ -101,6 +97,21 @@ public:
 #endif
 
 };
+
+
+template<class T>
+Vector<T>::Vector(uint32_t len) {
+
+    typename TypedVectorBase<T>::DefaultCreator dc;
+    insertWithCreator(this->begin(), len, dc);
+}
+
+
+template<class T>
+Vector<T>::Vector(uint32_t len, const T &item) {
+
+    insert(this->begin(), len, item);
+}
 
 
 #if ETL_USE_CPP11
