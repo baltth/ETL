@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_EXCEPTION_H__
-#define __ETL_EXCEPTION_H__
+#ifndef __ETL_EXCEPTIONTYPES_H__
+#define __ETL_EXCEPTIONTYPES_H__
 
 #include "etlSupport.h"
 
@@ -78,5 +78,5 @@ public:
 
 #endif
 
-#endif /* __ETL_EXCEPTION_H__ */
+#endif /* __ETL_EXCEPTIONTYPES_H__ */
 

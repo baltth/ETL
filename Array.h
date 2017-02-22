@@ -27,7 +27,7 @@ limitations under the License.
 #include "etlSupport.h"
 
 #ifdef ETL_USE_EXCEPTIONS
-#include "Exception.h"
+#include "ExceptionTypes.h"
 #endif
 
 
