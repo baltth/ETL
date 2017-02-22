@@ -24,11 +24,10 @@ limitations under the License.
 #ifndef __ETL_LIST_H__
 #define __ETL_LIST_H__
 
+#include "etlSupport.h"
+
 #include "Base/ListTemplate.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
