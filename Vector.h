@@ -24,15 +24,11 @@ limitations under the License.
 #ifndef __ETL_VECTOR_H__
 #define __ETL_VECTOR_H__
 
-#include "langSupport.h"
 #include "etlSupport.h"
 
 #include "Base/VectorTemplate.h"
 #include "Base/MemStrategies.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -71,7 +67,7 @@ public:
 
     Vector<T>(const std::initializer_list<T> &initList) :
         Base(initList) {};
-  
+
     Vector<T> &operator=(Vector<T> &&other) {
         return Base::operator=(std::move(other));
     }
@@ -184,7 +180,7 @@ public:
 
     Vector<ItemType>(const Vector<ItemType> &other) :
         PtrVectorBase(other) {};
-    
+
     Vector<ItemType> &operator=(const Vector<ItemType> &other) {
         return PtrVectorBase::operator=(other);
     };
@@ -291,14 +287,14 @@ public:
 
     inline Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const ItemType)> &&matcher) const;
 
-#else 
+#else
 
     Iterator find(const Matcher<T*> &matcher) const {
         return find(begin(), end(), matcher);
     }
 
     inline Iterator find(Iterator startPos, Iterator endPos, const Matcher<T*> &matcher) const;
-    
+
 #endif
 
 };

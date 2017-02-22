@@ -24,16 +24,10 @@ limitations under the License.
 #ifndef __ETL_MEMSTARTEGIES_H__
 #define __ETL_MEMSTARTEGIES_H__
 
-#undef min
-#undef max
-
-#include "langSupport.h"
+#include "etlSupport.h"
 
 #include "Base/AVectorBase.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 

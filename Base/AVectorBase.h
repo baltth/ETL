@@ -24,13 +24,10 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include "langSupport.h"
+#include "etlSupport.h"
 
 #include "VectorProxy.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 

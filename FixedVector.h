@@ -55,7 +55,7 @@ private:
 // functions
 public:
 
-    FixedVector<T, N>(); 
+    FixedVector<T, N>();
     explicit FixedVector<T, N>(uint32_t len);
     FixedVector<T, N>(uint32_t len, const T &item);
 
@@ -74,7 +74,7 @@ public:
 
     FixedVector<T>(const std::initializer_list<T> &initList) :
         Bsae(initList) {};
-  
+
     FixedVector<T> &operator=(FixedVector<T> &&other) {
         Base::operator=(std::move(other));
         return *this;
@@ -107,7 +107,7 @@ public:
 template<class T, uint32_t N>
 FixedVector<T, N>::FixedVector() :
     Base(data, N) {
-    
+
     this->reserve(N);
 }
 
@@ -199,7 +199,7 @@ public:
 
     FixedVector<ItemType>(const FixedVector<ItemType> &other) :
         FixedPtrVectorBase(other) {};
-    
+
     FixedVector<ItemType> &operator=(const FixedVector<ItemType> &other) {
         return FixedPtrVectorBase::operator=(other);
     };
@@ -306,14 +306,14 @@ public:
 
     inline Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const ItemType)> &&matcher) const;
 
-#else 
+#else
 
     Iterator find(const Matcher<T*> &matcher) const {
         return find(begin(), end(), matcher);
     }
 
     inline Iterator find(Iterator startPos, Iterator endPos, const Matcher<T*> &matcher) const;
-    
+
 #endif
 
 };

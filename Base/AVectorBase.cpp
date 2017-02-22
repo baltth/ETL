@@ -21,9 +21,9 @@ limitations under the License.
 \endparblock
 */
 
-#include "langSupport.h"
+#include "etlSupport.h"
 
-#include "AVectorBase.h"
+#include "Base/AVectorBase.h"
 
 using namespace ETL_NAMESPACE;
 

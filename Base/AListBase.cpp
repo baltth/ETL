@@ -31,7 +31,7 @@ AListBase::Node* AListBase::popFront() {
     if(list.getSize() > 0) {
         return static_cast<Node*>(list.remove(list.getFirst()));
     } else {
-        return nullptr;
+        return NULLPTR;
     }
 }
 
@@ -40,6 +40,7 @@ AListBase::Node* AListBase::popBack() {
     if(list.getSize() > 0) {
         return static_cast<Node*>(list.remove(list.getLast()));
     } else {
-        return nullptr;
+        return NULLPTR;
     }
 }
+

@@ -44,11 +44,14 @@ public:
 // functions
 public:
 
-    List() = default;
+    List() {};
+
+#if ETL_USE_CPP11
+
     List(const std::initializer_list<T> &initList) :
         ListTemplate<T>(initList) {};
 
-    Iterator insert(const T &item);
+#endif
 
 };
 

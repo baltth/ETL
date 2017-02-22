@@ -24,12 +24,10 @@ limitations under the License.
 #ifndef __ETL_VECTORPROXY_H__
 #define __ETL_VECTORPROXY_H__
 
-#include "Base/SequenceContainerProxy.h"
-#include "Array.h"
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "Base/SequenceContainerProxy.h"
+
 
 namespace ETL_NAMESPACE {
 

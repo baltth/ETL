@@ -28,8 +28,6 @@ limitations under the License.
 #define ETL_NAMESPACE   Etl
 #endif
 
-namespace ETL_NAMESPACE {
-
 #ifdef ETL_USE_CPP11
 
 #if ((ETL_USE_CPP11 > 0) && (__cplusplus < 201103L))
@@ -44,6 +42,8 @@ namespace ETL_NAMESPACE {
 #endif
 
 #endif
+
+namespace ETL_NAMESPACE {
 
 #if (ETL_USE_CPP11 == 0)
 

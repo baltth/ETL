@@ -30,9 +30,22 @@ limitations under the License.
 #define ETL_NAMESPACE   Etl
 #endif
 
+#if ETL_USE_CPP11
+#include <cstdint>
+#include <functional>
+#else
+#include <stdint.h>
+#endif
+
+
 namespace ETL_NAMESPACE {
 
-#if (ETL_USE_CPP11 == 0)
+#if ETL_USE_CPP11
+
+template<typename T>
+using Mathcer = std::function<bool(const T&)>;
+
+#else
 
 template<typename T>
 class Matcher {

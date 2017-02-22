@@ -25,6 +25,7 @@ limitations under the License.
 
 using namespace ETL_NAMESPACE;
 
+#if ETL_USE_CPP11
 
 DoubleLinkedList::DoubleLinkedList(DoubleLinkedList &&other) {
 
@@ -39,6 +40,7 @@ DoubleLinkedList &DoubleLinkedList::operator=(DoubleLinkedList &&other) {
     return *this;
 }
 
+#endif
 
 void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
@@ -72,8 +74,8 @@ DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
         --size;
 
-        node->prev = nullptr;
-        node->next = nullptr;
+        node->prev = NULLPTR;
+        node->next = NULLPTR;
     }
 
     return node;

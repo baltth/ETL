@@ -24,12 +24,10 @@ limitations under the License.
 #ifndef __ETL_SEQUENCECONTAINERPROXY_H__
 #define __ETL_SEQUENCECONTAINERPROXY_H__
 
-#include <cstddef>
-#include <stdint.h>
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include <cstddef>
+
 
 namespace ETL_NAMESPACE {
 
@@ -50,7 +48,7 @@ public:
         data(dataPointer),
         capacity(len),
         itemSize(itemSize) {};
-    
+
     void* getItemPointer(uint32_t ix) const {
         return static_cast<void*>(static_cast<uint8_t*>(data) + (ix * itemSize));
     }
@@ -70,7 +68,7 @@ public:
     uint32_t getItemSize() const {
         return itemSize;
     }
-    
+
 };
 
 }

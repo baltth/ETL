@@ -24,11 +24,8 @@ limitations under the License.
 #ifndef __ETL_DOUBLELINKEDLIST_H__
 #define __ETL_DOUBLELINKEDLIST_H__
 
-#include <cstdint>
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -46,8 +43,8 @@ public:
         Node* next;
 
         Node() :
-            prev(nullptr),
-            next(nullptr) {};
+            prev(NULLPTR),
+            next(NULLPTR) {};
 
         Node(Node* p, Node* n) :
             prev(p),
@@ -68,15 +65,16 @@ private:
 public:
 
     DoubleLinkedList() :
-        frontNode(nullptr, &backNode),
-        backNode(&frontNode, nullptr),
+        frontNode(NULLPTR, &backNode),
+        backNode(&frontNode, NULLPTR),
         size(0) {};
+
+#if ETL_USE_CPP11
 
     DoubleLinkedList(DoubleLinkedList &&other);
     DoubleLinkedList &operator=(DoubleLinkedList &&other);
 
-    DoubleLinkedList(const DoubleLinkedList &other) = delete;
-    DoubleLinkedList &operator=(const DoubleLinkedList &other) = delete;
+#endif
 
     bool isEmpty() const {
         return size == 0;
@@ -106,9 +104,15 @@ public:
 protected:
 
     static void linkNodes(Node* a, Node* b);
+   
+private:
+
+    DoubleLinkedList(const DoubleLinkedList &other);
+    DoubleLinkedList &operator=(const DoubleLinkedList &other);
 
 };
 
 }
 
 #endif /* __ETL_DOUBLELINKEDLIST_H__ */
+

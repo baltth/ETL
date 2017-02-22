@@ -24,12 +24,11 @@ limitations under the License.
 #ifndef __ETL_ARRAYPROXY_H__
 #define __ETL_ARRAYPROXY_H__
 
-#include <Base/SequenceContainerProxy.h>
-#include <Array.h>
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "Base/SequenceContainerProxy.h"
+#include "Array.h"
+
 
 namespace ETL_NAMESPACE {
 
@@ -40,7 +39,7 @@ class ArrayProxy : public SequenceContainerProxy {
 public:
 
     template<typename T, uint32_t N>
-    ArrayProxy(Array<T, N>& array) : 
+    ArrayProxy(Array<T, N>& array) :
         SequenceContainerProxy(sizeof(T), array.getData(), N) {};
 
 protected:
@@ -63,7 +62,7 @@ public:
 public:
 
     template<uint32_t N>
-    TypedArrayProxy(Array<T, N>& array) : 
+    TypedArrayProxy(Array<T, N>& array) :
         ArrayProxy(array) {};
 
     inline T &operator[](uint32_t ix) {
@@ -90,5 +89,4 @@ void TypedArrayProxy<T>::fill(const T &value) {
 }
 
 #endif /* __ETL_ARRAYPROXY_H__ */
-
 

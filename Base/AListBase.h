@@ -24,14 +24,12 @@ limitations under the License.
 #ifndef __ETL_ALISTBASE_H__
 #define __ETL_ALISTBASE_H__
 
-#include <cstdint>
+#include "etlSupport.h"
+
 #include <utility>
 
 #include "Base/DoubleLinkedList.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -97,7 +95,9 @@ protected:
 // functions
 public:
 
-    AListBase() = default;
+    AListBase() {};
+
+#if ETL_USE_CPP11
 
     AListBase(AListBase &&other) :
         list(std::move(other.list)) {};
@@ -106,6 +106,8 @@ public:
         list = std::move(other.list);
         return *this;
     }
+
+#endif
 
     virtual ~AListBase() {}
 
@@ -123,7 +125,7 @@ protected:
         return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
     }
 
-    /// \name Műveletek elemekkel
+    /// \name Element operations
     /// @{
     void pushFront(Node* item) {
         list.insertBefore(list.getFirst(), item);
@@ -145,8 +147,14 @@ protected:
     }
     /// @}
 
+private:
+
+    AListBase(const AListBase &other);
+    AListBase &operator=(const AListBase &other);
+
 };
 
 }
 
 #endif /* __ETL_ALISTBASE_H__ */
+

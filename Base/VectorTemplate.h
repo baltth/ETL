@@ -21,22 +21,19 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTORTEMPLATE_03_H__
-#define __ETL_VECTORTEMPLATE_03_H__
+#ifndef __ETL_VECTORTEMPLATE_H__
+#define __ETL_VECTORTEMPLATE_H__
+
+#include "etlSupport.h"
 
 #undef min
 #undef max
-
-#include "langSupport.h"
 
 #include <new>
 #include <utility>
 
 #include "Base/TypedVectorBase.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -77,7 +74,7 @@ public:
 #if ETL_USE_CPP11
 
     Iterator insert(Iterator position, T &&value);
-    
+
     template<typename... Args >
     Iterator emplace(Iterator pos, Args &&... args);
 
@@ -279,5 +276,5 @@ typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(
 
 }
 
-#endif /* __ETL_VECTORTEMPLATE_03_H__ */
+#endif /* __ETL_VECTORTEMPLATE_H__ */
 

@@ -27,7 +27,7 @@ limitations under the License.
 #undef min
 #undef max
 
-#include "langSupport.h"
+#include "etlSupport.h"
 
 #if ETL_USE_CPP11
 #include <functional>
@@ -39,9 +39,6 @@ limitations under the License.
 
 #include "Base/AVectorBase.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -61,7 +58,7 @@ protected:
 
     typedef std::function<void(T*, bool)> CreatorFunctor;
 
-#else 
+#else
 
     class CreatorFunctor {
         public:
@@ -81,7 +78,7 @@ protected:
 
     class CopyCreator : public CreatorFunctor {
         private:
-            const T& ref;    
+            const T& ref;
 
         public:
             CopyCreator(const T& refValue) :
@@ -148,7 +145,7 @@ public:
     inline void popBack() {
         erase(end() - 1);
     }
-    
+
     inline Iterator erase(Iterator pos) {
         Iterator next = pos;
         ++next;
@@ -197,7 +194,7 @@ protected:
 #endif
 
     void copyOperation(const T* src, uint32_t num);
-    
+
     void uninitializedCopy(T* src, T* dst, uint32_t num);
     void initializedCopyUp(T* src, T* dst, uint32_t num);
     void initializedCopyDown(T* src, T* dst, uint32_t num);

@@ -24,13 +24,12 @@ limitations under the License.
 #ifndef __ETL_EXCEPTION_H__
 #define __ETL_EXCEPTION_H__
 
+#include "etlSupport.h"
+
 #ifdef ETL_USE_EXCEPTIONS
 
 #include <exception>
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 

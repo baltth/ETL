@@ -31,7 +31,7 @@ TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::Vector<ItemType> VectorType;
-    
+
     VectorType vector;
 
     REQUIRE(vector.getSize() == 0);
@@ -78,7 +78,7 @@ TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl][basic]") {
     vector.pushBack(itemBack2);
     vector.pushFront(itemFront1);
     vector.pushFront(itemFront2);
-    
+
     REQUIRE(vector.getSize() == 4);
 
     REQUIRE(vector[0] == itemFront2);
@@ -89,7 +89,7 @@ TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl][basic]") {
     REQUIRE(vector.back() == itemBack2);
     vector.popBack();
     REQUIRE(vector.back() == itemBack1);
-    
+
     REQUIRE(vector.front() == itemFront2);
     vector.popFront();
     REQUIRE(vector.front() == itemFront1);
@@ -98,7 +98,7 @@ TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl][basic]") {
     vector.popFront();
 
     REQUIRE(vector.getSize() == 0);
-    
+
 }
 
 TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl][basic]") {
@@ -123,7 +123,7 @@ TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl][basic]") {
     REQUIRE(vector[4] == 3);
     REQUIRE(vector.getSize() == 7);
     REQUIRE(it == &vector[3]);
-    
+
     CHECK(vector[1] == 0);
     CHECK(vector[5] == 0);
 
