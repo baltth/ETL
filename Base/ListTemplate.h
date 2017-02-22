@@ -48,6 +48,8 @@ class ListTemplate : protected AListBase {
 // types
 public:
 
+    typedef T ItemType;
+
     class Node : public AListBase::Node {
 
     public:
@@ -59,12 +61,9 @@ public:
         Node(Args &&... args) :
             item(std::forward<Args>(args)...) {};
 #else
-
         Node() {};
-
         explicit Node(const T& value) :
             item(value) {};
-
 #endif
 
     };

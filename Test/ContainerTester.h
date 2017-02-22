@@ -24,8 +24,13 @@ limitations under the License.
 #ifndef __ETL_CONTAINERTESTER_H__
 #define __ETL_CONTAINERTESTER_H__
 
-#include <iostream>
+#include "etlSupport.h"
 
+#define PRINT_TO_IOSTREAM   0
+
+#if PRINT_TO_IOSTREAM
+#include <iostream>
+#endif
 
 class ContainerTester {
 
@@ -33,44 +38,63 @@ class ContainerTester {
 private:
 
 	int32_t value;
+    uint32_t objectId;
+    
+    static uint32_t objectCnt;
+    static uint32_t objectRef;
 
 // functions
 public:
 
 	explicit ContainerTester(int32_t v = 0) :
-		value(v) {
+		value(v),
+        objectId(++objectRef) {
+
+        ++objectCnt;
 		reportConstructor();
 		reportValue();
 	}
 
 	ContainerTester(const ContainerTester &other) :
-		value(other.value) {
-		reportCopyConstructor();
+		value(other.value),
+        objectId(++objectRef) {
+
+        ++objectCnt;
+        reportCopyConstructor();
 		reportValue();
 	}
 
 	ContainerTester &operator=(const ContainerTester &other) {
 
 		value = other.value;
-		reportCopyAssignment();
+        reportCopyAssignment();
 		reportValue();
 		return *this;
 	}
 
+#if ETL_USE_CPP11
+
 	ContainerTester(ContainerTester &&other) :
-		value(other.value) {
+		value(other.value),
+        objectId(other.objectId) {
+    
+        ++objectCnt;
 		reportMoveConstructor();
 		reportValue();
 	}
 
 	ContainerTester &operator=(ContainerTester &&other) {
 		value = other.value;
-		reportMoveAssignment();
+		value = other.objectId;
+        reportMoveAssignment();
 		reportValue();
 		return *this;
 	}
 
+#endif
+
 	~ContainerTester() {
+        --objectCnt;
 		reportDesctructor();
 		reportValue();
 	}
@@ -79,7 +103,17 @@ public:
 		return value;
 	}
 
-	void reportConstructor() {
+    uint32_t getId() const {
+        return objectId;
+    }
+
+    static uint32_t getObjectCount() {
+        return objectCnt;
+    }
+
+#if PRINT_TO_IOSTRREAM
+
+    void reportConstructor() {
 	    std::cout << "C()     ";
 	}
 
@@ -107,6 +141,22 @@ public:
         std::cout << "value @ " << this << ": " << value << std::endl;
 	}
 
+#else
+    void reportConstructor() {};
+    void reportCopyConstructor() {};
+    void reportCopyAssignment() {};
+    void reportMoveConstructor() {};
+    void reportMoveAssignment() {};
+    void reportDesctructor() {};
+    void reportValue() {};
+#endif
+
 };
 
+
+uint32_t ContainerTester::objectCnt = 0;
+uint32_t ContainerTester::objectRef = 0;
+
+
 #endif /* __ETL_CONTAINERTESTER_H__ */
+

@@ -33,104 +33,120 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T, class Comp = std::less<T>>
+template<class C, class Comp = std::less<typename C::ItemType> >
 class SortedTemplate {
 
 // types
+public:
+    
+    typedef typename C::ItemType ItemType;
+    typedef typename C::Iterator Iterator;
+
 protected:
 
-    class Node : public ListTemplate<T>::Node {
+    class Node : public C::Node {
 
     public:
 
+#if ETL_USE_CPP11
         template<typename... Args>
         Node(Args &&... args) :
-            ListTemplate<T>::Node(args...) {};
+            C::Node(args...) {};
+#else
+        Node() {};
+        explicit Node(const ItemType& value) :
+            C::Node(value) {};
+#endif
 
     };
-
-public:
-
-    typedef typename ListTemplate<T>::Iterator Iterator;
 
 // variables
 protected:
 
     static Comp comp;
 
-    mutable ListTemplate<T> list;
+    mutable C container;
 
 // functions
 public:
 
-    SortedTemplate() = default;
-    SortedTemplate(const std::initializer_list<T> &initList) :
-        list(initList) {};
+    SortedTemplate() {};
 
-    ///\name ListTemplate forward
+#if ETL_USE_CPP11
+
+    SortedTemplate(const std::initializer_list<T> &initList) :
+        container(initList) {};
+
+#endif
+
+    ///\name Container<> forward
     /// @{
     inline uint32_t getSize() const {
-        return list.getSize();
+        return container.getSize();
     }
 
     inline Iterator begin() const {
-        return Iterator(list.begin());
+        return Iterator(container.begin());
     }
 
     inline Iterator end() const {
-        return Iterator(list.end());
+        return Iterator(container.end());
     }
 
     inline void clear() {
-        list.clear();
+        container.clear();
     }
     /// @}
 
 protected:
 
-    Iterator insert(const T &item);
-    std::pair<Iterator, bool> insertUnique(const T &item);
+    Iterator insert(const ItemType &item);
+    std::pair<Iterator, bool> insertUnique(const ItemType &item);
 
-    std::pair<Iterator, bool> findSortedPosition(const T &item) const;
+    std::pair<Iterator, bool> findSortedPosition(const ItemType &item) const;
 
-    template<typename F, typename V, class ValComp = std::less<V>>
+    template<typename F, typename V>
     std::pair<Iterator, bool> findSortedPosition(F f, const V &v) const;
 
-    Iterator insertTo(Iterator pos, const T &item) const {
-        return list.insert(pos, item);
-    }
-
-    template<typename... Args>
-    Iterator emplaceTo(Iterator pos, Args &&... args) const {
-        return list.emplace(pos, std::forward<Args>(args)...);
+    Iterator insertTo(Iterator pos, const ItemType &item) const {
+        return container.insert(pos, item);
     }
 
     void erase(Iterator pos) {
-        list.erase(pos);
+        container.erase(pos);
     }
+
+#if ETL_USE_CPP11
+
+    template<typename... Args>
+    Iterator emplaceTo(Iterator pos, Args &&... args) const {
+        return container.emplace(pos, std::forward<Args>(args)...);
+    }
+
+#endif
 
 };
 
 
-template<class T, class Comp /*= std::less<T>*/>
-Comp SortedTemplate<T, Comp>::comp;
+template<class C, class Comp /* = std::less<typename C::ItemType> */>
+Comp SortedTemplate<C, Comp>::comp;
 
 
-template<class T, class Comp /*= std::less<T>*/>
-typename SortedTemplate<T, Comp>::Iterator SortedTemplate<T, Comp>::insert(const T &item) {
+template<class C, class Comp /* = std::less<typename C::ItemType> */>
+typename SortedTemplate<C, Comp>::Iterator SortedTemplate<C, Comp>::insert(const ItemType &item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
-    return list.insert(found.first, item);
+    return container.insert(found.first, item);
 }
 
 
-template<class T, class Comp /*= std::less<T>*/>
-std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::insertUnique(const T &item) {
+template<class C, class Comp /* = std::less<typename C::ItemType> */>
+std::pair<typename SortedTemplate<C, Comp>::Iterator, bool> SortedTemplate<C, Comp>::insertUnique(const ItemType &item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
 
     if(found.second == false) {
-        found.first = list.insert(found.first, item);
+        found.first = container.insert(found.first, item);
     }
 
     found.second = !found.second;
@@ -139,15 +155,15 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
 }
 
 
-template<class T, class Comp /*= std::less<T>*/>
-std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::findSortedPosition(const T &item) const {
+template<class C, class Comp /* = std::less<typename C::ItemType> */>
+std::pair<typename SortedTemplate<C, Comp>::Iterator, bool> SortedTemplate<C, Comp>::findSortedPosition(const ItemType &item) const {
 
     Iterator startIt = begin();
     Iterator endIt = end();
     Iterator it = startIt;
 
     if(it == endIt) {
-        return {it, false};
+        return std::pair<typename SortedTemplate<C, Comp>::Iterator, bool>(it, false);
     }
 
     bool notLessFound = false;
@@ -172,22 +188,22 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
         }
     }
 
-    return {it, equalFound};
+    return std::pair<typename SortedTemplate<C, Comp>::Iterator, bool>(it, equalFound);
 }
 
 
-template<class T, class Comp /*= std::less<T>*/>
-template<typename F, typename V, class ValComp /*= std::less<V>*/>
-std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Comp>::findSortedPosition(F f, const V &v) const {
+template<class C, class Comp /* = std::less<typename C::ItemType> */>
+template<typename F, typename V>
+std::pair<typename SortedTemplate<C, Comp>::Iterator, bool>
+SortedTemplate<C, Comp>::findSortedPosition(F f, const V &v) const {
 
-    static ValComp valComp;
 
     Iterator startIt = begin();
     Iterator endIt = end();
     Iterator it = startIt;
 
     if(it == endIt) {
-        return {it, false};
+        return std::pair<typename SortedTemplate<C, Comp>::Iterator, bool>(it, false);
     }
 
     bool notLessFound = false;
@@ -195,7 +211,7 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
 
     while((!notLessFound) && (it != endIt)) {
 
-        if(valComp(((*it).*f)(), v)) {
+        if(((*it).*f)() < v) {
             ++it;
         } else {
             notLessFound = true;
@@ -204,7 +220,7 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
 
     while(notLessFound && (it != endIt)) {
 
-        if(valComp(v, ((*it).*f)())) {
+        if(v < ((*it).*f)()) {
             notLessFound = false;
         } else {
             equalFound = true;
@@ -212,9 +228,10 @@ std::pair<typename SortedTemplate<T, Comp>::Iterator, bool> SortedTemplate<T, Co
         }
     }
 
-    return {it, equalFound};
+    return std::pair<typename SortedTemplate<C, Comp>::Iterator, bool>(it, equalFound);
 }
 
 }
 
 #endif /* __ETL_SORTEDTEMPLATE_H__ */
+

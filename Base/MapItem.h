@@ -24,9 +24,8 @@ limitations under the License.
 #ifndef __ETL_MAPITEM_H__
 #define __ETL_MAPITEM_H__
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "etlSupport.h"
+
 
 namespace ETL_NAMESPACE {
 
@@ -50,10 +49,14 @@ public:
         key(k),
         element(e) {};
 
+#if ETL_USE_CPP11
+
     template<typename... Args>
     MapItem<K, E>(const K &k, Args &&... args) :
         key(k),
         element(std::forward<Args>(args)...) {};
+
+#endif
 
     K getKey() const {
         return key;
@@ -67,9 +70,13 @@ public:
         element = newElement;
     }
 
+#if ETL_USE_CPP11
+
     void setElement(E &&newElement) {
         element = std::move(newElement);
     }
+
+#endif
 
     bool operator<(const MapItem<K, E> &other) const {
         return (key < other.key);
@@ -92,7 +99,7 @@ public:
 
     explicit MapItem<K, E*>(const K &k) :
         key(k),
-        element(nullptr) {};
+        element(NULLPTR) {};
 
     MapItem<K, E*>(const K &k, E* e) :
         key(k),
@@ -122,3 +129,4 @@ bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
 }
 
 #endif /* __ETL_MAPITEM_H__ */
+

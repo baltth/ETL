@@ -29,6 +29,33 @@ limitations under the License.
 #include "Test/ContainerTester.h"
 
 
+TEST_CASE("Etl::Map<> basi test", "[map][etl][basic]" ) {
+
+    Etl::Map<uint32_t, ContainerTester> map;
+
+    ContainerTester a(4);
+    map.insertOrAssign(4, a);
+
+    REQUIRE(map.getSize() == 1);
+    REQUIRE(map[4].getValue() == a.getValue());
+
+    map.insert(5, ContainerTester(-5));
+
+    REQUIRE(map.getSize() == 2);
+
+    ContainerTester b(-4);
+    map.insertOrAssign(4, b);
+
+    REQUIRE(map.getSize() == 2);
+    REQUIRE(map[4].getValue() == b.getValue());
+
+    map.erase(5);
+
+    REQUIRE(map.getSize() == 1);
+
+}
+
+/*
 TEST_CASE("Map test", "[map]" ) {
 
     Etl::Map<uint32_t, ContainerTester> numMap;
@@ -77,4 +104,5 @@ TEST_CASE("Map test", "[map]" ) {
     REQUIRE(numMap.getSize() == 3);
 
 }
+*/
 
