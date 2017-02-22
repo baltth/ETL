@@ -28,7 +28,7 @@ limitations under the License.
 
 #include <utility>
 
-#include "Base/SortedTemplate.h"
+#include "Base/Sorted.h"
 #include "Base/MapItem.h"
 
 
@@ -36,13 +36,13 @@ namespace ETL_NAMESPACE {
 
 
 template<typename K, class E>
-class Map : public SortedTemplate<ListTemplate<MapItem<K, E> > > {
+class Map : public Sorted<ListTemplate<MapItem<K, E> > > {
 
 // types
 public:
 
     typedef MapItem<K, E> ItemType;
-    typedef SortedTemplate<ListTemplate<ItemType> > MapBase;
+    typedef Sorted<ListTemplate<ItemType> > MapBase;
     typedef typename MapBase::Iterator Iterator;
 
 // functions

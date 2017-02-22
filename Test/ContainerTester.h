@@ -37,71 +37,71 @@ class ContainerTester {
 // variables
 private:
 
-	int32_t value;
+    int32_t value;
     uint32_t objectId;
-    
+
     static uint32_t objectCnt;
     static uint32_t objectRef;
 
 // functions
 public:
 
-	explicit ContainerTester(int32_t v = 0) :
-		value(v),
+    explicit ContainerTester(int32_t v = 0) :
+        value(v),
         objectId(++objectRef) {
 
         ++objectCnt;
-		reportConstructor();
-		reportValue();
-	}
+        reportConstructor();
+        reportValue();
+    }
 
-	ContainerTester(const ContainerTester &other) :
-		value(other.value),
+    ContainerTester(const ContainerTester &other) :
+        value(other.value),
         objectId(++objectRef) {
 
         ++objectCnt;
         reportCopyConstructor();
-		reportValue();
-	}
+        reportValue();
+    }
 
-	ContainerTester &operator=(const ContainerTester &other) {
+    ContainerTester &operator=(const ContainerTester &other) {
 
-		value = other.value;
+        value = other.value;
         reportCopyAssignment();
-		reportValue();
-		return *this;
-	}
+        reportValue();
+        return *this;
+    }
 
 #if ETL_USE_CPP11
 
-	ContainerTester(ContainerTester &&other) :
-		value(other.value),
+    ContainerTester(ContainerTester &&other) :
+        value(other.value),
         objectId(other.objectId) {
-    
-        ++objectCnt;
-		reportMoveConstructor();
-		reportValue();
-	}
 
-	ContainerTester &operator=(ContainerTester &&other) {
-		value = other.value;
-		value = other.objectId;
+        ++objectCnt;
+        reportMoveConstructor();
+        reportValue();
+    }
+
+    ContainerTester &operator=(ContainerTester &&other) {
+        value = other.value;
+        value = other.objectId;
         reportMoveAssignment();
-		reportValue();
-		return *this;
-	}
+        reportValue();
+        return *this;
+    }
 
 #endif
 
-	~ContainerTester() {
+    ~ContainerTester() {
         --objectCnt;
-		reportDesctructor();
-		reportValue();
-	}
+        reportDesctructor();
+        reportValue();
+    }
 
-	int32_t getValue() const {
-		return value;
-	}
+    int32_t getValue() const {
+        return value;
+    }
 
     uint32_t getId() const {
         return objectId;
@@ -114,34 +114,35 @@ public:
 #if PRINT_TO_IOSTRREAM
 
     void reportConstructor() {
-	    std::cout << "C()     ";
-	}
+        std::cout << "C()     ";
+    }
 
-	void reportCopyConstructor() {
-		std::cout << "C(C&)   ";
-	}
+    void reportCopyConstructor() {
+        std::cout << "C(C&)   ";
+    }
 
-	void reportCopyAssignment() {
-	    std::cout << "C=(C&)  ";
-	}
+    void reportCopyAssignment() {
+        std::cout << "C=(C&)  ";
+    }
 
-	void reportMoveConstructor() {
-		std::cout << "C(C&&)  ";
-	}
+    void reportMoveConstructor() {
+        std::cout << "C(C&&)  ";
+    }
 
-	void reportMoveAssignment() {
-	    std::cout << "C=(C&&) ";
-	}
+    void reportMoveAssignment() {
+        std::cout << "C=(C&&) ";
+    }
 
-	void reportDesctructor() {
-		std::cout << "~C()    ";
-	}
+    void reportDesctructor() {
+        std::cout << "~C()    ";
+    }
 
     void reportValue() {
         std::cout << "value @ " << this << ": " << value << std::endl;
-	}
+    }
 
 #else
+
     void reportConstructor() {};
     void reportCopyConstructor() {};
     void reportCopyAssignment() {};
@@ -149,6 +150,7 @@ public:
     void reportMoveAssignment() {};
     void reportDesctructor() {};
     void reportValue() {};
+
 #endif
 
 };
