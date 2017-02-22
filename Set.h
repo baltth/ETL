@@ -24,38 +24,39 @@ limitations under the License.
 #ifndef __ETL_SET_H__
 #define __ETL_SET_H__
 
+#include "etlSupport.h"
+
 #include <utility>
 
-#include "Base/SortedTemplate.h"
+#include "Base/Sorted.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
-    
-template<class E>
-using SetBase = SortedTemplate<E>;
-
 
 template<class E>
-class Set : public SetBase<E> {
+class Set : public Sorted<ListTemplate<E> > {
 
 // types
 public:
 
     typedef E ItemType;
-    typedef typename SetBase<E>::Iterator Iterator;
+    typedef Sorted<ListTemplate<E > > SetBase;
+    typedef typename SetBase::Iterator Iterator;
 
 // functions
 public:
 
     Set() {};
+
+#if ETL_USE_CPP11
+
     Set(const std::initializer_list<E> &initList);
 
+#endif
+
     std::pair<Iterator, bool> insert(const E &e) {
-        return SetBase<E>::insertUnique(e);
+        return SetBase::insertUnique(e);
     }
 
     std::pair<Iterator, bool> insertOrAssign(const E &e);
@@ -68,22 +69,45 @@ public:
 };
 
 
+#if ETL_USE_CPP11
+
 template<class E>
 Set<E>::Set(const std::initializer_list<E> &initList) {
 
     for(auto &item : initList) {
-        SetBase<E>::insertUnique(item);
+        SetBase::insertUnique(item);
     }
 }
 
+#endif
+
+template<class E>
+std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E &e) {
+
+    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
+
+    if(found.second == false) {
+#if ETL_USE_CPP11
+        found.first = SetBase::emplaceTo(found.first, e);
+#else
+        found.first = SetBase::insertTo(found.first, e);
+#endif
+    } else {
+        --found.first;
+        *found.first = e;
+    }
+
+    found.second = !found.second;
+    return found;
+}
 
 template<class E>
 void Set<E>::erase(const E &e) {
 
-    auto found = SetBase<E>::findSortedPosition(e);
+    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
     if(found.second == true) {
-        SetBase<E>::erase(--found.first);
+        SetBase::erase(--found.first);
     }
 }
 
@@ -91,24 +115,26 @@ void Set<E>::erase(const E &e) {
 template<class E>
 typename Set<E>::Iterator  Set<E>::find(const E &e) const {
 
-    auto found = SetBase<E>::findSortedPosition(e);
+    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
     if(found.second == true) {
         return --found.first;
     } else {
-        return SetBase<E>::end();
+        return SetBase::end();
     }
 }
 
 
 template<class E>
 void Set<E>::copyElementsFrom(const Set<E> &other) {
-
-    for(ItemType &item : other) {
-        insertOrAssign(item.getKey(), item.getElement());
+    
+    Iterator endIt = other.end();
+    for(Iterator it = other.begin(); it != endIt; ++it) {
+        insertOrAssign(*it);
     }
 }
 
 }
 
 #endif /* __ETL_SET_H__ */
+

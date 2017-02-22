@@ -156,8 +156,13 @@ public:
 };
 
 
-uint32_t ContainerTester::objectCnt = 0;
-uint32_t ContainerTester::objectRef = 0;
+inline bool operator==(const ContainerTester& lhs, const ContainerTester& rhs) {
+    return lhs.getValue() == rhs.getValue();
+}
+
+inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) { 
+    return lhs.getValue() < rhs.getValue();
+}
 
 
 #endif /* __ETL_CONTAINERTESTER_H__ */

@@ -23,13 +23,11 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <iostream>
-
 #include "Map.h"
 #include "Test/ContainerTester.h"
 
 
-TEST_CASE("Etl::Map<> basi test", "[map][etl][basic]" ) {
+TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]" ) {
 
     Etl::Map<uint32_t, ContainerTester> map;
 
