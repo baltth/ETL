@@ -24,7 +24,8 @@ limitations under the License.
 #include "catch.hpp"
 
 #include <FixedVector.h>
-#include <Test/UnalignedTester.h>
+#include "UnalignedTester.h"
+#include "ContainerTester.h"
 
 
 TEST_CASE("Etl::FixedVector<> basic test", "[fixedvector][etl][basic]") {
@@ -63,7 +64,7 @@ TEST_CASE("Etl::FixedVector<> basic test", "[fixedvector][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::FixedVector<> push/pop test", "[vector][etl][basic]") {
+TEST_CASE("Etl::FixedVector<> push/pop test", "[fixedvector][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::FixedVector<ItemType, 16> VectorType;
@@ -102,7 +103,7 @@ TEST_CASE("Etl::FixedVector<> push/pop test", "[vector][etl][basic]") {
 
 }
 
-TEST_CASE("Etl::FixedVector<> insert/erase test", "[vector][etl][basic]") {
+TEST_CASE("Etl::FixedVector<> insert/erase test", "[fixedvector][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::FixedVector<ItemType, 16> VectorType;
@@ -142,7 +143,7 @@ TEST_CASE("Etl::FixedVector<> insert/erase test", "[vector][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::FixedVector<> size/capacity test", "[vector][etl][basic]") {
+TEST_CASE("Etl::FixedVector<> size/capacity test", "[fixedvector][etl][basic]") {
 
     static const uint32_t CAPACITY = 16;
 
@@ -187,7 +188,7 @@ TEST_CASE("Etl::FixedVector<> size/capacity test", "[vector][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::FixedVector<> constructor test", "[vector][etl][basic]") {
+TEST_CASE("Etl::FixedVector<> constructor test", "[fixedvector][etl][basic]") {
 
     static const uint32_t CAPACITY = 16;
 
@@ -227,4 +228,92 @@ TEST_CASE("Etl::FixedVector<> constructor test", "[vector][etl][basic]") {
 */
 }
 
+TEST_CASE("Etl::FixedVector<> assignment test", "[fixedvector][etl]") {
+
+    typedef ContainerTester ItemType;
+    typedef Etl::FixedVector<ItemType, 16> VectorType;
+
+    static const int PATTERN1 = 123;
+    static const int PATTERN2 = 321;
+
+    VectorType vector1(4, ContainerTester(PATTERN1));
+    VectorType vector2(8, ContainerTester(PATTERN2));
+
+    CHECK(vector1[0] != vector2[0]);   
+    CHECK(vector1.getSize() != vector2.getSize());
+
+    REQUIRE(ItemType::getObjectCount() == (vector1.getSize() + vector2.getSize()));
+
+    vector1 = vector2;
+
+    REQUIRE(vector1[0] == vector2[0]);   
+    REQUIRE(vector1.getSize() == vector2.getSize());
+    REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
+
+}
+
+
+TEST_CASE("Etl::FixedVector<> leak test", "[fixedvector][etl]") {
+
+    typedef ContainerTester ItemType;
+    typedef Etl::FixedVector<ItemType, 16> VectorType;
+
+    static const int PATTERN = 123;
+
+    VectorType* vector = new VectorType(8, ContainerTester(PATTERN));
+    CHECK(vector->getSize() == ItemType::getObjectCount());
+
+    vector->popBack();
+    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+
+    vector->erase(vector->begin());
+    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+
+    vector->erase((vector->begin() + 1), (vector->begin() + 3));
+    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+
+    delete vector;
+    REQUIRE(ItemType::getObjectCount() == 0);
+
+}
+
+
+TEST_CASE("Etl::FixedVector<>::find(Etl::Matcher<>) test", "[fixedvector][etl]") {
+
+    typedef int ItemType;
+    typedef Etl::FixedVector<ItemType, 16> VectorType;
+
+    class IntMatcher : public Etl::Matcher<ItemType> {
+        const ItemType value;
+        public:
+            IntMatcher(ItemType val) :
+                value(val) {};
+
+            virtual bool call(const ItemType& ref) const OVERRIDE {
+                return value == ref;
+            }
+    };
+
+    static const ItemType REF_VALUE = 123;
+
+    CAPTURE(REF_VALUE);
+
+    VectorType vector;
+    vector.pushBack(1);
+    vector.pushBack(2);
+    vector.pushBack(REF_VALUE);
+    VectorType::Iterator it1 = vector.end() - 1;
+    vector.pushBack(4);
+    vector.pushBack(REF_VALUE);
+    VectorType::Iterator it2 = vector.end() - 1;
+    vector.pushBack(6);
+
+    VectorType::Iterator found = vector.find(IntMatcher(REF_VALUE));
+    REQUIRE(found == it1);
+    found = vector.find((++found), vector.end(), IntMatcher(REF_VALUE));
+    REQUIRE(found == it2);
+    found = vector.find((++found), vector.end(), IntMatcher(REF_VALUE));
+    REQUIRE(found == vector.end());
+
+}
 

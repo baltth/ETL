@@ -160,6 +160,10 @@ inline bool operator==(const ContainerTester& lhs, const ContainerTester& rhs) {
     return lhs.getValue() == rhs.getValue();
 }
 
+inline bool operator!=(const ContainerTester& lhs, const ContainerTester& rhs) {
+    return !(operator==(lhs, rhs));
+}
+
 inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) { 
     return lhs.getValue() < rhs.getValue();
 }
