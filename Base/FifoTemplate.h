@@ -34,20 +34,20 @@ namespace ETL_NAMESPACE {
 
 
 template<class C>
-class FifoTemplate : protected C, protected FifoIndexing {
+class FifoTemplate : protected C, public FifoIndexing {
 
 // types
 public:
 
     typedef typename C::ItemType ItemType;
 
-    class Iterator : public AFifoIterator<ItemType> {
+    class Iterator : public FifoIterator<ItemType> {
         friend class FifoTemplate<C>;
 
     private:
 
         Iterator(const FifoTemplate<C>* fifoArray, uint32_t ix) :
-            AFifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
+            FifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
 
     };
 
@@ -59,22 +59,22 @@ public:
     template<typename... Args>
     explicit FifoTemplate<C>(Args... args) :
         C(args...),
-        FifoIndexing(C::getCapacity(), 0) {};
+        FifoIndexing(C::getSize()) {};
 
 #else
 
     FifoTemplate<C>() :
         C(),
-        FifoIndexing(C::getCapacity(), 0) {};
+        FifoIndexing(C::getSize()) {};
 
     FifoTemplate<C>(uint32_t len) :
         C(len),
-        FifoIndexing(C::getCapacity(), 0) {};
+        FifoIndexing(C::getSize()) {};
 
 #endif
 
     uint32_t getCapacity() const {
-        return C::getCapacity();
+        return FifoIndexing::getCapacity();
     }
 
     void push(const ItemType &item);
@@ -83,15 +83,9 @@ public:
     ItemType getFromBack(uint32_t ix) const;
     ItemType getFromFront(uint32_t ix) const;
 
-    uint32_t getLength() const {
-        return numItems;
-    }
-
-    void setLength(uint32_t len);
-
-    inline void setEmpty() {
-        setLength(0);
-    }
+        /*void setLength(uint32_t len) {
+        FifoIndexing::setLength(len);
+    }*/
 
     ItemType &operator[](int32_t ix);
     const ItemType &operator[](int32_t ix) const;
@@ -168,23 +162,6 @@ const typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix
     return C::operator[](ix);
 }
 
-
-template<class C>
-void FifoTemplate<C>::setLength(uint32_t len) {
-
-    if(len >= FifoIndexing::getCapacity()) {
-        len = FifoIndexing::getCapacity() - 1;
-    }
-
-    if(len > writeIx) {
-        readIx = writeIx + FifoIndexing::getCapacity();
-    } else {
-        readIx = writeIx;
-    }
-
-    readIx -= len;
-    numItems = len;
-}
 
 }
 

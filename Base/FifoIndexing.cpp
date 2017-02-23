@@ -28,15 +28,15 @@ using namespace ETL_NAMESPACE;
 
 void FifoIndexing::resetIndexes() {
 
-    writeIx = 0;
-    readIx = 0;
-    numItems = 0;
+    writeIx = getCapacity() - 1;
+    readIx = writeIx;
+    length = 0;
 }
 
 
 uint32_t FifoIndexing::getIndexFromFront(uint32_t ix) const {
 
-    uint32_t bufferIx = nextIndex(readIx) + limitIndexForNumItems(ix);
+    uint32_t bufferIx = nextIndex(readIx) + limitIndexForLength(ix);
 
     if(bufferIx >= getCapacity()) {
         bufferIx -= getCapacity();
@@ -48,7 +48,7 @@ uint32_t FifoIndexing::getIndexFromFront(uint32_t ix) const {
 
 uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 
-    int32_t bufferIx = writeIx - limitIndexForNumItems(ix);
+    int32_t bufferIx = writeIx - limitIndexForLength(ix);
 
     if(bufferIx < 0) {
         bufferIx += getCapacity();
@@ -58,13 +58,13 @@ uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 }
 
 
-uint32_t FifoIndexing::limitIndexForNumItems(uint32_t ix) const {
+uint32_t FifoIndexing::limitIndexForLength(uint32_t ix) const {
 
-    if(ix >= getNumItems()) {
-        if(getNumItems() == 0) {
+    if(ix >= length) {
+        if(length == 0) {
             ix = 0;
         } else {
-            ix = getNumItems() - 1;
+            ix = length - 1;
         }
     }
 
@@ -97,21 +97,40 @@ uint32_t FifoIndexing::previousIndex(uint32_t ix) const {
 
 void FifoIndexing::push() {
 
+    uint32_t prevWriteIx = writeIx;
     writeIx = nextIndex(writeIx);
 
-    if(writeIx == readIx) {
-        readIx = nextIndex(readIx);
+    if((prevWriteIx == readIx) && (length > 0)) {
+        readIx = writeIx;
+        length = capacity;
     } else {
-        ++numItems;
+        ++length;
     }
 
 }
 
 void FifoIndexing::pop() {
 
-    if(numItems > 0) {
+    if(length > 0) {
         readIx = nextIndex(readIx);
-        --numItems;
+        --length;
     }
+}
+
+
+void FifoIndexing::setLength(uint32_t len) {
+
+    if(len >= capacity) {
+        len = capacity - 1;
+    }
+
+    if(len > writeIx) {
+        readIx = writeIx + capacity;
+    } else {
+        readIx = writeIx;
+    }
+
+    readIx -= len;
+    length = len;
 }
 

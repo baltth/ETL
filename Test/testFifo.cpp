@@ -25,10 +25,13 @@ limitations under the License.
 
 #include <Fifo.h>
 #include <Array.h>
+#include <Vector.h>
+#include <FixedVector.h>
+
 #include <Test/ContainerTester.h>
 
 
-TEST_CASE("Etl::Fifo<> basic test", "[fifo][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
@@ -43,44 +46,239 @@ TEST_CASE("Etl::Fifo<> basic test", "[fifo][etl][basic]") {
     fifo.push(2);
 
     REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo[0] == 1);
+    REQUIRE(fifo[-1] == 2);
 
     REQUIRE(fifo.pop() == 1);
     REQUIRE(fifo.pop() == 2);
 
     REQUIRE(fifo.getLength() == 0);
+
+}
+
+TEST_CASE("Etl::Fifo<> basic test with Vector<>", "[fifo][vector][etl][basic]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 16;
+    typedef Etl::Fifo<Etl::Vector<ItemType> > FifoType;
+
+    FifoType fifo(SIZE);
+
+    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.getLength() == 0);
+
+    fifo.push(1);
+    fifo.push(2);
+
+    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo[0] == 1);
+    REQUIRE(fifo[-1] == 2);
+
+    REQUIRE(fifo.pop() == 1);
+    REQUIRE(fifo.pop() == 2);
+
+    REQUIRE(fifo.getLength() == 0);
+
+}
+
+TEST_CASE("Etl::Fifo<> basic test with FixedVector<>", "[fifo][fixedvector][etl][basic]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 16;
+    typedef Etl::Fifo<Etl::FixedVector<ItemType, SIZE> > FifoType;
+
+    FifoType fifo(SIZE);
+
+    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.getLength() == 0);
+
+    fifo.push(1);
+    fifo.push(2);
+
+    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo[0] == 1);
+    REQUIRE(fifo[-1] == 2);
+
+    REQUIRE(fifo.pop() == 1);
+    REQUIRE(fifo.pop() == 2);
+
+    REQUIRE(fifo.getLength() == 0);
+
+}
+
+TEST_CASE("Etl::Fifo<> element access", "[fifo][etl]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 16;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+
+    FifoType fifo;
+
+    fifo.push(1);
+    fifo.push(2);
+    fifo.push(3);
+    fifo.push(4);
+    fifo.push(5);
+
+    CHECK(fifo.getLength() == 5);
+
+    REQUIRE(fifo[0] == 1);
+    REQUIRE(fifo[4] == 5);
+    REQUIRE(fifo[-1] == 5);
+    REQUIRE(fifo[-5] == 1);
+
+    CHECK(fifo.pop() == 1);
+
+    REQUIRE(fifo[0] == 2);
+    REQUIRE(fifo[3] == 5);
+    REQUIRE(fifo[-1] == 5);
+    REQUIRE(fifo[-4] == 2);
+
+}
+
+TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 4;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+
+    FifoType fifo;
+
+    fifo.push(1);
+    fifo.push(2);
+    fifo.push(3);
+
+    CHECK(fifo.getLength() == 3);
+
+    int i = 0;
+    for(FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+        REQUIRE(*it == fifo[i]);
+        ++i;
+    }
+
+    fifo.push(4);
+    fifo.push(5);
+    fifo.push(6);
     
-}
+    i = 0;
+    for(FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+        REQUIRE(*it == fifo[i]);
+        ++i;
+    }
 
-/*
-TEST_CASE("Etl::Fifo<> leak test", "[fifo][etl]") {
-
-    typedef ContainerTester ItemType;
-    typedef Etl::Fifo<ItemType> FifoType;
-
-    static const int PATTERN = 123;
-
-    FifoType* fifo = new FifoType();
-
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-    fifo->pushBack(ContainerTester(PATTERN));
-
-    CHECK(fifo->getSize() == ItemType::getObjectCount());
-
-    fifo->popBack();
-    REQUIRE(fifo->getSize() == ItemType::getObjectCount());
-
-    fifo->erase(fifo->begin());
-    REQUIRE(fifo->getSize() == ItemType::getObjectCount());
-
-    delete fifo;
-    REQUIRE(ItemType::getObjectCount() == 0);
+    i = 0;
+    FifoType::Iterator it = fifo.end();
+    while(it != fifo.begin()) {
+        --i;
+        --it;
+        REQUIRE(*it == fifo[i]);
+    }
 
 }
-*/
+
+TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 4;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+
+    FifoType fifo;
+
+    fifo.push(1);
+    fifo.push(2);
+    fifo.push(3);
+    fifo.push(4);
+
+    CHECK(fifo.getLength() == SIZE);
+    CHECK(fifo[0] == 1);
+    CHECK(fifo[-1] == 4);
+
+    fifo.push(5);
+    
+    REQUIRE(fifo.getLength() == SIZE);
+    REQUIRE(fifo[0] == 2);
+    REQUIRE(fifo[-1] == 5);
+
+    fifo.push(6);
+    
+    REQUIRE(fifo.getLength() == SIZE);
+    REQUIRE(fifo[0] == 3);
+    REQUIRE(fifo[-1] == 6);
+
+    CHECK(fifo.pop() == 3);
+
+    REQUIRE(fifo[0] == 4);
+    REQUIRE(fifo[-1] == 6);
+
+}
+
+TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE1 = 4;
+    static const uint32_t SIZE2 = 32;
+    typedef Etl::Fifo<Etl::Vector<ItemType> > FifoType;
+
+    FifoType fifo;
+
+    REQUIRE(fifo.getCapacity() == 0);
+    REQUIRE(fifo.getLength() == 0);
+
+    fifo.setupFifo(SIZE1);
+    
+    REQUIRE(fifo.getCapacity() == SIZE1);
+    REQUIRE(fifo.getLength() == 0);
+    
+    fifo.push(1);
+    fifo.push(2);
+    CHECK(fifo.getLength() == 2);
+
+    fifo.setupFifo(SIZE2);
+
+    REQUIRE(fifo.getCapacity() == SIZE2);
+    REQUIRE(fifo.getLength() == 0);
+
+}
+
+TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 8;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+
+    FifoType fifo;
+
+    CHECK(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.getLength() == 0);
+
+    fifo.push(1);
+    fifo.push(2);
+    
+    REQUIRE(fifo.getLength() == 2);
+    
+    fifo.setEmpty();
+    
+    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.isEmpty());
+
+    fifo.push(3);
+    fifo.push(4);
+    fifo.push(5);
+    fifo.push(6);
+
+    REQUIRE(fifo.getLength() == 4);
+    
+    fifo.setLength(2);
+
+    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo[-1] == 6);
+    REQUIRE(fifo[0] == 5);
+
+    fifo.setLength(6);
+    
+    REQUIRE(fifo.getLength() == 6);
+    REQUIRE(fifo[-1] == 6);
+    REQUIRE(fifo[0] == 1);
+
+}
 

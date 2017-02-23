@@ -21,18 +21,14 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTOR_H__
-#define __ETL_VECTOR_H__
+#ifndef __ETL_FIXEDVECTOR_H__
+#define __ETL_FIXEDVECTOR_H__
 
-#include "langSupport.h"
 #include "etlSupport.h"
 
 #include "Base/VectorTemplate.h"
 #include "Base/MemStrategies.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -365,5 +361,5 @@ typename FixedVector<T*>::Iterator FixedVector<T*>::find(Iterator startPos,
 */
 }
 
-#endif /* __ETL_VECTOR_H__ */
+#endif /* __ETL_FIXEDVECTOR_H__ */
 

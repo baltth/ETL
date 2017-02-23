@@ -29,14 +29,17 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+class AFifoIterator;
+
 
 class FifoIndexing {
+friend AFifoIterator;
 
 // variables
-protected:
+private:
 
     uint32_t capacity;
-    uint32_t numItems;
+    uint32_t length;
 
     uint32_t writeIx;
     uint32_t readIx;
@@ -44,11 +47,31 @@ protected:
 // functions
 public:
 
-    explicit FifoIndexing(uint32_t fifoSize, uint32_t num = 0) :
-        capacity(fifoSize),
-        numItems(num),
-        writeIx(0),
-        readIx(0) {};
+    bool isEmpty() const {
+        return (length == 0);
+    }
+
+    bool isFull() const {
+        return (length == capacity);
+    }
+
+    uint32_t getLength() const {
+        return length;
+    }
+
+    void setEmpty() {
+        setLength(0);
+    }
+
+    void setLength(uint32_t len);
+
+protected:
+
+    explicit FifoIndexing(uint32_t fifoSize) :
+        capacity(fifoSize) {
+    
+        resetIndexes(); 
+    };
 
     uint32_t getIndexFromFront(uint32_t ix) const;
     uint32_t getIndexFromBack(uint32_t ix) const;
@@ -66,13 +89,9 @@ public:
         return capacity;
     }
 
-    uint32_t getNumItems() const {
-        return numItems;
-    }
-
     void push();
     void pop();
-
+    
     uint32_t getWriteIx() const {
         return writeIx;
     }
@@ -81,9 +100,9 @@ public:
         return readIx;
     }
 
-protected:
+private:
 
-    uint32_t limitIndexForNumItems(uint32_t ix) const;
+    uint32_t limitIndexForLength(uint32_t ix) const;
 
 };
 
