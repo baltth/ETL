@@ -26,4 +26,9 @@ limitations under the License.
 
 uint32_t ContainerTester::objectCnt = 0;
 uint32_t ContainerTester::objectRef = 0;
+uint32_t ContainerTester::copyCnt = 0;
+
+#if ETL_USE_CPP11
+uint32_t ContainerTester::moveCnt = 0;
+#endif
 

@@ -42,6 +42,11 @@ private:
 
     static uint32_t objectCnt;
     static uint32_t objectRef;
+    static uint32_t copyCnt;
+
+#if ETL_USE_CPP11
+    static uint32_t moveCnt;
+#endif
 
 // functions
 public:
@@ -60,6 +65,7 @@ public:
         objectId(++objectRef) {
 
         ++objectCnt;
+        ++copyCnt;
         reportCopyConstructor();
         reportValue();
     }
@@ -67,31 +73,11 @@ public:
     ContainerTester &operator=(const ContainerTester &other) {
 
         value = other.value;
+        ++copyCnt;
         reportCopyAssignment();
         reportValue();
         return *this;
     }
-
-#if ETL_USE_CPP11
-
-    ContainerTester(ContainerTester &&other) :
-        value(other.value),
-        objectId(other.objectId) {
-
-        ++objectCnt;
-        reportMoveConstructor();
-        reportValue();
-    }
-
-    ContainerTester &operator=(ContainerTester &&other) {
-        value = other.value;
-        value = other.objectId;
-        reportMoveAssignment();
-        reportValue();
-        return *this;
-    }
-
-#endif
 
     ~ContainerTester() {
         --objectCnt;
@@ -110,6 +96,43 @@ public:
     static uint32_t getObjectCount() {
         return objectCnt;
     }
+
+    static uint32_t getLastObjectId() {
+        return objectRef;
+    }
+
+    static uint32_t getCopyCount() {
+        return copyCnt;
+    }
+
+#if ETL_USE_CPP11
+
+    ContainerTester(ContainerTester &&other) :
+        value(other.value),
+        objectId(other.objectId) {
+
+        ++objectCnt;
+        ++moveCnt;
+        reportMoveConstructor();
+        reportValue();
+    }
+
+    ContainerTester &operator=(ContainerTester &&other) {
+
+        value = other.value;
+        value = other.objectId;
+        ++moveCnt;
+        reportMoveAssignment();
+        reportValue();
+        return *this;
+    }
+
+    static uint32_t getMoveCount() {
+        return moveCnt;
+    }
+
+#endif
+
 
 #if PRINT_TO_IOSTRREAM
 
@@ -164,7 +187,7 @@ inline bool operator!=(const ContainerTester& lhs, const ContainerTester& rhs) {
     return !(operator==(lhs, rhs));
 }
 
-inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) { 
+inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
     return lhs.getValue() < rhs.getValue();
 }
 

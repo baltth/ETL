@@ -34,6 +34,10 @@ limitations under the License.
 #include <initializer_list>
 #endif
 
+#ifdef ETL_USE_EXCEPTIONS
+#include "ExceptionTypes.h"
+#endif
+
 #include <new>
 #include <utility>
 
@@ -98,13 +102,20 @@ protected:
 // functions
 public:
 
-    inline T &operator[](int32_t ix) {
+    inline T &operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    inline const T &operator[](int32_t ix) const {
+    inline const T &operator[](uint32_t ix) const {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
+
+#ifdef ETL_USE_EXCEPTIONS
+
+    T &at(uint32_t ix);
+    const T &at(uint32_t ix) const;
+
+#endif
 
     inline Iterator begin() const {
         return static_cast<Iterator>(getItemPointer(0));
@@ -412,6 +423,32 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
         ++startPos;
     }
 }
+
+
+#ifdef ETL_USE_EXCEPTIONS
+
+template<typename T>
+T& TypedVectorBase<T>::at(uint32_t ix) {
+
+    if(ix >= getSize()) {
+        throw ETL_NAMESPACE::OutOfRangeException();
+    }
+
+    return operator[](ix);
+}
+
+
+template<typename T>
+const T& TypedVectorBase<T>::at(uint32_t ix) const {
+
+    if(ix >= getSize()) {
+        throw ETL_NAMESPACE::OutOfRangeException();
+    }
+
+    return operator[](ix);
+}
+
+#endif
 
 }
 

@@ -230,14 +230,14 @@ TEST_CASE("Etl::Vector<> assignment test", "[vector][etl]") {
     VectorType vector1(4, ContainerTester(PATTERN1));
     VectorType vector2(8, ContainerTester(PATTERN2));
 
-    CHECK(vector1[0] != vector2[0]);   
+    CHECK(vector1[0] != vector2[0]);
     CHECK(vector1.getSize() != vector2.getSize());
 
     REQUIRE(ItemType::getObjectCount() == (vector1.getSize() + vector2.getSize()));
 
     vector1 = vector2;
 
-    REQUIRE(vector1[0] == vector2[0]);   
+    REQUIRE(vector1[0] == vector2[0]);
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
 
@@ -253,7 +253,7 @@ TEST_CASE("Etl::Vector<> leak test", "[vector][etl]") {
 
     VectorType* vector = new VectorType(8, ContainerTester(PATTERN));
     CHECK(vector->getSize() == ItemType::getObjectCount());
-    
+
     vector->popBack();
     REQUIRE(vector->getSize() == ItemType::getObjectCount());
 
@@ -307,4 +307,28 @@ TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
     REQUIRE(found == vector.end());
 
 }
+
+#ifdef ETL_USE_EXCEPTIONS
+
+TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
+
+    static const uint32_t COUNT = 16;
+    typedef int ItemType;
+    typedef Etl::Vector<ItemType> VectorType;
+
+    VectorType vector(COUNT);
+
+    ItemType val;
+    CHECK_NOTHROW(val = vector[0]);
+    CHECK_NOTHROW(val = vector[COUNT - 1]);
+
+    REQUIRE_NOTHROW(val = vector.at(0));
+    REQUIRE_NOTHROW(val = vector.at(COUNT - 1));
+
+    REQUIRE_THROWS_AS(val = vector.at(COUNT), Etl::OutOfRangeException);
+    REQUIRE_THROWS_AS(val = vector.at(COUNT + 100), Etl::OutOfRangeException);
+
+}
+
+#endif
 

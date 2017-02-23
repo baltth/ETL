@@ -5,6 +5,8 @@ set(CMAKE_BUILD_TYPE Release)
 set (CMAKE_CXX_FLAGS "--std=c++03")
 #set (CMAKE_CXX_STANDARD 11)
 
+add_definitions(-DETL_USE_EXCEPTIONS)
+
 include_directories(.)
 
 #However, the file(GLOB...) allows for wildcard additions:

@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "catch.hpp"
 
+#include "etlSupport.h"
+
 #include <Array.h>
 #include <ArrayProxy.h>
 #include <Test/UnalignedTester.h>
@@ -32,7 +34,7 @@ TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::Array<ItemType, 16> ArrayType;
-    
+
     ArrayType array;
 
     uint32_t size = array.getSize();
@@ -49,7 +51,7 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
 
     typedef int ItemType;
     typedef Etl::Array<ItemType, 16> ArrayType;
-    
+
     ArrayType array;
 
     ArrayType::Iterator it = array.begin();
@@ -68,16 +70,40 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
     *it = 16;
     --it;
     *it = 15;
-    
+
     REQUIRE(array[15] == 16);
     REQUIRE(array[14] == 15);
 }
+
+#ifdef ETL_USE_EXCEPTIONS
+
+TEST_CASE("Etl::Array<> exceptions", "[array][etl]") {
+
+    static const uint32_t COUNT = 16;
+    typedef int ItemType;
+    typedef Etl::Array<ItemType, COUNT> ArrayType;
+
+    ArrayType array;
+   
+    ItemType val;
+    CHECK_NOTHROW(val = array[0]);
+    CHECK_NOTHROW(val = array[COUNT - 1]);
+
+    REQUIRE_NOTHROW(val = array.at(0));
+    REQUIRE_NOTHROW(val = array.at(COUNT - 1));
+   
+    REQUIRE_THROWS_AS(val = array.at(COUNT), Etl::OutOfRangeException);
+    REQUIRE_THROWS_AS(val = array.at(COUNT + 100), Etl::OutOfRangeException);
+    
+}
+
+#endif
 
 TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
 
     typedef UnalignedTester ItemType;
     typedef Etl::Array<ItemType, 16> ArrayType;
-    
+
     ArrayType array;
     UnalignedTester refArray[16];
 
@@ -105,10 +131,10 @@ TEST_CASE("Etl::Array<> features", "[array][etl]") {
     typedef Etl::Array<ItemType, 16> ArrayType;
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
-    
+
     ArrayType array;
     array.fill(PATTERN1);
-    
+
     CAPTURE(PATTERN1);
     REQUIRE(array[0] == PATTERN1);
     REQUIRE(array[15] == PATTERN1);
@@ -120,7 +146,7 @@ TEST_CASE("Etl::Array<> features", "[array][etl]") {
 
     ArrayType array2(array);
     REQUIRE(array2[15] == PATTERN2);
-    
+
     ArrayType array3 = array2;
     REQUIRE(array3[15] == PATTERN2);
 
@@ -129,7 +155,7 @@ TEST_CASE("Etl::Array<> features", "[array][etl]") {
 TEST_CASE("Etl::ArrayProxy test", "[array][etl][basic]") {
 
     typedef int ItemType;
-   
+
     Etl::Array<ItemType, 16> array;
     Etl::ArrayProxy proxy(array);
 
@@ -146,7 +172,7 @@ TEST_CASE("Etl::TypedArrayProxy<> test", "[array][etl][basic]") {
     typedef int ItemType;
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
-    
+
     Etl::Array<ItemType, 16> array;
     Etl::TypedArrayProxy<ItemType> proxy(array);
 
