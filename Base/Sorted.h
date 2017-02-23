@@ -38,27 +38,10 @@ class Sorted {
 
 // types
 public:
-    
+
     typedef typename C::ItemType ItemType;
     typedef typename C::Iterator Iterator;
-
-protected:
-
-    class Node : public C::Node {
-
-    public:
-
-#if ETL_USE_CPP11
-        template<typename... Args>
-        Node(Args &&... args) :
-            C::Node(args...) {};
-#else
-        Node() {};
-        explicit Node(const ItemType& value) :
-            C::Node(value) {};
-#endif
-
-    };
+    typedef typename C::Node Node;
 
 // variables
 protected:

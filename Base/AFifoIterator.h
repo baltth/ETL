@@ -24,11 +24,10 @@ limitations under the License.
 #ifndef __ETL_AFIFOITERATOR_H__
 #define __ETL_AFIFOITERATOR_H__
 
+#include "etlSupport.h"
+
 #include "Base/FifoIndexing.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -50,8 +49,17 @@ private:
 // functions
 public:
 
-    AFifoIterator(const AFifoIterator &other) = default;
-    AFifoIterator &operator=(const AFifoIterator &other) = default;
+    AFifoIterator(const AFifoIterator &other) :
+        ix(other.ix),
+        data(other.data),
+        fifo(other.fifo) {};
+
+    AFifoIterator &operator=(const AFifoIterator &other) {
+        ix = other.ix;
+        data = other.data;
+        fifo = other.fifo;
+        return *this;
+    };
 
     bool operator==(const AFifoIterator &other) const {
         return ((ix == other.ix) && (fifo == other.fifo));
@@ -100,3 +108,4 @@ protected:
 }
 
 #endif /* __ETL_AFIFOITERATOR_H__ */
+

@@ -13,6 +13,7 @@ include_directories(.)
 list(APPEND ETL_TEST_SRCS "Base/AVectorBase.cpp")
 list(APPEND ETL_TEST_SRCS "Base/AListBase.cpp")
 list(APPEND ETL_TEST_SRCS "Base/DoubleLinkedList.cpp")
+list(APPEND ETL_TEST_SRCS "Base/FifoIndexing.cpp")
 
 list(APPEND ETL_TEST_SRCS "Test/ContainerTester.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testArray.cpp")
@@ -21,6 +22,7 @@ list(APPEND ETL_TEST_SRCS "Test/testFixedVector.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testList.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testSet.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testMap.cpp")
+list(APPEND ETL_TEST_SRCS "Test/testFifo.cpp")
 
 add_executable(testEtl "Test/testEtl.cpp" ${ETL_TEST_SRCS})
 
@@ -32,4 +34,5 @@ add_test(testFixedVector testEtl "[fixedvector]")
 add_test(testList testEtl "[list]")
 add_test(testSet testEtl "[set]")
 add_test(testMap testEtl "[map]")
+add_test(testFifo testEtl "[fifo]")
 

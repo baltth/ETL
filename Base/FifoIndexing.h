@@ -24,11 +24,8 @@ limitations under the License.
 #ifndef __ETL_AFIFOINDEXING_H__
 #define __ETL_AFIFOINDEXING_H__
 
-#include <cstdint>
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -38,7 +35,7 @@ class FifoIndexing {
 // variables
 protected:
 
-    uint32_t capcity;
+    uint32_t capacity;
     uint32_t numItems;
 
     uint32_t writeIx;
@@ -48,7 +45,7 @@ protected:
 public:
 
     explicit FifoIndexing(uint32_t fifoSize, uint32_t num = 0) :
-        capcity(fifoSize),
+        capacity(fifoSize),
         numItems(num),
         writeIx(0),
         readIx(0) {};
@@ -62,11 +59,11 @@ public:
     void resetIndexes();
 
     void setCapacity(uint32_t fifoSize) {
-        capcity = fifoSize;
+        capacity = fifoSize;
     }
 
     uint32_t getCapacity() const {
-        return capcity;
+        return capacity;
     }
 
     uint32_t getNumItems() const {
@@ -93,3 +90,4 @@ protected:
 }
 
 #endif /* __ETL_AFIFOINDEXING_H__ */
+

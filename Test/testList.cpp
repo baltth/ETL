@@ -31,7 +31,7 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
 
     typedef int ItemType;
     typedef Etl::List<ItemType> ListType;
-    
+
     ListType list;
 
     REQUIRE(list.getSize() == 0);
@@ -47,7 +47,7 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
     REQUIRE(*it == 2);
     ++it;
     REQUIRE(it == list.end());
-   
+
     it = list.insert(list.begin(), 3);
     REQUIRE(list.getSize() == 3);
     REQUIRE(*it == 3);
@@ -69,7 +69,7 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
     static const int PATTERN = 123;
 
     ListType* list = new ListType();
-    
+
     list->pushBack(ContainerTester(PATTERN));
     list->pushBack(ContainerTester(PATTERN));
     list->pushBack(ContainerTester(PATTERN));
@@ -78,9 +78,9 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
     list->pushBack(ContainerTester(PATTERN));
     list->pushBack(ContainerTester(PATTERN));
     list->pushBack(ContainerTester(PATTERN));
-    
+
     CHECK(list->getSize() == ItemType::getObjectCount());
-    
+
     list->popBack();
     REQUIRE(list->getSize() == ItemType::getObjectCount());
 
@@ -122,8 +122,6 @@ TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
     list.pushBack(REF_VALUE);
     ListType::Iterator it2 = --list.end();
     list.pushBack(6);
-
-    //IntMatcher matcher(REF_VALUE);
 
     ListType::Iterator found = list.find(IntMatcher(REF_VALUE));
     REQUIRE(found == it1);

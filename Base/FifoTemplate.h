@@ -24,30 +24,29 @@ limitations under the License.
 #ifndef __ETL_FIFOTEMPLATE_H__
 #define __ETL_FIFOTEMPLATE_H__
 
+#include "etlSupport.h"
+
 #include "Base/FifoIndexing.h"
 #include "Base/AFifoIterator.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
 
-template<class T>
-class FifoTemplate : protected T, protected FifoIndexing {
+template<class C>
+class FifoTemplate : protected C, protected FifoIndexing {
 
 // types
 public:
 
-    typedef typename T::ItemType ItemType;
+    typedef typename C::ItemType ItemType;
 
     class Iterator : public AFifoIterator<ItemType> {
-        friend class FifoTemplate<T>;
+        friend class FifoTemplate<C>;
 
     private:
 
-        Iterator(const FifoTemplate<T>* fifoArray, uint32_t ix) :
+        Iterator(const FifoTemplate<C>* fifoArray, uint32_t ix) :
             AFifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
 
     };
@@ -55,15 +54,27 @@ public:
 // functions
 public:
 
-    template<typename... Args>
-    explicit FifoTemplate(Args... args) :
-        T(args...),
-        FifoIndexing(T::getSize(), 0) {};
+#if ETL_USE_CPP11
 
-    void createFifo(uint32_t len);
+    template<typename... Args>
+    explicit FifoTemplate<C>(Args... args) :
+        C(args...),
+        FifoIndexing(C::getCapacity(), 0) {};
+
+#else
+
+    FifoTemplate<C>() :
+        C(),
+        FifoIndexing(C::getCapacity(), 0) {};
+
+    FifoTemplate<C>(uint32_t len) :
+        C(len),
+        FifoIndexing(C::getCapacity(), 0) {};
+
+#endif
 
     uint32_t getCapacity() const {
-        return T::getCapacity();
+        return C::getCapacity();
     }
 
     void push(const ItemType &item);
@@ -100,38 +111,38 @@ public:
 };
 
 
-template<class T>
-void FifoTemplate<T>::push(const ItemType &item) {
+template<class C>
+void FifoTemplate<C>::push(const ItemType &item) {
 
     FifoIndexing::push();
-    T::operator[](FifoIndexing::getWriteIx()) = item;
+    C::operator[](FifoIndexing::getWriteIx()) = item;
 }
 
 
-template<class T>
-typename FifoTemplate<T>::ItemType FifoTemplate<T>::pop() {
+template<class C>
+typename FifoTemplate<C>::ItemType FifoTemplate<C>::pop() {
 
     FifoIndexing::pop();
-    return T::operator[](FifoIndexing::getReadIx());
+    return C::operator[](FifoIndexing::getReadIx());
 }
 
 
-template<class T>
-typename FifoTemplate<T>::ItemType FifoTemplate<T>::getFromBack(uint32_t ix) const {
+template<class C>
+typename FifoTemplate<C>::ItemType FifoTemplate<C>::getFromBack(uint32_t ix) const {
 
-    return T::operator[](FifoIndexing::getIndexFromFront(ix));
+    return C::operator[](FifoIndexing::getIndexFromFront(ix));
 }
 
 
-template<class T>
-typename FifoTemplate<T>::ItemType FifoTemplate<T>::getFromFront(uint32_t ix) const {
+template<class C>
+typename FifoTemplate<C>::ItemType FifoTemplate<C>::getFromFront(uint32_t ix) const {
 
-    return T::operator[](FifoIndexing::getIndexFromBack(ix));
+    return C::operator[](FifoIndexing::getIndexFromBack(ix));
 }
 
 
-template<class T>
-typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix) {
+template<class C>
+typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix) {
 
     if(ix < 0) {
         ix = -1 - ix;
@@ -140,12 +151,12 @@ typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix) {
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return T::operator[](ix);
+    return C::operator[](ix);
 }
 
 
-template<class T>
-const typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix) const {
+template<class C>
+const typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix) const {
 
     if(ix < 0) {
         ix = -1 - ix;
@@ -154,12 +165,12 @@ const typename FifoTemplate<T>::ItemType &FifoTemplate<T>::operator[](int32_t ix
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return T::operator[](ix);
+    return C::operator[](ix);
 }
 
 
-template<class T>
-void FifoTemplate<T>::setLength(uint32_t len) {
+template<class C>
+void FifoTemplate<C>::setLength(uint32_t len) {
 
     if(len >= FifoIndexing::getCapacity()) {
         len = FifoIndexing::getCapacity() - 1;
@@ -178,3 +189,4 @@ void FifoTemplate<T>::setLength(uint32_t len) {
 }
 
 #endif /* __ETL_FIFOTEMPLATE_H__ */
+

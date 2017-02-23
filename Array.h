@@ -94,6 +94,10 @@ public:
     inline uint32_t getSize() const {
         return N;
     }
+    
+    inline uint32_t getCapacity() const {
+        return N;
+    }
 
     void fill(const T &value);
 
