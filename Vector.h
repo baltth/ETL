@@ -43,6 +43,8 @@ public:
     typedef T ItemType;
     typedef VectorTemplate<T, HeapUser> Base;
     typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+    
 
 // functions
 public:
@@ -80,7 +82,7 @@ public:
         return find(Vector<T>::begin(), Vector<T>::end(), std::move(matcher));
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const T &)> &&matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T &)> &&matcher) const;
 
 #else
 
@@ -88,7 +90,7 @@ public:
         return find(Vector<T>::begin(), Vector<T>::end(), matcher);
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T> &matcher) const;
 
 #endif
 
@@ -113,8 +115,8 @@ Vector<T>::Vector(uint32_t len, const T &item) {
 #if ETL_USE_CPP11
 
 template<class T>
-typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
-                                             Iterator endPos,
+typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
+                                             ConstIterator endPos,
                                              std::function<bool(const T &)> &&matcher) const {
 
     bool match = false;
@@ -128,14 +130,14 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 #else
 
 template<class T>
-typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
-                                             Iterator endPos,
+typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
+                                             ConstIterator endPos,
                                              const Matcher<T> &matcher) const {
 
     bool match = false;
@@ -149,7 +151,7 @@ typename Vector<T>::Iterator Vector<T>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 #endif

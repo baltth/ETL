@@ -55,6 +55,7 @@ public:
 
     typedef T ItemType;
     typedef T* Iterator;
+    typedef const T* ConstIterator;
 
 protected:
 
@@ -117,12 +118,20 @@ public:
 
 #endif
 
-    inline Iterator begin() const {
+    inline Iterator begin() {
         return static_cast<Iterator>(getItemPointer(0));
     }
+    
+    inline ConstIterator begin() const {
+        return static_cast<ConstIterator>(getItemPointer(0));
+    }
 
-    inline Iterator end() const {
+    inline Iterator end() {
         return static_cast<Iterator>(getItemPointer(getSize()));
+    }
+    
+    inline ConstIterator end() const {
+        return static_cast<ConstIterator>(getItemPointer(getSize()));
     }
 
     inline T &front() {
@@ -214,11 +223,11 @@ protected:
 
 #if ETL_USE_CPP11
 
-    Iterator insertOperation(Iterator position, uint32_t num, CreatorFunctor&& creatorCall);
+    Iterator insertOperation(ConstIterator position, uint32_t num, CreatorFunctor&& creatorCall);
 
 #else
 
-    Iterator insertOperation(Iterator position, uint32_t num, const CreatorFunctor& creatorCall);
+    Iterator insertOperation(ConstIterator position, uint32_t num, const CreatorFunctor& creatorCall);
 
 #endif
 
@@ -239,7 +248,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, 
         first += numToMove;
         destruct(first, end());
 
-        numElements -= numToErase;
+        proxy.setSize(getSize() - numToErase);
     }
 
     return itAfterDeleted;
@@ -261,14 +270,14 @@ void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
     }
 
     destruct((dataAlias + i), end());
-    numElements = num;
+    proxy.setSize(num);
 }
 
 
 #if ETL_USE_CPP11
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterator position,
+typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
                                                                           uint32_t numToInsert,
                                                                           CreatorFunctor&& creatorCall) {
 
@@ -306,16 +315,16 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterat
             creatorCall(uninitedInsertPos, false);
         }
 
-        numElements += numToInsert;
+        proxy.setSize(getSize() + numToInsert);
     }
 
-    return position;
+    return Iterator(position);
 }
 
 #else
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterator position,
+typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
                                                                           uint32_t numToInsert,
                                                                           const CreatorFunctor& creatorCall) {
 
@@ -353,10 +362,10 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(Iterat
             creatorCall.call(uninitedInsertPos, false);
         }
 
-        numElements += numToInsert;
+        proxy.setSize(getSize() + numToInsert);
     }
 
-    return position;
+    return Iterator(position);
 }
 
 #endif
@@ -411,7 +420,7 @@ template<class T>
 void TypedVectorBase<T>::clear() {
 
     destruct(begin(), end());
-    numElements = 0;
+    proxy.setSize(0);
 }
 
 

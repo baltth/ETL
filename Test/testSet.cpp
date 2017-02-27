@@ -56,3 +56,8 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]" ) {
 
 }
 
+TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
+}
+

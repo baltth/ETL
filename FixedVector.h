@@ -42,6 +42,7 @@ public:
     typedef T ItemType;
     typedef VectorTemplate<T, StaticSized> Base;
     typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
 // variables
 private:
@@ -85,7 +86,7 @@ public:
         return find(FixedVector<T>::begin(), FixedVector<T>::end(), std::move(matcher));
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, std::function<bool(const T &)> &&matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T &)> &&matcher) const;
 
 #else
 
@@ -93,7 +94,7 @@ public:
         return find(FixedVector<T, N>::begin(), FixedVector<T, N>::end(), matcher);
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T> &matcher) const;
 
 #endif
 
@@ -128,9 +129,9 @@ FixedVector<T, N>::FixedVector(uint32_t len, const T &item) :
 #if ETL_USE_CPP11
 
 template<class T>
-typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
-                                             Iterator endPos,
-                                             std::function<bool(const T &)> &&matcher) const {
+typename FixedVector<T>::Iterator FixedVector<T>::find(ConstIterator startPos,
+                                                       ConstIterator endPos,
+                                                       std::function<bool(const T &)> &&matcher) const {
 
     bool match = false;
 
@@ -143,14 +144,14 @@ typename FixedVector<T>::Iterator FixedVector<T>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 #else
 
 template<class T, uint32_t N>
-typename FixedVector<T, N>::Iterator FixedVector<T, N>::find(Iterator startPos,
-                                                             Iterator endPos,
+typename FixedVector<T, N>::Iterator FixedVector<T, N>::find(ConstIterator startPos,
+                                                             ConstIterator endPos,
                                                              const Matcher<T> &matcher) const {
 
     bool match = false;
@@ -164,7 +165,7 @@ typename FixedVector<T, N>::Iterator FixedVector<T, N>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 #endif

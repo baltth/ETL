@@ -203,7 +203,7 @@ void DynamicSized<C, A>::resize(uint32_t newLength) {
         C::destruct(newEnd, C::end());
     }
 
-    C::setSize(newLength);
+    C::proxy.setSize(newLength);
 }
 
 

@@ -53,54 +53,8 @@ TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]" ) {
 
 }
 
-/*
-TEST_CASE("Map test", "[map]" ) {
+TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
-    Etl::Map<uint32_t, ContainerTester> numMap;
-
-    auto printMap = [&numMap]() {
-
-        std::cout << std::endl << "Map<uint32_t, ContainerTester> test:" << std::endl;
-
-        for(auto &item : numMap) {
-            std::cout << item.getKey() << ": ";
-            item.getElement().reportValue();
-        }
-
-        std::cout << std::endl;
-    };
-
-    ContainerTester a(4);
-    numMap.insertOrAssign(4, a);
-    printMap();
-
-    REQUIRE(numMap.getSize() == 1);
-    REQUIRE(numMap[4].getValue() == a.getValue());
-
-    numMap.emplace(5, -5);
-    printMap();
-
-    REQUIRE(numMap.getSize() == 2);
-
-    ContainerTester b(-4);
-    numMap.insertOrAssign(4, b);
-    printMap();
-
-    REQUIRE(numMap.getSize() == 2);
-    REQUIRE(numMap[4].getValue() == b.getValue());
-
-    numMap.emplace(2, -2);
-    printMap();
-    numMap.emplace(3, -3);
-    printMap();
-
-    REQUIRE(numMap.getSize() == 4);
-
-    numMap.erase(3);
-    printMap();
-
-    REQUIRE(numMap.getSize() == 3);
-
+    CHECK(ContainerTester::getObjectCount() == 0);
 }
-*/
 

@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include "VectorProxy.h"
+#include "ContainerProxy.h"
 
 
 namespace ETL_NAMESPACE {
@@ -34,36 +34,62 @@ namespace ETL_NAMESPACE {
 
 class AVectorBase {
 
+// types
+protected:
+
+    class Proxy : public ContainerProxy {
+    friend AVectorBase;
+
+    // functions
+    public:
+
+        void setData(void* d) {
+            data = d;
+        }
+    
+        void setCapacity(uint32_t c) {
+            capacity = c;
+        }
+
+        void setSize(uint32_t s) {
+            size = s;
+        }
+
+    protected:
+
+        Proxy(size_t itemSize) :
+            ContainerProxy(itemSize, NULLPTR, 0, 0) {};
+
+    };
+
 // variables
 protected:
 
-    VectorProxy proxy;
-    uint32_t numElements;
+    Proxy proxy;
 
 // functions
 public:
-
-    uint32_t getSize() const {
-        return numElements;
-    }
 
     uint32_t getCapacity() const {
         return proxy.getCapacity();
     }
 
-    void* getItemPointer(uint32_t ix) const {
+    uint32_t getSize() const {
+        return proxy.getSize();
+    }
+    
+    void* getItemPointer(uint32_t ix) {
+        return proxy.getItemPointer(ix);
+    }
+    
+    const void* getItemPointer(uint32_t ix) const {
         return proxy.getItemPointer(ix);
     }
 
 protected:
 
     explicit AVectorBase(size_t itemSize) :
-        proxy(itemSize, NULLPTR, 0),
-        numElements(0) {};
-
-    void setSize(uint32_t newSize) {
-        numElements = newSize;
-    }
+        proxy(itemSize) {};
 
     void swap(AVectorBase &other);
 

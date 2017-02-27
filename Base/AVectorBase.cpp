@@ -30,15 +30,14 @@ using namespace ETL_NAMESPACE;
 
 void AVectorBase::swap(AVectorBase &other) {
 
-    VectorProxy tmpProxy(proxy);
-    uint32_t tmpNumElements = numElements;
+    AVectorBase::Proxy tmpProxy(proxy);
 
     proxy.data = other.proxy.data;
     proxy.capacity = other.proxy.capacity;
-    numElements = other.numElements;
+    proxy.size = other.proxy.size;
 
     other.proxy.data = tmpProxy.data;
     other.proxy.capacity = tmpProxy.capacity;
-    other.numElements = tmpNumElements;
+    other.proxy.size = tmpProxy.size;
 }
 

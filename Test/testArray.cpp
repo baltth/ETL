@@ -26,7 +26,8 @@ limitations under the License.
 #include "etlSupport.h"
 
 #include <Array.h>
-#include <ArrayProxy.h>
+#include <ContainerProxy.h>
+
 #include <Test/UnalignedTester.h>
 
 
@@ -152,12 +153,12 @@ TEST_CASE("Etl::Array<> features", "[array][etl]") {
 
 }
 
-TEST_CASE("Etl::ArrayProxy test", "[array][etl][basic]") {
+TEST_CASE("Etl::ContainerProxy - Array<> test", "[array][etl][basic]") {
 
     typedef int ItemType;
 
     Etl::Array<ItemType, 16> array;
-    Etl::ArrayProxy proxy(array);
+    Etl::ContainerProxy proxy(array);
 
     REQUIRE(proxy.getCapacity() == array.getSize());
     REQUIRE(proxy.getItemSize() == sizeof(ItemType));
@@ -167,14 +168,14 @@ TEST_CASE("Etl::ArrayProxy test", "[array][etl][basic]") {
 
 }
 
-TEST_CASE("Etl::TypedArrayProxy<> test", "[array][etl][basic]") {
+TEST_CASE("Etl::TypedContainerProxy - Array<> test", "[array][etl][basic]") {
 
     typedef int ItemType;
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
 
     Etl::Array<ItemType, 16> array;
-    Etl::TypedArrayProxy<ItemType> proxy(array);
+    Etl::TypedContainerProxy<ItemType> proxy(array);
 
     REQUIRE(proxy.getCapacity() == array.getSize());
     REQUIRE(proxy.getItemSize() == sizeof(ItemType));

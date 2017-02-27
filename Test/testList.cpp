@@ -60,7 +60,6 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
 
 }
 
-
 TEST_CASE("Etl::List<> leak test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
@@ -91,7 +90,6 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
     REQUIRE(ItemType::getObjectCount() == 0);
 
 }
-
 
 TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
 
@@ -132,14 +130,13 @@ TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
 
 }
 
-
 TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
     typedef Etl::List<ItemType> ListType;
 
     static const int REF_VALUE = 123;
-    static const ItemType REF_ITEM(REF_VALUE);
+    const ItemType REF_ITEM(REF_VALUE);
 
     CAPTURE(REF_ITEM.getValue());
 
@@ -162,4 +159,8 @@ TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
 
 }
 
+TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
+}
 

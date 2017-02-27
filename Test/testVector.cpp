@@ -332,3 +332,8 @@ TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
 
 #endif
 
+TEST_CASE("Etl::Vector<> test cleanup", "[vector][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
+}
+

@@ -47,17 +47,18 @@ public:
     typedef S<TypedVectorBase<T> > Strategy;
     typedef T ItemType;
     typedef T* Iterator;
+    typedef const T* ConstIterator;
 
     typedef typename TypedVectorBase<T>::CreatorFunctor CreatorFunctor;
 
 // functions
 public:
 
-    inline Iterator insert(Iterator position, const T &value) {
+    inline Iterator insert(ConstIterator position, const T &value) {
         return insert(position, 1, value);
     }
 
-    Iterator insert(Iterator position, uint32_t num, const T &value);
+    Iterator insert(ConstIterator position, uint32_t num, const T &value);
 
     inline void pushFront(const T &value) {
         insert(TypedVectorBase<T>::begin(), value);
@@ -73,10 +74,10 @@ public:
 
 #if ETL_USE_CPP11
 
-    Iterator insert(Iterator position, T &&value);
+    Iterator insert(ConstIterator position, T &&value);
 
     template<typename... Args >
-    Iterator emplace(Iterator pos, Args &&... args);
+    Iterator emplace(ConstIterator pos, Args &&... args);
 
     template<typename... Args >
     inline void emplaceBack(Args &&... args) {
@@ -106,12 +107,12 @@ protected:
     VectorTemplate<T, S> &operator=(VectorTemplate<T, S> &&other);
     VectorTemplate<T, S> &operator=(const std::initializer_list<T> &initList);
 
-    Iterator insertWithCreator(Iterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
+    Iterator insertWithCreator(ConstIterator position, uint32_t num, std::function<void(T*, bool)> &&creatorCall);
     void initWith(const T* src, uint32_t num);
 
 #else
 
-    Iterator insertWithCreator(Iterator position, uint32_t num, const CreatorFunctor& creatorCall);
+    Iterator insertWithCreator(ConstIterator position, uint32_t num, const CreatorFunctor& creatorCall);
 
 #endif
 
@@ -166,7 +167,7 @@ VectorTemplate<T, S> &VectorTemplate<T, S>::operator=(const std::initializer_lis
 }
 
 template<class T, template<class> class S>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, uint32_t num, const T &value) {
+typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator position, uint32_t num, const T &value) {
 
     return insertWithCreator(position, num, [&value](T * item, bool place) {
         if(place) {
@@ -179,7 +180,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position
 
 
 template<class T, template<class> class S>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position, T &&value) {
+typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator position, T &&value) {
 
     return insertWithCreator(position, 1, [&value](T * item, bool place) {
         if(place) {
@@ -193,7 +194,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(Iterator position
 
 template<class T, template<class> class S>
 template<typename... Args >
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::emplace(Iterator position, Args &&... args) {
+typename VectorTemplate<T>::Iterator VectorTemplate<T>::emplace(ConstIterator position, Args &&... args) {
 
     return insertWithCreator(position, 1, [&](T * item, bool place) {
         if(place) {
@@ -216,12 +217,12 @@ void VectorTemplate<T, S>::initWith(const T* src, uint32_t num) {
         placeValueTo((dataAlias + i), src[i]);
     }
 
-    numElements = num;
+    proxy.setSize(num);
 }
 
 
 template<class T, template<class> class S>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterator position,
+typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(ConstIterator position,
                                                                           uint32_t numToInsert,
                                                                           std::function<void(T*, bool)> &&creatorCall) {
 
@@ -245,7 +246,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(Iterat
 
 
 template<class T, template<class> class S>
-typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insert(Iterator position, uint32_t num, const T &value) {
+typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insert(ConstIterator position, uint32_t num, const T &value) {
 
     typename TypedVectorBase<T>::CopyCreator cc(value);
     return insertWithCreator(position, num, cc);
@@ -253,9 +254,9 @@ typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insert(Iterator po
 
 
 template<class T, template<class> class S>
-typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(Iterator position,
-                                                                          uint32_t numToInsert,
-                                                                          const CreatorFunctor& creatorCall) {
+typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(ConstIterator position,
+                                                                                uint32_t numToInsert,
+                                                                                const CreatorFunctor& creatorCall) {
 
     if(numToInsert > 0) {
 
@@ -269,7 +270,7 @@ typename VectorTemplate<T, S>::Iterator VectorTemplate<T, S>::insertWithCreator(
         position = TypedVectorBase<T>::insertOperation(position, numToInsert, creatorCall);
     }
 
-    return position;
+    return Iterator(position);
 }
 
 #endif

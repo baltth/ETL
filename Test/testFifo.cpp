@@ -24,11 +24,13 @@ limitations under the License.
 #include "catch.hpp"
 
 #include <Fifo.h>
+#include <FifoAccess.h>
+
 #include <Array.h>
 #include <Vector.h>
 #include <FixedVector.h>
 
-#include <Test/ContainerTester.h>
+//#include <Test/ContainerTester.h>
 
 
 TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
@@ -282,3 +284,35 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 
 }
 
+TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic]") {
+
+    typedef int ItemType;
+    static const uint32_t SIZE = 16;
+    typedef Etl::Array<ItemType, SIZE> ArrayType;
+
+    ArrayType array;
+    Etl::FifoAccess<ItemType> fifo(array);
+
+    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.getLength() == 0);
+
+    fifo.push(1);
+    fifo.push(2);
+
+    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo[0] == 1);
+    REQUIRE(fifo[-1] == 2);
+
+    REQUIRE(fifo.pop() == 1);
+    REQUIRE(fifo.pop() == 2);
+
+    REQUIRE(fifo.getLength() == 0);
+
+}
+
+/*
+TEST_CASE("Etl::Fifo<> test cleanup", "[fifo][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
+}
+*/
