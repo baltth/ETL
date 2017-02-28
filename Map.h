@@ -44,6 +44,7 @@ public:
     typedef MapItem<K, E> ItemType;
     typedef Sorted<ListTemplate<ItemType> > MapBase;
     typedef typename MapBase::Iterator Iterator;
+    typedef typename MapBase::ConstIterator ConstIterator;
 
 // functions
 public:

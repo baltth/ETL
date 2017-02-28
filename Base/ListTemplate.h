@@ -49,6 +49,7 @@ class ListTemplate : protected AListBase {
 public:
 
     typedef T ItemType;
+    typedef const T ConstItemType;
 
     class Node : public AListBase::Node {
 
@@ -58,7 +59,7 @@ public:
 
 #if ETL_USE_CPP11
         template<typename... Args>
-        Node(Args &&... args) :
+        Node(Args&& ... args) :
             item(std::forward<Args>(args)...) {};
 #else
         Node() {};
@@ -68,33 +69,87 @@ public:
 
     };
 
-    class Iterator : public AListBase::Iterator {
+
+    class ConstIterator : public AListBase::Iterator {
         friend class ListTemplate<T>;
 
     public:
 
-        T &operator*() const {
+        ConstItemType& operator*() const {
             return static_cast<ListTemplate<T>::Node*>(node)->item;
-        };
+        }
 
-        T* operator->() const {
+        ConstItemType* operator->() const {
             return &(static_cast<ListTemplate<T>::Node*>(node)->item);
-        };
+        }
 
-        bool operator==(const Iterator &other) {
+        bool operator==(const ConstIterator& other) {
             return AListBase::Iterator::operator==(other);
         }
 
-        bool operator!=(const Iterator &other) {
+        bool operator!=(const ConstIterator& other) {
             return !(operator==(other));
         }
 
-        Iterator &operator++() {
+        ConstIterator& operator++() {
             AListBase::Iterator::operator++();
             return *this;
         }
 
-        Iterator &operator--() {
+        ConstIterator& operator--() {
+            AListBase::Iterator::operator--();
+            return *this;
+        }
+
+        const ConstIterator operator++(int) {
+            ConstIterator old = *this;
+            this->operator++();
+            return old;
+        }
+
+        const ConstIterator operator--(int) {
+            ConstIterator old = *this;
+            this->operator--();
+            return old;
+        }
+
+        ConstIterator(const AListBase::Iterator& it) :
+            AListBase::Iterator(it) {};
+
+    protected:
+
+        ConstIterator(ListTemplate<T>::Node* n) :
+            AListBase::Iterator(n) {};
+
+    };
+    
+    class Iterator : public ConstIterator {
+        friend class ListTemplate<T>;
+
+    public:
+
+        ItemType& operator*() const {
+            return static_cast<ListTemplate<T>::Node*>(this->node)->item;
+        }
+
+        ItemType* operator->() const {
+            return &(static_cast<ListTemplate<T>::Node*>(this->node)->item);
+        }
+
+        bool operator==(const Iterator& other) {
+            return ConstIterator::operator==(other);
+        }
+
+        bool operator!=(const Iterator& other) {
+            return !(operator==(other));
+        }
+
+        Iterator& operator++() {
+            AListBase::Iterator::operator++();
+            return *this;
+        }
+
+        Iterator& operator--() {
             AListBase::Iterator::operator--();
             return *this;
         }
@@ -111,13 +166,13 @@ public:
             return old;
         }
 
-        Iterator(const AListBase::Iterator &it) :
-            AListBase::Iterator(it) {};
+        Iterator(const AListBase::Iterator& it) :
+            ConstIterator(it) {};
 
     protected:
 
         Iterator(ListTemplate<T>::Node* n) :
-            AListBase::Iterator(n) {};
+            ConstIterator(n) {};
 
     };
 
@@ -128,15 +183,15 @@ public:
 
 #if ETL_USE_CPP11
 
-    ListTemplate(ListTemplate &&other) :
+    ListTemplate(ListTemplate&& other) :
         AListBase(std::move(other)) {};
 
-    ListTemplate &operator=(ListTemplate &&other) {
+    ListTemplate& operator=(ListTemplate&& other) {
         AListBase::operator=(other);
         return *this;
     }
 
-    ListTemplate(const std::initializer_list<T> &initList);
+    ListTemplate(const std::initializer_list<T>& initList);
 
 #endif
 
@@ -167,11 +222,11 @@ public:
 
     /// \name Element operations
     /// @{
-    inline void pushFront(const T &item) {
+    inline void pushFront(const T& item) {
         return AListBase::pushFront(new Node(item));
     }
 
-    inline void pushBack(const T &item) {
+    inline void pushBack(const T& item) {
         return AListBase::pushBack(new Node(item));
     }
 
@@ -183,7 +238,7 @@ public:
         delete AListBase::popBack();
     }
 
-    inline Iterator insert(Iterator pos, const T &item);
+    inline Iterator insert(ConstIterator pos, const T& item);
 
     inline void erase(Iterator pos) {
         delete AListBase::remove(pos);
@@ -192,35 +247,35 @@ public:
 #if ETL_USE_CPP11
 
     template<typename... Args >
-    Iterator emplace(Iterator pos, Args &&... args);
+    Iterator emplace(ConstIterator pos, Args&& ... args);
 
 #endif
 
     /// @}
 
     template<typename F, typename V>
-    Iterator find(F f, const V &v) const {
+    Iterator find(F f, const V& v) const {
         return find(begin(), end(), f, v);
     }
 
     template<typename F, typename V>
-    Iterator find(Iterator startPos, Iterator endPos, F f, const V &v) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, F f, const V& v) const;
 
 #if ETL_USE_CPP11
 
-    Iterator find(Matcher<T> &&matchCall) const {
+    Iterator find(Matcher<T>&& matchCall) const {
         return find(begin(), end(), std::move(matchCall));
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, Matcher<T> &&matchCall) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, Matcher<T>&& matchCall) const;
 
 #else
 
-    Iterator find(const Matcher<T> &matchCall) const {
+    Iterator find(const Matcher<T>& matchCall) const {
         return find(begin(), end(), matchCall);
     }
 
-    Iterator find(Iterator startPos, Iterator endPos, const Matcher<T> &matchCall) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matchCall) const;
 
 #endif
 
@@ -232,9 +287,9 @@ public:
 #if ETL_USE_CPP11
 
 template<class T>
-ListTemplate<T>::ListTemplate(const std::initializer_list<T> &initList) {
+ListTemplate<T>::ListTemplate(const std::initializer_list<T>& initList) {
 
-    for(auto &it : initList) {
+    for(auto& it : initList) {
         pushBack(it);
     }
 }
@@ -253,10 +308,10 @@ void ListTemplate<T>::clear() {
 
 template<class T>
 template<typename F, typename V>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
-                                                         Iterator endPos,
+typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+                                                         ConstIterator endPos,
                                                          F f,
-                                                         const V &v) const {
+                                                         const V& v) const {
 
     bool match = false;
 
@@ -277,14 +332,14 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
 
 
 template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::insert(Iterator pos, const T &item) {
+typename ListTemplate<T>::Iterator ListTemplate<T>::insert(ConstIterator pos, const T& item) {
     return emplace(pos, item);
 }
 
 
 template<class T>
 template<typename... Args >
-typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(Iterator pos, Args &&... args) {
+typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(ConstIterator pos, Args&& ... args) {
 
     Node* inserted = new Node(std::forward<Args>(args)...);
     AListBase::insert(pos, inserted);
@@ -293,9 +348,9 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(Iterator pos, Args &
 
 
 template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
-                                                         Iterator endPos,
-                                                         Matcher<T> &&matchCall) const {
+typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+                                                         ConstIterator endPos,
+                                                         Matcher<T>&& matchCall) const {
 
     bool match = false;
 
@@ -308,7 +363,7 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 
@@ -316,7 +371,7 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
 
 
 template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::insert(Iterator pos, const T &item) {
+typename ListTemplate<T>::Iterator ListTemplate<T>::insert(ConstIterator pos, const T& item) {
 
     Node* inserted = new Node(item);
     AListBase::insert(pos, inserted);
@@ -325,9 +380,9 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::insert(Iterator pos, const T
 
 
 template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
-                                                         Iterator endPos,
-                                                         const Matcher<T> &matchCall) const {
+typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+                                                         ConstIterator endPos,
+                                                         const Matcher<T>& matchCall) const {
 
     bool match = false;
 
@@ -340,7 +395,7 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 #endif
@@ -348,3 +403,4 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(Iterator startPos,
 }
 
 #endif /* __ETL_LISTTEMPLATE_H__ */
+

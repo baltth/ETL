@@ -39,6 +39,7 @@ class List : public ListTemplate<T> {
 public:
 
     typedef typename ListTemplate<T>::Iterator Iterator;
+    typedef typename ListTemplate<T>::ConstIterator ConstIterator;
 
 // functions
 public:

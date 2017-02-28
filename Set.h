@@ -43,6 +43,7 @@ public:
     typedef E ItemType;
     typedef Sorted<ListTemplate<E > > SetBase;
     typedef typename SetBase::Iterator Iterator;
+    typedef typename SetBase::ConstIterator ConstIterator;
 
 // functions
 public:

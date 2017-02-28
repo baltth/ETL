@@ -41,6 +41,7 @@ public:
 
     typedef typename C::ItemType ItemType;
     typedef typename C::Iterator Iterator;
+    typedef typename C::ConstIterator ConstIterator;
     typedef typename C::Node Node;
 
 // variables
@@ -57,7 +58,7 @@ public:
 
 #if ETL_USE_CPP11
 
-    Sorted(const std::initializer_list<T> &initList) :
+    Sorted(const std::initializer_list<T>& initList) :
         container(initList) {};
 
 #endif
@@ -83,15 +84,15 @@ public:
 
 protected:
 
-    Iterator insert(const ItemType &item);
-    std::pair<Iterator, bool> insertUnique(const ItemType &item);
+    Iterator insert(const ItemType& item);
+    std::pair<Iterator, bool> insertUnique(const ItemType& item);
 
-    std::pair<Iterator, bool> findSortedPosition(const ItemType &item) const;
+    std::pair<Iterator, bool> findSortedPosition(const ItemType& item) const;
 
     template<typename F, typename V>
-    std::pair<Iterator, bool> findSortedPosition(F f, const V &v) const;
+    std::pair<Iterator, bool> findSortedPosition(F f, const V& v) const;
 
-    Iterator insertTo(Iterator pos, const ItemType &item) const {
+    Iterator insertTo(ConstIterator pos, const ItemType& item) const {
         return container.insert(pos, item);
     }
 
@@ -102,7 +103,7 @@ protected:
 #if ETL_USE_CPP11
 
     template<typename... Args>
-    Iterator emplaceTo(Iterator pos, Args &&... args) const {
+    Iterator emplaceTo(ConstIterator pos, Args&& ... args) const {
         return container.emplace(pos, std::forward<Args>(args)...);
     }
 
@@ -116,7 +117,7 @@ Comp Sorted<C, Comp>::comp;
 
 
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
-typename Sorted<C, Comp>::Iterator Sorted<C, Comp>::insert(const ItemType &item) {
+typename Sorted<C, Comp>::Iterator Sorted<C, Comp>::insert(const ItemType& item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
     return container.insert(found.first, item);
@@ -124,7 +125,7 @@ typename Sorted<C, Comp>::Iterator Sorted<C, Comp>::insert(const ItemType &item)
 
 
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
-std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUnique(const ItemType &item) {
+std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUnique(const ItemType& item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
 
@@ -139,7 +140,7 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
 
 
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
-std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::findSortedPosition(const ItemType &item) const {
+std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::findSortedPosition(const ItemType& item) const {
 
     Iterator startIt = begin();
     Iterator endIt = end();
@@ -178,7 +179,7 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::findSortedP
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
 template<typename F, typename V>
 std::pair<typename Sorted<C, Comp>::Iterator, bool>
-Sorted<C, Comp>::findSortedPosition(F f, const V &v) const {
+Sorted<C, Comp>::findSortedPosition(F f, const V& v) const {
 
 
     Iterator startIt = begin();

@@ -43,15 +43,15 @@ protected:
 // functions
 public:
 
-    bool operator==(const AFifoIterator &other) const {
+    bool operator==(const AFifoIterator& other) const {
         return ((ix == other.ix) && (fifo == other.fifo));
     }
 
-    inline bool operator!=(const AFifoIterator &other) const {
+    inline bool operator!=(const AFifoIterator& other) const {
         return (!operator==(other));
     }
 
-    AFifoIterator &operator++() {
+    AFifoIterator& operator++() {
         ++ix;
         return *this;
     }
@@ -62,7 +62,7 @@ public:
         return old;
     }
 
-    AFifoIterator &operator--() {
+    AFifoIterator& operator--() {
         --ix;
         return *this;
     }
@@ -75,11 +75,11 @@ public:
 
 protected:
 
-    AFifoIterator(const AFifoIterator &other) :
+    AFifoIterator(const AFifoIterator& other) :
         ix(other.ix),
         fifo(other.fifo) {};
 
-    AFifoIterator &operator=(const AFifoIterator &other) {
+    AFifoIterator& operator=(const AFifoIterator& other) {
         ix = other.ix;
         fifo = other.fifo;
         return *this;
@@ -111,17 +111,17 @@ private:
 // functions
 public:
 
-    FifoIterator<T>(const FifoIterator<T> &other) :
+    FifoIterator<T>(const FifoIterator<T>& other) :
         AFifoIterator(other),
         data(other.data) {};
 
-    FifoIterator<T> &operator=(const FifoIterator<T> &other) {
+    FifoIterator<T>& operator=(const FifoIterator<T>& other) {
         AFifoIterator::operator=(other);
         data = other.data;
         return *this;
     };
 
-    T &operator*() const {
+    T& operator*() const {
         return *(get());
     };
 

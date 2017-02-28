@@ -5,3 +5,4 @@ doxygen
 cscope.files
 cscope.out
 tags
+*.orig

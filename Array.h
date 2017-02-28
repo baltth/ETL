@@ -42,6 +42,7 @@ public:
 
     typedef T ItemType;
     typedef T* Iterator;
+    typedef const T* ConstIterator;
 
 // variables
 private:
@@ -71,16 +72,16 @@ public:
         return static_cast<Iterator>(data);
     }
 
-    inline const Iterator begin() const {
-        return static_cast<const Iterator>(data);
+    inline ConstIterator begin() const {
+        return static_cast<ConstIterator>(data);
     }
 
     inline Iterator end() {
         return static_cast<Iterator>(&data[N]);
     }
 
-    inline const Iterator end() const {
-        return static_cast<const Iterator>(&data[N]);
+    inline ConstIterator end() const {
+        return static_cast<ConstIterator>(&data[N]);
     }
 
     inline T* getData() {
