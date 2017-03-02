@@ -41,7 +41,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T>
+template<class T, template<class> class A = std::allocator>
 class ListTemplate : protected AListBase {
 
   public:   // types
@@ -51,9 +51,19 @@ class ListTemplate : protected AListBase {
 
     class Node : public AListBase::Node {
 
-      public:
+      public:   // types
+
+        typedef A<Node> Allocator;
+
+      public:   // variables
 
         T item;
+
+      private:
+
+        static Allocator allocator;
+
+      public:   // functions
 
 #if ETL_USE_CPP11
         template<typename... Args>
@@ -65,20 +75,27 @@ class ListTemplate : protected AListBase {
             item(value) {};
 #endif
 
+        static void* operator new(size_t size) {
+            return allocator.allocate(1);
+        }
+
+        static void operator delete(void* ptr) {
+            allocator.deallocate(static_cast<Node*>(ptr), 1);
+        }
+
     };
 
-
     class ConstIterator : public AListBase::Iterator {
-        friend class ListTemplate<T>;
+        friend class ListTemplate<T, A>;
 
       public:
 
         ConstItemType& operator*() const {
-            return static_cast<ListTemplate<T>::Node*>(node)->item;
+            return static_cast<ListTemplate<T, A>::Node*>(node)->item;
         }
 
         ConstItemType* operator->() const {
-            return &(static_cast<ListTemplate<T>::Node*>(node)->item);
+            return &(static_cast<ListTemplate<T, A>::Node*>(node)->item);
         }
 
         bool operator==(const ConstIterator& other) {
@@ -116,22 +133,22 @@ class ListTemplate : protected AListBase {
 
       protected:
 
-        ConstIterator(ListTemplate<T>::Node* n) :
+        ConstIterator(ListTemplate<T, A>::Node* n) :
             AListBase::Iterator(n) {};
 
     };
 
     class Iterator : public ConstIterator {
-        friend class ListTemplate<T>;
+        friend class ListTemplate<T, A>;
 
       public:
 
         ItemType& operator*() const {
-            return static_cast<ListTemplate<T>::Node*>(this->node)->item;
+            return static_cast<ListTemplate<T, A>::Node*>(this->node)->item;
         }
 
         ItemType* operator->() const {
-            return &(static_cast<ListTemplate<T>::Node*>(this->node)->item);
+            return &(static_cast<ListTemplate<T, A>::Node*>(this->node)->item);
         }
 
         bool operator==(const Iterator& other) {
@@ -169,7 +186,7 @@ class ListTemplate : protected AListBase {
 
       protected:
 
-        Iterator(ListTemplate<T>::Node* n) :
+        Iterator(ListTemplate<T, A>::Node* n) :
             ConstIterator(n) {};
 
     };
@@ -188,7 +205,7 @@ class ListTemplate : protected AListBase {
         return *this;
     }
 
-    ListTemplate(const std::initializer_list<T>& initList);
+    ListTemplate(const std::initializer_list<T, A>& initList);
 
 #endif
 
@@ -283,8 +300,8 @@ class ListTemplate : protected AListBase {
 
 #if ETL_USE_CPP11
 
-template<class T>
-ListTemplate<T>::ListTemplate(const std::initializer_list<T>& initList) {
+template<class T, template<class> class A>
+ListTemplate<T, A>::ListTemplate(const std::initializer_list<T>& initList) {
 
     for (auto& it : initList) {
         pushBack(it);
@@ -294,8 +311,8 @@ ListTemplate<T>::ListTemplate(const std::initializer_list<T>& initList) {
 #endif
 
 
-template<class T>
-void ListTemplate<T>::clear() {
+template<class T, template<class> class A>
+void ListTemplate<T, A>::clear() {
 
     while (getSize() > 0) {
         popBack();
@@ -303,9 +320,9 @@ void ListTemplate<T>::clear() {
 }
 
 
-template<class T>
+template<class T, template<class> class A>
 template<typename F, typename V>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
                                                          ConstIterator endPos,
                                                          F f,
                                                          const V& v) const {
@@ -328,15 +345,15 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
 #if ETL_USE_CPP11
 
 
-template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::insert(ConstIterator pos, const T& item) {
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator pos, const T& item) {
     return emplace(pos, item);
 }
 
 
-template<class T>
+template<class T, template<class> class A>
 template<typename... Args >
-typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(ConstIterator pos, Args&& ... args) {
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::emplace(ConstIterator pos, Args&& ... args) {
 
     Node* inserted = new Node(std::forward<Args>(args)...);
     AListBase::insert(pos, inserted);
@@ -344,8 +361,8 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::emplace(ConstIterator pos, A
 }
 
 
-template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
                                                          ConstIterator endPos,
                                                          Matcher<T>&& matchCall) const {
 
@@ -367,8 +384,8 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
 #else
 
 
-template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::insert(ConstIterator pos, const T& item) {
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator pos, const T& item) {
 
     Node* inserted = new Node(item);
     AListBase::insert(pos, inserted);
@@ -376,8 +393,8 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::insert(ConstIterator pos, co
 }
 
 
-template<class T>
-typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
                                                          ConstIterator endPos,
                                                          const Matcher<T>& matchCall) const {
 
