@@ -26,10 +26,9 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include <utility>
-
 #include "Base/Sorted.h"
 
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
