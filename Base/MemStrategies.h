@@ -28,6 +28,7 @@ limitations under the License.
 
 #include "Base/AVectorBase.h"
 
+#include <memory>
 
 namespace ETL_NAMESPACE {
 
@@ -122,6 +123,10 @@ class DynamicSized : public C {
 
     static const uint32_t RESIZE_STEP = 8;
 
+  private:
+
+    A allocator;
+
   public:   // functions
 
     // No DynamicSized(void* initData, uint32_t initCapacity);
@@ -147,7 +152,7 @@ class DynamicSized : public C {
     void allocate(uint32_t len);
 
     void deallocate() {
-        A::deallocate(C::getData());
+        allocator.deallocate(C::getData(), C::getCapacity());
     }
 
     static uint32_t getRoundedLength(uint32_t length) {
@@ -204,6 +209,7 @@ template<class C, class A>
 void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
 
     typename C::ItemType* oldData = C::getData();
+    uint32_t oldCapacity = C::getCapacity();
 
     allocate(len);
 
@@ -217,7 +223,7 @@ void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 
-        A::deallocate(oldData);
+        allocator.deallocate(oldData, oldCapacity);
     }
 }
 
@@ -226,7 +232,7 @@ template<class C, class A>
 void DynamicSized<C, A>::allocate(uint32_t len) {
 
     if (len > 0) {
-        C::proxy.setData(A::allocate(len * C::proxy.getItemSize()));
+        C::proxy.setData(allocator.allocate(len));
     } else {
         C::proxy.setData(NULLPTR);
     }
@@ -239,25 +245,9 @@ void DynamicSized<C, A>::allocate(uint32_t len) {
 }
 
 
-/** Helper for HeapUser<> */
-class HeapAllocator {
-
-  public:  // functions
-
-    static inline void* allocate(size_t size) {
-        return operator new(size);
-    }
-
-    static inline void deallocate(void* ptr) {
-        operator delete(ptr);
-    }
-
-};
-
-
 /** Heap allocated mem strategy */
 template<class C>
-class HeapUser : public DynamicSized<C, HeapAllocator> {};
+class HeapUser : public DynamicSized<C, std::allocator<typename C::ItemType> > {};
 
 }
 
