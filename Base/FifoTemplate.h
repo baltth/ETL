@@ -29,30 +29,27 @@ limitations under the License.
 #include "Base/FifoIndexing.h"
 #include "Base/AFifoIterator.h"
 
-
 namespace ETL_NAMESPACE {
 
 
 template<class C>
 class FifoTemplate : protected C, public FifoIndexing {
 
-// types
-public:
+  public:   // types
 
     typedef typename C::ItemType ItemType;
 
     class Iterator : public FifoIterator<ItemType> {
         friend class FifoTemplate<C>;
 
-    private:
+      private:
 
         Iterator(const FifoTemplate<C>* fifoArray, uint32_t ix) :
             FifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
 
     };
 
-// functions
-public:
+  public:   // functions
 
 #if ETL_USE_CPP11
 
@@ -77,18 +74,14 @@ public:
         return FifoIndexing::getCapacity();
     }
 
-    void push(const ItemType &item);
+    void push(const ItemType& item);
     ItemType pop();
 
     ItemType getFromBack(uint32_t ix) const;
     ItemType getFromFront(uint32_t ix) const;
 
-        /*void setLength(uint32_t len) {
-        FifoIndexing::setLength(len);
-    }*/
-
-    ItemType &operator[](int32_t ix);
-    const ItemType &operator[](int32_t ix) const;
+    ItemType& operator[](int32_t ix);
+    const ItemType& operator[](int32_t ix) const;
 
     Iterator begin() const {
         return iteratorFor(0);
@@ -106,7 +99,7 @@ public:
 
 
 template<class C>
-void FifoTemplate<C>::push(const ItemType &item) {
+void FifoTemplate<C>::push(const ItemType& item) {
 
     FifoIndexing::push();
     C::operator[](FifoIndexing::getWriteIx()) = item;
@@ -136,9 +129,9 @@ typename FifoTemplate<C>::ItemType FifoTemplate<C>::getFromFront(uint32_t ix) co
 
 
 template<class C>
-typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix) {
+typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix) {
 
-    if(ix < 0) {
+    if (ix < 0) {
         ix = -1 - ix;
         ix = FifoIndexing::getIndexFromBack(ix);
     } else {
@@ -150,9 +143,9 @@ typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix) {
 
 
 template<class C>
-const typename FifoTemplate<C>::ItemType &FifoTemplate<C>::operator[](int32_t ix) const {
+const typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix) const {
 
-    if(ix < 0) {
+    if (ix < 0) {
         ix = -1 - ix;
         ix = FifoIndexing::getIndexFromBack(ix);
     } else {

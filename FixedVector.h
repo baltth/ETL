@@ -36,65 +36,62 @@ namespace ETL_NAMESPACE {
 template<class T, uint32_t N>
 class FixedVector : public VectorTemplate<T, StaticSized> {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
     typedef VectorTemplate<T, StaticSized> Base;
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
 
-// variables
-private:
+  private:  // variables
 
     uint8_t data[N * sizeof(T)];
 
-// functions
-public:
+  public:   // functions
 
     FixedVector<T, N>();
     explicit FixedVector<T, N>(uint32_t len);
-    FixedVector<T, N>(uint32_t len, const T &item);
+    FixedVector<T, N>(uint32_t len, const T& item);
 
-    FixedVector<T, N>(const FixedVector<T, N> &other) :
+    FixedVector<T, N>(const FixedVector<T, N>& other) :
         Base(other) {};
 
-    FixedVector<T, N> &operator=(const FixedVector<T, N> &other) {
+    FixedVector<T, N>& operator=(const FixedVector<T, N>& other) {
         Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
-    FixedVector<T>(FixedVector<T> &&other) :
+    FixedVector<T>(FixedVector<T>&& other) :
         Base(std::move(other)) {};
 
-    FixedVector<T>(const std::initializer_list<T> &initList) :
+    FixedVector<T>(const std::initializer_list<T>& initList) :
         Bsae(initList) {};
 
-    FixedVector<T> &operator=(FixedVector<T> &&other) {
+    FixedVector<T>& operator=(FixedVector<T>&& other) {
         Base::operator=(std::move(other));
         return *this;
     }
 
-    FixedVector<T> &operator=(const std::initializer_list<T> &initList) {
+    FixedVector<T>& operator=(const std::initializer_list<T>& initList) {
         Base::operator=(initList);
         return *this;
     };
 
-    Iterator find(std::function<bool(const T &)> &&matcher) const {
+    Iterator find(std::function<bool(const T&)>&& matcher) const {
         return find(FixedVector<T>::begin(), FixedVector<T>::end(), std::move(matcher));
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T &)> &&matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T&)>&& matcher) const;
 
 #else
 
-    Iterator find(const Matcher<T> &matcher) const {
+    Iterator find(const Matcher<T>& matcher) const {
         return find(FixedVector<T, N>::begin(), FixedVector<T, N>::end(), matcher);
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T> &matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matcher) const;
 
 #endif
 
@@ -119,7 +116,7 @@ FixedVector<T, N>::FixedVector(uint32_t len) :
 
 
 template<class T, uint32_t N>
-FixedVector<T, N>::FixedVector(uint32_t len, const T &item) :
+FixedVector<T, N>::FixedVector(uint32_t len, const T& item) :
     Base(data, N) {
 
     this->insert(this->begin(), len, item);
@@ -131,15 +128,15 @@ FixedVector<T, N>::FixedVector(uint32_t len, const T &item) :
 template<class T>
 typename FixedVector<T>::Iterator FixedVector<T>::find(ConstIterator startPos,
                                                        ConstIterator endPos,
-                                                       std::function<bool(const T &)> &&matcher) const {
+                                                       std::function<bool(const T&)>&& matcher) const {
 
     bool match = false;
 
-    while(!match && (startPos < endPos)) {
+    while (!match && (startPos < endPos)) {
 
         match = matcher(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }
@@ -152,15 +149,15 @@ typename FixedVector<T>::Iterator FixedVector<T>::find(ConstIterator startPos,
 template<class T, uint32_t N>
 typename FixedVector<T, N>::Iterator FixedVector<T, N>::find(ConstIterator startPos,
                                                              ConstIterator endPos,
-                                                             const Matcher<T> &matcher) const {
+                                                             const Matcher<T>& matcher) const {
 
     bool match = false;
 
-    while(!match && (startPos < endPos)) {
+    while (!match && (startPos < endPos)) {
 
         match = matcher.call(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }

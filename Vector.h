@@ -35,62 +35,59 @@ namespace ETL_NAMESPACE {
 
 template<class T>
 class Vector : public VectorTemplate<T, HeapUser> {
-//friend DynamicResizeStrategy<Vector<T> >;
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
     typedef VectorTemplate<T, HeapUser> Base;
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
-    
 
-// functions
-public:
+
+  public:   // functions
 
     Vector<T>() {};
 
     explicit Vector<T>(uint32_t len);
-    Vector<T>(uint32_t len, const T &item);
+    Vector<T>(uint32_t len, const T& item);
 
-    Vector<T>(const Vector<T> &other) :
+    Vector<T>(const Vector<T>& other) :
         Base(other) {};
 
-    Vector<T> &operator=(const Vector<T> &other) {
+    Vector<T>& operator=(const Vector<T>& other) {
         Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
-    Vector<T>(Vector<T> &&other) :
+    Vector<T>(Vector<T>&& other) :
         Base(std::move(other)) {};
 
-    Vector<T>(const std::initializer_list<T> &initList) :
+    Vector<T>(const std::initializer_list<T>& initList) :
         Base(initList) {};
 
-    Vector<T> &operator=(Vector<T> &&other) {
+    Vector<T>& operator=(Vector<T>&& other) {
         return Base::operator=(std::move(other));
     }
 
-    Vector<T> &operator=(const std::initializer_list<T> &initList) {
+    Vector<T>& operator=(const std::initializer_list<T>& initList) {
         return Base::operator=(initList);
     };
 
-    Iterator find(std::function<bool(const T &)> &&matcher) const {
+    Iterator find(std::function<bool(const T&)>&& matcher) const {
         return find(Vector<T>::begin(), Vector<T>::end(), std::move(matcher));
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T &)> &&matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T&)>&& matcher) const;
 
 #else
 
-    Iterator find(const Matcher<T> &matcher) const {
+    Iterator find(const Matcher<T>& matcher) const {
         return find(Vector<T>::begin(), Vector<T>::end(), matcher);
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T> &matcher) const;
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matcher) const;
 
 #endif
 
@@ -106,7 +103,7 @@ Vector<T>::Vector(uint32_t len) {
 
 
 template<class T>
-Vector<T>::Vector(uint32_t len, const T &item) {
+Vector<T>::Vector(uint32_t len, const T& item) {
 
     this->insert(this->begin(), len, item);
 }
@@ -117,15 +114,15 @@ Vector<T>::Vector(uint32_t len, const T &item) {
 template<class T>
 typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
                                              ConstIterator endPos,
-                                             std::function<bool(const T &)> &&matcher) const {
+                                             std::function<bool(const T&)>&& matcher) const {
 
     bool match = false;
 
-    while(!match && (startPos < endPos)) {
+    while (!match && (startPos < endPos)) {
 
         match = matcher(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }
@@ -138,15 +135,15 @@ typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
 template<class T>
 typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
                                              ConstIterator endPos,
-                                             const Matcher<T> &matcher) const {
+                                             const Matcher<T>& matcher) const {
 
     bool match = false;
 
-    while(!match && (startPos < endPos)) {
+    while (!match && (startPos < endPos)) {
 
         match = matcher.call(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }
@@ -351,3 +348,4 @@ typename Vector<T*>::Iterator Vector<T*>::find(Iterator startPos,
 }
 
 #endif /* __ETL_VECTOR_H__ */
+

@@ -26,27 +26,25 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include <utility>
-
 #include "Base/DoubleLinkedList.h"
 
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
 
 class AListBase {
 
-// types
-public:
+  public:   // types
 
     class Node : public DoubleLinkedList::Node {
 
-    public:
+      public:
 
         Node() :
             DoubleLinkedList::Node() {};
 
-        explicit Node(const DoubleLinkedList::Node &other) :
+        explicit Node(const DoubleLinkedList::Node& other) :
             DoubleLinkedList::Node(other) {};
 
         virtual ~Node() {};
@@ -56,53 +54,51 @@ public:
     class Iterator {
         friend class AListBase;
 
-    protected:
+      protected:
 
         AListBase::Node* node;
 
-    public:
+      public:
 
-        bool operator==(const Iterator &other) const {
+        bool operator==(const Iterator& other) const {
             return (node == other.node);
         }
 
-        bool operator!=(const Iterator &other) const {
+        bool operator!=(const Iterator& other) const {
             return !(operator==(other));
         }
 
-        Iterator &operator++() {
+        Iterator& operator++() {
             node = static_cast<AListBase::Node*>(node->next);
             return *this;
         }
 
-        Iterator &operator--() {
+        Iterator& operator--() {
             node = static_cast<AListBase::Node*>(node->prev);
             return *this;
         }
 
-    protected:
+      protected:
 
         explicit Iterator(AListBase::Node* n) :
             node(n) {};
 
     };
 
-// variables
-protected:
+  protected: // variables
 
     DoubleLinkedList list;
 
-// functions
-public:
+  public:   // functions
 
     AListBase() {};
 
 #if ETL_USE_CPP11
 
-    AListBase(AListBase &&other) :
+    AListBase(AListBase&& other) :
         list(std::move(other.list)) {};
 
-    AListBase &operator=(AListBase &&other) {
+    AListBase& operator=(AListBase&& other) {
         list = std::move(other.list);
         return *this;
     }
@@ -115,7 +111,7 @@ public:
         return list.getSize();
     }
 
-protected:
+  protected:
 
     inline Iterator begin() const {
         return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
@@ -147,10 +143,10 @@ protected:
     }
     /// @}
 
-private:
+  private:
 
-    AListBase(const AListBase &other);
-    AListBase &operator=(const AListBase &other);
+    AListBase(const AListBase& other);
+    AListBase& operator=(const AListBase& other);
 
 };
 

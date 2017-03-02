@@ -34,16 +34,14 @@ namespace ETL_NAMESPACE {
 
 class ContainerProxy {
 
-// variables
-protected:
+  protected: // variables
 
     void* data;
     uint32_t capacity;
     uint32_t size;
     const size_t itemSize;
 
-// functions
-public:
+  public:   // functions
 
     ContainerProxy(size_t itemSize, void* dataPointer, uint32_t cap, uint32_t len) :
         data(dataPointer),
@@ -61,7 +59,7 @@ public:
     void* getItemPointer(uint32_t ix) {
         return static_cast<void*>(static_cast<uint8_t*>(data) + (ix * itemSize));
     }
-    
+
     const void* getItemPointer(uint32_t ix) const {
         return static_cast<void*>(static_cast<uint8_t*>(data) + (ix * itemSize));
     }
@@ -81,7 +79,7 @@ public:
     uint32_t getSize() const {
         return size;
     }
-    
+
     uint32_t getItemSize() const {
         return itemSize;
     }
@@ -92,13 +90,11 @@ public:
 template<typename T>
 class TypedContainerProxy : public ContainerProxy {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
 
-// functions
-public:
+  public:   // functions
 
     TypedContainerProxy(T* data, uint32_t cap, uint32_t len) :
         ContainerProxy(sizeof(T), data, cap, len) {};
@@ -107,11 +103,11 @@ public:
     TypedContainerProxy(C& container) :
         ContainerProxy(container) {};
 
-    inline T &operator[](uint32_t ix) {
+    inline T& operator[](uint32_t ix) {
         return *(static_cast<ItemType*>(getItemPointer(ix)));
     }
 
-    inline const T &operator[](uint32_t ix) const {
+    inline const T& operator[](uint32_t ix) const {
         return *(static_cast<ItemType*>(getItemPointer(ix)));
     }
 
@@ -121,9 +117,9 @@ public:
 
 
 template<typename T>
-void TypedContainerProxy<T>::fill(const T &value) {
+void TypedContainerProxy<T>::fill(const T& value) {
 
-    for(uint32_t i = 0; i < getCapacity(); ++i) {
+    for (uint32_t i = 0; i < getCapacity(); ++i) {
         operator[](i) = value;
     }
 }

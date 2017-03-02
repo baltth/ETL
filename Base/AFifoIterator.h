@@ -34,14 +34,12 @@ namespace ETL_NAMESPACE {
 
 class AFifoIterator {
 
-// variables
-protected:
+  protected: // variables
 
     uint32_t ix;
     const FifoIndexing* fifo;
 
-// functions
-public:
+  public:   // functions
 
     bool operator==(const AFifoIterator& other) const {
         return ((ix == other.ix) && (fifo == other.fifo));
@@ -73,7 +71,7 @@ public:
         return old;
     }
 
-protected:
+  protected:
 
     AFifoIterator(const AFifoIterator& other) :
         ix(other.ix),
@@ -103,13 +101,11 @@ protected:
 template<class T>
 class FifoIterator : public AFifoIterator {
 
-// variables
-private:
+  private:  // variables
 
     T* data;
 
-// functions
-public:
+  public:   // functions
 
     FifoIterator<T>(const FifoIterator<T>& other) :
         AFifoIterator(other),
@@ -129,7 +125,7 @@ public:
         return get();
     };
 
-protected:
+  protected:
 
     FifoIterator<T>(T* data, const FifoIndexing* indexing, uint32_t index) :
         AFifoIterator(indexing, index),

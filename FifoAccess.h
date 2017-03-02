@@ -25,28 +25,25 @@ namespace ETL_NAMESPACE {
 template<class T>
 class FifoAccess : public FifoIndexing {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
 
     class Iterator : public FifoIterator<ItemType> {
         friend class FifoAccess<ItemType>;
 
-    private:
+      private:
 
         Iterator(const FifoAccess<ItemType>* fifo, uint32_t ix) :
             FifoIterator<ItemType>(const_cast<ItemType*>(fifo->getData()), fifo, ix) {};
 
     };
 
-// variables
-private:
+  private:  // variables
 
     TypedContainerProxy<T> proxy;
 
-// functions
-public:
+  public:   // functions
 
 
     explicit FifoAccess(const TypedContainerProxy<T>& p) :
@@ -87,13 +84,13 @@ public:
         return Iterator(this, ix);
     }
 
-protected:
+  protected:
 
     void* getData() const {
         return proxy.getData();
     }
 
-private:
+  private:
 
     FifoAccess<T>();
 
@@ -133,7 +130,7 @@ typename FifoAccess<T>::ItemType FifoAccess<T>::getFromFront(uint32_t ix) const 
 template<class T>
 typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) {
 
-    if(ix < 0) {
+    if (ix < 0) {
         ix = -1 - ix;
         ix = FifoIndexing::getIndexFromBack(ix);
     } else {
@@ -147,7 +144,7 @@ typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) {
 template<class T>
 const typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) const {
 
-    if(ix < 0) {
+    if (ix < 0) {
         ix = -1 - ix;
         ix = FifoIndexing::getIndexFromBack(ix);
     } else {

@@ -35,20 +35,18 @@ namespace ETL_NAMESPACE {
 template<class T>
 class List : public ListTemplate<T> {
 
-// types
-public:
+  public:   // types
 
     typedef typename ListTemplate<T>::Iterator Iterator;
     typedef typename ListTemplate<T>::ConstIterator ConstIterator;
 
-// functions
-public:
+  public:   // functions
 
     List() {};
 
 #if ETL_USE_CPP11
 
-    List(const std::initializer_list<T> &initList) :
+    List(const std::initializer_list<T>& initList) :
         ListTemplate<T>(initList) {};
 
 #endif

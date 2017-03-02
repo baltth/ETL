@@ -35,13 +35,11 @@ namespace ETL_NAMESPACE {
 
 class Exception : public std::exception {
 
-// variables
-private:
+  private:  // variables
 
     const char* const text;
 
-// functions
-public:
+  public:   // functions
 
     explicit Exception(const char* t) :
         text(t) {};
@@ -55,8 +53,7 @@ public:
 
 class UnknownException : public Exception {
 
-// functions
-public:
+  public:   // functions
 
     UnknownException() :
         Exception("") {};
@@ -66,8 +63,7 @@ public:
 
 class OutOfRangeException : public Exception {
 
-// functions
-public:
+  public:   // functions
 
     OutOfRangeException() :
         Exception("Index out of range") {};

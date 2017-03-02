@@ -26,18 +26,16 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-
 namespace ETL_NAMESPACE {
 
 
 class DoubleLinkedList {
 
-// types
-public:
+  public:   // types
 
     class Node {
 
-    public:
+      public:
 
         Node* prev;
         Node* next;
@@ -54,15 +52,13 @@ public:
 
     };
 
-// variables
-private:
+  private:  // variables
 
     Node frontNode;
     Node backNode;
     uint32_t size;
 
-// functions
-public:
+  public:   // functions
 
     DoubleLinkedList() :
         frontNode(NULLPTR, &backNode),
@@ -71,8 +67,8 @@ public:
 
 #if ETL_USE_CPP11
 
-    DoubleLinkedList(DoubleLinkedList &&other);
-    DoubleLinkedList &operator=(DoubleLinkedList &&other);
+    DoubleLinkedList(DoubleLinkedList&& other);
+    DoubleLinkedList& operator=(DoubleLinkedList&& other);
 
 #endif
 
@@ -97,18 +93,18 @@ public:
 
     Node* remove(Node* node);
 
-    void copy(const DoubleLinkedList &other);
-    void swap(DoubleLinkedList &other);
+    void copy(const DoubleLinkedList& other);
+    void swap(DoubleLinkedList& other);
     void setEmpty();
 
-protected:
+  protected:
 
     static void linkNodes(Node* a, Node* b);
-   
-private:
 
-    DoubleLinkedList(const DoubleLinkedList &other);
-    DoubleLinkedList &operator=(const DoubleLinkedList &other);
+  private:
+
+    DoubleLinkedList(const DoubleLinkedList& other);
+    DoubleLinkedList& operator=(const DoubleLinkedList& other);
 
 };
 

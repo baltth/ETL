@@ -37,35 +37,33 @@ namespace ETL_NAMESPACE {
 template<class E>
 class Set : public Sorted<ListTemplate<E> > {
 
-// types
-public:
+  public:   // types
 
     typedef E ItemType;
     typedef Sorted<ListTemplate<E > > SetBase;
     typedef typename SetBase::Iterator Iterator;
     typedef typename SetBase::ConstIterator ConstIterator;
 
-// functions
-public:
+  public:   // functions
 
     Set() {};
 
 #if ETL_USE_CPP11
 
-    Set(const std::initializer_list<E> &initList);
+    Set(const std::initializer_list<E>& initList);
 
 #endif
 
-    std::pair<Iterator, bool> insert(const E &e) {
+    std::pair<Iterator, bool> insert(const E& e) {
         return SetBase::insertUnique(e);
     }
 
-    std::pair<Iterator, bool> insertOrAssign(const E &e);
+    std::pair<Iterator, bool> insertOrAssign(const E& e);
 
-    void erase(const E &e);
-    Iterator find(const E &e) const;
+    void erase(const E& e);
+    Iterator find(const E& e) const;
 
-    void copyElementsFrom(const Set<E> &other);
+    void copyElementsFrom(const Set<E>& other);
 
 };
 
@@ -73,9 +71,9 @@ public:
 #if ETL_USE_CPP11
 
 template<class E>
-Set<E>::Set(const std::initializer_list<E> &initList) {
+Set<E>::Set(const std::initializer_list<E>& initList) {
 
-    for(auto &item : initList) {
+    for (auto& item : initList) {
         SetBase::insertUnique(item);
     }
 }
@@ -83,11 +81,11 @@ Set<E>::Set(const std::initializer_list<E> &initList) {
 #endif
 
 template<class E>
-std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E &e) {
+std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E& e) {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
-    if(found.second == false) {
+    if (found.second == false) {
 #if ETL_USE_CPP11
         found.first = SetBase::emplaceTo(found.first, e);
 #else
@@ -103,22 +101,22 @@ std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E &e) {
 }
 
 template<class E>
-void Set<E>::erase(const E &e) {
+void Set<E>::erase(const E& e) {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
-    if(found.second == true) {
+    if (found.second == true) {
         SetBase::erase(--found.first);
     }
 }
 
 
 template<class E>
-typename Set<E>::Iterator  Set<E>::find(const E &e) const {
+typename Set<E>::Iterator  Set<E>::find(const E& e) const {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
-    if(found.second == true) {
+    if (found.second == true) {
         return --found.first;
     } else {
         return SetBase::end();
@@ -127,10 +125,10 @@ typename Set<E>::Iterator  Set<E>::find(const E &e) const {
 
 
 template<class E>
-void Set<E>::copyElementsFrom(const Set<E> &other) {
-    
+void Set<E>::copyElementsFrom(const Set<E>& other) {
+
     Iterator endIt = other.end();
-    for(Iterator it = other.begin(); it != endIt; ++it) {
+    for (Iterator it = other.begin(); it != endIt; ++it) {
         insertOrAssign(*it);
     }
 }

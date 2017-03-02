@@ -28,8 +28,7 @@ limitations under the License.
 
 class __attribute__((packed)) UnalignedTester {
 
-// variables
-public:
+  public:   // variables
 
     uint32_t a;
     uint8_t b;

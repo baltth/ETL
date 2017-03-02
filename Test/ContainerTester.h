@@ -34,8 +34,7 @@ limitations under the License.
 
 class ContainerTester {
 
-// variables
-private:
+  private:  // variables
 
     int32_t value;
     uint32_t objectId;
@@ -48,8 +47,7 @@ private:
     static uint32_t moveCnt;
 #endif
 
-// functions
-public:
+  public:   // functions
 
     explicit ContainerTester(int32_t v = 0) :
         value(v),
@@ -60,7 +58,7 @@ public:
         reportValue();
     }
 
-    ContainerTester(const ContainerTester &other) :
+    ContainerTester(const ContainerTester& other) :
         value(other.value),
         objectId(++objectRef) {
 
@@ -70,7 +68,7 @@ public:
         reportValue();
     }
 
-    ContainerTester &operator=(const ContainerTester &other) {
+    ContainerTester& operator=(const ContainerTester& other) {
 
         value = other.value;
         ++copyCnt;
@@ -107,7 +105,7 @@ public:
 
 #if ETL_USE_CPP11
 
-    ContainerTester(ContainerTester &&other) :
+    ContainerTester(ContainerTester&& other) :
         value(other.value),
         objectId(other.objectId) {
 
@@ -117,7 +115,7 @@ public:
         reportValue();
     }
 
-    ContainerTester &operator=(ContainerTester &&other) {
+    ContainerTester& operator=(ContainerTester&& other) {
 
         value = other.value;
         value = other.objectId;

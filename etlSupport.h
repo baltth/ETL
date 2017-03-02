@@ -50,8 +50,7 @@ using Mathcer = std::function<bool(const T&)>;
 template<typename T>
 class Matcher {
 
-// functions
-public:
+  public:   // functions
 
     virtual bool call(const T&) const = 0;
 

@@ -37,19 +37,17 @@ namespace ETL_NAMESPACE {
 template<class C>
 class Fifo : public FifoTemplate<C> {
 
-// types
-public:
+  public:   // types
 
     typedef typename FifoTemplate<C>::ItemType ItemType;
     typedef typename FifoTemplate<C>::Iterator Iterator;
 
-// functions
-public:
+  public:   // functions
 
 #if ETL_USE_CPP11
 
     template<typename... Args>
-    explicit Fifo<C>(Args &&... args) :
+    explicit Fifo<C>(Args&& ... args) :
         FifoTemplate<C>(args...) {};
 
 #else
@@ -80,19 +78,17 @@ template<>
 template<typename T, uint32_t N>
 class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
 
-// types
-public:
+  public:   // types
 
     typedef typename FifoTemplate<Array<T, N> >::ItemType ItemType;
     typedef typename FifoTemplate<Array<T, N> >::Iterator Iterator;
 
-// functions
-public:
+  public:   // functions
 
 #if ETL_USE_CPP11
 
     template<typename... Args>
-    explicit Fifo<Array<T, N> >(Args &&... args) :
+    explicit Fifo<Array<T, N> >(Args&& ... args) :
         FifoTemplate<Array<T, N> >(args...) {};
 
 #else
@@ -109,3 +105,4 @@ public:
 }
 
 #endif /* __ETL_FIFOVECTOR_H__ */
+

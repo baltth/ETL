@@ -38,7 +38,7 @@ uint32_t FifoIndexing::getIndexFromFront(uint32_t ix) const {
 
     uint32_t bufferIx = nextIndex(readIx) + limitIndexForLength(ix);
 
-    if(bufferIx >= getCapacity()) {
+    if (bufferIx >= getCapacity()) {
         bufferIx -= getCapacity();
     }
 
@@ -50,7 +50,7 @@ uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 
     int32_t bufferIx = writeIx - limitIndexForLength(ix);
 
-    if(bufferIx < 0) {
+    if (bufferIx < 0) {
         bufferIx += getCapacity();
     }
 
@@ -60,8 +60,8 @@ uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 
 uint32_t FifoIndexing::limitIndexForLength(uint32_t ix) const {
 
-    if(ix >= length) {
-        if(length == 0) {
+    if (ix >= length) {
+        if (length == 0) {
             ix = 0;
         } else {
             ix = length - 1;
@@ -76,7 +76,7 @@ uint32_t FifoIndexing::nextIndex(uint32_t ix) const {
 
     ++ix;
 
-    if(ix >= getCapacity()) {
+    if (ix >= getCapacity()) {
         ix = 0;
     }
 
@@ -86,7 +86,7 @@ uint32_t FifoIndexing::nextIndex(uint32_t ix) const {
 
 uint32_t FifoIndexing::previousIndex(uint32_t ix) const {
 
-    if((ix == 0) && (getCapacity() > 0)) {
+    if ((ix == 0) && (getCapacity() > 0)) {
         ix = getCapacity() - 1;
     } else {
         --ix;
@@ -100,7 +100,7 @@ void FifoIndexing::push() {
     uint32_t prevWriteIx = writeIx;
     writeIx = nextIndex(writeIx);
 
-    if((prevWriteIx == readIx) && (length > 0)) {
+    if ((prevWriteIx == readIx) && (length > 0)) {
         readIx = writeIx;
         length = capacity;
     } else {
@@ -111,7 +111,7 @@ void FifoIndexing::push() {
 
 void FifoIndexing::pop() {
 
-    if(length > 0) {
+    if (length > 0) {
         readIx = nextIndex(readIx);
         --length;
     }
@@ -120,11 +120,11 @@ void FifoIndexing::pop() {
 
 void FifoIndexing::setLength(uint32_t len) {
 
-    if(len >= capacity) {
+    if (len >= capacity) {
         len = capacity - 1;
     }
 
-    if(len > writeIx) {
+    if (len > writeIx) {
         readIx = writeIx + capacity;
     } else {
         readIx = writeIx;

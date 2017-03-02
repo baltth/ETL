@@ -26,33 +26,30 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-
 namespace ETL_NAMESPACE {
 
 
 template<typename K, class E>
 class MapItem {
 
-// variables
-private:
+  private:  // variables
 
     const K key;
     mutable E element;
 
-// functions
-public:
+  public:   // functions
 
-    explicit MapItem<K, E>(const K &k) :
+    explicit MapItem<K, E>(const K& k) :
         key(k) {};
 
-    MapItem<K, E>(const K &k, const E &e) :
+    MapItem<K, E>(const K& k, const E& e) :
         key(k),
         element(e) {};
 
 #if ETL_USE_CPP11
 
     template<typename... Args>
-    MapItem<K, E>(const K &k, Args &&... args) :
+    MapItem<K, E>(const K& k, Args&& ... args) :
         key(k),
         element(std::forward<Args>(args)...) {};
 
@@ -62,23 +59,23 @@ public:
         return key;
     }
 
-    E &getElement() const {
+    E& getElement() const {
         return element;
     }
 
-    void setElement(const E &newElement) {
+    void setElement(const E& newElement) {
         element = newElement;
     }
 
 #if ETL_USE_CPP11
 
-    void setElement(E &&newElement) {
+    void setElement(E&& newElement) {
         element = std::move(newElement);
     }
 
 #endif
 
-    bool operator<(const MapItem<K, E> &other) const {
+    bool operator<(const MapItem<K, E>& other) const {
         return (key < other.key);
     }
 
@@ -88,20 +85,18 @@ public:
 template<typename K, class E>
 class MapItem<K, E*> {
 
-// variables
-protected:
+  protected: // variables
 
     const K key;
     mutable E* element;
 
-// functions
-public:
+  public:   // functions
 
-    explicit MapItem<K, E*>(const K &k) :
+    explicit MapItem<K, E*>(const K& k) :
         key(k),
         element(NULLPTR) {};
 
-    MapItem<K, E*>(const K &k, E* e) :
+    MapItem<K, E*>(const K& k, E* e) :
         key(k),
         element(e) {};
 
@@ -109,7 +104,7 @@ public:
         return key;
     }
 
-    E* &getElement() const {
+    E*& getElement() const {
         return element;
     }
 
@@ -121,7 +116,7 @@ public:
 
 
 template<typename K, class E>
-bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
+bool operator<(const MapItem<K, E*>& lhs, const MapItem<K, E*>& rhs) {
 
     return (lhs.getKey() < rhs.getKey());
 }

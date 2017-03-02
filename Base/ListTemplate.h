@@ -26,6 +26,8 @@ limitations under the License.
 
 #include "etlSupport.h"
 
+#include "Base/AListBase.h"
+
 #undef min
 #undef max
 
@@ -36,24 +38,20 @@ limitations under the License.
 #include <initializer_list>
 #endif
 
-#include "Base/AListBase.h"
-
-
 namespace ETL_NAMESPACE {
 
 
 template<class T>
 class ListTemplate : protected AListBase {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
     typedef const T ConstItemType;
 
     class Node : public AListBase::Node {
 
-    public:
+      public:
 
         T item;
 
@@ -73,7 +71,7 @@ public:
     class ConstIterator : public AListBase::Iterator {
         friend class ListTemplate<T>;
 
-    public:
+      public:
 
         ConstItemType& operator*() const {
             return static_cast<ListTemplate<T>::Node*>(node)->item;
@@ -116,17 +114,17 @@ public:
         ConstIterator(const AListBase::Iterator& it) :
             AListBase::Iterator(it) {};
 
-    protected:
+      protected:
 
         ConstIterator(ListTemplate<T>::Node* n) :
             AListBase::Iterator(n) {};
 
     };
-    
+
     class Iterator : public ConstIterator {
         friend class ListTemplate<T>;
 
-    public:
+      public:
 
         ItemType& operator*() const {
             return static_cast<ListTemplate<T>::Node*>(this->node)->item;
@@ -169,15 +167,14 @@ public:
         Iterator(const AListBase::Iterator& it) :
             ConstIterator(it) {};
 
-    protected:
+      protected:
 
         Iterator(ListTemplate<T>::Node* n) :
             ConstIterator(n) {};
 
     };
 
-// functions
-public:
+  public:   // functions
 
     ListTemplate() {};
 
@@ -289,7 +286,7 @@ public:
 template<class T>
 ListTemplate<T>::ListTemplate(const std::initializer_list<T>& initList) {
 
-    for(auto& it : initList) {
+    for (auto& it : initList) {
         pushBack(it);
     }
 }
@@ -300,7 +297,7 @@ ListTemplate<T>::ListTemplate(const std::initializer_list<T>& initList) {
 template<class T>
 void ListTemplate<T>::clear() {
 
-    while(getSize() > 0) {
+    while (getSize() > 0) {
         popBack();
     }
 }
@@ -315,11 +312,11 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
 
     bool match = false;
 
-    while(!match && (startPos != endPos)) {
+    while (!match && (startPos != endPos)) {
 
         match = (((*startPos).*f)() == v);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }
@@ -354,11 +351,11 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
 
     bool match = false;
 
-    while(!match && (startPos != endPos)) {
+    while (!match && (startPos != endPos)) {
 
         match = matchCall(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }
@@ -386,11 +383,11 @@ typename ListTemplate<T>::Iterator ListTemplate<T>::find(ConstIterator startPos,
 
     bool match = false;
 
-    while(!match && (startPos != endPos)) {
+    while (!match && (startPos != endPos)) {
 
         match = matchCall.call(*startPos);
 
-        if(!match) {
+        if (!match) {
             ++startPos;
         }
     }

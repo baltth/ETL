@@ -35,13 +35,11 @@ namespace ETL_NAMESPACE {
 template<class C>
 class SampleStrategy : public C {
 
-// types
-public:
+  public:   // types
 
     typedef C::ItemType ItemType;
 
-// functions
-public:
+  public:   // functions
 
     SampleStrategy(void* initData, uint32_t initCapacity);
     void reserve(uint32_t length);
@@ -57,19 +55,16 @@ public:
 template<class C>
 class StaticSized : public C {
 
-// types:
-public:
+  public:   // types
 
     typedef typename C::ItemType ItemType;
 
-// variables
-private:
+  private:  // variables
 
     void* const data;
     const uint32_t capacity;
 
-// functions
-public:
+  public:   // functions
 
     // No StaticSized();
 
@@ -97,7 +92,7 @@ public:
         setupData(newLength);
     }
 
-private:
+  private:
 
     void setupData(uint32_t length);
 
@@ -107,7 +102,7 @@ private:
 template<class C>
 void StaticSized<C>::setupData(uint32_t length) {
 
-    if(length <= capacity) {
+    if (length <= capacity) {
         C::proxy.setData(data);
         C::proxy.setCapacity(capacity);
     } else {
@@ -121,18 +116,16 @@ void StaticSized<C>::setupData(uint32_t length) {
 template<class C, class A>
 class DynamicSized : public C {
 
-// types
-public:
+  public:   // types
 
     typedef A Allocator;
 
     static const uint32_t RESIZE_STEP = 8;
 
-// functions
-public:
+  public:   // functions
 
     // No DynamicSized(void* initData, uint32_t initCapacity);
-    
+
     ~DynamicSized() {
         C::clear();
         deallocate();
@@ -147,7 +140,7 @@ public:
     void shrinkToFit();
     void resize(uint32_t newLength);
 
-private:
+  private:
 
     void reallocateAndCopyFor(uint32_t len);
 
@@ -167,7 +160,7 @@ private:
 template<class C, class A>
 void DynamicSized<C, A>::reserve(uint32_t length) {
 
-    if(length > C::getCapacity()) {
+    if (length > C::getCapacity()) {
         reallocateAndCopyFor(length);
     }
 }
@@ -176,7 +169,7 @@ void DynamicSized<C, A>::reserve(uint32_t length) {
 template<class C, class A>
 void DynamicSized<C, A>::shrinkToFit() {
 
-    if(C::getCapacity() > C::getSize()) {
+    if (C::getCapacity() > C::getSize()) {
         reallocateAndCopyFor(C::getSize());
     }
 }
@@ -185,19 +178,19 @@ void DynamicSized<C, A>::shrinkToFit() {
 template<class C, class A>
 void DynamicSized<C, A>::resize(uint32_t newLength) {
 
-    if(newLength > C::getSize()) {
+    if (newLength > C::getSize()) {
 
-        if(newLength > C::getCapacity()) {
+        if (newLength > C::getCapacity()) {
             reallocateAndCopyFor(getRoundedLength(newLength));
         }
 
         typename C::Iterator newEnd = C::getData() + newLength;
 
-        for(typename C::Iterator it = C::end(); it < newEnd; ++it) {
+        for (typename C::Iterator it = C::end(); it < newEnd; ++it) {
             C::placeDefaultTo(it);
         }
 
-    } else if(newLength < C::getSize()) {
+    } else if (newLength < C::getSize()) {
 
         typename C::Iterator newEnd = C::getData() + newLength;
         C::destruct(newEnd, C::end());
@@ -214,11 +207,11 @@ void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
 
     allocate(len);
 
-    if(oldData != NULLPTR) {
+    if (oldData != NULLPTR) {
 
         uint32_t numToCopy = (len < C::getSize()) ? len : C::getSize();
 
-        if((C::getData() != NULLPTR) && (numToCopy > 0)) {
+        if ((C::getData() != NULLPTR) && (numToCopy > 0)) {
 
             typename C::ItemType* dataAlias = C::getData();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
@@ -232,13 +225,13 @@ void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
 template<class C, class A>
 void DynamicSized<C, A>::allocate(uint32_t len) {
 
-    if(len > 0) {
+    if (len > 0) {
         C::proxy.setData(A::allocate(len * C::proxy.getItemSize()));
     } else {
         C::proxy.setData(NULLPTR);
     }
 
-    if(C::getData() != NULLPTR) {
+    if (C::getData() != NULLPTR) {
         C::proxy.setCapacity(len);
     } else {
         C::proxy.setCapacity(0);
@@ -249,8 +242,7 @@ void DynamicSized<C, A>::allocate(uint32_t len) {
 /** Helper for HeapUser<> */
 class HeapAllocator {
 
-// functions
-public:
+  public:  // functions
 
     static inline void* allocate(size_t size) {
         return operator new(size);

@@ -37,34 +37,31 @@ namespace ETL_NAMESPACE {
 template<typename T, uint32_t N>
 class Array {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
 
-// variables
-private:
+  private:  // variables
 
     T data[N];
 
-// functions
-public:
+  public:   // functions
 
     Array<T, N>() {};
 
-    Array<T, N>(const Array<T, N> &other) {
+    Array<T, N>(const Array<T, N>& other) {
         operator=(other);
     }
 
-    Array<T, N> &operator=(const Array<T, N> &other);
+    Array<T, N>& operator=(const Array<T, N>& other);
 
-    inline T &operator[](uint32_t ix) {
+    inline T& operator[](uint32_t ix) {
         return data[ix];
     }
 
-    inline const T &operator[](uint32_t ix) const {
+    inline const T& operator[](uint32_t ix) const {
         return data[ix];
     }
 
@@ -95,12 +92,12 @@ public:
     inline uint32_t getSize() const {
         return N;
     }
-    
+
     inline uint32_t getCapacity() const {
         return N;
     }
 
-    void fill(const T &value);
+    void fill(const T& value);
 
 #ifdef ETL_USE_EXCEPTIONS
 
@@ -113,9 +110,9 @@ public:
 
 
 template<typename T, uint32_t N>
-Array<T, N> &Array<T, N>::operator=(const Array<T, N> &other) {
+Array<T, N>& Array<T, N>::operator=(const Array<T, N>& other) {
 
-    for(uint32_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         operator[](i) = other.operator[](i);
     }
 
@@ -124,9 +121,9 @@ Array<T, N> &Array<T, N>::operator=(const Array<T, N> &other) {
 
 
 template<typename T, uint32_t N>
-void Array<T, N>::fill(const T &value) {
+void Array<T, N>::fill(const T& value) {
 
-    for(uint32_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         operator[](i) = value;
     }
 }
@@ -137,7 +134,7 @@ void Array<T, N>::fill(const T &value) {
 template<typename T, uint32_t N>
 T& Array<T, N>::at(uint32_t ix) {
 
-    if(ix >= N) {
+    if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 
@@ -148,7 +145,7 @@ T& Array<T, N>::at(uint32_t ix) {
 template<typename T, uint32_t N>
 const T& Array<T, N>::at(uint32_t ix) const {
 
-    if(ix >= N) {
+    if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 

@@ -34,19 +34,17 @@ namespace ETL_NAMESPACE {
 
 class AVectorBase {
 
-// types
-protected:
+  protected: // types
 
     class Proxy : public ContainerProxy {
-    friend AVectorBase;
-
-    // functions
-    public:
+        friend AVectorBase;
+        
+      public:   // functions
 
         void setData(void* d) {
             data = d;
         }
-    
+
         void setCapacity(uint32_t c) {
             capacity = c;
         }
@@ -55,20 +53,18 @@ protected:
             size = s;
         }
 
-    protected:
+      protected:
 
         Proxy(size_t itemSize) :
             ContainerProxy(itemSize, NULLPTR, 0, 0) {};
 
     };
 
-// variables
-protected:
+  protected: // variables
 
     Proxy proxy;
 
-// functions
-public:
+  public:   // functions
 
     uint32_t getCapacity() const {
         return proxy.getCapacity();
@@ -77,24 +73,25 @@ public:
     uint32_t getSize() const {
         return proxy.getSize();
     }
-    
+
     void* getItemPointer(uint32_t ix) {
         return proxy.getItemPointer(ix);
     }
-    
+
     const void* getItemPointer(uint32_t ix) const {
         return proxy.getItemPointer(ix);
     }
 
-protected:
+  protected:
 
     explicit AVectorBase(size_t itemSize) :
         proxy(itemSize) {};
 
-    void swap(AVectorBase &other);
+    void swap(AVectorBase& other);
 
 };
 
 }
 
 #endif /* __ETL_AVECTORBASE_H__ */
+

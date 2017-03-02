@@ -24,11 +24,9 @@ limitations under the License.
 #ifndef __ETL_SORTED_H__
 #define __ETL_SORTED_H__
 
-#include "Base/ListTemplate.h"
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "Base/ListTemplate.h"
 
 namespace ETL_NAMESPACE {
 
@@ -36,23 +34,20 @@ namespace ETL_NAMESPACE {
 template<class C, class Comp = std::less<typename C::ItemType> >
 class Sorted {
 
-// types
-public:
+  public:   // types
 
     typedef typename C::ItemType ItemType;
     typedef typename C::Iterator Iterator;
     typedef typename C::ConstIterator ConstIterator;
     typedef typename C::Node Node;
 
-// variables
-protected:
+  protected: // variables
 
     static Comp comp;
 
     mutable C container;
 
-// functions
-public:
+  public:   // functions
 
     Sorted() {};
 
@@ -82,7 +77,7 @@ public:
     }
     /// @}
 
-protected:
+  protected:
 
     Iterator insert(const ItemType& item);
     std::pair<Iterator, bool> insertUnique(const ItemType& item);
@@ -129,7 +124,7 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
 
-    if(found.second == false) {
+    if (found.second == false) {
         found.first = container.insert(found.first, item);
     }
 
@@ -146,25 +141,25 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::findSortedP
     Iterator endIt = end();
     Iterator it = startIt;
 
-    if(it == endIt) {
+    if (it == endIt) {
         return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, false);
     }
 
     bool notLessFound = false;
     bool equalFound = false;
 
-    while((!notLessFound) && (it != endIt)) {
+    while ((!notLessFound) && (it != endIt)) {
 
-        if(comp(*it, item)) {
+        if (comp(*it, item)) {
             ++it;
         } else {
             notLessFound = true;
         }
     }
 
-    while(notLessFound && (it != endIt)) {
+    while (notLessFound && (it != endIt)) {
 
-        if(comp(item, *it)) {
+        if (comp(item, *it)) {
             notLessFound = false;
         } else {
             equalFound = true;
@@ -186,25 +181,25 @@ Sorted<C, Comp>::findSortedPosition(F f, const V& v) const {
     Iterator endIt = end();
     Iterator it = startIt;
 
-    if(it == endIt) {
+    if (it == endIt) {
         return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, false);
     }
 
     bool notLessFound = false;
     bool equalFound = false;
 
-    while((!notLessFound) && (it != endIt)) {
+    while ((!notLessFound) && (it != endIt)) {
 
-        if(((*it).*f)() < v) {
+        if (((*it).*f)() < v) {
             ++it;
         } else {
             notLessFound = true;
         }
     }
 
-    while(notLessFound && (it != endIt)) {
+    while (notLessFound && (it != endIt)) {
 
-        if(v < ((*it).*f)()) {
+        if (v < ((*it).*f)()) {
             notLessFound = false;
         } else {
             equalFound = true;

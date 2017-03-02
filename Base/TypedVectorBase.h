@@ -24,25 +24,24 @@ limitations under the License.
 #ifndef __ETL_TYPEDVECTORBASE_H__
 #define __ETL_TYPEDVECTORBASE_H__
 
-#undef min
-#undef max
-
 #include "etlSupport.h"
 
-#if ETL_USE_CPP11
-#include <functional>
-#include <initializer_list>
-#endif
+#include "Base/AVectorBase.h"
 
 #ifdef ETL_USE_EXCEPTIONS
 #include "ExceptionTypes.h"
 #endif
 
+#undef min
+#undef max
+
 #include <new>
 #include <utility>
 
-#include "Base/AVectorBase.h"
-
+#if ETL_USE_CPP11
+#include <functional>
+#include <initializer_list>
+#endif
 
 namespace ETL_NAMESPACE {
 
@@ -50,14 +49,13 @@ namespace ETL_NAMESPACE {
 template<class T>
 class TypedVectorBase : public AVectorBase {
 
-// types
-public:
+  public:   // types
 
     typedef T ItemType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
 
-protected:
+  protected:
 
 #if ETL_USE_CPP11
 
@@ -66,62 +64,61 @@ protected:
 #else
 
     class CreatorFunctor {
-        public:
-            virtual void call(T* pos, bool place) const = 0;
+      public:
+        virtual void call(T* pos, bool place) const = 0;
     };
 
     class DefaultCreator : public CreatorFunctor {
-        public:
-            virtual void call(T* pos, bool place) const {
-                if(place) {
-                    placeDefaultTo(pos);
-                } else {
-                    assignDefaultTo(pos);
-                }
+      public:
+        virtual void call(T* pos, bool place) const {
+            if (place) {
+                placeDefaultTo(pos);
+            } else {
+                assignDefaultTo(pos);
             }
+        }
     };
 
     class CopyCreator : public CreatorFunctor {
-        private:
-            const T& ref;
+      private:
+        const T& ref;
 
-        public:
-            CopyCreator(const T& refValue) :
-                ref(refValue) {};
+      public:
+        CopyCreator(const T& refValue) :
+            ref(refValue) {};
 
-            virtual void call(T* pos, bool place) const {
-                if(place) {
-                    placeValueTo(pos, ref);
-                } else {
-                    assignValueTo(pos, ref);
-                }
+        virtual void call(T* pos, bool place) const {
+            if (place) {
+                placeValueTo(pos, ref);
+            } else {
+                assignValueTo(pos, ref);
             }
+        }
     };
 
 #endif
 
-// functions
-public:
+  public:   // functions
 
-    inline T &operator[](uint32_t ix) {
+    inline T& operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    inline const T &operator[](uint32_t ix) const {
+    inline const T& operator[](uint32_t ix) const {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
 #ifdef ETL_USE_EXCEPTIONS
 
-    T &at(uint32_t ix);
-    const T &at(uint32_t ix) const;
+    T& at(uint32_t ix);
+    const T& at(uint32_t ix) const;
 
 #endif
 
     inline Iterator begin() {
         return static_cast<Iterator>(getItemPointer(0));
     }
-    
+
     inline ConstIterator begin() const {
         return static_cast<ConstIterator>(getItemPointer(0));
     }
@@ -129,24 +126,24 @@ public:
     inline Iterator end() {
         return static_cast<Iterator>(getItemPointer(getSize()));
     }
-    
+
     inline ConstIterator end() const {
         return static_cast<ConstIterator>(getItemPointer(getSize()));
     }
 
-    inline T &front() {
+    inline T& front() {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    inline const T &front() const {
+    inline const T& front() const {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    inline T &back() {
+    inline T& back() {
         return *(static_cast<T*>(getItemPointer(getSize() - 1)));
     }
 
-    inline const T &back() const {
+    inline const T& back() const {
         return *(static_cast<T*>(getItemPointer(getSize() - 1)));
     }
 
@@ -176,7 +173,7 @@ public:
 
     void clear();
 
-protected:
+  protected:
 
     TypedVectorBase() :
         AVectorBase(sizeof(T)) {};
@@ -193,21 +190,21 @@ protected:
         new(ptr) T();
     }
 
-    static void assignValueTo(T* ptr, const T &value) {
+    static void assignValueTo(T* ptr, const T& value) {
         *ptr = value;
     }
 
-    static void placeValueTo(T* ptr, const T &value) {
+    static void placeValueTo(T* ptr, const T& value) {
         new(ptr) T(value);
     }
 
 #if ETL_USE_CPP11
 
-    static void assignValueTo(T* ptr, T &&value) {
+    static void assignValueTo(T* ptr, T&& value) {
         *ptr = std::move(value);
     }
 
-    static void placeValueTo(T* ptr, T &&value) {
+    static void placeValueTo(T* ptr, T&& value) {
         new(ptr) T(std::move(value));
     }
 
@@ -240,7 +237,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, 
     int numToErase = last - first;
     Iterator itAfterDeleted = first;
 
-    if(numToErase > 0) {
+    if (numToErase > 0) {
 
         uint32_t numToMove = end() - last;
         initializedCopyDown(&*last, &*first, numToMove);
@@ -261,11 +258,11 @@ void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
     T* dataAlias = getData();
     uint32_t i = 0;
 
-    for(; i < getSize(); ++i) {
+    for (; i < getSize(); ++i) {
         assignValueTo((dataAlias + i), src[i]);
     }
 
-    for(; i < num; ++i) {
+    for (; i < num; ++i) {
         placeValueTo((dataAlias + i), src[i]);
     }
 
@@ -281,7 +278,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
                                                                           uint32_t numToInsert,
                                                                           CreatorFunctor&& creatorCall) {
 
-    if(numToInsert > 0) {
+    if (numToInsert > 0) {
 
         uint32_t distanceFromEnd = end() - position;
 
@@ -303,14 +300,14 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
         T* uninitedInsertPos = dst;
         dst -= uninitedInsertNumber;
 
-        while(uninitedInsertPos > dst) {
+        while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall(uninitedInsertPos, true);
         }
 
         dst -= initedInsertNumber;
 
-        while(uninitedInsertPos > dst) {
+        while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall(uninitedInsertPos, false);
         }
@@ -328,7 +325,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
                                                                           uint32_t numToInsert,
                                                                           const CreatorFunctor& creatorCall) {
 
-    if(numToInsert > 0) {
+    if (numToInsert > 0) {
 
         uint32_t distanceFromEnd = end() - position;
 
@@ -350,14 +347,14 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
         T* uninitedInsertPos = dst;
         dst -= uninitedInsertNumber;
 
-        while(uninitedInsertPos > dst) {
+        while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall.call(uninitedInsertPos, true);
         }
 
         dst -= initedInsertNumber;
 
-        while(uninitedInsertPos > dst) {
+        while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall.call(uninitedInsertPos, false);
         }
@@ -374,8 +371,8 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
 template<class T>
 void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
 
-    if(src != dst) {
-        for(int i = (num - 1); i >= 0; --i) {               // uninitializedCopy() always copies upwards
+    if (src != dst) {
+        for (int i = (num - 1); i >= 0; --i) {              // uninitializedCopy() always copies upwards
 #if ETL_USE_CPP11
             placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constuctor
 #else
@@ -389,8 +386,8 @@ void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
 template<class T>
 void TypedVectorBase<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
 
-    if(src != dst) {
-        for(int i = (num - 1); i >= 0; --i) {
+    if (src != dst) {
+        for (int i = (num - 1); i >= 0; --i) {
 #if ETL_USE_CPP11
             assignValueTo((dst + i), std::move(src[i]));
 #else
@@ -404,8 +401,8 @@ void TypedVectorBase<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
 template<class T>
 void TypedVectorBase<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
 
-    if(src != dst) {
-        for(uint32_t i = 0; i < num; ++i) {
+    if (src != dst) {
+        for (uint32_t i = 0; i < num; ++i) {
 #if ETL_USE_CPP11
             assignValueTo((dst + i), std::move(src[i]));
 #else
@@ -427,7 +424,7 @@ void TypedVectorBase<T>::clear() {
 template<class T>
 void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
 
-    while(startPos < endPos) {          // operator<() instead of !=() : protection for startPos > endPos cases
+    while (startPos < endPos) {         // operator<() instead of !=() : protection for startPos > endPos cases
         startPos->~T();
         ++startPos;
     }
@@ -439,7 +436,7 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
 template<typename T>
 T& TypedVectorBase<T>::at(uint32_t ix) {
 
-    if(ix >= getSize()) {
+    if (ix >= getSize()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 
@@ -450,7 +447,7 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 template<typename T>
 const T& TypedVectorBase<T>::at(uint32_t ix) const {
 
-    if(ix >= getSize()) {
+    if (ix >= getSize()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 

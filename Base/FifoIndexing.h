@@ -26,17 +26,15 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-
 namespace ETL_NAMESPACE {
 
 class AFifoIterator;
 
 
 class FifoIndexing {
-friend AFifoIterator;
+    friend AFifoIterator;
 
-// variables
-private:
+  private:  // variables
 
     uint32_t capacity;
     uint32_t length;
@@ -44,8 +42,7 @@ private:
     uint32_t writeIx;
     uint32_t readIx;
 
-// functions
-public:
+  public:   // functions
 
     bool isEmpty() const {
         return (length == 0);
@@ -65,12 +62,12 @@ public:
 
     void setLength(uint32_t len);
 
-protected:
+  protected:
 
     explicit FifoIndexing(uint32_t fifoSize) :
         capacity(fifoSize) {
-    
-        resetIndexes(); 
+
+        resetIndexes();
     };
 
     uint32_t getIndexFromFront(uint32_t ix) const;
@@ -91,7 +88,7 @@ protected:
 
     void push();
     void pop();
-    
+
     uint32_t getWriteIx() const {
         return writeIx;
     }
@@ -100,7 +97,7 @@ protected:
         return readIx;
     }
 
-private:
+  private:
 
     uint32_t limitIndexForLength(uint32_t ix) const;
 

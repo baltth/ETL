@@ -27,14 +27,14 @@ using namespace ETL_NAMESPACE;
 
 #if ETL_USE_CPP11
 
-DoubleLinkedList::DoubleLinkedList(DoubleLinkedList &&other) {
+DoubleLinkedList::DoubleLinkedList(DoubleLinkedList&& other) {
 
     setEmpty();
     swap(other);
 }
 
 
-DoubleLinkedList &DoubleLinkedList::operator=(DoubleLinkedList &&other) {
+DoubleLinkedList& DoubleLinkedList::operator=(DoubleLinkedList&& other) {
 
     swap(other);
     return *this;
@@ -44,7 +44,7 @@ DoubleLinkedList &DoubleLinkedList::operator=(DoubleLinkedList &&other) {
 
 void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
-    if(pos != &backNode) {
+    if (pos != &backNode) {
         Node* next = pos->next;
         linkNodes(pos, node);
         linkNodes(node, next);
@@ -55,7 +55,7 @@ void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
 void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
-    if(pos != &frontNode) {
+    if (pos != &frontNode) {
         Node* prev = pos->prev;
         linkNodes(node, pos);
         linkNodes(prev, node);
@@ -66,9 +66,9 @@ void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
 DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
-    if(size > 0) {
+    if (size > 0) {
 
-        if((node != &frontNode) && (node != &backNode)) {
+        if ((node != &frontNode) && (node != &backNode)) {
             linkNodes(node->prev, node->next);
         }
 
@@ -82,7 +82,7 @@ DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 }
 
 
-void DoubleLinkedList::copy(const DoubleLinkedList &other) {
+void DoubleLinkedList::copy(const DoubleLinkedList& other) {
 
     frontNode.next = other.getFirst();
     backNode.prev = other.getLast();
@@ -90,9 +90,9 @@ void DoubleLinkedList::copy(const DoubleLinkedList &other) {
 }
 
 
-void DoubleLinkedList::swap(DoubleLinkedList &other) {
+void DoubleLinkedList::swap(DoubleLinkedList& other) {
 
-    if((getSize() > 0) && (other.getSize() > 0)) {
+    if ((getSize() > 0) && (other.getSize() > 0)) {
 
         Node* tmpFirst = getFirst();
         Node* tmpLast = getLast();
@@ -104,12 +104,12 @@ void DoubleLinkedList::swap(DoubleLinkedList &other) {
         other.backNode.prev = tmpLast;
         other.size = tmpSize;
 
-    } else if(getSize() > 0) {
+    } else if (getSize() > 0) {
 
         other.copy(*this);
         setEmpty();
 
-    } else if(other.getSize() > 0) {
+    } else if (other.getSize() > 0) {
 
         copy(other);
         other.setEmpty();
