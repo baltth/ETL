@@ -41,7 +41,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T, template<class> class A = std::allocator>
+template<class T, template<class> class A>
 class ListTemplate : protected AListBase {
 
   public:   // types
@@ -76,11 +76,11 @@ class ListTemplate : protected AListBase {
 #endif
 
         static void* operator new(size_t size) {
-            return allocator.allocate(1);
+            return ListTemplate::allocator.allocate(1);
         }
 
         static void operator delete(void* ptr) {
-            allocator.deallocate(static_cast<Node*>(ptr), 1);
+            ListTemplate::allocator.deallocate(static_cast<Node*>(ptr), 1);
         }
 
     };
@@ -190,6 +190,14 @@ class ListTemplate : protected AListBase {
             ConstIterator(n) {};
 
     };
+
+    typedef A<Node> Allocator;
+
+    friend Node;
+
+  private:  // variables
+
+    static Allocator allocator;
 
   public:   // functions
 
@@ -323,9 +331,9 @@ void ListTemplate<T, A>::clear() {
 template<class T, template<class> class A>
 template<typename F, typename V>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
-                                                         ConstIterator endPos,
-                                                         F f,
-                                                         const V& v) const {
+                                                               ConstIterator endPos,
+                                                               F f,
+                                                               const V& v) const {
 
     bool match = false;
 
@@ -363,8 +371,8 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::emplace(ConstIterator 
 
 template<class T, template<class> class A>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
-                                                         ConstIterator endPos,
-                                                         Matcher<T>&& matchCall) const {
+                                                               ConstIterator endPos,
+                                                               Matcher<T>&& matchCall) const {
 
     bool match = false;
 
@@ -395,8 +403,8 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator p
 
 template<class T, template<class> class A>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator startPos,
-                                                         ConstIterator endPos,
-                                                         const Matcher<T>& matchCall) const {
+                                                               ConstIterator endPos,
+                                                               const Matcher<T>& matchCall) const {
 
     bool match = false;
 

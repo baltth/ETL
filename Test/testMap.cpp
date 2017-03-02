@@ -23,8 +23,9 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Map.h"
-#include "Test/ContainerTester.h"
+#include <Map.h>
+#include <Test/ContainerTester.h>
+#include <Test/DummyAllocator.h>
 
 
 TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]" ) {
@@ -50,6 +51,32 @@ TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]" ) {
     map.erase(5);
 
     REQUIRE(map.getSize() == 1);
+
+}
+
+TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
+
+    typedef ContainerTester ItemType;
+    typedef Etl::Map<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef MapType::Allocator AllocatorType;
+
+    MapType map;
+    map.insert(5, ContainerTester(-5));
+
+    MapType::Iterator it = map.begin();
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
+    
+    map.insert(6, ContainerTester(-6));
+    ++it;
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
+
+    CHECK(AllocatorType::getDeleteCount() == 0);
+
+    map.erase(5);
+    REQUIRE(AllocatorType::getDeleteCount() == 1);
+
+    map.erase(6);
+    REQUIRE(AllocatorType::getDeleteCount() == 2);
 
 }
 

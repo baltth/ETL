@@ -29,18 +29,21 @@ limitations under the License.
 #include "Base/Sorted.h"
 #include "Base/MapItem.h"
 
+#include <memory>
 #include <utility>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E>
-class Map : public Sorted<ListTemplate<MapItem<K, E> > > {
+template<typename K, class E, template<class> class A = std::allocator>
+class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
   public:   // types
 
     typedef MapItem<K, E> ItemType;
-    typedef Sorted<ListTemplate<ItemType> > MapBase;
+    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef typename ContainerType::Allocator Allocator;
+    typedef Sorted<ContainerType> MapBase;
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
 
@@ -66,14 +69,14 @@ class Map : public Sorted<ListTemplate<MapItem<K, E> > > {
 
     E& getElement(const K& k) const;
 
-    void copyElementsFrom(const Map<K, E>& other);
+    void copyElementsFrom(const Map<K, E, A>& other);
 
     E& operator[](const K& k) {
-        return Map<K, E>::getElement(k);
+        return Map<K, E, A>::getElement(k);
     }
 
     const E& operator[](const K& k) const {
-        return Map<K, E>::getElement(k);
+        return Map<K, E, A>::getElement(k);
     }
 
 #if ETL_USE_CPP11
@@ -86,8 +89,8 @@ class Map : public Sorted<ListTemplate<MapItem<K, E> > > {
 };
 
 
-template<typename K, class E>
-std::pair<typename Map<K, E>::Iterator, bool> Map<K, E>::insertOrAssign(const K& k, const E& e) {
+template<typename K, class E, template<class> class A>
+std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::insertOrAssign(const K& k, const E& e) {
 
     std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
@@ -107,8 +110,8 @@ std::pair<typename Map<K, E>::Iterator, bool> Map<K, E>::insertOrAssign(const K&
 }
 
 
-template<typename K, class E>
-void Map<K, E>::erase(const K& k) {
+template<typename K, class E, template<class> class A>
+void Map<K, E, A>::erase(const K& k) {
 
     std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
@@ -118,8 +121,8 @@ void Map<K, E>::erase(const K& k) {
 }
 
 
-template<typename K, class E>
-typename Map<K, E>::Iterator  Map<K, E>::find(const K& k) const {
+template<typename K, class E, template<class> class A>
+typename Map<K, E, A>::Iterator  Map<K, E, A>::find(const K& k) const {
 
     std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
@@ -131,8 +134,8 @@ typename Map<K, E>::Iterator  Map<K, E>::find(const K& k) const {
 }
 
 
-template<typename K, class E>
-E& Map<K, E>::getElement(const K& k) const {
+template<typename K, class E, template<class> class A>
+E& Map<K, E, A>::getElement(const K& k) const {
 
     std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
@@ -150,8 +153,8 @@ E& Map<K, E>::getElement(const K& k) const {
 }
 
 
-template<typename K, class E>
-void Map<K, E>::copyElementsFrom(const Map<K, E>& other) {
+template<typename K, class E, template<class> class A>
+void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
 
     Iterator endIt = other.end();
     for (Iterator it = other.begin(); it != endIt; ++it) {
@@ -161,8 +164,8 @@ void Map<K, E>::copyElementsFrom(const Map<K, E>& other) {
 
 #if ETL_USE_CPP11
 
-template<typename K, class E>
-Map<K, E>::Map(const std::initializer_list<std::pair<K, E>>& initList) {
+template<typename K, class E, template<class> class A>
+Map<K, E, A>::Map(const std::initializer_list<std::pair<K, E>>& initList) {
 
     for (auto& item : initList) {
         insert(item.first, item.second);
@@ -170,9 +173,9 @@ Map<K, E>::Map(const std::initializer_list<std::pair<K, E>>& initList) {
 }
 
 
-template<typename K, class E>
+template<typename K, class E, template<class> class A>
 template<typename... Args>
-std::pair<typename Map<K, E>::Iterator, bool> Map<K, E>::emplace(const K& k, Args&& ... args) {
+std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::emplace(const K& k, Args&& ... args) {
 
     auto found = MapBase::findSortedPosition(&ItemType::getKey, k);
 

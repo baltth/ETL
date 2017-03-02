@@ -28,18 +28,21 @@ limitations under the License.
 
 #include "Base/Sorted.h"
 
+#include <memory>
 #include <utility>
 
 namespace ETL_NAMESPACE {
 
 
-template<class E>
-class Set : public Sorted<ListTemplate<E> > {
+template<class E, template<class> class A = std::allocator>
+class Set : public Sorted<ListTemplate<E, A> > {
 
   public:   // types
 
     typedef E ItemType;
-    typedef Sorted<ListTemplate<E > > SetBase;
+    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef typename ContainerType::Allocator Allocator;
+    typedef Sorted<ContainerType> SetBase;
     typedef typename SetBase::Iterator Iterator;
     typedef typename SetBase::ConstIterator ConstIterator;
 
@@ -62,15 +65,15 @@ class Set : public Sorted<ListTemplate<E> > {
     void erase(const E& e);
     Iterator find(const E& e) const;
 
-    void copyElementsFrom(const Set<E>& other);
+    void copyElementsFrom(const Set<E, A>& other);
 
 };
 
 
 #if ETL_USE_CPP11
 
-template<class E>
-Set<E>::Set(const std::initializer_list<E>& initList) {
+template<class E, template<class> class A>
+Set<E, A>::Set(const std::initializer_list<E>& initList) {
 
     for (auto& item : initList) {
         SetBase::insertUnique(item);
@@ -79,8 +82,8 @@ Set<E>::Set(const std::initializer_list<E>& initList) {
 
 #endif
 
-template<class E>
-std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E& e) {
+template<class E, template<class> class A>
+std::pair<typename Set<E, A>::Iterator, bool> Set<E, A>::insertOrAssign(const E& e) {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
@@ -99,8 +102,8 @@ std::pair<typename Set<E>::Iterator, bool> Set<E>::insertOrAssign(const E& e) {
     return found;
 }
 
-template<class E>
-void Set<E>::erase(const E& e) {
+template<class E, template<class> class A>
+void Set<E, A>::erase(const E& e) {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
@@ -110,8 +113,8 @@ void Set<E>::erase(const E& e) {
 }
 
 
-template<class E>
-typename Set<E>::Iterator  Set<E>::find(const E& e) const {
+template<class E, template<class> class A>
+typename Set<E, A>::Iterator  Set<E, A>::find(const E& e) const {
 
     std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
@@ -123,8 +126,8 @@ typename Set<E>::Iterator  Set<E>::find(const E& e) const {
 }
 
 
-template<class E>
-void Set<E>::copyElementsFrom(const Set<E>& other) {
+template<class E, template<class> class A>
+void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
     Iterator endIt = other.end();
     for (Iterator it = other.begin(); it != endIt; ++it) {

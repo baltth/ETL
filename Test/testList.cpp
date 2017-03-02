@@ -25,6 +25,7 @@ limitations under the License.
 
 #include <List.h>
 #include <Test/ContainerTester.h>
+#include <Test/DummyAllocator.h>
 
 
 TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
@@ -156,6 +157,32 @@ TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
     REQUIRE(found == it2);
     found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
     REQUIRE(found == list.end());
+
+}
+
+TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
+
+    typedef int ItemType;
+    typedef Etl::List<ItemType, DummyAllocator> ListType;
+    typedef ListType::Allocator AllocatorType;
+
+    ListType list;
+    list.pushBack(1);
+
+    ListType::Iterator it = list.begin();
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
+    
+    list.pushBack(2);
+    ++it;
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
+
+    CHECK(AllocatorType::getDeleteCount() == 0);
+
+    list.popFront();
+    REQUIRE(AllocatorType::getDeleteCount() == 1);
+
+    list.popBack();
+    REQUIRE(AllocatorType::getDeleteCount() == 2);
 
 }
 

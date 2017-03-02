@@ -28,17 +28,19 @@ limitations under the License.
 
 #include "Base/ListTemplate.h"
 
+#include <memory>
 
 namespace ETL_NAMESPACE {
 
 
-template<class T>
-class List : public ListTemplate<T> {
+template<class T, template<class> class A = std::allocator>
+class List : public ListTemplate<T, A> {
 
   public:   // types
 
-    typedef typename ListTemplate<T>::Iterator Iterator;
-    typedef typename ListTemplate<T>::ConstIterator ConstIterator;
+    typedef typename ListTemplate<T, A>::Iterator Iterator;
+    typedef typename ListTemplate<T, A>::ConstIterator ConstIterator;
+    typedef typename ListTemplate<T, A>::Node Node;
 
   public:   // functions
 
