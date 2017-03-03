@@ -65,6 +65,10 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
     void erase(const K& k);
 
+    Iterator erase(Iterator pos) {
+        return MapBase::erase(pos);
+    }
+
     Iterator find(const K& k) const;
 
     E& getElement(const K& k) const;

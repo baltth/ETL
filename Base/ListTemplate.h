@@ -59,10 +59,6 @@ class ListTemplate : protected AListBase {
 
         T item;
 
-      private:
-
-        static Allocator allocator;
-
       public:   // functions
 
 #if ETL_USE_CPP11
@@ -262,8 +258,11 @@ class ListTemplate : protected AListBase {
 
     inline Iterator insert(ConstIterator pos, const T& item);
 
-    inline void erase(Iterator pos) {
+    inline Iterator erase(Iterator pos) {
+        Iterator next = pos;
+        ++next;
         delete AListBase::remove(pos);
+        return next;
     }
 
 #if ETL_USE_CPP11
@@ -301,9 +300,10 @@ class ListTemplate : protected AListBase {
 
 #endif
 
-
-
 };
+
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Allocator ListTemplate<T, A>::allocator;
 
 
 #if ETL_USE_CPP11

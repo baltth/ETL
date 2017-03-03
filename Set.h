@@ -60,9 +60,12 @@ class Set : public Sorted<ListTemplate<E, A> > {
         return SetBase::insertUnique(e);
     }
 
-    std::pair<Iterator, bool> insertOrAssign(const E& e);
-
     void erase(const E& e);
+
+    Iterator erase(Iterator pos) {
+        return SetBase::erase(pos);
+    }
+
     Iterator find(const E& e) const;
 
     void copyElementsFrom(const Set<E, A>& other);
@@ -82,25 +85,6 @@ Set<E, A>::Set(const std::initializer_list<E>& initList) {
 
 #endif
 
-template<class E, template<class> class A>
-std::pair<typename Set<E, A>::Iterator, bool> Set<E, A>::insertOrAssign(const E& e) {
-
-    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
-
-    if (found.second == false) {
-#if ETL_USE_CPP11
-        found.first = SetBase::emplaceTo(found.first, e);
-#else
-        found.first = SetBase::insertTo(found.first, e);
-#endif
-    } else {
-        --found.first;
-        *found.first = e;
-    }
-
-    found.second = !found.second;
-    return found;
-}
 
 template<class E, template<class> class A>
 void Set<E, A>::erase(const E& e) {
@@ -131,7 +115,7 @@ void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
     Iterator endIt = other.end();
     for (Iterator it = other.begin(); it != endIt; ++it) {
-        insertOrAssign(*it);
+        insert(*it);
     }
 }
 

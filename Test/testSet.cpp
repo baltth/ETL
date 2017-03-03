@@ -33,7 +33,7 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]" ) {
     SetType set;
 
     ContainerTester a(4);
-    set.insertOrAssign(a);
+    set.insert(a);
 
     REQUIRE(set.getSize() == 1);
     SetType::Iterator it = set.begin();
@@ -46,7 +46,7 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]" ) {
     REQUIRE(*it == ContainerTester(5));
 
     ContainerTester b(4);
-    set.insertOrAssign(b);
+    set.insert(b);
 
     REQUIRE(set.getSize() == 2);
 
@@ -54,6 +54,28 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]" ) {
 
     REQUIRE(set.getSize() == 1);
 
+}
+
+TEST_CASE("Etl::Set<> insert() test", "[set][etl]") {
+
+    typedef Etl::Set<int> SetType;
+    typedef std::pair<SetType::Iterator, bool> ResultType;
+
+    SetType set;
+
+    ResultType res = set.insert(1);
+
+    REQUIRE(res.second == true);
+    REQUIRE(res.first != set.end());
+    REQUIRE(set.getSize() == 1);
+
+    SECTION("insert() of existing shall fail") {
+
+        res = set.insert(1);
+
+        REQUIRE(res.second == false);
+        REQUIRE(set.getSize() == 1);
+    }
 }
 
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {

@@ -75,6 +75,10 @@ class Sorted {
     inline void clear() {
         container.clear();
     }
+
+    Iterator erase(Iterator pos) {
+        return container.erase(pos);
+    }
     /// @}
 
   protected:
@@ -89,10 +93,6 @@ class Sorted {
 
     Iterator insertTo(ConstIterator pos, const ItemType& item) const {
         return container.insert(pos, item);
-    }
-
-    void erase(Iterator pos) {
-        container.erase(pos);
     }
 
 #if ETL_USE_CPP11
@@ -126,6 +126,8 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
 
     if (found.second == false) {
         found.first = container.insert(found.first, item);
+    } else {
+        --found.first;
     }
 
     found.second = !found.second;
