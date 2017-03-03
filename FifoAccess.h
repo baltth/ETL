@@ -56,7 +56,6 @@ class FifoAccess : public FifoIndexing {
 
   public:   // functions
 
-
     explicit FifoAccess(const TypedContainerProxy<T>& p) :
         FifoIndexing(p.getSize()),
         proxy(p) {};
@@ -72,6 +71,10 @@ class FifoAccess : public FifoIndexing {
 
     void push(const ItemType& item);
     ItemType pop();
+    
+    void drop() {
+        FifoIndexing::pop();
+    }
 
     ItemType getFromBack(uint32_t ix) const;
     ItemType getFromFront(uint32_t ix) const;
