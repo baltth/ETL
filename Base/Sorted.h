@@ -28,6 +28,8 @@ limitations under the License.
 
 #include "Base/ListTemplate.h"
 
+#include <functional>
+
 namespace ETL_NAMESPACE {
 
 
