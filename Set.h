@@ -50,6 +50,15 @@ class Set : public Sorted<ListTemplate<E, A> > {
 
     Set() {};
 
+    Set(const Set& other) {
+        copyElementsFrom(other);
+    }
+
+    Set& operator=(const Set& other) {
+        SetBase::clear();
+        copyElementsFrom(other);
+    }
+
 #if ETL_USE_CPP11
 
     Set(const std::initializer_list<E>& initList);

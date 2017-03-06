@@ -196,22 +196,18 @@ TEST_CASE("Etl::Map<> element order", "[map][etl]") {
     REQUIRE(it->getElement() == -1);
 
     ++it;
-
     REQUIRE(it->getKey() == 2);
     REQUIRE(it->getElement() == -2);
 
     ++it;
-
     REQUIRE(it->getKey() == 3);
     REQUIRE(it->getElement() == -3);
 
     ++it;
-
     REQUIRE(it->getKey() == 4);
     REQUIRE(it->getElement() == -4);
 
     ++it;
-
     REQUIRE(it == map.end());
 }
 
