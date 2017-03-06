@@ -68,6 +68,15 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
     Map() {};
 
+    Map(const Map& other) {
+        copyElementsFrom(other);
+    }
+
+    Map& operator=(const Map& other) {
+        MapBase::clear();
+        copyElementsFrom(other);
+    }
+
 #if ETL_USE_CPP11
 
     Map(const std::initializer_list<std::pair<K, E>>& initList);

@@ -2,6 +2,8 @@ build
 doxygen
 .vscode
 .refresh_cscope.sh
+.static_check.sh
+.ycm_extra_conf*
 cscope.files
 cscope.out
 tags
