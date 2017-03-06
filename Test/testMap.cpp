@@ -316,6 +316,13 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
         REQUIRE(it->getElement() == ContainerTester(-3));
     }
 
+    SECTION("find(Key) non-existing") {
+
+        MapType::Iterator it = map.find(7);
+
+        REQUIRE(it == map.end());
+    }
+
     SECTION("find(ElementMatcher)") {
 
         class Matcher : public MapType::ElementMatcher {

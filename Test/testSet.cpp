@@ -243,6 +243,34 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
     }
 }
 
+TEST_CASE("Etl::Set<> search tests", "[set][etl]") {
+
+    typedef Etl::Set<int> SetType;
+    SetType set;
+
+    set.insert(1);
+    set.insert(2);
+    set.insert(3);
+    set.insert(4);
+
+    CHECK(set.getSize() == 4);
+
+    SECTION("find(Key)") {
+
+        SetType::Iterator it = set.find(3);
+
+        REQUIRE(it != set.end());
+        REQUIRE(*it == 3);
+    }
+
+    SECTION("find(Key) non-existing") {
+
+        SetType::Iterator it = set.find(7);
+
+        REQUIRE(it == set.end());
+    }
+}
+
 TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 
     typedef ContainerTester ItemType;
