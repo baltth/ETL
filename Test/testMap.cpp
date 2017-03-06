@@ -86,6 +86,41 @@ TEST_CASE("Etl::Map<> insert() test", "[map][etl]") {
     }
 }
 
+TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
+
+    typedef Etl::Map<uint32_t, ContainerTester> MapType;
+    MapType map;
+
+    class Matcher : public MapType::ElementMatcher {
+        virtual bool call(const ContainerTester& c) const {
+            return (c.getValue() >= -3) && (c.getValue() <= -2);
+        }
+    };
+
+    map.insert(1, ContainerTester(-1));
+    map.insert(2, ContainerTester(-2));
+    map.insert(3, ContainerTester(-3));
+    map.insert(4, ContainerTester(-4));
+
+    CHECK(map.getSize() == 4);
+
+    SECTION("find(ElementMatcher) method") {
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
+        REQUIRE(it->getKey() == 2);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+}
+
 TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 
     typedef ContainerTester ItemType;

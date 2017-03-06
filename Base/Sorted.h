@@ -55,7 +55,7 @@ class Sorted {
 
 #if ETL_USE_CPP11
 
-    Sorted(const std::initializer_list<T>& initList) :
+    Sorted(const std::initializer_list<ItemType>& initList) :
         container(initList) {};
 
 #endif
@@ -81,6 +81,37 @@ class Sorted {
     Iterator erase(Iterator pos) {
         return container.erase(pos);
     }
+
+    template<typename F, typename V>
+    Iterator find(F f, const V& v) const {
+        return container.find(begin(), end(), f, v);
+    }
+
+    template<typename F, typename V>
+    Iterator find(ConstIterator startPos, ConstIterator endPos, F f, const V& v) const {
+        return container.find(startPos, endPos, f, v);
+    }
+
+#if ETL_USE_CPP11
+
+    Iterator find(Matcher<ItemType>&& matchCall) const {
+        return container.find(begin(), end(), std::move(matchCall));
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, Matcher<ItemType>&& matchCall) const {
+        return container.find(startPos, endPos, std::move(matchCall));
+    }
+#else
+
+    Iterator find(const Matcher<ItemType>& matchCall) const {
+        return container.find(begin(), end(), matchCall);
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matchCall) const {
+        return container.find(startPos, endPos, matchCall);
+    }
+
+#endif
     /// @}
 
   protected:
