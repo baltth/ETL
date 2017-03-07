@@ -75,6 +75,7 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     Map& operator=(const Map& other) {
         MapBase::clear();
         copyElementsFrom(other);
+        return *this;
     }
 
 #if ETL_USE_CPP11

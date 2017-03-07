@@ -57,6 +57,7 @@ class Set : public Sorted<ListTemplate<E, A> > {
     Set& operator=(const Set& other) {
         SetBase::clear();
         copyElementsFrom(other);
+        return *this;
     }
 
 #if ETL_USE_CPP11
