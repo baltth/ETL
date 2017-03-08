@@ -31,6 +31,7 @@ limitations under the License.
 #undef min
 #undef max
 
+#include <cstddef>
 #include <utility>
 
 #if ETL_USE_CPP11
