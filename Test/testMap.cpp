@@ -323,9 +323,31 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
         REQUIRE(it == map.end());
     }
 
+    SECTION("find(KeyMatcher)") {
+
+        struct Matcher : MapType::KeyMatcher {
+            virtual bool call(const uint32_t& key) const {
+                return (key >= 2) && (key <= 3);
+            }
+        };
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
+        REQUIRE(it->getKey() == 2);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+
     SECTION("find(ElementMatcher)") {
 
-        class Matcher : public MapType::ElementMatcher {
+        struct Matcher : MapType::ElementMatcher {
             virtual bool call(const ContainerTester& c) const {
                 return (c.getValue() >= -3) && (c.getValue() <= -2);
             }
@@ -338,6 +360,24 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
 
         ++it;
         it = map.find(it, map.end(), matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+
+    SECTION("find(ItemMatcher)") {
+
+        struct Matcher : MapType::ItemMatcher {
+            virtual bool call(const MapType::ItemType& item) const {
+                return (item.getKey() == 3) && (item.getElement().getValue() == -3);
+            }
+        };
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
         REQUIRE(it->getKey() == 3);
 
         ++it;

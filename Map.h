@@ -46,23 +46,9 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     typedef Sorted<ContainerType> MapBase;
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
-    typedef Matcher<E> ElementMatcher;
-
-    class MatcherForwarder : public Matcher<ItemType> {
-
-      private:  // variables
-
-        const ElementMatcher& matcher;
-
-      public:   // functions
-
-        MatcherForwarder(const ElementMatcher& matcher) :
-            matcher(matcher) {};
-
-        virtual bool call(const ItemType& item) const OVERRIDE {
-            return matcher.call(item.getElement());
-        }
-    };
+    typedef Matcher<ItemType> ItemMatcher;
+    typedef typename ItemType::KeyMatcher KeyMatcher;
+    typedef typename ItemType::ElementMatcher ElementMatcher;
 
   public:   // functions
 
@@ -98,12 +84,28 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
     Iterator find(const K& k) const;
 
+    Iterator find(const ItemMatcher& matchCall) const {
+        return MapBase::find(matchCall);
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) const {
+        return MapBase::find(startPos, endPos, matchCall);
+    }
+
+    Iterator find(const KeyMatcher& matchCall) const {
+        return MapBase::find(typename ItemType::KeyMatcherForwarder(matchCall));
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const KeyMatcher& matchCall) const {
+        return MapBase::find(startPos, endPos, typename ItemType::KeyMatcherForwarder(matchCall));
+    }
+
     Iterator find(const ElementMatcher& matchCall) const {
-        return MapBase::find(MatcherForwarder(matchCall));
+        return MapBase::find(typename ItemType::ElementMatcherForwarder(matchCall));
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, const ElementMatcher& matchCall) const {
-        return MapBase::find(startPos, endPos, MatcherForwarder(matchCall));
+        return MapBase::find(startPos, endPos, typename ItemType::ElementMatcherForwarder(matchCall));
     }
 
     E& getElement(const K& k) const;

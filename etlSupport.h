@@ -48,9 +48,7 @@ using Mathcer = std::function<bool(const T&)>;
 #else
 
 template<typename T>
-class Matcher {
-
-  public:   // functions
+struct Matcher {
 
     virtual bool call(const T&) const = 0;
 
