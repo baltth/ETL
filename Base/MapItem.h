@@ -108,6 +108,29 @@ class MapItem {
 template<typename K, class E>
 class MapItem<K, E*> {
 
+  public: // types
+
+    typedef Matcher<K> KeyMatcher;
+    typedef Matcher<E*> ElementMatcher;
+
+    struct KeyMatcherForwarder : Matcher<MapItem> {
+        const KeyMatcher& matcher;
+        KeyMatcherForwarder(const KeyMatcher& matcher) :
+            matcher(matcher) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getKey());
+        }
+    };
+
+    struct ElementMatcherForwarder : Matcher<MapItem> {
+        const ElementMatcher& matcher;
+        ElementMatcherForwarder(const ElementMatcher& matcher) :
+            matcher(matcher) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getElement());
+        }
+    };
+
   protected: // variables
 
     const K key;
