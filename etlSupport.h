@@ -30,12 +30,18 @@ limitations under the License.
 #define ETL_NAMESPACE   Etl
 #endif
 
+#ifndef ETL_DISABLE_HEAP
+#define ETL_DISABLE_HEAP    0
+#endif
+
 #if ETL_USE_CPP11
 #include <cstdint>
 #include <functional>
 #else
 #include <stdint.h>
 #endif
+
+#include <stdexcept>    // For new overrides
 
 namespace ETL_NAMESPACE {
 
@@ -56,6 +62,50 @@ struct Matcher {
 #endif
 
 }
+
+#if ETL_DISABLE_HEAP
+
+inline void* operator new(std::size_t count, const std::nothrow_t& tag) {
+    extern void* invalid_operator_new_call();
+    return invalid_operator_new_call();
+}
+
+inline void* operator new[](std::size_t count, const std::nothrow_t& tag) {
+    extern void* invalid_operator_new_call();
+    return invalid_operator_new_call();
+}
+
+inline void* operator new(std::size_t) throw(std::bad_alloc) {
+    extern void* invalid_operator_new_call();
+    return invalid_operator_new_call();
+}
+
+inline void* operator new[](std::size_t) throw(std::bad_alloc) {
+    extern void* invalid_operator_new_call();
+    return invalid_operator_new_call();
+}
+
+inline void operator delete(void* ptr, const std::nothrow_t& tag) {
+    extern void invalid_operator_delete_call();
+    invalid_operator_delete_call();
+}
+
+inline void operator delete[](void* ptr, const std::nothrow_t& tag) {
+    extern void invalid_operator_delete_call();
+    invalid_operator_delete_call();
+}
+
+inline void operator delete(void* ptr) {
+    extern void invalid_operator_delete_call();
+    invalid_operator_delete_call();
+}
+
+inline void operator delete[](void* ptr) {
+    extern void invalid_operator_delete_call();
+    invalid_operator_delete_call();
+}
+
+#endif
 
 #endif /* __ETL_ETLSUPPORT_H__ */
 
