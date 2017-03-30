@@ -76,7 +76,7 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
     REQUIRE(array[14] == 15);
 }
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
 TEST_CASE("Etl::Array<> exceptions", "[array][etl]") {
 
@@ -85,17 +85,17 @@ TEST_CASE("Etl::Array<> exceptions", "[array][etl]") {
     typedef Etl::Array<ItemType, COUNT> ArrayType;
 
     ArrayType array;
-   
+
     ItemType val;
     CHECK_NOTHROW(val = array[0]);
     CHECK_NOTHROW(val = array[COUNT - 1]);
 
     REQUIRE_NOTHROW(val = array.at(0));
     REQUIRE_NOTHROW(val = array.at(COUNT - 1));
-   
+
     REQUIRE_THROWS_AS(val = array.at(COUNT), Etl::OutOfRangeException);
     REQUIRE_THROWS_AS(val = array.at(COUNT + 100), Etl::OutOfRangeException);
-    
+
 }
 
 #endif
@@ -121,7 +121,7 @@ TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
 
     uint64_t refItem0 = reinterpret_cast<uint64_t>(&refArray[0]);
     uint64_t refItem1 = reinterpret_cast<uint64_t>(&refArray[1]);
-    uint64_t refDiff = refItem1- refItem0;
+    uint64_t refDiff = refItem1 - refItem0;
 
     REQUIRE(diff == refDiff);
 }

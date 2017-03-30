@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 #include "ExceptionTypes.h"
 #endif
 
@@ -101,7 +101,7 @@ class Array {
 
     void fill(const T& value);
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
     T& at(uint32_t ix);
     const T& at(uint32_t ix) const;
@@ -131,7 +131,7 @@ void Array<T, N>::fill(const T& value) {
 }
 
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
 template<typename T, uint32_t N>
 T& Array<T, N>::at(uint32_t ix) {

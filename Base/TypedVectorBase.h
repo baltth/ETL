@@ -28,7 +28,7 @@ limitations under the License.
 
 #include "Base/AVectorBase.h"
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 #include "ExceptionTypes.h"
 #endif
 
@@ -108,7 +108,7 @@ class TypedVectorBase : public AVectorBase {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
     T& at(uint32_t ix);
     const T& at(uint32_t ix) const;
@@ -431,7 +431,7 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
 }
 
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
 template<typename T>
 T& TypedVectorBase<T>::at(uint32_t ix) {

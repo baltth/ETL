@@ -276,13 +276,13 @@ TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
 
     class IntMatcher : public Etl::Matcher<ItemType> {
         const ItemType value;
-        public:
-            IntMatcher(ItemType val) :
-                value(val) {};
+      public:
+        IntMatcher(ItemType val) :
+            value(val) {};
 
-            virtual bool call(const ItemType& ref) const OVERRIDE {
-                return value == ref;
-            }
+        virtual bool call(const ItemType& ref) const OVERRIDE {
+            return value == ref;
+        }
     };
 
     static const ItemType REF_VALUE = 123;
@@ -308,7 +308,7 @@ TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
 
 }
 
-#ifdef ETL_USE_EXCEPTIONS
+#if ETL_USE_EXCEPTIONS
 
 TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
 
