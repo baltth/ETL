@@ -36,6 +36,8 @@ namespace ETL_NAMESPACE {
 template<class T, uint32_t N>
 class FixedVector : public VectorTemplate<T, StaticSized> {
 
+    STATIC_ASSERT(N > 0);
+
   public:   // types
 
     typedef T ItemType;

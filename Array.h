@@ -37,6 +37,8 @@ namespace ETL_NAMESPACE {
 template<typename T, uint32_t N>
 class Array {
 
+    STATIC_ASSERT(N > 0);
+
   public:   // types
 
     typedef T ItemType;

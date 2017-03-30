@@ -67,6 +67,10 @@ class NullptrT {
 
 } NULLPTR = {};
 
+
+#define STATIC_ASSERT(x)        typedef char __STATIC_ASSERT__[(x) ? 1 : -1]
+#define STATIC_ASSERT_(x, n)    typedef char __STATIC_ASSERT__ ## n[(x) ? 1 : -1]
+
 #define OVERRIDE
 #define FINAL
 
@@ -75,6 +79,9 @@ class NullptrT {
 #define NULLPTR         nullptr
 #define OVERRIDE        override
 #define FINAL           final
+
+#define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
+#define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed")
 
 #endif
 
