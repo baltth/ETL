@@ -43,8 +43,6 @@ limitations under the License.
 
 #endif
 
-namespace ETL_NAMESPACE {
-
 #if (ETL_USE_CPP11 == 0)
 
 // nullptr idiom from https://en.wikibooks.org/wiki/More_C++_Idioms/nullptr
@@ -84,8 +82,6 @@ class NullptrT {
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed")
 
 #endif
-
-}
 
 #endif /* __ETL_LANGSUPPORT_H__ */
 

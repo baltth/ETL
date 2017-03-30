@@ -29,7 +29,6 @@ limitations under the License.
 #include "Base/VectorTemplate.h"
 #include "Base/MemStrategies.h"
 
-
 namespace ETL_NAMESPACE {
 
 

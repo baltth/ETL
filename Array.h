@@ -30,7 +30,6 @@ limitations under the License.
 #include "ExceptionTypes.h"
 #endif
 
-
 namespace ETL_NAMESPACE {
 
 

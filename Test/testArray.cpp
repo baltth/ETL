@@ -27,7 +27,6 @@ limitations under the License.
 
 #include <Array.h>
 #include <ContainerProxy.h>
-
 #include <Test/UnalignedTester.h>
 
 
