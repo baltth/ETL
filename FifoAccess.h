@@ -71,7 +71,7 @@ class FifoAccess : public FifoIndexing {
 
     void push(const ItemType& item);
     ItemType pop();
-    
+
     void drop() {
         FifoIndexing::pop();
     }

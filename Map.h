@@ -108,7 +108,11 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
         return MapBase::find(startPos, endPos, typename ItemType::ElementMatcherForwarder(matchCall));
     }
 
-    E& getElement(const K& k) const;
+    Iterator getItem(const K& k) const;
+
+    E& getElement(const K& k) const {
+        return getItem(k)->getElement();
+    }
 
     void copyElementsFrom(const Map<K, E, A>& other);
 
@@ -176,7 +180,7 @@ typename Map<K, E, A>::Iterator  Map<K, E, A>::find(const K& k) const {
 
 
 template<typename K, class E, template<class> class A>
-E& Map<K, E, A>::getElement(const K& k) const {
+typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
 
     std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
@@ -190,7 +194,7 @@ E& Map<K, E, A>::getElement(const K& k) const {
         --found.first;
     }
 
-    return found.first->getElement();
+    return found.first;
 }
 
 

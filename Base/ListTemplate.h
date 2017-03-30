@@ -52,10 +52,6 @@ class ListTemplate : protected AListBase {
 
     class Node : public AListBase::Node {
 
-      public:   // types
-
-        typedef A<Node> Allocator;
-
       public:   // variables
 
         T item;
@@ -250,11 +246,11 @@ class ListTemplate : protected AListBase {
     }
 
     inline void popFront() {
-        delete AListBase::popBack();
+        delete static_cast<Node*>(AListBase::popBack());
     }
 
     inline void popBack() {
-        delete AListBase::popBack();
+        delete static_cast<Node*>(AListBase::popBack());
     }
 
     inline Iterator insert(ConstIterator pos, const T& item);
@@ -262,7 +258,7 @@ class ListTemplate : protected AListBase {
     inline Iterator erase(Iterator pos) {
         Iterator next = pos;
         ++next;
-        delete AListBase::remove(pos);
+        delete static_cast<Node*>(AListBase::remove(pos));
         return next;
     }
 

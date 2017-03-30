@@ -8,3 +8,4 @@ cscope.files
 cscope.out
 tags
 *.orig
+.commit-template

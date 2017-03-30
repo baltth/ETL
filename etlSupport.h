@@ -37,7 +37,6 @@ limitations under the License.
 #include <stdint.h>
 #endif
 
-
 namespace ETL_NAMESPACE {
 
 #if ETL_USE_CPP11

@@ -48,8 +48,6 @@ class DoubleLinkedList {
             prev(p),
             next(n) {};
 
-        virtual ~Node() {};
-
     };
 
   private:  // variables

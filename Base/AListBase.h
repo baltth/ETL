@@ -39,15 +39,13 @@ class AListBase {
 
     class Node : public DoubleLinkedList::Node {
 
-      public:
+      protected:
 
         Node() :
             DoubleLinkedList::Node() {};
 
         explicit Node(const DoubleLinkedList::Node& other) :
             DoubleLinkedList::Node(other) {};
-
-        virtual ~Node() {};
 
     };
 
@@ -104,8 +102,6 @@ class AListBase {
     }
 
 #endif
-
-    virtual ~AListBase() {}
 
     inline uint32_t getSize() const {
         return list.getSize();

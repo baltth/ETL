@@ -108,7 +108,7 @@ class MapItem {
 template<typename K, class E>
 class MapItem<K, E*> {
 
-  public: // types
+  public:   // types
 
     typedef Matcher<K> KeyMatcher;
     typedef Matcher<E*> ElementMatcher;
