@@ -107,11 +107,11 @@ class FifoIterator : public AFifoIterator {
 
   public:   // functions
 
-    FifoIterator<T>(const FifoIterator<T>& other) :
+    FifoIterator(const FifoIterator& other) :
         AFifoIterator(other),
         data(other.data) {};
 
-    FifoIterator<T>& operator=(const FifoIterator<T>& other) {
+    FifoIterator& operator=(const FifoIterator& other) {
         AFifoIterator::operator=(other);
         data = other.data;
         return *this;

@@ -38,7 +38,7 @@ class AVectorBase {
 
     class Proxy : public ContainerProxy {
         friend AVectorBase;
-        
+
       public:   // functions
 
         void setData(void* d) {
@@ -55,7 +55,7 @@ class AVectorBase {
 
       protected:
 
-        Proxy(size_t itemSize) :
+        explicit Proxy(size_t itemSize) :
             ContainerProxy(itemSize, NULLPTR, 0, 0) {};
 
     };

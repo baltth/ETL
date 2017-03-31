@@ -49,7 +49,7 @@ class ContainerProxy {
         size(len),
         itemSize(itemSize) {};
 
-    template<class C>
+    template<class C>   // cppcheck-suppress noExplicitConstructor
     ContainerProxy(C& container) :
         data(container.getData()),
         capacity(container.getCapacity()),
@@ -99,7 +99,7 @@ class TypedContainerProxy : public ContainerProxy {
     TypedContainerProxy(T* data, uint32_t cap, uint32_t len) :
         ContainerProxy(sizeof(T), data, cap, len) {};
 
-    template<class C>
+    template<class C>   // cppcheck-suppress noExplicitConstructor
     TypedContainerProxy(C& container) :
         ContainerProxy(container) {};
 
@@ -108,7 +108,7 @@ class TypedContainerProxy : public ContainerProxy {
     }
 
     inline const T& operator[](uint32_t ix) const {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
+        return *(static_cast<const ItemType*>(getItemPointer(ix)));
     }
 
     void fill(const T& value);

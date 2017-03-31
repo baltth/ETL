@@ -55,8 +55,11 @@ class FixedVector : public VectorTemplate<T, StaticSized> {
     FixedVector<T, N>(uint32_t len, const T& item);
 
     FixedVector<T, N>(const FixedVector<T, N>& other) :
-        Base(other) {};
+        Base(data, N) {
+        Base::operator=(other);
+    }
 
+    // cppcheck-suppress operatorEqVarError
     FixedVector<T, N>& operator=(const FixedVector<T, N>& other) {
         Base::operator=(other);
         return *this;
@@ -68,7 +71,7 @@ class FixedVector : public VectorTemplate<T, StaticSized> {
         Base(std::move(other)) {};
 
     FixedVector<T>(const std::initializer_list<T>& initList) :
-        Bsae(initList) {};
+        Base(initList) {};
 
     FixedVector<T>& operator=(FixedVector<T>&& other) {
         Base::operator=(std::move(other));
@@ -99,7 +102,7 @@ class FixedVector : public VectorTemplate<T, StaticSized> {
 };
 
 
-template<class T, uint32_t N>
+template<class T, uint32_t N>   // cppcheck-suppress uninitMemberVar
 FixedVector<T, N>::FixedVector() :
     Base(data, N) {
 

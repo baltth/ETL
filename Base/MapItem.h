@@ -39,8 +39,9 @@ class MapItem {
 
     struct KeyMatcherForwarder : Matcher<MapItem> {
         const KeyMatcher& matcher;
-        KeyMatcherForwarder(const KeyMatcher& matcher) :
-            matcher(matcher) {};
+        // cppcheck-suppress noExplicitConstructor
+        KeyMatcherForwarder(const KeyMatcher& m) :
+            matcher(m) {};
         virtual bool call(const MapItem& item) const OVERRIDE {
             return matcher.call(item.getKey());
         }
@@ -48,8 +49,9 @@ class MapItem {
 
     struct ElementMatcherForwarder : Matcher<MapItem> {
         const ElementMatcher& matcher;
-        ElementMatcherForwarder(const ElementMatcher& matcher) :
-            matcher(matcher) {};
+        // cppcheck-suppress noExplicitConstructor
+        ElementMatcherForwarder(const ElementMatcher& m) :
+            matcher(m) {};
         virtual bool call(const MapItem& item) const OVERRIDE {
             return matcher.call(item.getElement());
         }
@@ -63,7 +65,8 @@ class MapItem {
   public:   // functions
 
     explicit MapItem<K, E>(const K& k) :
-        key(k) {};
+        key(k),
+        element() {};
 
     MapItem<K, E>(const K& k, const E& e) :
         key(k),
@@ -115,8 +118,9 @@ class MapItem<K, E*> {
 
     struct KeyMatcherForwarder : Matcher<MapItem> {
         const KeyMatcher& matcher;
-        KeyMatcherForwarder(const KeyMatcher& matcher) :
-            matcher(matcher) {};
+        // cppcheck-suppress noExplicitConstructor
+        KeyMatcherForwarder(const KeyMatcher& m) :
+            matcher(m) {};
         virtual bool call(const MapItem& item) const OVERRIDE {
             return matcher.call(item.getKey());
         }
@@ -124,8 +128,9 @@ class MapItem<K, E*> {
 
     struct ElementMatcherForwarder : Matcher<MapItem> {
         const ElementMatcher& matcher;
-        ElementMatcherForwarder(const ElementMatcher& matcher) :
-            matcher(matcher) {};
+        // cppcheck-suppress noExplicitConstructor
+        ElementMatcherForwarder(const ElementMatcher& m) :
+            matcher(m) {};
         virtual bool call(const MapItem& item) const OVERRIDE {
             return matcher.call(item.getElement());
         }

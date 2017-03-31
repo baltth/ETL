@@ -121,12 +121,12 @@ class ListTemplate : protected AListBase {
             return old;
         }
 
-        ConstIterator(const AListBase::Iterator& it) :
+        explicit ConstIterator(const AListBase::Iterator& it) :
             AListBase::Iterator(it) {};
 
       protected:
 
-        ConstIterator(ListTemplate<T, A>::Node* n) :
+        explicit ConstIterator(ListTemplate<T, A>::Node* n) :
             AListBase::Iterator(n) {};
 
     };
@@ -174,12 +174,12 @@ class ListTemplate : protected AListBase {
             return old;
         }
 
-        Iterator(const AListBase::Iterator& it) :
+        explicit Iterator(const AListBase::Iterator& it) :
             ConstIterator(it) {};
 
       protected:
 
-        Iterator(ListTemplate<T, A>::Node* n) :
+        explicit Iterator(ListTemplate<T, A>::Node* n) :
             ConstIterator(n) {};
 
     };
@@ -339,7 +339,7 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator sta
         }
     }
 
-    return startPos;
+    return Iterator(startPos);
 }
 
 

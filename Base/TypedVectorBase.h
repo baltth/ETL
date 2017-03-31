@@ -84,7 +84,7 @@ class TypedVectorBase : public AVectorBase {
         const T& ref;
 
       public:
-        CopyCreator(const T& refValue) :
+        explicit CopyCreator(const T& refValue) :
             ref(refValue) {};
 
         virtual void call(T* pos, bool place) const {
