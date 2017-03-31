@@ -58,8 +58,8 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
     list.popBack();
 
     REQUIRE(list.getSize() == 0);
-
 }
+
 
 TEST_CASE("Etl::List<> leak test", "[list][etl]") {
 
@@ -93,6 +93,7 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
 
     REQUIRE(ItemType::getObjectCount() == 0);
 }
+
 
 TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
 
@@ -130,8 +131,8 @@ TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
     REQUIRE(found == it2);
     found = list.find((++found), list.end(), IntMatcher(REF_VALUE));
     REQUIRE(found == list.end());
-
 }
+
 
 TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
 
@@ -159,8 +160,8 @@ TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
     REQUIRE(found == it2);
     found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
     REQUIRE(found == list.end());
-
 }
+
 
 TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
@@ -185,8 +186,8 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     list.popBack();
     REQUIRE(AllocatorType::getDeleteCount() == 2);
-
 }
+
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 

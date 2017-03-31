@@ -60,8 +60,8 @@ TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
 
     REQUIRE(*vector.begin() == 3);
     REQUIRE(vector.getSize() == 1);
-
 }
+
 
 TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl]") {
 
@@ -99,8 +99,8 @@ TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl]") {
     vector.popFront();
 
     REQUIRE(vector.getSize() == 0);
-
 }
+
 
 TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl]") {
 
@@ -138,7 +138,6 @@ TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl]") {
     REQUIRE(vector.getSize() == 4);
     REQUIRE(vector[2] == 0);
     REQUIRE(it == &vector[2]);
-
 }
 
 
@@ -178,7 +177,6 @@ TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl]") {
     vector.clear();
     REQUIRE(vector.getSize() == 0);
     REQUIRE(vector.getCapacity() == capacity);
-
 }
 
 
@@ -215,7 +213,6 @@ TEST_CASE("Etl::Vector<> constructor test", "[vector][etl]") {
     REQUIRE(vector1.getCapacity() >= 4);
     REQUIRE(vector1[0] == INIT_VALUE);
     REQUIRE(vector1[3] == INIT_VALUE);
-
 }
 
 
@@ -240,7 +237,6 @@ TEST_CASE("Etl::Vector<> assignment test", "[vector][etl]") {
     REQUIRE(vector1[0] == vector2[0]);
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
-
 }
 
 
@@ -308,7 +304,6 @@ TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
     REQUIRE(found == it2);
     found = vector.find((++found), vector.end(), IntMatcher(REF_VALUE));
     REQUIRE(found == vector.end());
-
 }
 
 #if ETL_USE_EXCEPTIONS
@@ -330,7 +325,6 @@ TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
 
     REQUIRE_THROWS_AS(val = vector.at(COUNT), Etl::OutOfRangeException);
     REQUIRE_THROWS_AS(val = vector.at(COUNT + 100), Etl::OutOfRangeException);
-
 }
 
 #endif

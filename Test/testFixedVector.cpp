@@ -60,7 +60,6 @@ TEST_CASE("Etl::FixedVector<> basic test", "[fixedvector][etl][basic]") {
 
     REQUIRE(*vector.begin() == 3);
     REQUIRE(vector.getSize() == 1);
-
 }
 
 
@@ -100,8 +99,8 @@ TEST_CASE("Etl::FixedVector<> push/pop test", "[fixedvector][etl][basic]") {
     vector.popFront();
 
     REQUIRE(vector.getSize() == 0);
-
 }
+
 
 TEST_CASE("Etl::FixedVector<> insert/erase test", "[fixedvector][etl][basic]") {
 
@@ -139,7 +138,6 @@ TEST_CASE("Etl::FixedVector<> insert/erase test", "[fixedvector][etl][basic]") {
     REQUIRE(vector.getSize() == 4);
     REQUIRE(vector[2] == 0);
     REQUIRE(it == &vector[2]);
-
 }
 
 
@@ -164,27 +162,6 @@ TEST_CASE("Etl::FixedVector<> size/capacity test", "[fixedvector][etl][basic]") 
     vector.pushBack(1);
     vector.pushBack(2);
     REQUIRE(vector.getSize() == 2);
-
-    /*
-    vector.shrinkToFit();
-    REQUIRE(vector.getCapacity() == 2);
-
-    vector.reserveAtLeast(5);
-    REQUIRE(vector.getSize() == 2);
-    REQUIRE(vector.getCapacity() >= 5);
-
-    uint32_t capacity = vector.getCapacity();
-    uint32_t newSize = capacity + 3;
-
-    vector.resize(newSize);
-    REQUIRE(vector.getSize() == newSize);
-    REQUIRE(vector.getCapacity() >= newSize);
-
-    capacity = vector.getCapacity();
-    vector.clear();
-    REQUIRE(vector.getSize() == 0);
-    REQUIRE(vector.getCapacity() == capacity);
-    */
 }
 
 
@@ -213,20 +190,9 @@ TEST_CASE("Etl::FixedVector<> constructor test", "[fixedvector][etl][basic]") {
     REQUIRE(vector3.getCapacity() == CAPACITY);
     REQUIRE(vector3[0] == INIT_VALUE);
     REQUIRE(vector3[3] == INIT_VALUE);
-    /*
-        VectorType vector4(vector3);
-        REQUIRE(vector4.getSize() == 4);
-        REQUIRE(vector4.getCapacity() >= 4);
-        REQUIRE(vector4[0] == INIT_VALUE);
-        REQUIRE(vector4[3] == INIT_VALUE);
 
-        vector1 = vector4;
-        REQUIRE(vector1.getSize() == 4);
-        REQUIRE(vector1.getCapacity() >= 4);
-        REQUIRE(vector1[0] == INIT_VALUE);
-        REQUIRE(vector1[3] == INIT_VALUE);
-    */
 }
+
 
 TEST_CASE("Etl::FixedVector<> assignment test", "[fixedvector][etl]") {
 
@@ -249,7 +215,6 @@ TEST_CASE("Etl::FixedVector<> assignment test", "[fixedvector][etl]") {
     REQUIRE(vector1[0] == vector2[0]);
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
-
 }
 
 
@@ -316,6 +281,11 @@ TEST_CASE("Etl::FixedVector<>::find(Etl::Matcher<>) test", "[fixedvector][etl]")
     REQUIRE(found == it2);
     found = vector.find((++found), vector.end(), IntMatcher(REF_VALUE));
     REQUIRE(found == vector.end());
+}
 
+
+TEST_CASE("Etl::FixedVector<> test cleanup", "[fixedvector][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
 }
 
