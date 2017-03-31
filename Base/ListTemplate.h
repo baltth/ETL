@@ -231,10 +231,6 @@ class ListTemplate : protected AListBase {
     }
     /// @}
 
-    virtual T* createItem() {
-        return NULLPTR;
-    }
-
     /// \name Element operations
     /// @{
     inline void pushFront(const T& item) {

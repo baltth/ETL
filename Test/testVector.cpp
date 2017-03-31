@@ -251,21 +251,24 @@ TEST_CASE("Etl::Vector<> leak test", "[vector][etl]") {
 
     static const int PATTERN = 123;
 
-    VectorType* vector = new VectorType(8, ContainerTester(PATTERN));
-    CHECK(vector->getSize() == ItemType::getObjectCount());
+    CHECK(ItemType::getObjectCount() == 0);
+    if (ItemType::getObjectCount() == 0) {
 
-    vector->popBack();
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        VectorType vector(8, ContainerTester(PATTERN));
+        CHECK(vector.getSize() == ItemType::getObjectCount());
 
-    vector->erase(vector->begin());
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        vector.popBack();
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
 
-    vector->erase((vector->begin() + 1), (vector->begin() + 3));
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        vector.erase(vector.begin());
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
 
-    delete vector;
+        vector.erase((vector.begin() + 1), (vector.begin() + 3));
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
+
+    }
+
     REQUIRE(ItemType::getObjectCount() == 0);
-
 }
 
 

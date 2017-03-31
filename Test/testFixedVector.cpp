@@ -213,19 +213,19 @@ TEST_CASE("Etl::FixedVector<> constructor test", "[fixedvector][etl][basic]") {
     REQUIRE(vector3.getCapacity() == CAPACITY);
     REQUIRE(vector3[0] == INIT_VALUE);
     REQUIRE(vector3[3] == INIT_VALUE);
-/*
-    VectorType vector4(vector3);
-    REQUIRE(vector4.getSize() == 4);
-    REQUIRE(vector4.getCapacity() >= 4);
-    REQUIRE(vector4[0] == INIT_VALUE);
-    REQUIRE(vector4[3] == INIT_VALUE);
+    /*
+        VectorType vector4(vector3);
+        REQUIRE(vector4.getSize() == 4);
+        REQUIRE(vector4.getCapacity() >= 4);
+        REQUIRE(vector4[0] == INIT_VALUE);
+        REQUIRE(vector4[3] == INIT_VALUE);
 
-    vector1 = vector4;
-    REQUIRE(vector1.getSize() == 4);
-    REQUIRE(vector1.getCapacity() >= 4);
-    REQUIRE(vector1[0] == INIT_VALUE);
-    REQUIRE(vector1[3] == INIT_VALUE);
-*/
+        vector1 = vector4;
+        REQUIRE(vector1.getSize() == 4);
+        REQUIRE(vector1.getCapacity() >= 4);
+        REQUIRE(vector1[0] == INIT_VALUE);
+        REQUIRE(vector1[3] == INIT_VALUE);
+    */
 }
 
 TEST_CASE("Etl::FixedVector<> assignment test", "[fixedvector][etl]") {
@@ -239,14 +239,14 @@ TEST_CASE("Etl::FixedVector<> assignment test", "[fixedvector][etl]") {
     VectorType vector1(4, ContainerTester(PATTERN1));
     VectorType vector2(8, ContainerTester(PATTERN2));
 
-    CHECK(vector1[0] != vector2[0]);   
+    CHECK(vector1[0] != vector2[0]);
     CHECK(vector1.getSize() != vector2.getSize());
 
     REQUIRE(ItemType::getObjectCount() == (vector1.getSize() + vector2.getSize()));
 
     vector1 = vector2;
 
-    REQUIRE(vector1[0] == vector2[0]);   
+    REQUIRE(vector1[0] == vector2[0]);
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
 
@@ -260,21 +260,23 @@ TEST_CASE("Etl::FixedVector<> leak test", "[fixedvector][etl]") {
 
     static const int PATTERN = 123;
 
-    VectorType* vector = new VectorType(8, ContainerTester(PATTERN));
-    CHECK(vector->getSize() == ItemType::getObjectCount());
+    CHECK(ItemType::getObjectCount() == 0);
+    if (ItemType::getObjectCount() == 0) {
 
-    vector->popBack();
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        VectorType vector(8, ContainerTester(PATTERN));
+        CHECK(vector.getSize() == ItemType::getObjectCount());
 
-    vector->erase(vector->begin());
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        vector.popBack();
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
 
-    vector->erase((vector->begin() + 1), (vector->begin() + 3));
-    REQUIRE(vector->getSize() == ItemType::getObjectCount());
+        vector.erase(vector.begin());
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
 
-    delete vector;
+        vector.erase((vector.begin() + 1), (vector.begin() + 3));
+        REQUIRE(vector.getSize() == ItemType::getObjectCount());
+    }
+
     REQUIRE(ItemType::getObjectCount() == 0);
-
 }
 
 
@@ -285,13 +287,13 @@ TEST_CASE("Etl::FixedVector<>::find(Etl::Matcher<>) test", "[fixedvector][etl]")
 
     class IntMatcher : public Etl::Matcher<ItemType> {
         const ItemType value;
-        public:
-            IntMatcher(ItemType val) :
-                value(val) {};
+      public:
+        IntMatcher(ItemType val) :
+            value(val) {};
 
-            virtual bool call(const ItemType& ref) const OVERRIDE {
-                return value == ref;
-            }
+        virtual bool call(const ItemType& ref) const OVERRIDE {
+            return value == ref;
+        }
     };
 
     static const ItemType REF_VALUE = 123;

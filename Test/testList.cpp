@@ -68,28 +68,30 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
 
     static const int PATTERN = 123;
 
-    ListType* list = new ListType();
+    CHECK(ItemType::getObjectCount() == 0);
+    if (ItemType::getObjectCount() == 0) {
 
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
-    list->pushBack(ContainerTester(PATTERN));
+        ListType list;
 
-    CHECK(list->getSize() == ItemType::getObjectCount());
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
+        list.pushBack(ContainerTester(PATTERN));
 
-    list->popBack();
-    REQUIRE(list->getSize() == ItemType::getObjectCount());
+        CHECK(list.getSize() == ItemType::getObjectCount());
 
-    list->erase(list->begin());
-    REQUIRE(list->getSize() == ItemType::getObjectCount());
+        list.popBack();
+        REQUIRE(list.getSize() == ItemType::getObjectCount());
 
-    delete list;
+        list.erase(list.begin());
+        REQUIRE(list.getSize() == ItemType::getObjectCount());
+    }
+
     REQUIRE(ItemType::getObjectCount() == 0);
-
 }
 
 TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
@@ -99,7 +101,7 @@ TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
 
     class IntMatcher : public Etl::Matcher<ItemType> {
         const ItemType value;
-        public:
+      public:
         IntMatcher(ItemType val) :
             value(val) {};
 
@@ -171,7 +173,7 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     ListType::Iterator it = list.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
-    
+
     list.pushBack(2);
     ++it;
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
