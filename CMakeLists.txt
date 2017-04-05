@@ -12,6 +12,7 @@ include_directories(.)
 #However, the file(GLOB...) allows for wildcard additions:
 list(APPEND ETL_TEST_SRCS "Base/AVectorBase.cpp")
 list(APPEND ETL_TEST_SRCS "Base/AListBase.cpp")
+list(APPEND ETL_TEST_SRCS "Base/LinkedList.cpp")
 list(APPEND ETL_TEST_SRCS "Base/DoubleLinkedList.cpp")
 list(APPEND ETL_TEST_SRCS "Base/FifoIndexing.cpp")
 

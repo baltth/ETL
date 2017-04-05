@@ -21,20 +21,20 @@ limitations under the License.
 \endparblock
 */
 
-#include "DoubleLinkedList.h"
+#include "LinkedList.h"
 
 using namespace ETL_NAMESPACE;
 
 #if ETL_USE_CPP11
 
-DoubleLinkedList::DoubleLinkedList(DoubleLinkedList&& other) {
+LinkedList::LinkedList(LinkedList&& other) {
 
     setEmpty();
     swap(other);
 }
 
 
-DoubleLinkedList& DoubleLinkedList::operator=(DoubleLinkedList&& other) {
+LinkedList& LinkedList::operator=(LinkedList&& other) {
 
     swap(other);
     return *this;
@@ -42,9 +42,9 @@ DoubleLinkedList& DoubleLinkedList::operator=(DoubleLinkedList&& other) {
 
 #endif
 
-void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
+void LinkedList::insertAfter(Node* pos, Node* node) {
 
-    if (pos != &backNode) {
+    if (pos != NULLPTR) {
         Node* next = pos->next;
         linkNodes(pos, node);
         linkNodes(node, next);
@@ -53,54 +53,41 @@ void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 }
 
 
-void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
+LinkedList::Node* LinkedList::removeAfter(Node* pos) {
 
-    if (pos != &frontNode) {
-        Node* prev = pos->prev;
-        linkNodes(node, pos);
-        linkNodes(prev, node);
-        ++size;
-    }
-}
-
-
-DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
+    Node* removed = NULLPTR;
 
     if (size > 0) {
 
-        if ((node != &frontNode) && (node != &backNode)) {
-
-            linkNodes(node->prev, node->next);
+        if ((pos != NULLPTR) && (pos->next != NULLPTR)) {
+            removed = pos->next;
+            removed->next = NULLPTR;
+            linkNodes(pos, pos->next->next);
             --size;
-            node->prev = NULLPTR;
-            node->next = NULLPTR;
         }
     }
 
-    return node;
+    return removed;
 }
 
 
-void DoubleLinkedList::copy(const DoubleLinkedList& other) {
+void LinkedList::copy(const LinkedList& other) {
 
     frontNode.next = other.getFirst();
-    backNode.prev = other.getLast();
     size = other.getSize();
 }
 
 
-void DoubleLinkedList::swap(DoubleLinkedList& other) {
+void LinkedList::swap(LinkedList& other) {
 
     if ((getSize() > 0) && (other.getSize() > 0)) {
 
         Node* tmpFirst = getFirst();
-        Node* tmpLast = getLast();
         uint32_t tmpSize = getSize();
 
         copy(other);
 
         other.frontNode.next = tmpFirst;
-        other.backNode.prev = tmpLast;
         other.size = tmpSize;
 
     } else if (getSize() > 0) {
@@ -116,17 +103,15 @@ void DoubleLinkedList::swap(DoubleLinkedList& other) {
 }
 
 
-void DoubleLinkedList::setEmpty() {
+void LinkedList::setEmpty() {
 
-    frontNode.next = &backNode;
-    backNode.prev = &frontNode;
+    frontNode.next = NULLPTR;
     size = 0;
 }
 
 
-void DoubleLinkedList::linkNodes(Node* a, Node* b) {
+void LinkedList::linkNodes(Node* a, Node* b) {
 
     a->next = b;
-    b->prev = a;
 }
 
