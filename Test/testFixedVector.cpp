@@ -284,6 +284,45 @@ TEST_CASE("Etl::FixedVector<>::find(Etl::Matcher<>) test", "[fixedvector][etl]")
 }
 
 
+TEST_CASE("Etl::FixedVector<T*> test", "[fixedvector][etl][basic]") {
+
+    typedef int* ItemType;
+    typedef Etl::FixedVector<ItemType, 16> VectorType;
+
+    VectorType vector;
+
+    REQUIRE(vector.getSize() == 0);
+
+    vector.reserve(16);
+    REQUIRE(vector.getCapacity() >= 16);
+    REQUIRE(vector.getSize() == 0);
+
+    int a = 1;
+    int b = 2;
+    int c = 3;
+
+    vector.pushBack(&a);
+    vector.pushBack(&b);
+
+    REQUIRE(vector.getSize() == 2);
+
+    VectorType::Iterator it = vector.begin();
+    REQUIRE(*it == &a);
+    REQUIRE(vector[0] == *it);
+
+    ++it;
+    *it = &b;
+
+    vector.insert(vector.begin(), &c);
+    REQUIRE(vector[0] == &c);
+    vector.popFront();
+    vector.erase(vector.begin());
+
+    REQUIRE(*vector.begin() == &b);
+    REQUIRE(vector.getSize() == 1);
+}
+
+
 TEST_CASE("Etl::FixedVector<> test cleanup", "[fixedvector][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);

@@ -75,7 +75,7 @@ class Vector : public VectorTemplate<T, HeapUser> {
     }
 
     Iterator find(std::function<bool(const T&)>&& matcher) const {
-        return find(Vector<T>::begin(), Vector<T>::end(), std::move(matcher));
+        return find(this->begin(), this->end(), std::move(matcher));
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T&)>&& matcher) const;
@@ -83,7 +83,7 @@ class Vector : public VectorTemplate<T, HeapUser> {
 #else
 
     Iterator find(const Matcher<T>& matcher) const {
-        return find(Vector<T>::begin(), Vector<T>::end(), matcher);
+        return find(this->begin(), this->end(), matcher);
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matcher) const;
@@ -199,7 +199,7 @@ class Vector<T*> : public VectorTemplate<void*, HeapUser> {
     }
 
     Iterator find(std::function<bool(const ItemType&)>&& matcher) const {
-        return find(Vector<ItemType>::begin(), Vector<ItemType>::end(), std::move(matcher));
+        return find(this->begin(), this->end(), std::move(matcher));
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const ItemType&)>&& matcher) const;
@@ -207,7 +207,7 @@ class Vector<T*> : public VectorTemplate<void*, HeapUser> {
 #else
 
     Iterator find(const Matcher<ItemType>& matcher) const {
-        return find(Vector<ItemType>::begin(), Vector<ItemType>::end(), matcher);
+        return find(this->begin(), this->end(), matcher);
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matcher) const;
