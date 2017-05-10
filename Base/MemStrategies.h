@@ -243,10 +243,12 @@ void DynamicSized<C, A>::allocate(uint32_t len) {
 template<class C>
 class HeapUser : public DynamicSized<C, std::allocator<typename C::ItemType> > {
 
+    typedef DynamicSized<C, std::allocator<typename C::ItemType> > Base;
+
   public:   // functions
 
     HeapUser(C& cont) :
-        DynamicSized(cont) {};
+        Base(cont) {};
 
 };
 

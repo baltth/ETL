@@ -56,7 +56,10 @@ class Vector : public VectorTemplate<T> {
     Vector(uint32_t len, const T& item);
 
     Vector(const Vector& other) :
-        Base(other) {};
+        Base(strategy),
+        strategy(*this) {
+        Base::operator=(other);
+    };
 
     Vector& operator=(const Vector& other) {
         Base::operator=(other);
@@ -91,7 +94,9 @@ class Vector : public VectorTemplate<T> {
 
 
 template<class T, template<class> class S /* = HeapUser*/>
-Vector<T, S>::Vector(uint32_t len) {
+Vector<T, S>::Vector(uint32_t len) :
+    Base(strategy),
+    strategy(*this) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
@@ -99,7 +104,9 @@ Vector<T, S>::Vector(uint32_t len) {
 
 
 template<class T, template<class> class S /* = HeapUser*/>
-Vector<T, S>::Vector(uint32_t len, const T& item) {
+Vector<T, S>::Vector(uint32_t len, const T& item) :
+    Base(strategy),
+    strategy(*this) {
 
     this->insert(this->begin(), len, item);
 }

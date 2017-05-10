@@ -23,7 +23,7 @@ list(APPEND ETL_TEST_SRCS "Test/testVector.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testList.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testSet.cpp")
 list(APPEND ETL_TEST_SRCS "Test/testMap.cpp")
-list(APPEND ETL_TEST_SRCS "Test/testFifo.cpp")
+#list(APPEND ETL_TEST_SRCS "Test/testFifo.cpp")
 
 add_executable(testEtl "Test/testEtl.cpp" ${ETL_TEST_SRCS})
 
@@ -35,5 +35,5 @@ add_test(testVector testEtl "[vector]")
 add_test(testList testEtl "[list]")
 add_test(testSet testEtl "[set]")
 add_test(testMap testEtl "[map]")
-add_test(testFifo testEtl "[fifo]")
+#add_test(testFifo testEtl "[fifo]")
 
