@@ -1,6 +1,6 @@
-﻿/**
+/**
 \file
-\date 2015. 04. 28. 9:34:04
+\date 2017.02.15. 10:08:10
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,41 +21,58 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LIST_H__
-#define __ETL_LIST_H__
+#ifndef __ETL_EXCEPTIONTYPES_H__
+#define __ETL_EXCEPTIONTYPES_H__
 
 #include "etlSupport.h"
 
-#include "Base/ListTemplate.h"
+#if ETL_USE_EXCEPTIONS
 
-#include <memory>
+#include <exception>
+
 
 namespace ETL_NAMESPACE {
 
+class Exception : public std::exception {
 
-template<class T, template<class> class A = std::allocator>
-class List : public ListTemplate<T, A> {
+  private:  // variables
 
-  public:   // types
-
-    typedef typename ListTemplate<T, A>::Iterator Iterator;
-    typedef typename ListTemplate<T, A>::ConstIterator ConstIterator;
-    typedef typename ListTemplate<T, A>::Node Node;
+    const char* const text;
 
   public:   // functions
 
-    List() {};
+    explicit Exception(const char* t) :
+        text(t) {};
 
-#if ETL_USE_CPP11
+    virtual const char* what() const throw () {
+        return text;
+    }
 
-    List(const std::initializer_list<T>& initList) :
-        ListTemplate<T>(initList) {};
+};
 
-#endif
+
+class UnknownException : public Exception {
+
+  public:   // functions
+
+    UnknownException() :
+        Exception("") {};
+
+};
+
+
+class OutOfRangeException : public Exception {
+
+  public:   // functions
+
+    OutOfRangeException() :
+        Exception("Index out of range") {};
 
 };
 
 }
 
-#endif /* __ETL_LIST_H__ */
+#endif
+
+#endif /* __ETL_EXCEPTIONTYPES_H__ */
 

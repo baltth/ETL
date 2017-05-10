@@ -24,71 +24,74 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include "Base/AArrayBase.h"
+#include "etlSupport.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "ContainerProxy.h"
+
 
 namespace ETL_NAMESPACE {
 
 
-class AVectorBase : protected AArrayBase {
+class AVectorBase {
 
-// types
-public:
+  protected: // types
 
-    typedef AArrayBase::ItemType ItemType;
+    class Proxy : public ContainerProxy {
+        friend AVectorBase;
 
-    static const uint32_t RESIZE_STEP        = 8;
+      public:   // functions
 
-// variables
-protected:
+        void setData(void* d) {
+            data = d;
+        }
 
-    uint32_t numElements = 0;
+        void setCapacity(uint32_t c) {
+            capacity = c;
+        }
 
-// functions
-public:
+        void setSize(uint32_t s) {
+            size = s;
+        }
 
-    uint32_t getSize() const {
-        return numElements;
-    }
+      protected:
+
+        explicit Proxy(size_t itemSize) :
+            ContainerProxy(itemSize, NULLPTR, 0, 0) {};
+
+    };
+
+  protected: // variables
+
+    Proxy proxy;
+
+  public:   // functions
 
     uint32_t getCapacity() const {
-        return AArrayBase::getSize();
+        return proxy.getCapacity();
     }
 
-    inline void* getItemPointer(uint32_t ix) const {
-        return AArrayBase::getItemPointer(ix);
+    uint32_t getSize() const {
+        return proxy.getSize();
     }
 
-    virtual void reserve(uint32_t length) = 0;
-    virtual void shrinkToFit() = 0;
-    virtual void resize(uint32_t newLength) = 0;
-    virtual void clear() = 0;
+    void* getItemPointer(uint32_t ix) {
+        return proxy.getItemPointer(ix);
+    }
 
+    const void* getItemPointer(uint32_t ix) const {
+        return proxy.getItemPointer(ix);
+    }
 
-protected:
+  protected:
 
     explicit AVectorBase(size_t itemSize) :
-        AArrayBase(itemSize, nullptr, 0) {};
+        proxy(itemSize) {};
 
-    ~AVectorBase() {
-        deallocate();
-    }
-
-    void allocate(uint32_t len);
-
-    void deallocate() {
-        AVectorBase::deallocatePtr(data);
-    }
-
-    static void deallocatePtr(void* ptr);
-
-    void swap(AVectorBase &other);
+    void swap(AVectorBase& other);
 
 };
 
 }
 
 #endif /* __ETL_AVECTORBASE_H__ */
+

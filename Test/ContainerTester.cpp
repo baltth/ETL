@@ -1,6 +1,6 @@
-﻿/**
+/**
 \file
-\date 2015. 04. 28. 9:34:04
+\date 2017.02.22. 17:22:16
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,41 +21,14 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LIST_H__
-#define __ETL_LIST_H__
-
-#include "etlSupport.h"
-
-#include "Base/ListTemplate.h"
-
-#include <memory>
-
-namespace ETL_NAMESPACE {
+#include "ContainerTester.h"
 
 
-template<class T, template<class> class A = std::allocator>
-class List : public ListTemplate<T, A> {
-
-  public:   // types
-
-    typedef typename ListTemplate<T, A>::Iterator Iterator;
-    typedef typename ListTemplate<T, A>::ConstIterator ConstIterator;
-    typedef typename ListTemplate<T, A>::Node Node;
-
-  public:   // functions
-
-    List() {};
+uint32_t ContainerTester::objectCnt = 0;
+uint32_t ContainerTester::objectRef = 0;
+uint32_t ContainerTester::copyCnt = 0;
 
 #if ETL_USE_CPP11
-
-    List(const std::initializer_list<T>& initList) :
-        ListTemplate<T>(initList) {};
-
+uint32_t ContainerTester::moveCnt = 0;
 #endif
-
-};
-
-}
-
-#endif /* __ETL_LIST_H__ */
 

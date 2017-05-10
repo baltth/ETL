@@ -24,9 +24,7 @@ limitations under the License.
 #ifndef __ETL_MAPITEM_H__
 #define __ETL_MAPITEM_H__
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "etlSupport.h"
 
 namespace ETL_NAMESPACE {
 
@@ -34,44 +32,76 @@ namespace ETL_NAMESPACE {
 template<typename K, class E>
 class MapItem {
 
-// variables
-private:
+  public:   // types
+
+    typedef Matcher<K> KeyMatcher;
+    typedef Matcher<E> ElementMatcher;
+
+    struct KeyMatcherForwarder : Matcher<MapItem> {
+        const KeyMatcher& matcher;
+        // cppcheck-suppress noExplicitConstructor
+        KeyMatcherForwarder(const KeyMatcher& m) :
+            matcher(m) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getKey());
+        }
+    };
+
+    struct ElementMatcherForwarder : Matcher<MapItem> {
+        const ElementMatcher& matcher;
+        // cppcheck-suppress noExplicitConstructor
+        ElementMatcherForwarder(const ElementMatcher& m) :
+            matcher(m) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getElement());
+        }
+    };
+
+  private:  // variables
 
     const K key;
     mutable E element;
 
-// functions
-public:
+  public:   // functions
 
-    explicit MapItem<K, E>(const K &k) :
-        key(k) {};
+    explicit MapItem<K, E>(const K& k) :
+        key(k),
+        element() {};
 
-    MapItem<K, E>(const K &k, const E &e) :
+    MapItem<K, E>(const K& k, const E& e) :
         key(k),
         element(e) {};
 
+#if ETL_USE_CPP11
+
     template<typename... Args>
-    MapItem<K, E>(const K &k, Args &&... args) :
+    MapItem<K, E>(const K& k, Args&& ... args) :
         key(k),
         element(std::forward<Args>(args)...) {};
+
+#endif
 
     K getKey() const {
         return key;
     }
 
-    E &getElement() const {
+    E& getElement() const {
         return element;
     }
 
-    void setElement(const E &newElement) {
+    void setElement(const E& newElement) {
         element = newElement;
     }
 
-    void setElement(E &&newElement) {
+#if ETL_USE_CPP11
+
+    void setElement(E&& newElement) {
         element = std::move(newElement);
     }
 
-    bool operator<(const MapItem<K, E> &other) const {
+#endif
+
+    bool operator<(const MapItem<K, E>& other) const {
         return (key < other.key);
     }
 
@@ -81,20 +111,43 @@ public:
 template<typename K, class E>
 class MapItem<K, E*> {
 
-// variables
-protected:
+  public:   // types
+
+    typedef Matcher<K> KeyMatcher;
+    typedef Matcher<E*> ElementMatcher;
+
+    struct KeyMatcherForwarder : Matcher<MapItem> {
+        const KeyMatcher& matcher;
+        // cppcheck-suppress noExplicitConstructor
+        KeyMatcherForwarder(const KeyMatcher& m) :
+            matcher(m) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getKey());
+        }
+    };
+
+    struct ElementMatcherForwarder : Matcher<MapItem> {
+        const ElementMatcher& matcher;
+        // cppcheck-suppress noExplicitConstructor
+        ElementMatcherForwarder(const ElementMatcher& m) :
+            matcher(m) {};
+        virtual bool call(const MapItem& item) const OVERRIDE {
+            return matcher.call(item.getElement());
+        }
+    };
+
+  protected: // variables
 
     const K key;
     mutable E* element;
 
-// functions
-public:
+  public:   // functions
 
-    explicit MapItem<K, E*>(const K &k) :
+    explicit MapItem<K, E*>(const K& k) :
         key(k),
-        element(nullptr) {};
+        element(NULLPTR) {};
 
-    MapItem<K, E*>(const K &k, E* e) :
+    MapItem<K, E*>(const K& k, E* e) :
         key(k),
         element(e) {};
 
@@ -102,7 +155,7 @@ public:
         return key;
     }
 
-    E* &getElement() const {
+    E*& getElement() const {
         return element;
     }
 
@@ -114,7 +167,7 @@ public:
 
 
 template<typename K, class E>
-bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
+bool operator<(const MapItem<K, E*>& lhs, const MapItem<K, E*>& rhs) {
 
     return (lhs.getKey() < rhs.getKey());
 }
@@ -122,3 +175,4 @@ bool operator<(const MapItem<K, E*> &lhs, const MapItem<K, E*> &rhs) {
 }
 
 #endif /* __ETL_MAPITEM_H__ */
+

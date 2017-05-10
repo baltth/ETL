@@ -23,58 +23,397 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <iostream>
+#include <Map.h>
+#include <Test/ContainerTester.h>
+#include <Test/DummyAllocator.h>
 
-#include "Map.h"
-#include "Test/ContainerTester.h"
 
+TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
 
-TEST_CASE("Map test", "[map]" ) {
-
-    Etl::Map<uint32_t, ContainerTester> numMap;
-
-    auto printMap = [&numMap]() {
-
-        std::cout << std::endl << "Map<uint32_t, ContainerTester> test:" << std::endl;
-
-        for(auto &item : numMap) {
-            std::cout << item.getKey() << ": ";
-            item.getElement().reportValue();
-        }
-
-        std::cout << std::endl;
-    };
+    Etl::Map<uint32_t, ContainerTester> map;
 
     ContainerTester a(4);
-    numMap.insertOrAssign(4, a);
-    printMap();
+    map.insertOrAssign(4, a);
 
-    REQUIRE(numMap.getSize() == 1);
-    REQUIRE(numMap[4].getValue() == a.getValue());
+    REQUIRE(map.getSize() == 1);
+    REQUIRE(map[4].getValue() == a.getValue());
 
-    numMap.emplace(5, -5);
-    printMap();
+    map.insert(5, ContainerTester(-5));
 
-    REQUIRE(numMap.getSize() == 2);
+    REQUIRE(map.getSize() == 2);
 
     ContainerTester b(-4);
-    numMap.insertOrAssign(4, b);
-    printMap();
+    map.insertOrAssign(4, b);
 
-    REQUIRE(numMap.getSize() == 2);
-    REQUIRE(numMap[4].getValue() == b.getValue());
+    REQUIRE(map.getSize() == 2);
+    REQUIRE(map[4].getValue() == b.getValue());
 
-    numMap.emplace(2, -2);
-    printMap();
-    numMap.emplace(3, -3);
-    printMap();
+    map.erase(5);
 
-    REQUIRE(numMap.getSize() == 4);
+    REQUIRE(map.getSize() == 1);
 
-    numMap.erase(3);
-    printMap();
+}
 
-    REQUIRE(numMap.getSize() == 3);
+TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
 
+    typedef Etl::Map<int, uint32_t> MapType;
+    typedef std::pair<MapType::Iterator, bool> ResultType;
+
+    MapType map;
+
+    ResultType res = map.insert(1, 2);
+
+    REQUIRE(res.second == true);
+    REQUIRE(res.first != map.end());
+    REQUIRE(map.getSize() == 1);
+
+    SECTION("first element") {
+
+        REQUIRE(res.first->getKey() == 1);
+        REQUIRE(res.first->getElement() == 2);
+    }
+
+    SECTION("second element") {
+
+        res = map.insert(2, 2);
+
+        REQUIRE(res.second == true);
+        REQUIRE(map.getSize() == 2);
+        REQUIRE(map[2] == 2);
+    }
+
+    SECTION("insert() of existing shall fail") {
+
+        res = map.insert(1, 3);
+
+        REQUIRE(res.second == false);
+        REQUIRE(map.getSize() == 1);
+        REQUIRE(map[1] == 2);
+    }
+
+    SECTION("insertOrAssign() of existing shall overwrite") {
+
+        res = map.insertOrAssign(1, 3);
+
+        REQUIRE(res.second == false);
+        REQUIRE(map.getSize() == 1);
+        REQUIRE(map[1] == 3);
+    }
+}
+
+TEST_CASE("Etl::Map<> erase tests", "[map][etl]") {
+
+    typedef Etl::Map<int, uint32_t> MapType;
+
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(4, -4);
+
+    CHECK(map.getSize() == 4);
+
+    SECTION("erase(Key)") {
+
+        map.erase(2);
+
+        REQUIRE(map.getSize() == 3);
+        REQUIRE(map.find(2) == map.end());
+    }
+
+    SECTION("erase(Iterator)") {
+
+        MapType::Iterator it = map.find(2);
+        CHECK(it != map.end());
+
+        it = map.erase(it);
+
+        REQUIRE(map.getSize() == 3);
+        REQUIRE(map.find(2) == map.end());
+        REQUIRE(it == map.find(3));
+    }
+}
+
+TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
+
+    typedef Etl::Map<int, uint32_t> MapType;
+
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(4, -4);
+
+    CHECK(map.getSize() == 4);
+
+    SECTION("forward") {
+
+        MapType::Iterator it = map.begin();
+
+        REQUIRE(it->getKey() == 1);
+        REQUIRE(it->getElement() == -1);
+
+        ++it;
+
+        REQUIRE(it->getKey() == 2);
+        REQUIRE(it->getElement() == -2);
+    }
+
+    SECTION("backward") {
+
+        MapType::Iterator it = map.end();
+
+        --it;
+
+        REQUIRE(it->getKey() == 4);
+        REQUIRE(it->getElement() == -4);
+
+        --it;
+
+        REQUIRE(it->getKey() == 3);
+        REQUIRE(it->getElement() == -3);
+    }
+}
+
+TEST_CASE("Etl::Map<> element order", "[map][etl]") {
+
+    typedef Etl::Map<int, uint32_t> MapType;
+
+    MapType map;
+
+    map.insert(3, -3);
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(4, -4);
+
+    CHECK(map.getSize() == 4);
+
+    MapType::Iterator it = map.begin();
+
+    REQUIRE(it->getKey() == 1);
+    REQUIRE(it->getElement() == -1);
+
+    ++it;
+    REQUIRE(it->getKey() == 2);
+    REQUIRE(it->getElement() == -2);
+
+    ++it;
+    REQUIRE(it->getKey() == 3);
+    REQUIRE(it->getElement() == -3);
+
+    ++it;
+    REQUIRE(it->getKey() == 4);
+    REQUIRE(it->getElement() == -4);
+
+    ++it;
+    REQUIRE(it == map.end());
+}
+
+TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
+
+    typedef Etl::Map<uint32_t, ContainerTester> MapType;
+
+    MapType map;
+
+    map.insert(1, ContainerTester(-1));
+    map.insert(2, ContainerTester(-2));
+    map.insert(3, ContainerTester(-3));
+    map.insert(4, ContainerTester(-4));
+
+    CHECK(map.getSize() == 4);
+
+    SECTION("write existing") {
+
+        map[4] = ContainerTester(-5);
+        REQUIRE(map.find(4)->getElement() == ContainerTester(-5));
+    }
+
+    SECTION("write new") {
+
+        map[5] = ContainerTester(-5);
+        REQUIRE(map.find(5)->getElement() == ContainerTester(-5));
+    }
+
+    SECTION("read existing") {
+
+        REQUIRE(map[4] == ContainerTester(-4));
+    }
+
+    SECTION("read new - default insertion") {
+
+        REQUIRE(map[5] == ContainerTester());
+    }
+}
+
+TEST_CASE("Etl::Map<> copy", "[map][etl]") {
+
+    typedef Etl::Map<int, uint32_t> MapType;
+
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(4, -4);
+
+    MapType map2;
+
+    map2.insert(1, 1);
+    map2.insert(5, -5);
+
+    CHECK(map.getSize() == 4);
+    CHECK(map2.getSize() == 2);
+
+    SECTION("copy assignment") {
+
+        map2 = map;
+
+        REQUIRE(map2.getSize() == 4);
+        REQUIRE(map2[1] == map[1]);
+        REQUIRE(map2[4] == map[4]);
+    }
+
+    SECTION("copy constructor") {
+
+        MapType map3 = map;
+
+        REQUIRE(map3.getSize() == 4);
+        REQUIRE(map3[1] == map[1]);
+        REQUIRE(map3[4] == map[4]);
+    }
+
+    SECTION("copyElementsFrom()") {
+
+        map2.copyElementsFrom(map);
+
+        REQUIRE(map2.getSize() == 5);
+        REQUIRE(map2[1] == map[1]);
+        REQUIRE(map2[4] == map[4]);
+        REQUIRE(map2[5] == -5);
+    }
+}
+
+TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
+
+    typedef Etl::Map<uint32_t, ContainerTester> MapType;
+    MapType map;
+
+    map.insert(1, ContainerTester(-1));
+    map.insert(2, ContainerTester(-2));
+    map.insert(3, ContainerTester(-3));
+    map.insert(4, ContainerTester(-4));
+
+    CHECK(map.getSize() == 4);
+
+    SECTION("find(Key)") {
+
+        MapType::Iterator it = map.find(3);
+
+        REQUIRE(it != map.end());
+        REQUIRE(it->getKey() == 3);
+        REQUIRE(it->getElement() == ContainerTester(-3));
+    }
+
+    SECTION("find(Key) non-existing") {
+
+        MapType::Iterator it = map.find(7);
+
+        REQUIRE(it == map.end());
+    }
+
+    SECTION("find(KeyMatcher)") {
+
+        struct Matcher : MapType::KeyMatcher {
+            virtual bool call(const uint32_t& key) const {
+                return (key >= 2) && (key <= 3);
+            }
+        };
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
+        REQUIRE(it->getKey() == 2);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+
+    SECTION("find(ElementMatcher)") {
+
+        struct Matcher : MapType::ElementMatcher {
+            virtual bool call(const ContainerTester& c) const {
+                return (c.getValue() >= -3) && (c.getValue() <= -2);
+            }
+        };
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
+        REQUIRE(it->getKey() == 2);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+
+    SECTION("find(ItemMatcher)") {
+
+        struct Matcher : MapType::ItemMatcher {
+            virtual bool call(const MapType::ItemType& item) const {
+                return (item.getKey() == 3) && (item.getElement().getValue() == -3);
+            }
+        };
+
+        Matcher matchCall;
+
+        MapType::Iterator it = map.find(matchCall);
+        REQUIRE(it->getKey() == 3);
+
+        ++it;
+        it = map.find(it, map.end(), matchCall);
+        REQUIRE(it == map.end());
+    }
+}
+
+TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
+
+    typedef ContainerTester ItemType;
+    typedef Etl::Map<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef MapType::Allocator AllocatorType;
+
+    MapType map;
+    map.insert(5, ContainerTester(-5));
+
+    MapType::Iterator it = map.begin();
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
+
+    map.insert(6, ContainerTester(-6));
+    ++it;
+    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
+
+    CHECK(AllocatorType::getDeleteCount() == 0);
+
+    map.erase(5);
+    REQUIRE(AllocatorType::getDeleteCount() == 1);
+
+    map.erase(6);
+    REQUIRE(AllocatorType::getDeleteCount() == 2);
+
+}
+
+TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
+
+    CHECK(ContainerTester::getObjectCount() == 0);
 }
 

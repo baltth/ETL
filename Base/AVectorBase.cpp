@@ -21,45 +21,23 @@ limitations under the License.
 \endparblock
 */
 
-#include "AVectorBase.h"
+#include "etlSupport.h"
+
+#include "Base/AVectorBase.h"
 
 using namespace ETL_NAMESPACE;
 
 
-void AVectorBase::allocate(uint32_t len) {
+void AVectorBase::swap(AVectorBase& other) {
 
-    if(len > 0) {
-        data = operator new(len * itemSize);
-    } else {
-        data = nullptr;
-    }
+    AVectorBase::Proxy tmpProxy(proxy);
 
-    if(data != nullptr) {
-        capacity = len;
-    } else {
-        capacity = 0;
-    }
-}
+    proxy.data = other.proxy.data;
+    proxy.capacity = other.proxy.capacity;
+    proxy.size = other.proxy.size;
 
-
-void AVectorBase::deallocatePtr(void* ptr) {
-
-    operator delete(ptr);
-}
-
-
-void AVectorBase::swap(AVectorBase &other) {
-
-    void* tmpData = data;
-    uint32_t tmpNumElements = numElements;
-    uint32_t tmpCapacity = capacity;
-
-    data = other.data;
-    numElements = other.numElements;
-    capacity = other.capacity;
-
-    other.data = tmpData;
-    other.numElements = tmpNumElements;
-    other.capacity = tmpCapacity;
+    other.proxy.data = tmpProxy.data;
+    other.proxy.capacity = tmpProxy.capacity;
+    other.proxy.size = tmpProxy.size;
 }
 

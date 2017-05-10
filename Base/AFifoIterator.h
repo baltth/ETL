@@ -24,55 +24,100 @@ limitations under the License.
 #ifndef __ETL_AFIFOITERATOR_H__
 #define __ETL_AFIFOITERATOR_H__
 
+#include "etlSupport.h"
+
 #include "Base/FifoIndexing.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
 
-template<class T>
 class AFifoIterator {
 
-// types
-public:
-
-
-// variables
-private:
+  protected: // variables
 
     uint32_t ix;
-    T* data;
     const FifoIndexing* fifo;
 
-// functions
-public:
+  public:   // functions
 
-    AFifoIterator(const AFifoIterator &other) = default;
-    AFifoIterator &operator=(const AFifoIterator &other) = default;
-
-    bool operator==(const AFifoIterator &other) const {
+    bool operator==(const AFifoIterator& other) const {
         return ((ix == other.ix) && (fifo == other.fifo));
     }
 
-    inline bool operator!=(const AFifoIterator &other) const {
+    inline bool operator!=(const AFifoIterator& other) const {
         return (!operator==(other));
     }
 
-    AFifoIterator &operator++() {
+    AFifoIterator& operator++() {
         ++ix;
         return *this;
     }
 
-    const AFifoIterator &operator++(int) {
+    const AFifoIterator operator++(int) {
         AFifoIterator old = *this;
         this->operator++();
         return old;
     }
 
-    T &operator*() const {
+    AFifoIterator& operator--() {
+        --ix;
+        return *this;
+    }
+
+    const AFifoIterator operator--(int) {
+        AFifoIterator old = *this;
+        this->operator--();
+        return old;
+    }
+
+  protected:
+
+    AFifoIterator(const AFifoIterator& other) :
+        ix(other.ix),
+        fifo(other.fifo) {};
+
+    AFifoIterator& operator=(const AFifoIterator& other) {
+        ix = other.ix;
+        fifo = other.fifo;
+        return *this;
+    }
+
+    AFifoIterator(const FifoIndexing* indexing, uint32_t index) :
+        ix(index),
+        fifo(indexing) {};
+
+    const FifoIndexing* getFifoIndexing() const {
+        return fifo;
+    }
+
+    uint32_t getIndexFromFront(uint32_t ix) const {
+        return fifo->getIndexFromFront(ix);
+    }
+
+};
+
+
+template<class T>
+class FifoIterator : public AFifoIterator {
+
+  private:  // variables
+
+    T* data;
+
+  public:   // functions
+
+    FifoIterator(const FifoIterator& other) :
+        AFifoIterator(other),
+        data(other.data) {};
+
+    FifoIterator& operator=(const FifoIterator& other) {
+        AFifoIterator::operator=(other);
+        data = other.data;
+        return *this;
+    };
+
+    T& operator*() const {
         return *(get());
     };
 
@@ -80,19 +125,14 @@ public:
         return get();
     };
 
-protected:
+  protected:
 
-    AFifoIterator(T* data, const FifoIndexing* indexing, uint32_t index) :
-        ix(index),
-        data(data),
-        fifo(indexing) {};
-
-    const FifoIndexing* getFifoIndexing() const {
-        return fifo;
-    }
+    FifoIterator<T>(T* data, const FifoIndexing* indexing, uint32_t index) :
+        AFifoIterator(indexing, index),
+        data(data) {};
 
     inline T* get() const {
-        return data + fifo->getIndexFromFront(ix);
+        return data + getIndexFromFront(ix);
     }
 
 };
@@ -100,3 +140,4 @@ protected:
 }
 
 #endif /* __ETL_AFIFOITERATOR_H__ */
+

@@ -34,52 +34,69 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T>
-class Fifo : public FifoTemplate<T> {
+template<class C>
+class Fifo : public FifoTemplate<C> {
 
-// types
-public:
+  public:   // types
 
-    typedef typename FifoTemplate<T>::ItemType ItemType;
-    typedef typename FifoTemplate<T>::Iterator Iterator;
+    typedef typename FifoTemplate<C>::ItemType ItemType;
+    typedef typename FifoTemplate<C>::Iterator Iterator;
 
-// functions
-public:
+  public:   // functions
+
+#if ETL_USE_CPP11
 
     template<typename... Args>
-    explicit Fifo(Args &&... args) :
-        FifoTemplate<T>(args...) {};
+    explicit Fifo<C>(Args&& ... args) :
+        FifoTemplate<C>(args...) {};
+
+#else
+
+    Fifo<C>() :
+        FifoTemplate<C>() {};
+
+    Fifo<C>(uint32_t len) :
+        FifoTemplate<C>(len) {};
+
+#endif
 
     void setupFifo(uint32_t len);
 
 };
 
 
-template<class T>
-void Fifo<T>::setupFifo(uint32_t len) {
+template<class C>
+void Fifo<C>::setupFifo(uint32_t len) {
 
-    T::resize(len);
-    FifoIndexing::setCapacity(T::getSize());
+    C::resize(len);
+    FifoIndexing::setCapacity(C::getSize());
     FifoIndexing::resetIndexes();
 }
 
 
 template<>
 template<typename T, uint32_t N>
-class Fifo<Array<T, N>> : public FifoTemplate<Array<T, N>> {
+class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
 
-// types
-public:
+  public:   // types
 
-    typedef typename FifoTemplate<Array<T, N>>::ItemType ItemType;
-    typedef typename FifoTemplate<Array<T, N>>::Iterator Iterator;
+    typedef typename FifoTemplate<Array<T, N> >::ItemType ItemType;
+    typedef typename FifoTemplate<Array<T, N> >::Iterator Iterator;
 
-// functions
-public:
+  public:   // functions
+
+#if ETL_USE_CPP11
 
     template<typename... Args>
-    explicit Fifo(Args &&... args) :
-        FifoTemplate<Array<T, N>>(args...) {};
+    explicit Fifo<Array<T, N> >(Args&& ... args) :
+        FifoTemplate<Array<T, N> >(args...) {};
+
+#else
+
+    Fifo<Array<T, N> >() :
+        FifoTemplate<Array<T, N> >() {};
+
+#endif
 
     void setupFifo(uint32_t len) {};
 
@@ -88,3 +105,4 @@ public:
 }
 
 #endif /* __ETL_FIFOVECTOR_H__ */
+

@@ -24,89 +24,171 @@ limitations under the License.
 #ifndef __ETL_CONTAINERTESTER_H__
 #define __ETL_CONTAINERTESTER_H__
 
-#include <iostream>
+#include "etlSupport.h"
 
+#define PRINT_TO_IOSTREAM   0
+
+#if PRINT_TO_IOSTREAM
+#include <iostream>
+#endif
 
 class ContainerTester {
 
-// variables
-private:
+  private:  // variables
 
-	int32_t value;
+    int32_t value;
+    uint32_t objectId;
 
-// functions
-public:
+    static uint32_t objectCnt;
+    static uint32_t objectRef;
+    static uint32_t copyCnt;
 
-	explicit ContainerTester(int32_t v = 0) :
-		value(v) {
-		reportConstructor();
-		reportValue();
-	}
+#if ETL_USE_CPP11
+    static uint32_t moveCnt;
+#endif
 
-	ContainerTester(const ContainerTester &other) :
-		value(other.value) {
-		reportCopyConstructor();
-		reportValue();
-	}
+  public:   // functions
 
-	ContainerTester &operator=(const ContainerTester &other) {
+    explicit ContainerTester(int32_t v = 0) :
+        value(v),
+        objectId(++objectRef) {
 
-		value = other.value;
-		reportCopyAssignment();
-		reportValue();
-		return *this;
-	}
+        ++objectCnt;
+        reportConstructor();
+        reportValue();
+    }
 
-	ContainerTester(ContainerTester &&other) :
-		value(other.value) {
-		reportMoveConstructor();
-		reportValue();
-	}
+    ContainerTester(const ContainerTester& other) :
+        value(other.value),
+        objectId(++objectRef) {
 
-	ContainerTester &operator=(ContainerTester &&other) {
-		value = other.value;
-		reportMoveAssignment();
-		reportValue();
-		return *this;
-	}
+        ++objectCnt;
+        ++copyCnt;
+        reportCopyConstructor();
+        reportValue();
+    }
 
-	~ContainerTester() {
-		reportDesctructor();
-		reportValue();
-	}
+    ContainerTester& operator=(const ContainerTester& other) {
 
-	int32_t getValue() const {
-		return value;
-	}
+        value = other.value;
+        ++copyCnt;
+        reportCopyAssignment();
+        reportValue();
+        return *this;
+    }
 
-	void reportConstructor() {
-	    std::cout << "C()     ";
-	}
+    ~ContainerTester() {
+        --objectCnt;
+        reportDesctructor();
+        reportValue();
+    }
 
-	void reportCopyConstructor() {
-		std::cout << "C(C&)   ";
-	}
+    int32_t getValue() const {
+        return value;
+    }
 
-	void reportCopyAssignment() {
-	    std::cout << "C=(C&)  ";
-	}
+    uint32_t getId() const {
+        return objectId;
+    }
 
-	void reportMoveConstructor() {
-		std::cout << "C(C&&)  ";
-	}
+    static uint32_t getObjectCount() {
+        return objectCnt;
+    }
 
-	void reportMoveAssignment() {
-	    std::cout << "C=(C&&) ";
-	}
+    static uint32_t getLastObjectId() {
+        return objectRef;
+    }
 
-	void reportDesctructor() {
-		std::cout << "~C()    ";
-	}
+    static uint32_t getCopyCount() {
+        return copyCnt;
+    }
+
+#if ETL_USE_CPP11
+
+    ContainerTester(ContainerTester&& other) :
+        value(other.value),
+        objectId(other.objectId) {
+
+        ++objectCnt;
+        ++moveCnt;
+        reportMoveConstructor();
+        reportValue();
+    }
+
+    ContainerTester& operator=(ContainerTester&& other) {
+
+        value = other.value;
+        value = other.objectId;
+        ++moveCnt;
+        reportMoveAssignment();
+        reportValue();
+        return *this;
+    }
+
+    static uint32_t getMoveCount() {
+        return moveCnt;
+    }
+
+#endif
+
+
+#if PRINT_TO_IOSTRREAM
+
+    void reportConstructor() {
+        std::cout << "C()     ";
+    }
+
+    void reportCopyConstructor() {
+        std::cout << "C(C&)   ";
+    }
+
+    void reportCopyAssignment() {
+        std::cout << "C=(C&)  ";
+    }
+
+    void reportMoveConstructor() {
+        std::cout << "C(C&&)  ";
+    }
+
+    void reportMoveAssignment() {
+        std::cout << "C=(C&&) ";
+    }
+
+    void reportDesctructor() {
+        std::cout << "~C()    ";
+    }
 
     void reportValue() {
         std::cout << "value @ " << this << ": " << value << std::endl;
-	}
+    }
+
+#else
+
+    void reportConstructor() {};
+    void reportCopyConstructor() {};
+    void reportCopyAssignment() {};
+    void reportMoveConstructor() {};
+    void reportMoveAssignment() {};
+    void reportDesctructor() {};
+    void reportValue() {};
+
+#endif
 
 };
 
+
+inline bool operator==(const ContainerTester& lhs, const ContainerTester& rhs) {
+    return lhs.getValue() == rhs.getValue();
+}
+
+inline bool operator!=(const ContainerTester& lhs, const ContainerTester& rhs) {
+    return !(operator==(lhs, rhs));
+}
+
+inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
+    return lhs.getValue() < rhs.getValue();
+}
+
+
 #endif /* __ETL_CONTAINERTESTER_H__ */
+

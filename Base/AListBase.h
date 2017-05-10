@@ -24,96 +24,90 @@ limitations under the License.
 #ifndef __ETL_ALISTBASE_H__
 #define __ETL_ALISTBASE_H__
 
-#include <cstdint>
-#include <utility>
+#include "etlSupport.h"
 
 #include "Base/DoubleLinkedList.h"
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
 
 class AListBase {
 
-// types
-public:
+  public:   // types
 
     class Node : public DoubleLinkedList::Node {
 
-    public:
+      protected:
 
         Node() :
             DoubleLinkedList::Node() {};
 
-        explicit Node(const DoubleLinkedList::Node &other) :
+        explicit Node(const DoubleLinkedList::Node& other) :
             DoubleLinkedList::Node(other) {};
-
-        virtual ~Node() {};
 
     };
 
     class Iterator {
         friend class AListBase;
 
-    protected:
+      protected:
 
         AListBase::Node* node;
 
-    public:
+      public:
 
-        bool operator==(const Iterator &other) const {
+        bool operator==(const Iterator& other) const {
             return (node == other.node);
         }
 
-        bool operator!=(const Iterator &other) const {
+        bool operator!=(const Iterator& other) const {
             return !(operator==(other));
         }
 
-        Iterator &operator++() {
+        Iterator& operator++() {
             node = static_cast<AListBase::Node*>(node->next);
             return *this;
         }
 
-        Iterator &operator--() {
+        Iterator& operator--() {
             node = static_cast<AListBase::Node*>(node->prev);
             return *this;
         }
 
-    protected:
+      protected:
 
         explicit Iterator(AListBase::Node* n) :
             node(n) {};
 
     };
 
-// variables
-protected:
+  protected: // variables
 
     DoubleLinkedList list;
 
-// functions
-public:
+  public:   // functions
 
-    AListBase() = default;
+    AListBase() {};
 
-    AListBase(AListBase &&other) :
+#if ETL_USE_CPP11
+
+    AListBase(AListBase&& other) :
         list(std::move(other.list)) {};
 
-    AListBase &operator=(AListBase &&other) {
+    AListBase& operator=(AListBase&& other) {
         list = std::move(other.list);
         return *this;
     }
 
-    virtual ~AListBase() {}
+#endif
 
     inline uint32_t getSize() const {
         return list.getSize();
     }
 
-protected:
+  protected:
 
     inline Iterator begin() const {
         return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
@@ -123,7 +117,7 @@ protected:
         return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
     }
 
-    /// \name Műveletek elemekkel
+    /// \name Element operations
     /// @{
     void pushFront(Node* item) {
         list.insertBefore(list.getFirst(), item);
@@ -145,8 +139,14 @@ protected:
     }
     /// @}
 
+  private:
+
+    AListBase(const AListBase& other);
+    AListBase& operator=(const AListBase& other);
+
 };
 
 }
 
 #endif /* __ETL_ALISTBASE_H__ */
+

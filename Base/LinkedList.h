@@ -21,15 +21,15 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_DOUBLELINKEDLIST_H__
-#define __ETL_DOUBLELINKEDLIST_H__
+#ifndef __ETL_LINKEDLIST_H__
+#define __ETL_LINKEDLIST_H__
 
 #include "etlSupport.h"
 
 namespace ETL_NAMESPACE {
 
 
-class DoubleLinkedList {
+class LinkedList {
 
   public:   // types
 
@@ -37,15 +37,12 @@ class DoubleLinkedList {
 
       public:
 
-        Node* prev;
         Node* next;
 
         Node() :
-            prev(NULLPTR),
             next(NULLPTR) {};
 
-        Node(Node* p, Node* n) :
-            prev(p),
+        Node(Node* n) :
             next(n) {};
 
     };
@@ -53,20 +50,18 @@ class DoubleLinkedList {
   private:  // variables
 
     Node frontNode;
-    Node backNode;
     uint32_t size;
 
   public:   // functions
 
-    DoubleLinkedList() :
-        frontNode(NULLPTR, &backNode),
-        backNode(&frontNode, NULLPTR),
+    LinkedList() :
+        frontNode(),
         size(0) {};
 
 #if ETL_USE_CPP11
 
-    DoubleLinkedList(DoubleLinkedList&& other);
-    DoubleLinkedList& operator=(DoubleLinkedList&& other);
+    LinkedList(LinkedList&& other);
+    LinkedList& operator=(LinkedList&& other);
 
 #endif
 
@@ -82,17 +77,11 @@ class DoubleLinkedList {
         return frontNode.next;
     }
 
-    Node* getLast() const {
-        return backNode.prev;
-    }
-
     void insertAfter(Node* pos, Node* node);
-    void insertBefore(Node* pos, Node* node);
+    Node* removeAfter(Node* pos);
 
-    Node* remove(Node* node);
-
-    void copy(const DoubleLinkedList& other);
-    void swap(DoubleLinkedList& other);
+    void copy(const LinkedList& other);
+    void swap(LinkedList& other);
     void setEmpty();
 
   protected:
@@ -101,12 +90,12 @@ class DoubleLinkedList {
 
   private:
 
-    DoubleLinkedList(const DoubleLinkedList& other);
-    DoubleLinkedList& operator=(const DoubleLinkedList& other);
+    LinkedList(const LinkedList& other);
+    LinkedList& operator=(const LinkedList& other);
 
 };
 
 }
 
-#endif /* __ETL_DOUBLELINKEDLIST_H__ */
+#endif /* __ETL_LINKEDLIST_H__ */
 

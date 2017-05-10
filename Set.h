@@ -24,91 +24,112 @@ limitations under the License.
 #ifndef __ETL_SET_H__
 #define __ETL_SET_H__
 
+#include "etlSupport.h"
+
+#include "Base/Sorted.h"
+
+#include <memory>
 #include <utility>
-
-#include "Base/SortedTemplate.h"
-
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
-    
-template<class E>
-using SetBase = SortedTemplate<E>;
 
+template<class E, template<class> class A = std::allocator>
+class Set : public Sorted<ListTemplate<E, A> > {
 
-template<class E>
-class Set : public SetBase<E> {
-
-// types
-public:
+  public:   // types
 
     typedef E ItemType;
-    typedef typename SetBase<E>::Iterator Iterator;
+    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef typename ContainerType::Allocator Allocator;
+    typedef Sorted<ContainerType> SetBase;
+    typedef typename SetBase::Iterator Iterator;
+    typedef typename SetBase::ConstIterator ConstIterator;
 
-// functions
-public:
+  public:   // functions
 
     Set() {};
-    Set(const std::initializer_list<E> &initList);
 
-    std::pair<Iterator, bool> insert(const E &e) {
-        return SetBase<E>::insertUnique(e);
+    Set(const Set& other) {
+        copyElementsFrom(other);
     }
 
-    std::pair<Iterator, bool> insertOrAssign(const E &e);
+    Set& operator=(const Set& other) {
+        SetBase::clear();
+        copyElementsFrom(other);
+        return *this;
+    }
 
-    void erase(const E &e);
-    Iterator find(const E &e) const;
+#if ETL_USE_CPP11
 
-    void copyElementsFrom(const Set<E> &other);
+    Set(const std::initializer_list<E>& initList);
+
+#endif
+
+    std::pair<Iterator, bool> insert(const E& e) {
+        return SetBase::insertUnique(e);
+    }
+
+    void erase(const E& e);
+
+    Iterator erase(Iterator pos) {
+        return SetBase::erase(pos);
+    }
+
+    Iterator find(const E& e) const;
+
+    void copyElementsFrom(const Set<E, A>& other);
 
 };
 
 
-template<class E>
-Set<E>::Set(const std::initializer_list<E> &initList) {
+#if ETL_USE_CPP11
 
-    for(auto &item : initList) {
-        SetBase<E>::insertUnique(item);
+template<class E, template<class> class A>
+Set<E, A>::Set(const std::initializer_list<E>& initList) {
+
+    for (auto& item : initList) {
+        SetBase::insertUnique(item);
+    }
+}
+
+#endif
+
+
+template<class E, template<class> class A>
+void Set<E, A>::erase(const E& e) {
+
+    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
+
+    if (found.second == true) {
+        SetBase::erase(--found.first);
     }
 }
 
 
-template<class E>
-void Set<E>::erase(const E &e) {
+template<class E, template<class> class A>
+typename Set<E, A>::Iterator  Set<E, A>::find(const E& e) const {
 
-    auto found = SetBase<E>::findSortedPosition(e);
+    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
 
-    if(found.second == true) {
-        SetBase<E>::erase(--found.first);
-    }
-}
-
-
-template<class E>
-typename Set<E>::Iterator  Set<E>::find(const E &e) const {
-
-    auto found = SetBase<E>::findSortedPosition(e);
-
-    if(found.second == true) {
+    if (found.second == true) {
         return --found.first;
     } else {
-        return SetBase<E>::end();
+        return SetBase::end();
     }
 }
 
 
-template<class E>
-void Set<E>::copyElementsFrom(const Set<E> &other) {
+template<class E, template<class> class A>
+void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
-    for(ItemType &item : other) {
-        insertOrAssign(item.getKey(), item.getElement());
+    Iterator endIt = other.end();
+    for (Iterator it = other.begin(); it != endIt; ++it) {
+        insert(*it);
     }
 }
 
 }
 
 #endif /* __ETL_SET_H__ */
+

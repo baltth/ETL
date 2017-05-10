@@ -1,6 +1,6 @@
-﻿/**
+/**
 \file
-\date 2016.03.16. 11:29:46
+\date 2017.02.14. 19:40:12
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,10 +21,19 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TESTMAP_H__
-#define __ETL_TESTMAP_H__
+#ifndef __UNALIGNEDTESTER_H__
+#define __UNALIGNEDTESTER_H__
 
+#include <stdint.h>
 
-void testMap();
+class __attribute__((packed)) UnalignedTester {
 
-#endif /* __ETL_TESTMAP_H__ */
+  public:   // variables
+
+    uint32_t a;
+    uint8_t b;
+
+};
+
+#endif /* __UNALIGNEDTESTER_H__ */
+

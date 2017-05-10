@@ -24,34 +24,51 @@ limitations under the License.
 #ifndef __ETL_AFIFOINDEXING_H__
 #define __ETL_AFIFOINDEXING_H__
 
-#include <cstdint>
-
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
+#include "etlSupport.h"
 
 namespace ETL_NAMESPACE {
 
+class AFifoIterator;
+
 
 class FifoIndexing {
+    friend AFifoIterator;
 
-// variables
-protected:
+  private:  // variables
 
-    uint32_t capcity;
-    uint32_t numItems;
+    uint32_t capacity;
+    uint32_t length;
 
     uint32_t writeIx;
     uint32_t readIx;
 
-// functions
-public:
+  public:   // functions
 
-    explicit FifoIndexing(uint32_t fifoSize, uint32_t num = 0) :
-        capcity(fifoSize),
-        numItems(num),
-        writeIx(0),
-        readIx(0) {};
+    bool isEmpty() const {
+        return (length == 0);
+    }
+
+    bool isFull() const {
+        return (length == capacity);
+    }
+
+    uint32_t getLength() const {
+        return length;
+    }
+
+    void setEmpty() {
+        setLength(0);
+    }
+
+    void setLength(uint32_t len);
+
+  protected:
+
+    explicit FifoIndexing(uint32_t fifoSize) :
+        capacity(fifoSize) {
+
+        resetIndexes();
+    };
 
     uint32_t getIndexFromFront(uint32_t ix) const;
     uint32_t getIndexFromBack(uint32_t ix) const;
@@ -62,15 +79,11 @@ public:
     void resetIndexes();
 
     void setCapacity(uint32_t fifoSize) {
-        capcity = fifoSize;
+        capacity = fifoSize;
     }
 
     uint32_t getCapacity() const {
-        return capcity;
-    }
-
-    uint32_t getNumItems() const {
-        return numItems;
+        return capacity;
     }
 
     void push();
@@ -84,12 +97,13 @@ public:
         return readIx;
     }
 
-protected:
+  private:
 
-    uint32_t limitIndexForNumItems(uint32_t ix) const;
+    uint32_t limitIndexForLength(uint32_t ix) const;
 
 };
 
 }
 
 #endif /* __ETL_AFIFOINDEXING_H__ */
+
