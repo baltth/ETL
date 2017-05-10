@@ -81,7 +81,7 @@ class FixedVector : public VectorTemplate<T, StaticSized> {
     FixedVector<T, N>& operator=(const std::initializer_list<T>& initList) {
         Base::operator=(initList);
         return *this;
-    };
+    }
 
     Iterator find(std::function<bool(const T&)>&& matcher) const {
         return find(this->begin(), this->end(), std::move(matcher));
