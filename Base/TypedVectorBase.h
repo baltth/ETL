@@ -263,12 +263,21 @@ void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
     T* dataAlias = getData();
     uint32_t i = 0;
 
-    for (; i < getSize(); ++i) {
-        assignValueTo((dataAlias + i), src[i]);
-    }
+    if (num >= getSize()) {
 
-    for (; i < num; ++i) {
-        placeValueTo((dataAlias + i), src[i]);
+        for (; i < getSize(); ++i) {
+            assignValueTo((dataAlias + i), src[i]);
+        }
+
+        for (; i < num; ++i) {
+            placeValueTo((dataAlias + i), src[i]);
+        }
+
+    } else {
+
+        for (; i < num; ++i) {
+            assignValueTo((dataAlias + i), src[i]);
+        }
     }
 
     destruct((dataAlias + i), end());

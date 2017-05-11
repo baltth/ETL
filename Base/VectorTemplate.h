@@ -52,7 +52,7 @@ class Vector : public TypedVectorBase<T> {
 
   private: // variables
 
-    AMemStrategy& strategy;
+    AMemStrategy<StrategyBase>& strategy;
 
   public:   // functions
 
@@ -102,33 +102,31 @@ class Vector : public TypedVectorBase<T> {
     Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matcher) const;
 
     void reserve(uint32_t length) {
-        strategy.reserve(length);
+        strategy.reserve(*this, length);
     }
 
     void reserveAtLeast(uint32_t length) {
-        strategy.reserveAtLeast(length);
+        strategy.reserveAtLeast(*this, length);
     }
 
     void shrinkToFit() {
-        strategy.shrinkToFit();
+        strategy.shrinkToFit(*this);
     }
 
-    void resize(uint32_t newLength) {
-        strategy.resize(newLength);
+    void resize(uint32_t length) {
+        strategy.resize(*this, length);
     }
 
   protected:
 
-    Vector(AMemStrategy& s) :
+    Vector(AMemStrategy<StrategyBase>& s) :
         strategy(s) {};
 
     Vector& operator=(const Vector& other);
 
 #if ETL_USE_CPP11
 
-    Vector(Vector&& other);
-    Vector(const std::initializer_list<T>& initList);
-
+    Vector& operator=(Vector&& other);
     Vector& operator=(const std::initializer_list<T>& initList);
 
     Iterator insertWithCreator(ConstIterator position, uint32_t num, std::function<void(T*, bool)>&& creatorCall);
@@ -155,16 +153,9 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
 #if ETL_USE_CPP11
 
 template<class T>
-Vector<T>::Vector(Vector<T>&& other) {
+Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 
     this->swap(other);
-}
-
-
-template<class T>
-Vector<T>::Vector(const std::initializer_list<T>& initList) {
-
-    initWith(initList.begin(), initList.size());
 }
 
 
@@ -419,16 +410,24 @@ class Vector<T*> : public Vector<void*> {
 
   protected:
 
-    Vector(AMemStrategy& s) :
+    Vector(AMemStrategy<StrategyBase>& s) :
         Base(s) {};
+
+    Vector& operator=(const Vector& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
 #if ETL_USE_CPP11
 
-    Vector(const std::initializer_list<T>& initList) :
-        Base(initList) {};
+    Vector& operator=(Vector&& other) {
+        Base::operator=(std::move(other));
+        return *this;
+    }
 
     Vector& operator=(const std::initializer_list<T>& initList) {
         Base::operator=(initList);
+        return *this;
     }
 
 #endif

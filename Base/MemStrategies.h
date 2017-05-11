@@ -32,14 +32,16 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+template<class C>
 class AMemStrategy {
 
   public:   // functions
 
-    virtual void reserve(uint32_t length) = 0;
-    virtual void reserveAtLeast(uint32_t length) = 0;
-    virtual void shrinkToFit() = 0;
-    virtual void resize(uint32_t newLength) = 0;
+    virtual void reserve(C& cont, uint32_t length) = 0;
+    virtual void reserveAtLeast(C& cont, uint32_t length) = 0;
+    virtual void shrinkToFit(C& cont) = 0;
+    virtual void resize(C& cont, uint32_t length) = 0;
+    virtual void cleanup(C& cont) = 0;
 
 };
 
@@ -47,56 +49,54 @@ class AMemStrategy {
 
 /** Mem strategy with static size, allocated externally */
 template<class C>
-class StaticSized : public AMemStrategy {
+class StaticSized : public AMemStrategy<C> {
 
   private:  // variables
 
     void* const data;
     const uint32_t capacity;
-    C& container;
 
   public:   // functions
 
     // No StaticSized();
 
-    StaticSized(void* initData, uint32_t initCapacity, C& cont) :
+    StaticSized(void* initData, uint32_t initCapacity) :
         data(initData),
-        capacity(initCapacity),
-        container(cont) {};
+        capacity(initCapacity) {};
 
-    ~StaticSized() {
-        container.clear();
+    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
+        setupData(cont, length);
     }
 
-    virtual void reserve(uint32_t length) FINAL OVERRIDE {
-        setupData(length);
+    virtual void reserveAtLeast(C& cont, uint32_t length) FINAL OVERRIDE {
+        setupData(cont, length);
     }
 
-    virtual void reserveAtLeast(uint32_t length) FINAL OVERRIDE {
-        setupData(length);
+    virtual void shrinkToFit(C& cont) FINAL OVERRIDE {
+        setupData(cont, capacity);
     }
 
-    virtual void shrinkToFit() FINAL OVERRIDE {
-        setupData(capacity);
+    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE {
+        setupData(cont, length);
     }
 
-    virtual void resize(uint32_t newLength) FINAL OVERRIDE {
-        setupData(newLength);
+    virtual void cleanup(C& cont) {
+        cont.clear();
     }
 
   private:
 
-    void setupData(uint32_t length);
+    void setupData(C& cont, uint32_t length);
 
 };
 
 
 template<class C>
-void StaticSized<C>::setupData(uint32_t length) {
+void StaticSized<C>::setupData(C& cont, uint32_t length) {
 
     if (length <= capacity) {
-        container.proxy.setData(data);
-        container.proxy.setCapacity(capacity);
+        cont.proxy.setData(data);
+        cont.proxy.setCapacity(capacity);
     } else {
         // TODO throw;
     }
@@ -106,7 +106,7 @@ void StaticSized<C>::setupData(uint32_t length) {
 
 /** Mem strategy with dynamic size, allocated with Allocator */
 template<class C, class A>
-class DynamicSized : public AMemStrategy {
+class DynamicSized : public AMemStrategy<C> {
 
   public:   // types
 
@@ -116,37 +116,31 @@ class DynamicSized : public AMemStrategy {
 
   private:
 
-    C& container;
     A allocator;
 
   public:   // functions
 
-    DynamicSized(C& cont) :
-        container(cont) {};
-    // No DynamicSized(void* initData, uint32_t initCapacity);
+    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE;
 
-    ~DynamicSized() {
-        container.clear();
-        deallocate();
+    virtual void reserveAtLeast(C& cont, uint32_t length) FINAL OVERRIDE {
+        reserve(cont, getRoundedLength(length));
     }
 
-    virtual void reserve(uint32_t length) FINAL OVERRIDE;
+    virtual void shrinkToFit(C& cont) FINAL OVERRIDE;
+    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE;
 
-    virtual void reserveAtLeast(uint32_t length) FINAL OVERRIDE {
-        reserve(getRoundedLength(length));
+    virtual void cleanup(C& cont) {
+        cont.clear();
+        deallocate(cont);
     }
-
-    virtual void shrinkToFit() FINAL OVERRIDE;
-    virtual void resize(uint32_t newLength) FINAL OVERRIDE;
 
   private:
 
-    void reallocateAndCopyFor(uint32_t len);
+    void reallocateAndCopyFor(C& cont, uint32_t len);
+    void allocate(C& cont, uint32_t len);
 
-    void allocate(uint32_t len);
-
-    void deallocate() {
-        allocator.deallocate(container.getData(), container.getCapacity());
+    void deallocate(C& cont) {
+        allocator.deallocate(cont.getData(), cont.getCapacity());
     }
 
     static uint32_t getRoundedLength(uint32_t length) {
@@ -157,100 +151,88 @@ class DynamicSized : public AMemStrategy {
 
 
 template<class C, class A>
-void DynamicSized<C, A>::reserve(uint32_t length) {
+void DynamicSized<C, A>::reserve(C& cont, uint32_t length) {
 
-    if (length > container.getCapacity()) {
-        reallocateAndCopyFor(length);
+    if (length > cont.getCapacity()) {
+        reallocateAndCopyFor(cont, length);
     }
 }
 
 
 template<class C, class A>
-void DynamicSized<C, A>::shrinkToFit() {
+void DynamicSized<C, A>::shrinkToFit(C& cont) {
 
-    if (container.getCapacity() > container.getSize()) {
-        reallocateAndCopyFor(container.getSize());
+    if (cont.getCapacity() > cont.getSize()) {
+        reallocateAndCopyFor(cont, cont.getSize());
     }
 }
 
 
 template<class C, class A>
-void DynamicSized<C, A>::resize(uint32_t newLength) {
+void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
 
-    if (newLength > container.getSize()) {
+    if (length > cont.getSize()) {
 
-        if (newLength > container.getCapacity()) {
-            reallocateAndCopyFor(getRoundedLength(newLength));
+        if (length > cont.getCapacity()) {
+            reallocateAndCopyFor(cont, getRoundedLength(length));
         }
 
-        typename C::Iterator newEnd = container.getData() + newLength;
+        typename C::Iterator newEnd = cont.getData() + length;
 
-        for (typename C::Iterator it = container.end(); it < newEnd; ++it) {
+        for (typename C::Iterator it = cont.end(); it < newEnd; ++it) {
             C::placeDefaultTo(it);
         }
 
-    } else if (newLength < container.getSize()) {
+    } else if (length < cont.getSize()) {
 
-        typename C::Iterator newEnd = container.getData() + newLength;
-        C::destruct(newEnd, container.end());
+        typename C::Iterator newEnd = cont.getData() + length;
+        C::destruct(newEnd, cont.end());
     }
 
-    container.proxy.setSize(newLength);
+    cont.proxy.setSize(length);
 }
 
 
 template<class C, class A>
-void DynamicSized<C, A>::reallocateAndCopyFor(uint32_t len) {
+void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
-    typename C::ItemType* oldData = container.getData();
-    uint32_t oldCapacity = container.getCapacity();
+    typename C::ItemType* oldData = cont.getData();
+    typename C::Iterator oldEnd = cont.end();
+    uint32_t oldCapacity = cont.getCapacity();
 
-    allocate(len);
+    allocate(cont, len);
 
     if (oldData != NULLPTR) {
 
-        uint32_t numToCopy = (len < container.getSize()) ? len : container.getSize();
+        uint32_t numToCopy = (len < cont.getSize()) ? len : cont.getSize();
 
-        if ((container.getData() != NULLPTR) && (numToCopy > 0)) {
+        if ((cont.getData() != NULLPTR) && (numToCopy > 0)) {
 
-            typename C::ItemType* dataAlias = container.getData();
+            typename C::ItemType* dataAlias = cont.getData();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 
+        C::destruct(oldData, oldEnd);
         allocator.deallocate(oldData, oldCapacity);
     }
 }
 
 
 template<class C, class A>
-void DynamicSized<C, A>::allocate(uint32_t len) {
+void DynamicSized<C, A>::allocate(C& cont, uint32_t len) {
 
     if (len > 0) {
-        container.proxy.setData(allocator.allocate(len));
+        cont.proxy.setData(allocator.allocate(len));
     } else {
-        container.proxy.setData(NULLPTR);
+        cont.proxy.setData(NULLPTR);
     }
 
-    if (container.getData() != NULLPTR) {
-        container.proxy.setCapacity(len);
+    if (cont.getData() != NULLPTR) {
+        cont.proxy.setCapacity(len);
     } else {
-        container.proxy.setCapacity(0);
+        cont.proxy.setCapacity(0);
     }
 }
-
-
-/** Heap allocated mem strategy */
-template<class C>
-class HeapUser : public DynamicSized<C, std::allocator<typename C::ItemType> > {
-
-    typedef DynamicSized<C, std::allocator<typename C::ItemType> > Base;
-
-  public:   // functions
-
-    HeapUser(C& cont) :
-        Base(cont) {};
-
-};
 
 }
 
