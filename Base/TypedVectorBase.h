@@ -43,9 +43,10 @@ limitations under the License.
 #include <initializer_list>
 #endif
 
-#include "Base/MemStrategies.h"
-
 namespace ETL_NAMESPACE {
+
+template<class> class StaticSized;
+template<class, class> class DynamicSized;
 
 
 template<class T>

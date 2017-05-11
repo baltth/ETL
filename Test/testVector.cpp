@@ -1,6 +1,6 @@
 /**
 \file
-\date 2017.02.16. 11:20:49
+\date 2017.02.16.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -23,9 +23,9 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <Vector.h>
-#include "UnalignedTester.h"
-#include "ContainerTester.h"
+#include "Vector.h"
+#include "Test/UnalignedTester.h"
+#include "Test/ContainerTester.h"
 
 
 // Etl::Dynamic::Vector tests -------------------------------------------------

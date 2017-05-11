@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.01.20. 19:44:12
+\date 2016.01.20.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -27,6 +27,7 @@ limitations under the License.
 #include "etlSupport.h"
 
 #include "Base/TypedVectorBase.h"
+#include "Base/MemStrategies.h"
 
 #undef min
 #undef max

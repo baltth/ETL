@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.03.16. 12:27:49
+\date 2016.03.16.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -23,9 +23,9 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <Map.h>
-#include <Test/ContainerTester.h>
-#include <Test/DummyAllocator.h>
+#include "Map.h"
+#include "Test/ContainerTester.h"
+#include "Test/DummyAllocator.h"
 
 
 TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {

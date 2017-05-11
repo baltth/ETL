@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.01.19. 11:43:18
+\date 2016.01.19.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,7 +21,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "LinkedList.h"
+#include "Base/LinkedList.h"
 
 using namespace ETL_NAMESPACE;
 

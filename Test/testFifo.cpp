@@ -1,6 +1,6 @@
 /**
 \file
-\date 2017.02.23. 12:03:21
+\date 2017.02.23.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -23,11 +23,11 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <Fifo.h>
-#include <FifoAccess.h>
+#include "Fifo.h"
+#include "FifoAccess.h"
 
-#include <Array.h>
-#include <Vector.h>
+#include "Array.h"
+#include "Vector.h"
 
 
 TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {

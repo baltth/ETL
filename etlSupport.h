@@ -1,6 +1,6 @@
 /**
 \file
-\date 2016.01.20. 19:44:12
+\date 2016.01.20.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -65,7 +65,7 @@ struct Matcher {
 
 #if ETL_DISABLE_HEAP
 
-inline void* operator new(std::size_t count, const std::nothrow_t& tag) {
+inline void* operator new (std::size_t count, const std::nothrow_t& tag) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -75,7 +75,7 @@ inline void* operator new[](std::size_t count, const std::nothrow_t& tag) {
     return invalid_operator_new_call();
 }
 
-inline void* operator new(std::size_t) throw(std::bad_alloc) {
+inline void* operator new (std::size_t) throw(std::bad_alloc) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -85,7 +85,7 @@ inline void* operator new[](std::size_t) throw(std::bad_alloc) {
     return invalid_operator_new_call();
 }
 
-inline void operator delete(void* ptr, const std::nothrow_t& tag) {
+inline void operator delete (void* ptr, const std::nothrow_t& tag) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }
@@ -95,7 +95,7 @@ inline void operator delete[](void* ptr, const std::nothrow_t& tag) {
     invalid_operator_delete_call();
 }
 
-inline void operator delete(void* ptr) {
+inline void operator delete (void* ptr) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }
