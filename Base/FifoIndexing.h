@@ -62,6 +62,10 @@ class FifoIndexing {
 
     void setLength(uint32_t len);
 
+    uint32_t getCapacity() const {
+        return capacity;
+    }
+
   protected:
 
     explicit FifoIndexing(uint32_t fifoSize) :
@@ -80,10 +84,6 @@ class FifoIndexing {
 
     void setCapacity(uint32_t fifoSize) {
         capacity = fifoSize;
-    }
-
-    uint32_t getCapacity() const {
-        return capacity;
     }
 
     void push();

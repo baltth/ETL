@@ -28,7 +28,6 @@ limitations under the License.
 
 #include <cstddef>
 
-
 namespace ETL_NAMESPACE {
 
 
@@ -102,6 +101,14 @@ class TypedContainerProxy : public ContainerProxy {
     template<class C>   // cppcheck-suppress noExplicitConstructor
     TypedContainerProxy(C& container) :
         ContainerProxy(container) {};
+
+    T* getData() {
+        return static_cast<T*>(data);
+    }
+
+    const T* getData() const {
+        return static_cast<const T*>(data);
+    }
 
     inline T& operator[](uint32_t ix) {
         return *(static_cast<ItemType*>(getItemPointer(ix)));
