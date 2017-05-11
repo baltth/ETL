@@ -28,10 +28,10 @@ limitations under the License.
 #include "ContainerTester.h"
 
 
-TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Vector<> basic test", "[vector][etl][basic]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     VectorType vector;
 
@@ -63,10 +63,10 @@ TEST_CASE("Etl::Vector<> basic test", "[vector][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> push/pop test", "[vector][etl]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     static const ItemType itemBack1 = 1;
     static const ItemType itemBack2 = 2;
@@ -102,10 +102,10 @@ TEST_CASE("Etl::Vector<> push/pop test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> insert/erase test", "[vector][etl]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     VectorType vector(4, 0);
 
@@ -141,10 +141,10 @@ TEST_CASE("Etl::Vector<> insert/erase test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vector][etl]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     VectorType vector;
 
@@ -180,10 +180,10 @@ TEST_CASE("Etl::Vector<> size/capacity test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<> constructor test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> constructor test", "[vector][etl]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     static const ItemType INIT_VALUE = 123;
 
@@ -216,10 +216,10 @@ TEST_CASE("Etl::Vector<> constructor test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<> assignment test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> assignment test", "[vector][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
@@ -240,10 +240,10 @@ TEST_CASE("Etl::Vector<> assignment test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<> leak test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> leak test", "[vector][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     static const int PATTERN = 123;
 
@@ -268,10 +268,10 @@ TEST_CASE("Etl::Vector<> leak test", "[vector][etl]") {
 }
 
 
-TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
 
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     class IntMatcher : public Etl::Matcher<ItemType> {
         const ItemType value;
@@ -308,11 +308,11 @@ TEST_CASE("Etl::Vector<>::find(Etl::Matcher<>) test", "[vector][etl]") {
 
 #if ETL_USE_EXCEPTIONS
 
-TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> exceptions", "[vector][etl]") {
 
     static const uint32_t COUNT = 16;
     typedef int ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     VectorType vector(COUNT);
 
@@ -329,10 +329,10 @@ TEST_CASE("Etl::Vector<> exceptions", "[vector][etl]") {
 
 #endif
 
-TEST_CASE("Etl::Vector<T*> test", "[vector][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vector][etl][basic]") {
 
     typedef int* ItemType;
-    typedef Etl::Vector<ItemType> VectorType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
 
     VectorType vector;
 
@@ -367,7 +367,7 @@ TEST_CASE("Etl::Vector<T*> test", "[vector][etl][basic]") {
     REQUIRE(vector.getSize() == 1);
 }
 
-TEST_CASE("Etl::Vector<> test cleanup", "[vector][etl]") {
+TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vector][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
 }

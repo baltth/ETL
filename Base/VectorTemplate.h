@@ -38,11 +38,12 @@ namespace ETL_NAMESPACE {
 
 
 template<class T>
-class VectorTemplate : public TypedVectorBase<T> {
+class Vector : public TypedVectorBase<T> {
 
   public:   // types
 
     typedef TypedVectorBase<T> Base;
+    typedef Base StrategyBase;
     typedef T ItemType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
@@ -69,7 +70,7 @@ class VectorTemplate : public TypedVectorBase<T> {
         insert(Base::end(), value);
     }
 
-    inline void swap(VectorTemplate<T>& other) {
+    inline void swap(Vector<T>& other) {
         AVectorBase::swap(other);
         ///\todo check if swappable
     }
@@ -118,19 +119,17 @@ class VectorTemplate : public TypedVectorBase<T> {
 
   protected:
 
-    VectorTemplate<T>(AMemStrategy& s) :
+    Vector(AMemStrategy& s) :
         strategy(s) {};
 
-    VectorTemplate<T>(const VectorTemplate<T>& other);
-    VectorTemplate<T>& operator=(const VectorTemplate<T>& other);
+    Vector& operator=(const Vector& other);
 
 #if ETL_USE_CPP11
 
-    VectorTemplate<T>(VectorTemplate<T>&& other);
-    VectorTemplate<T>(const std::initializer_list<T>& initList);
+    Vector(Vector&& other);
+    Vector(const std::initializer_list<T>& initList);
 
-    VectorTemplate<T>& operator=(VectorTemplate<T>&& other);
-    VectorTemplate<T>& operator=(const std::initializer_list<T>& initList);
+    Vector& operator=(const std::initializer_list<T>& initList);
 
     Iterator insertWithCreator(ConstIterator position, uint32_t num, std::function<void(T*, bool)>&& creatorCall);
     void initWith(const T* src, uint32_t num);
@@ -145,14 +144,7 @@ class VectorTemplate : public TypedVectorBase<T> {
 
 
 template<class T>
-VectorTemplate<T>::VectorTemplate(const VectorTemplate<T>& other) {
-
-    operator=(other);
-}
-
-
-template<class T>
-VectorTemplate<T>& VectorTemplate<T>::operator=(const VectorTemplate<T>& other) {
+Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
 
     this->reserve(other.getSize());
     this->copyOperation(other.begin(), other.getSize());
@@ -163,36 +155,29 @@ VectorTemplate<T>& VectorTemplate<T>::operator=(const VectorTemplate<T>& other) 
 #if ETL_USE_CPP11
 
 template<class T>
-VectorTemplate<T>::VectorTemplate(VectorTemplate<T>&& other) {
+Vector<T>::Vector(Vector<T>&& other) {
 
     this->swap(other);
 }
 
 
 template<class T>
-VectorTemplate<T>::VectorTemplate(const std::initializer_list<T>& initList) {
+Vector<T>::Vector(const std::initializer_list<T>& initList) {
 
     initWith(initList.begin(), initList.size());
 }
 
 
 template<class T>
-VectorTemplate<T>& VectorTemplate<T>::operator=(VectorTemplate<T>&& other) {
-
-    this->swap(other);
-    return *this;
-}
-
-
-template<class T>
-VectorTemplate<T>& VectorTemplate<T>::operator=(const std::initializer_list<T>& initList) {
+Vector<T>& Vector<T>::operator=(const std::initializer_list<T>& initList) {
 
     this->copyOperation(initList.begin(), initList.size());
     return *this;
 }
 
+
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator position, uint32_t num, const T& value) {
+typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, uint32_t num, const T& value) {
 
     return insertWithCreator(position, num, [&value](T * item, bool place) {
         if (place) {
@@ -205,7 +190,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator pos
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator position, T&& value) {
+typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, T&& value) {
 
     return insertWithCreator(position, 1, [&value](T * item, bool place) {
         if (place) {
@@ -219,7 +204,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator pos
 
 template<class T>
 template<typename... Args >
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::emplace(ConstIterator position, Args&& ... args) {
+typename Vector<T>::Iterator Vector<T>::emplace(ConstIterator position, Args&& ... args) {
 
     return insertWithCreator(position, 1, [&](T * item, bool place) {
         if (place) {
@@ -232,7 +217,7 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::emplace(ConstIterator po
 
 
 template<class T>
-void VectorTemplate<T>::initWith(const T* src, uint32_t num) {
+void Vector<T>::initWith(const T* src, uint32_t num) {
 
     reserve(num);
 
@@ -247,9 +232,9 @@ void VectorTemplate<T>::initWith(const T* src, uint32_t num) {
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(ConstIterator position,
-                                                                          uint32_t numToInsert,
-                                                                          std::function<void(T*, bool)>&& creatorCall) {
+typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position,
+                                                          uint32_t numToInsert,
+                                                          std::function<void(T*, bool)>&& creatorCall) {
 
     if (numToInsert > 0) {
 
@@ -268,9 +253,9 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(ConstI
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::find(ConstIterator startPos,
-                                                             ConstIterator endPos,
-                                                             std::function<bool(const T&)>&& matcher) const {
+typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
+                                             ConstIterator endPos,
+                                             std::function<bool(const T&)>&& matcher) const {
 
     bool match = false;
 
@@ -291,8 +276,8 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::find(ConstIterator start
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator position, uint32_t num,
-                                                               const T& value) {
+typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, uint32_t num,
+                                               const T& value) {
 
     typename Base::CopyCreator cc(value);
     return insertWithCreator(position, num, cc);
@@ -300,9 +285,9 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insert(ConstIterator pos
 
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(ConstIterator position,
-                                                                          uint32_t numToInsert,
-                                                                          const CreatorFunctor& creatorCall) {
+typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position,
+                                                          uint32_t numToInsert,
+                                                          const CreatorFunctor& creatorCall) {
 
     if (numToInsert > 0) {
 
@@ -320,9 +305,9 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::insertWithCreator(ConstI
 }
 
 template<class T>
-typename VectorTemplate<T>::Iterator VectorTemplate<T>::find(ConstIterator startPos,
-                                                             ConstIterator endPos,
-                                                             const Matcher<T>& matcher) const {
+typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
+                                             ConstIterator endPos,
+                                             const Matcher<T>& matcher) const {
 
     bool match = false;
 
@@ -339,6 +324,116 @@ typename VectorTemplate<T>::Iterator VectorTemplate<T>::find(ConstIterator start
 }
 
 #endif
+
+template class Vector<void*>;
+
+
+template<class T>
+class Vector<T*> : public Vector<void*> {
+
+  public:   // types
+
+    typedef T* ItemType;
+    typedef Vector<void*> Base;
+    typedef Base::StrategyBase StrategyBase;
+    typedef ItemType* Iterator;
+    typedef const ItemType* ConstIterator;
+
+  public:   // functions
+
+    inline ItemType& operator[](int32_t ix) {
+        return *(static_cast<ItemType*>(getItemPointer(ix)));
+    }
+
+    inline const ItemType& operator[](int32_t ix) const {
+        return *(static_cast<ItemType*>(getItemPointer(ix)));
+    }
+
+    inline Iterator begin() {
+        return reinterpret_cast<Iterator>(Base::begin());
+    }
+
+    inline ConstIterator begin() const {
+        return reinterpret_cast<ConstIterator>(Base::begin());
+    }
+
+    inline Iterator end() {
+        return reinterpret_cast<Iterator>(Base::end());
+    }
+
+    inline ConstIterator end() const {
+        return reinterpret_cast<ConstIterator>(Base::end());
+    }
+
+    inline ItemType& front() {
+        return reinterpret_cast<ItemType&>(Base::front());
+    }
+
+    inline const ItemType& front() const {
+        return reinterpret_cast<const ItemType&>(Base::front());
+    }
+
+    inline ItemType& back() {
+        return reinterpret_cast<ItemType&>(Base::back());
+    }
+
+    inline const ItemType& back() const {
+        return reinterpret_cast<const ItemType&>(Base::back());
+    }
+
+    inline ItemType* getData() {
+        return static_cast<ItemType*>(Base::getData());
+    }
+
+    inline const ItemType* getData() const {
+        return static_cast<ItemType*>(Base::getData());
+    }
+
+    inline Iterator insert(Iterator position, const ItemType& value) {
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+                                                       value));
+    }
+
+    inline Iterator insert(Iterator position, uint32_t num, const ItemType& value) {
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+                                                       num,
+                                                       value));
+    }
+
+    inline Iterator erase(Iterator pos) {
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
+    }
+
+    inline Iterator erase(Iterator first, Iterator last) {
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(first),
+                                                      reinterpret_cast<Base::Iterator>(last)));
+    }
+
+    inline void pushBack(const ItemType& value) {
+        Base::insert(Base::end(), 1, value);
+    }
+
+    inline void popBack() {
+        Base::erase(Base::end());
+    }
+
+  protected:
+
+    Vector(AMemStrategy& s) :
+        Base(s) {};
+
+#if ETL_USE_CPP11
+
+    Vector(const std::initializer_list<T>& initList) :
+        Base(initList) {};
+
+    Vector& operator=(const std::initializer_list<T>& initList) {
+        Base::operator=(initList);
+    }
+
+#endif
+
+};
 
 }
 

@@ -31,20 +31,23 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Dynamic {
 
-template<class T, template<class> class S = HeapUser>
-class Vector : public VectorTemplate<T> {
+template<class T, template<class> class A = std::allocator>
+class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // types
 
     typedef T ItemType;
-    typedef VectorTemplate<T> Base;
+    typedef ETL_NAMESPACE::Vector<T> Base;
+    typedef typename Base::StrategyBase StrategyBase;
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
+    typedef A<typename StrategyBase::ItemType> Allocator;
 
   private:  // variables
 
-    S<TypedVectorBase<T> > strategy;
+    DynamicSized<StrategyBase, Allocator> strategy;
 
   public:   // functions
 
@@ -93,8 +96,8 @@ class Vector : public VectorTemplate<T> {
 };
 
 
-template<class T, template<class> class S /* = HeapUser*/>
-Vector<T, S>::Vector(uint32_t len) :
+template<class T, template<class> class A /* = std::allocator<T> */>
+Vector<T, A>::Vector(uint32_t len) :
     Base(strategy),
     strategy(*this) {
 
@@ -103,160 +106,14 @@ Vector<T, S>::Vector(uint32_t len) :
 }
 
 
-template<class T, template<class> class S /* = HeapUser*/>
-Vector<T, S>::Vector(uint32_t len, const T& item) :
+template<class T, template<class> class A /* = std::allocator<T> */>
+Vector<T, A>::Vector(uint32_t len, const T& item) :
     Base(strategy),
     strategy(*this) {
 
     this->insert(this->begin(), len, item);
 }
 
-
-template<class T, template<class> class S>
-class Vector<T*, S> : public VectorTemplate<void*> {
-
-  public:   // types
-
-    typedef T* ItemType;
-    typedef VectorTemplate<void*> Base;
-    typedef ItemType* Iterator;
-    typedef const ItemType* ConstIterator;
-
-  private:  // variables
-
-    S<TypedVectorBase<void*> > strategy;
-
-  public:   // functions
-
-    Vector() :
-        Base(strategy),
-        strategy(*this) {};
-
-    explicit Vector(uint32_t len);
-    Vector(uint32_t len, const ItemType& item);
-
-    Vector(const Vector& other) :
-        Base(other) {};
-
-    Vector& operator=(const Vector& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-#if ETL_USE_CPP11
-
-    Vector(Vector&& other) :
-        Base(std::move(other)) {};
-
-    Vector(const std::initializer_list<ItemType>& initList) :
-        Base(initList) {};
-
-    Vector& operator=(Vector&& other) {
-        return Base::operator=(std::move(other));
-    }
-
-    Vector& operator=(const std::initializer_list<ItemType>& initList) {
-        return Base::operator=(initList);
-    }
-
-#endif
-
-    inline ItemType& operator[](int32_t ix) {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
-    }
-
-    inline const ItemType& operator[](int32_t ix) const {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
-    }
-
-    inline Iterator begin() {
-        return reinterpret_cast<Iterator>(Base::begin());
-    }
-
-    inline ConstIterator begin() const {
-        return reinterpret_cast<ConstIterator>(Base::begin());
-    }
-
-    inline Iterator end() {
-        return reinterpret_cast<Iterator>(Base::end());
-    }
-
-    inline ConstIterator end() const {
-        return reinterpret_cast<ConstIterator>(Base::end());
-    }
-
-    inline ItemType& front() {
-        return reinterpret_cast<ItemType&>(Base::front());
-    }
-
-    inline const ItemType& front() const {
-        return reinterpret_cast<const ItemType&>(Base::front());
-    }
-
-    inline ItemType& back() {
-        return reinterpret_cast<ItemType&>(Base::back());
-    }
-
-    inline const ItemType& back() const {
-        return reinterpret_cast<const ItemType&>(Base::back());
-    }
-
-    inline ItemType* getData() {
-        return static_cast<ItemType*>(Base::getData());
-    }
-
-    inline const ItemType* getData() const {
-        return static_cast<ItemType*>(Base::getData());
-    }
-
-    inline Iterator insert(Iterator position, const ItemType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
-                                                       value));
-    }
-
-    inline Iterator insert(Iterator position, uint32_t num, const ItemType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
-                                                       num,
-                                                       value));
-    }
-
-    inline Iterator erase(Iterator pos) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
-    }
-
-    inline Iterator erase(Iterator first, Iterator last) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(first),
-                                                      reinterpret_cast<Base::Iterator>(last)));
-    }
-
-    inline void pushBack(const ItemType& value) {
-        Base::insert(Base::end(), 1, value);
-    }
-
-    inline void popBack() {
-        Base::erase(Base::end());
-    }
-
-  protected:
-
-    Vector(ItemType* initData, uint32_t initCapacity) :
-        Base(strategy),
-        strategy(initData, initCapacity, *this) {};
-
-};
-
-template<class T, template<class> class S>
-Vector<T*, S>::Vector(uint32_t len) {
-
-    typename Base::DefaultCreator dc;
-    this->insertWithCreator(this->begin(), len, dc);
-}
-
-
-template<class T, template<class> class S>
-Vector<T*, S>::Vector(uint32_t len, const ItemType& item) {
-
-    this->insert(this->begin(), len, item);
 }
 
 }
