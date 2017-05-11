@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.01.12. 15:48:19
+\date 2016.01.12.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -20,8 +20,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 \endparblock
 */
-
-#include "etlSupport.h"
 
 #include "Base/AVectorBase.h"
 

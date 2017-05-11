@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2015. 07. 02. 12:07:03
+\date 2015.07.02.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,15 +21,13 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_FIFOVECTOR_H__
-#define __ETL_FIFOVECTOR_H__
+#ifndef __ETL_FIFO_H__
+#define __ETL_FIFO_H__
+
+#include "etlSupport.h"
 
 #include "Base/FifoTemplate.h"
 #include "Array.h"
-
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -104,5 +102,5 @@ class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
 
 }
 
-#endif /* __ETL_FIFOVECTOR_H__ */
+#endif /* __ETL_FIFO_H__ */
 

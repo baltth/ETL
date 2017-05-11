@@ -45,9 +45,15 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+template<class> class StaticSized;
+template<class, class> class DynamicSized;
+
 
 template<class T>
 class TypedVectorBase : public AVectorBase {
+    friend StaticSized<TypedVectorBase>;
+    template<class C, class A>
+    friend class DynamicSized;
 
   public:   // types
 
@@ -187,7 +193,7 @@ class TypedVectorBase : public AVectorBase {
     }
 
     static inline void placeDefaultTo(T* ptr) {
-        new(ptr) T();
+        new (ptr) T();
     }
 
     static void assignValueTo(T* ptr, const T& value) {
@@ -195,7 +201,7 @@ class TypedVectorBase : public AVectorBase {
     }
 
     static void placeValueTo(T* ptr, const T& value) {
-        new(ptr) T(value);
+        new (ptr) T(value);
     }
 
 #if ETL_USE_CPP11
@@ -205,18 +211,18 @@ class TypedVectorBase : public AVectorBase {
     }
 
     static void placeValueTo(T* ptr, T&& value) {
-        new(ptr) T(std::move(value));
+        new (ptr) T(std::move(value));
     }
 
 #endif
 
     void copyOperation(const T* src, uint32_t num);
 
-    void uninitializedCopy(T* src, T* dst, uint32_t num);
-    void initializedCopyUp(T* src, T* dst, uint32_t num);
-    void initializedCopyDown(T* src, T* dst, uint32_t num);
+    static void uninitializedCopy(T* src, T* dst, uint32_t num);
+    static void initializedCopyUp(T* src, T* dst, uint32_t num);
+    static void initializedCopyDown(T* src, T* dst, uint32_t num);
 
-    void destruct(Iterator startPos, Iterator endPos);
+    static void destruct(Iterator startPos, Iterator endPos);
 
 #if ETL_USE_CPP11
 
@@ -258,12 +264,21 @@ void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
     T* dataAlias = getData();
     uint32_t i = 0;
 
-    for (; i < getSize(); ++i) {
-        assignValueTo((dataAlias + i), src[i]);
-    }
+    if (num >= getSize()) {
 
-    for (; i < num; ++i) {
-        placeValueTo((dataAlias + i), src[i]);
+        for (; i < getSize(); ++i) {
+            assignValueTo((dataAlias + i), src[i]);
+        }
+
+        for (; i < num; ++i) {
+            placeValueTo((dataAlias + i), src[i]);
+        }
+
+    } else {
+
+        for (; i < num; ++i) {
+            assignValueTo((dataAlias + i), src[i]);
+        }
     }
 
     destruct((dataAlias + i), end());

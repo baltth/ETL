@@ -1,6 +1,6 @@
 /**
 \file
-\date 2017.02.22. 13:01:20
+\date 2017.02.22.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -23,9 +23,9 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <List.h>
-#include <Test/ContainerTester.h>
-#include <Test/DummyAllocator.h>
+#include "List.h"
+#include "Test/ContainerTester.h"
+#include "Test/DummyAllocator.h"
 
 
 TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {

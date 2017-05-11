@@ -1,6 +1,6 @@
 /**
 \file
-\date 2017.02.15. 10:08:10
+\date 2017.02.15.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright

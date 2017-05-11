@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.01.02. 18:58:16
+\date 2016.01.02.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -21,7 +21,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "FifoIndexing.h"
+#include "Base/FifoIndexing.h"
 
 using namespace ETL_NAMESPACE;
 

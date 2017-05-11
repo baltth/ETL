@@ -1,6 +1,6 @@
 ﻿/**
 \file
-\date 2016.01.11. 22:13:38
+\date 2016.01.11.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -31,326 +31,204 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Static {
 
-template<class T>
-class Vector : public VectorTemplate<T, HeapUser> {
+template<class T, size_t N>
+class Vector : public ETL_NAMESPACE::Vector<T> {
+
+    STATIC_ASSERT(N > 0);
 
   public:   // types
 
     typedef T ItemType;
-    typedef VectorTemplate<T, HeapUser> Base;
+    typedef ETL_NAMESPACE::Vector<T> Base;
+    typedef typename Base::StrategyBase StrategyBase;
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
 
+  private:  // variables
+
+    uint8_t data[N * sizeof(T)];
+    StaticSized<StrategyBase> strategy;
 
   public:   // functions
 
-    Vector<T>() {};
+    Vector() :
+        Base(strategy),
+        strategy(data, N) {
+        this->reserve(N);
+    }
 
-    explicit Vector<T>(uint32_t len);
-    Vector<T>(uint32_t len, const T& item);
+    explicit Vector(uint32_t len);
+    Vector(uint32_t len, const T& item);
 
-    Vector<T>(const Vector<T>& other) :
-        Base(other) {};
+    Vector(const Vector& other) :
+        Base(strategy),
+        strategy(data, N) {
+        operator=(other);
+    }
 
-    Vector<T>& operator=(const Vector<T>& other) {
+    Vector(const Base& other) :
+        Base(strategy),
+        strategy(data, N) {
+        operator=(other);
+    }
+
+    Vector& operator=(const Vector& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    Vector& operator=(const Base& other) {
         Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
-    Vector<T>(Vector<T>&& other) :
-        Base(std::move(other)) {};
-
-    Vector<T>(const std::initializer_list<T>& initList) :
-        Base(initList) {};
-
-    Vector<T>& operator=(Vector<T>&& other) {
-        return Base::operator=(std::move(other));
+    Vector(Vector&& other) :
+        Base(strategy),
+        strategy(data, N) {
+        operator=(std::move(other))
     }
 
-    Vector<T>& operator=(const std::initializer_list<T>& initList) {
-        return Base::operator=(initList);
+    Vector(const std::initializer_list<T>& initList) :
+        Base(strategy),
+        strategy(data, N) {
+        operator=(initList)
     }
 
-    Iterator find(std::function<bool(const T&)>&& matcher) const {
-        return find(this->begin(), this->end(), std::move(matcher));
+    Vector& operator=(Vector&& other) {
+        Base::operator=(std::move(other));
+        return *this;
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const T&)>&& matcher) const;
-
-#else
-
-    Iterator find(const Matcher<T>& matcher) const {
-        return find(this->begin(), this->end(), matcher);
+    Vector& operator=(const std::initializer_list<T>& initList) {
+        Base::operator=(initList);
+        return *this;
     }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matcher) const;
 
 #endif
 
+    ~Vector() {
+        strategy.cleanup(*this);
+    }
+
 };
 
-
-template<class T>
-Vector<T>::Vector(uint32_t len) {
+template<class T, size_t N>
+Vector<T, N>::Vector(uint32_t len) :
+    Base(strategy),
+    strategy(data, N) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 
 
-template<class T>
-Vector<T>::Vector(uint32_t len, const T& item) {
+template<class T, size_t N>
+Vector<T, N>::Vector(uint32_t len, const T& item) :
+    Base(strategy),
+    strategy(data, N) {
 
     this->insert(this->begin(), len, item);
 }
 
-
-#if ETL_USE_CPP11
-
-template<class T>
-typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
-                                             ConstIterator endPos,
-                                             std::function<bool(const T&)>&& matcher) const {
-
-    bool match = false;
-
-    while (!match && (startPos < endPos)) {
-
-        match = matcher(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return Iterator(startPos);
 }
 
-#else
 
-template<class T>
-typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
-                                             ConstIterator endPos,
-                                             const Matcher<T>& matcher) const {
+namespace Dynamic {
 
-    bool match = false;
+template<class T, template<class> class A = std::allocator>
+class Vector : public ETL_NAMESPACE::Vector<T> {
 
-    while (!match && (startPos < endPos)) {
+  public:   // types
 
-        match = matcher.call(*startPos);
+    typedef T ItemType;
+    typedef ETL_NAMESPACE::Vector<T> Base;
+    typedef typename Base::StrategyBase StrategyBase;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+    typedef A<typename StrategyBase::ItemType> Allocator;
 
-        if (!match) {
-            ++startPos;
-        }
+  private:  // variables
+
+    DynamicSized<StrategyBase, Allocator> strategy;
+
+  public:   // functions
+
+    Vector() :
+        Base(strategy) {};
+
+    explicit Vector(uint32_t len);
+    Vector(uint32_t len, const T& item);
+
+    Vector(const Vector& other) :
+        Base(strategy) {
+        Base::operator=(other);
     }
 
-    return Iterator(startPos);
-}
+    Vector(const Base& other) :
+        Base(strategy) {
+        Base::operator=(other);
+    }
 
-#endif
+    Vector& operator=(const Vector& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
-
-typedef VectorTemplate<void*, HeapUser> PtrVectorBase;
-
-template<class T>
-class Vector<T*> : public VectorTemplate<void*, HeapUser> {
-
-// types
-  public:
-
-    typedef T* ItemType;
-    typedef VectorTemplate<void*, HeapUser> Base;
-    typedef ItemType* Iterator;
-    typedef const ItemType* ConstIterator;
-
-// functions
-  public:
-
-    Vector<ItemType>() {};
-
-    explicit Vector<ItemType>(uint32_t len);
-    Vector<ItemType>(uint32_t len, const ItemType& item);
-
-    Vector<ItemType>(const Vector<ItemType>& other) :
-        Base(other) {};
-
-    Vector<ItemType>& operator=(const Vector<ItemType>& other) {
+    Vector& operator=(const Base& other) {
         Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
-    Vector<ItemType>(Vector<T>&& other) :
-        Base(std::move(other)) {};
+    Vector(Vector&& other) :
+        Base(strategy) {
+        operator=(std::move(other));
+    }
 
-    Vector<ItemType>(const std::initializer_list<ItemType>& initList) :
-        Base(initList) {};
+    Vector(const std::initializer_list<T>& initList) :
+        Base(strategy) {
+        operator=(initList);
+    }
 
-    Vector<ItemType>& operator=(Vector<ItemType>&& other) {
+    Vector& operator=(Vector&& other) {
         return Base::operator=(std::move(other));
     }
 
-    Vector<ItemType>& operator=(const std::initializer_list<ItemType>& initList) {
+    Vector& operator=(const std::initializer_list<T>& initList) {
         return Base::operator=(initList);
     }
 
-    Iterator find(std::function<bool(const ItemType&)>&& matcher) const {
-        return find(this->begin(), this->end(), std::move(matcher));
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, std::function<bool(const ItemType&)>&& matcher) const;
-
-#else
-
-    Iterator find(const Matcher<ItemType>& matcher) const {
-        return find(this->begin(), this->end(), matcher);
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matcher) const;
-
 #endif
 
-    inline ItemType& operator[](int32_t ix) {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
-    }
-
-    inline const ItemType& operator[](int32_t ix) const {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
-    }
-
-    inline Iterator begin() {
-        return reinterpret_cast<Iterator>(Base::begin());
-    }
-
-    inline ConstIterator begin() const {
-        return reinterpret_cast<ConstIterator>(Base::begin());
-    }
-
-    inline Iterator end() {
-        return reinterpret_cast<Iterator>(Base::end());
-    }
-
-    inline ConstIterator end() const {
-        return reinterpret_cast<ConstIterator>(Base::end());
-    }
-
-    inline ItemType& front() {
-        return reinterpret_cast<ItemType&>(Base::front());
-    }
-
-    inline const ItemType& front() const {
-        return reinterpret_cast<const ItemType&>(Base::front());
-    }
-
-    inline ItemType& back() {
-        return reinterpret_cast<ItemType&>(Base::back());
-    }
-
-    inline const ItemType& back() const {
-        return reinterpret_cast<const ItemType&>(Base::back());
-    }
-
-    inline ItemType* getData() {
-        return static_cast<ItemType*>(Base::getData());
-    }
-
-    inline const ItemType* getData() const {
-        return static_cast<ItemType*>(Base::getData());
-    }
-
-    inline Iterator insert(Iterator position, const ItemType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
-                                                       value));
-    }
-
-    inline Iterator insert(Iterator position, uint32_t num, const ItemType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
-                                                       num,
-                                                       value));
-    }
-
-    inline Iterator erase(Iterator pos) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
-    }
-
-    inline Iterator erase(Iterator first, Iterator last) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(first),
-                                                      reinterpret_cast<Base::Iterator>(last)));
-    }
-
-    inline void pushBack(const ItemType& value) {
-        Base::insert(Base::end(), 1, value);
-    }
-
-    inline void popBack() {
-        Base::erase(Base::end());
+    ~Vector() {
+        strategy.cleanup(*this);
     }
 
 };
 
 
-template<class T>
-Vector<T*>::Vector(uint32_t len) {
+template<class T, template<class> class A /* = std::allocator<T> */>
+Vector<T, A>::Vector(uint32_t len) :
+    Base(strategy) {
 
-    typename Base::DefaultCreator dc;
+    typename TypedVectorBase<T>::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 
 
-template<class T>
-Vector<T*>::Vector(uint32_t len, const ItemType& item) {
+template<class T, template<class> class A /* = std::allocator<T> */>
+Vector<T, A>::Vector(uint32_t len, const T& item) :
+    Base(strategy) {
 
     this->insert(this->begin(), len, item);
 }
 
-
-#if ETL_USE_CPP11
-
-template<class T>
-typename Vector<T*>::Iterator Vector<T*>::find(ConstIterator startPos,
-                                               ConstIterator endPos,
-                                               std::function<bool(const T*&)>&& matcher) const {
-
-    bool match = false;
-
-    while (!match && (startPos < endPos)) {
-
-        match = matcher(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return Iterator(startPos);
 }
-
-#else
-
-template<class T>
-typename Vector<T*>::Iterator Vector<T*>::find(ConstIterator startPos,
-                                               ConstIterator endPos,
-                                               const Matcher<T*>& matcher) const {
-
-    bool match = false;
-
-    while (!match && (startPos < endPos)) {
-
-        match = matcher.call(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return Iterator(startPos);
-}
-
-#endif
 
 }
 

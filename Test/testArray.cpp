@@ -1,6 +1,6 @@
 /**
 \file
-\date 2017.02.06. 11:27:49
+\date 2017.02.06.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -25,9 +25,9 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include <Array.h>
-#include <ContainerProxy.h>
-#include <Test/UnalignedTester.h>
+#include "Array.h"
+#include "ContainerProxy.h"
+#include "Test/UnalignedTester.h"
 
 
 TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {

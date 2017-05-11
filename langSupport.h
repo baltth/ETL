@@ -1,6 +1,6 @@
 /**
 \file
-\date 2016.01.20. 19:44:12
+\date 2016.01.20.
 \author Tóth Balázs - baltth@gmail.com
 
 \copyright
@@ -24,9 +24,6 @@ limitations under the License.
 #ifndef __ETL_LANGSUPPORT_H__
 #define __ETL_LANGSUPPORT_H__
 
-#ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
-#endif
 
 #ifdef ETL_USE_CPP11
 
