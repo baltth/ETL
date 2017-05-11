@@ -28,9 +28,6 @@ limitations under the License.
 
 #include <Array.h>
 #include <Vector.h>
-#include <FixedVector.h>
-
-//#include <Test/ContainerTester.h>
 
 
 TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
@@ -58,11 +55,11 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
 
 }
 
-TEST_CASE("Etl::Fifo<> basic test with Vector<>", "[fifo][vector][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynamic][etl][basic]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::Vector<ItemType> > FifoType;
+    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType> > FifoType;
 
     FifoType fifo(SIZE);
 
@@ -83,11 +80,11 @@ TEST_CASE("Etl::Fifo<> basic test with Vector<>", "[fifo][vector][etl][basic]") 
 
 }
 
-TEST_CASE("Etl::Fifo<> basic test with FixedVector<>", "[fifo][fixedvector][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static][etl][basic]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::FixedVector<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Static::Vector<ItemType, SIZE> > FifoType;
 
     FifoType fifo(SIZE);
 
@@ -153,7 +150,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     CHECK(fifo.getLength() == 3);
 
     int i = 0;
-    for(FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
@@ -161,16 +158,16 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     fifo.push(4);
     fifo.push(5);
     fifo.push(6);
-    
+
     i = 0;
-    for(FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
 
     i = 0;
     FifoType::Iterator it = fifo.end();
-    while(it != fifo.begin()) {
+    while (it != fifo.begin()) {
         --i;
         --it;
         REQUIRE(*it == fifo[i]);
@@ -196,13 +193,13 @@ TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
     CHECK(fifo[-1] == 4);
 
     fifo.push(5);
-    
+
     REQUIRE(fifo.getLength() == SIZE);
     REQUIRE(fifo[0] == 2);
     REQUIRE(fifo[-1] == 5);
 
     fifo.push(6);
-    
+
     REQUIRE(fifo.getLength() == SIZE);
     REQUIRE(fifo[0] == 3);
     REQUIRE(fifo[-1] == 6);
@@ -219,7 +216,7 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
     typedef int ItemType;
     static const uint32_t SIZE1 = 4;
     static const uint32_t SIZE2 = 32;
-    typedef Etl::Fifo<Etl::Vector<ItemType> > FifoType;
+    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType> > FifoType;
 
     FifoType fifo;
 
@@ -227,10 +224,10 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
     REQUIRE(fifo.getLength() == 0);
 
     fifo.setupFifo(SIZE1);
-    
+
     REQUIRE(fifo.getCapacity() == SIZE1);
     REQUIRE(fifo.getLength() == 0);
-    
+
     fifo.push(1);
     fifo.push(2);
     CHECK(fifo.getLength() == 2);
@@ -255,11 +252,11 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 
     fifo.push(1);
     fifo.push(2);
-    
+
     REQUIRE(fifo.getLength() == 2);
-    
+
     fifo.setEmpty();
-    
+
     REQUIRE(fifo.getLength() == 0);
     REQUIRE(fifo.isEmpty());
 
@@ -269,7 +266,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     fifo.push(6);
 
     REQUIRE(fifo.getLength() == 4);
-    
+
     fifo.setLength(2);
 
     REQUIRE(fifo.getLength() == 2);
@@ -277,7 +274,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     REQUIRE(fifo[0] == 5);
 
     fifo.setLength(6);
-    
+
     REQUIRE(fifo.getLength() == 6);
     REQUIRE(fifo[-1] == 6);
     REQUIRE(fifo[0] == 1);
@@ -310,9 +307,4 @@ TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic
 
 }
 
-/*
-TEST_CASE("Etl::Fifo<> test cleanup", "[fifo][etl]") {
 
-    CHECK(ContainerTester::getObjectCount() == 0);
-}
-*/
