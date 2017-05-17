@@ -23,9 +23,10 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Map.h"
-#include "Test/ContainerTester.h"
-#include "Test/DummyAllocator.h"
+#include <Map.h>
+
+#include "ContainerTester.h"
+#include "DummyAllocator.h"
 
 
 TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
@@ -51,8 +52,8 @@ TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
     map.erase(5);
 
     REQUIRE(map.getSize() == 1);
-
 }
+
 
 TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
 
@@ -101,6 +102,7 @@ TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Map<> erase tests", "[map][etl]") {
 
     typedef Etl::Map<int, uint32_t> MapType;
@@ -134,6 +136,7 @@ TEST_CASE("Etl::Map<> erase tests", "[map][etl]") {
         REQUIRE(it == map.find(3));
     }
 }
+
 
 TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
 
@@ -177,6 +180,7 @@ TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Map<> element order", "[map][etl]") {
 
     typedef Etl::Map<int, uint32_t> MapType;
@@ -210,6 +214,7 @@ TEST_CASE("Etl::Map<> element order", "[map][etl]") {
     ++it;
     REQUIRE(it == map.end());
 }
+
 
 TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
 
@@ -246,6 +251,7 @@ TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
         REQUIRE(map[5] == ContainerTester());
     }
 }
+
 
 TEST_CASE("Etl::Map<> copy", "[map][etl]") {
 
@@ -294,6 +300,7 @@ TEST_CASE("Etl::Map<> copy", "[map][etl]") {
         REQUIRE(map2[5] == -5);
     }
 }
+
 
 TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
 
@@ -386,6 +393,7 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 
     typedef ContainerTester ItemType;
@@ -409,8 +417,8 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 
     map.erase(6);
     REQUIRE(AllocatorType::getDeleteCount() == 2);
-
 }
+
 
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 

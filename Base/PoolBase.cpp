@@ -26,7 +26,7 @@ limitations under the License.
 using namespace ETL_NAMESPACE;
 
 
-PoolBase::PoolBase(const ContainerProxy& d, const Registry& reg) :
+PoolBase::PoolBase(const GenericProxy& d, const Registry& reg) :
     data(d),
     registry(reg),
     freeCnt(reg.getCapacity()),

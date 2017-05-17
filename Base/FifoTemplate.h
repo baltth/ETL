@@ -44,8 +44,8 @@ class FifoTemplate : protected C, public FifoIndexing {
 
       private:
 
-        Iterator(const FifoTemplate<C>* fifoArray, uint32_t ix) :
-            FifoIterator<ItemType>(const_cast<ItemType*>(fifoArray->getData()), fifoArray, ix) {};
+        Iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
+            FifoIterator<ItemType>(const_cast<ItemType*>(fifo->getData()), fifo, ix) {};
 
     };
 
@@ -77,6 +77,10 @@ class FifoTemplate : protected C, public FifoIndexing {
     void push(const ItemType& item);
     ItemType pop();
 
+    void drop() {
+        FifoIndexing::pop();
+    }
+    
     ItemType getFromBack(uint32_t ix) const;
     ItemType getFromFront(uint32_t ix) const;
 

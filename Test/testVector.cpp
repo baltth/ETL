@@ -23,9 +23,10 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Vector.h"
-#include "Test/UnalignedTester.h"
-#include "Test/ContainerTester.h"
+#include <Vector.h>
+
+#include "UnalignedTester.h"
+#include "ContainerTester.h"
 
 
 // Etl::Dynamic::Vector tests -------------------------------------------------
@@ -371,6 +372,7 @@ TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vector][dynamic][etl][basic]") {
     REQUIRE(*vector.begin() == &b);
     REQUIRE(vector.getSize() == 1);
 }
+
 
 TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vector][dynamic][etl]") {
 

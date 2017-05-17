@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include "ContainerProxy.h"
+#include "Proxy.h"
 
 namespace ETL_NAMESPACE {
 
@@ -35,11 +35,11 @@ class PoolBase {
 
   public:   // types
 
-    typedef TypedContainerProxy<uint8_t> Registry;
+    typedef MutableProxy<uint8_t> Registry;
 
   private:  // variables
 
-    ContainerProxy data;
+    GenericProxy data;
     Registry registry;
 
     uint32_t freeCnt;
@@ -47,7 +47,7 @@ class PoolBase {
 
   public:   // functions
 
-    PoolBase(const ContainerProxy& d, const Registry& reg);
+    PoolBase(const GenericProxy& d, const Registry& reg);
 
     void* pop(uint32_t n = 1);
     bool push(void* item, uint32_t n = 1);

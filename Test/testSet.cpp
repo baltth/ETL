@@ -23,9 +23,10 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Set.h"
-#include "Test/ContainerTester.h"
-#include "Test/DummyAllocator.h"
+#include <Set.h>
+
+#include "ContainerTester.h"
+#include "DummyAllocator.h"
 
 
 TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]") {
@@ -54,8 +55,8 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]") {
     set.erase(ContainerTester(5));
 
     REQUIRE(set.getSize() == 1);
-
 }
+
 
 TEST_CASE("Etl::Set<> insert() test", "[set][etl]") {
 
@@ -93,6 +94,7 @@ TEST_CASE("Etl::Set<> insert() test", "[set][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Set<> erase tests", "[set][etl]") {
 
     typedef Etl::Set<int> SetType;
@@ -126,6 +128,7 @@ TEST_CASE("Etl::Set<> erase tests", "[set][etl]") {
         REQUIRE(it == set.find(3));
     }
 }
+
 
 TEST_CASE("Etl::Set<> iteration tests", "[set][etl]") {
 
@@ -165,6 +168,7 @@ TEST_CASE("Etl::Set<> iteration tests", "[set][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Set<> element order", "[set][etl]") {
 
     typedef Etl::Set<int> SetType;
@@ -194,6 +198,7 @@ TEST_CASE("Etl::Set<> element order", "[set][etl]") {
     ++it;
     REQUIRE(it == set.end());
 }
+
 
 TEST_CASE("Etl::Set<> copy", "[set][etl]") {
 
@@ -243,6 +248,7 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Set<> search tests", "[set][etl]") {
 
     typedef Etl::Set<int> SetType;
@@ -271,6 +277,7 @@ TEST_CASE("Etl::Set<> search tests", "[set][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 
     typedef ContainerTester ItemType;
@@ -294,8 +301,8 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 
     set.erase(ContainerTester(6));
     REQUIRE(AllocatorType::getDeleteCount() == 2);
-
 }
+
 
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 

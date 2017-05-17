@@ -26,8 +26,7 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include "ContainerProxy.h"
-
+#include "Proxy.h"
 
 namespace ETL_NAMESPACE {
 
@@ -36,7 +35,7 @@ class AVectorBase {
 
   protected: // types
 
-    class Proxy : public ContainerProxy {
+    class Proxy : public GenericProxy {
         friend AVectorBase;
 
       public:   // functions
@@ -56,7 +55,7 @@ class AVectorBase {
       protected:
 
         explicit Proxy(size_t itemSize) :
-            ContainerProxy(itemSize, NULLPTR, 0, 0) {};
+            GenericProxy(itemSize, NULLPTR, 0, 0) {};
 
     };
 

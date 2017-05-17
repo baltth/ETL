@@ -28,7 +28,6 @@ limitations under the License.
 
 #include "Base/FifoIndexing.h"
 
-
 namespace ETL_NAMESPACE {
 
 

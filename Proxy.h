@@ -21,8 +21,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_CONTAINERPROXY_H__
-#define __ETL_CONTAINERPROXY_H__
+#ifndef __ETL_PROXY_H__
+#define __ETL_PROXY_H__
 
 #include "etlSupport.h"
 
@@ -31,7 +31,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-class ContainerProxy {
+class GenericProxy {
 
   protected: // variables
 
@@ -42,14 +42,14 @@ class ContainerProxy {
 
   public:   // functions
 
-    ContainerProxy(size_t itemSize, void* dataPointer, uint32_t cap, uint32_t len) :
+    GenericProxy(size_t itemSize, void* dataPointer, uint32_t cap, uint32_t len) :
         data(dataPointer),
         capacity(cap),
         size(len),
         itemSize(itemSize) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
-    ContainerProxy(C& container) :
+    GenericProxy(C& container) :
         data(container.getData()),
         capacity(container.getCapacity()),
         size(container.getSize()),
@@ -87,7 +87,56 @@ class ContainerProxy {
 
 
 template<typename T>
-class TypedContainerProxy : public ContainerProxy {
+class Proxy {
+
+  public:   // types
+
+    typedef T ItemType;
+
+  protected: // variables
+
+    const ItemType* data;
+    uint32_t capacity;
+    uint32_t size;
+
+  public:   // functions
+
+    Proxy(const ItemType* dataPointer, uint32_t cap, uint32_t len) :
+        data(dataPointer),
+        capacity(cap),
+        size(len) {};
+
+    template<class C>   // cppcheck-suppress noExplicitConstructor
+    Proxy(const C& container) :
+        data(container.getData()),
+        capacity(container.getCapacity()),
+        size(container.getSize()) {};
+
+    const ItemType* getData() const {
+        return data;
+    }
+
+    const ItemType* getItemPointer(uint32_t ix) const {
+        return &(data[ix]);
+    }
+
+    inline const ItemType& operator[](uint32_t ix) const {
+        return data[ix];
+    }
+
+    uint32_t getCapacity() const {
+        return capacity;
+    }
+
+    uint32_t getSize() const {
+        return size;
+    }
+
+};
+
+
+template<typename T>
+class MutableProxy : public GenericProxy {
 
   public:   // types
 
@@ -95,36 +144,32 @@ class TypedContainerProxy : public ContainerProxy {
 
   public:   // functions
 
-    TypedContainerProxy(T* data, uint32_t cap, uint32_t len) :
-        ContainerProxy(sizeof(T), data, cap, len) {};
+    MutableProxy(T* data, uint32_t cap, uint32_t len) :
+        GenericProxy(sizeof(T), data, cap, len) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
-    TypedContainerProxy(C& container) :
-        ContainerProxy(container) {};
+    MutableProxy(C& container) :
+        GenericProxy(container) {};
 
-    T* getData() {
+    ItemType* getData() const {
         return static_cast<T*>(data);
     }
 
-    const T* getData() const {
-        return static_cast<const T*>(data);
+    ItemType* getItemPointer(uint32_t ix) const {
+        return const_cast<ItemType*>(static_cast<const ItemType*>(GenericProxy::getItemPointer(ix)));
     }
 
-    inline T& operator[](uint32_t ix) {
-        return *(static_cast<ItemType*>(getItemPointer(ix)));
+    inline T& operator[](uint32_t ix) const {
+        return *(getItemPointer(ix));
     }
 
-    inline const T& operator[](uint32_t ix) const {
-        return *(static_cast<const ItemType*>(getItemPointer(ix)));
-    }
-
-    void fill(const T& value);
+    void fill(const T& value) const;
 
 };
 
 
 template<typename T>
-void TypedContainerProxy<T>::fill(const T& value) {
+void MutableProxy<T>::fill(const T& value) const {
 
     for (uint32_t i = 0; i < getCapacity(); ++i) {
         operator[](i) = value;
@@ -133,5 +178,5 @@ void TypedContainerProxy<T>::fill(const T& value) {
 
 }
 
-#endif /* __ETL_CONTAINERPROXY_H__ */
+#endif /* __ETL_PROXY_H__ */
 
