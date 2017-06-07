@@ -27,6 +27,7 @@ limitations under the License.
 #include "etlSupport.h"
 
 #include "Base/ListTemplate.h"
+#include "PoolAllocator.h"
 
 #include <memory>
 
@@ -38,9 +39,10 @@ class List : public ListTemplate<T, A> {
 
   public:   // types
 
-    typedef typename ListTemplate<T, A>::Iterator Iterator;
-    typedef typename ListTemplate<T, A>::ConstIterator ConstIterator;
-    typedef typename ListTemplate<T, A>::Node Node;
+    typedef ListTemplate<T, A> ListBase;
+    typedef typename ListBase::Iterator Iterator;
+    typedef typename ListBase::ConstIterator ConstIterator;
+    typedef typename ListBase::Node Node;
 
   public:   // functions
 
@@ -49,11 +51,38 @@ class List : public ListTemplate<T, A> {
 #if ETL_USE_CPP11
 
     List(const std::initializer_list<T>& initList) :
-        ListTemplate<T>(initList) {};
+        ListBase(initList) {};
 
 #endif
 
 };
+
+
+namespace Pooled {
+
+template<class E, uint32_t N>
+class List : public ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> ListBase;
+    typedef typename ListBase::Iterator Iterator;
+    typedef typename ListBase::ConstIterator ConstIterator;
+
+  public:   // functions
+
+    List() {};
+
+#if ETL_USE_CPP11
+
+    List(const std::initializer_list<T>& initList) :
+        ListBase(initList) {};
+
+#endif
+
+};
+
+}
 
 }
 

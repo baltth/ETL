@@ -332,7 +332,7 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
             set.insert(ContainerTester(i));
         }
 
-        REQUIRE(set.getSize() == NUM);
+        CHECK(set.getSize() == NUM);
 
         std::pair<SetType::Iterator, bool> res = set.insert(ContainerTester(NUM));
         REQUIRE(set.getSize() == NUM);

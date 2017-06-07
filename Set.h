@@ -158,25 +158,12 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
 
 #if ETL_USE_CPP11
 
-    Set(const std::initializer_list<E>& initList);
+    Set(const std::initializer_list<E>& initList) :
+        SetBase(initList) {};
 
 #endif
 
 };
-
-
-#if ETL_USE_CPP11
-
-template<class E, template<class> class A>
-Set<E, A>::Set(const std::initializer_list<E>& initList) {
-
-    for (auto& item : initList) {
-        SetBase::insertUnique(item);
-    }
-}
-
-#endif
-
 
 }
 
