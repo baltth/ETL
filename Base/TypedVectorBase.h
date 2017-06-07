@@ -158,7 +158,7 @@ class TypedVectorBase : public AVectorBase {
     }
 
     inline const T* getData() const {
-        return static_cast<T*>(getItemPointer(0));
+        return static_cast<const T*>(getItemPointer(0));
     }
 
     inline void popFront() {

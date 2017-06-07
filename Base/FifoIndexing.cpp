@@ -95,6 +95,7 @@ uint32_t FifoIndexing::previousIndex(uint32_t ix) const {
     return ix;
 }
 
+
 void FifoIndexing::push() {
 
     uint32_t prevWriteIx = writeIx;
@@ -106,8 +107,8 @@ void FifoIndexing::push() {
     } else {
         ++length;
     }
-
 }
+
 
 void FifoIndexing::pop() {
 

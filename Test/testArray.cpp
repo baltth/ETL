@@ -23,11 +23,10 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "etlSupport.h"
+#include <Array.h>
+#include <Proxy.h>
 
-#include "Array.h"
-#include "ContainerProxy.h"
-#include "Test/UnalignedTester.h"
+#include "UnalignedTester.h"
 
 
 TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {
@@ -44,8 +43,8 @@ TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {
     *it = 1;
     CAPTURE(*it);
     REQUIRE(array[0] == *it);
-
 }
+
 
 TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
 
@@ -75,6 +74,7 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
     REQUIRE(array[14] == 15);
 }
 
+
 #if ETL_USE_EXCEPTIONS
 
 TEST_CASE("Etl::Array<> exceptions", "[array][etl]") {
@@ -94,10 +94,10 @@ TEST_CASE("Etl::Array<> exceptions", "[array][etl]") {
 
     REQUIRE_THROWS_AS(val = array.at(COUNT), Etl::OutOfRangeException);
     REQUIRE_THROWS_AS(val = array.at(COUNT + 100), Etl::OutOfRangeException);
-
 }
 
 #endif
+
 
 TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
 
@@ -125,6 +125,7 @@ TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
     REQUIRE(diff == refDiff);
 }
 
+
 TEST_CASE("Etl::Array<> features", "[array][etl]") {
 
     typedef int ItemType;
@@ -149,35 +150,48 @@ TEST_CASE("Etl::Array<> features", "[array][etl]") {
 
     ArrayType array3 = array2;
     REQUIRE(array3[15] == PATTERN2);
-
 }
 
-TEST_CASE("Etl::ContainerProxy - Array<> test", "[array][etl][basic]") {
+
+TEST_CASE("Etl::GenericProxy - Array<> test", "[array][etl][basic]") {
 
     typedef int ItemType;
 
     Etl::Array<ItemType, 16> array;
-    Etl::ContainerProxy proxy(array);
+    Etl::GenericProxy proxy(array);
 
     REQUIRE(proxy.getCapacity() == array.getSize());
     REQUIRE(proxy.getItemSize() == sizeof(ItemType));
     REQUIRE(proxy.getData() == array.getData());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
     REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
-
 }
 
-TEST_CASE("Etl::TypedContainerProxy - Array<> test", "[array][etl][basic]") {
+
+TEST_CASE("Etl::Proxy - Array<> test", "[array][etl][basic]") {
+
+    typedef int ItemType;
+
+    Etl::Array<ItemType, 16> array;
+    Etl::Proxy<ItemType> proxy(array);
+
+    REQUIRE(proxy.getCapacity() == array.getSize());
+    REQUIRE(proxy.getData() == array.getData());
+    REQUIRE(proxy.getItemPointer(0) == array.begin());
+    REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
+}
+
+
+TEST_CASE("Etl::MutableProxy - Array<> test", "[array][etl][basic]") {
 
     typedef int ItemType;
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
 
     Etl::Array<ItemType, 16> array;
-    Etl::TypedContainerProxy<ItemType> proxy(array);
+    Etl::MutableProxy<ItemType> proxy(array);
 
     REQUIRE(proxy.getCapacity() == array.getSize());
-    REQUIRE(proxy.getItemSize() == sizeof(ItemType));
     REQUIRE(proxy.getData() == array.getData());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
     REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
@@ -190,6 +204,6 @@ TEST_CASE("Etl::TypedContainerProxy - Array<> test", "[array][etl][basic]") {
 
     REQUIRE(array[0] == PATTERN2);
     REQUIRE(array[15] == PATTERN2);
-
 }
+
 

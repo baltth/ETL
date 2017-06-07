@@ -76,13 +76,11 @@ class StaticSized : public AMemStrategy<C> {
         setupData(cont, capacity);
     }
 
-    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE {
-        setupData(cont, length);
-    }
-
     virtual void cleanup(C& cont) {
         cont.clear();
     }
+
+    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE;
 
   private:
 
@@ -90,6 +88,31 @@ class StaticSized : public AMemStrategy<C> {
 
 };
 
+
+template<class C>
+void StaticSized<C>::resize(C& cont, uint32_t length) {
+
+    if (length <= capacity) {
+
+        setupData(cont, length);
+
+        if (length > cont.getSize()) {
+
+            typename C::Iterator newEnd = cont.getData() + length;
+
+            for (typename C::Iterator it = cont.end(); it < newEnd; ++it) {
+                C::placeDefaultTo(it);
+            }
+
+        } else if (length < cont.getSize()) {
+
+            typename C::Iterator newEnd = cont.getData() + length;
+            C::destruct(newEnd, cont.end());
+        }
+
+        cont.proxy.setSize(length);
+    }
+}
 
 template<class C>
 void StaticSized<C>::setupData(C& cont, uint32_t length) {

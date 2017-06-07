@@ -23,11 +23,11 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Fifo.h"
-#include "FifoAccess.h"
+#include <Fifo.h>
+#include <FifoAccess.h>
 
-#include "Array.h"
-#include "Vector.h"
+#include <Array.h>
+#include <Vector.h>
 
 
 TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
@@ -52,8 +52,8 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
     REQUIRE(fifo.pop() == 2);
 
     REQUIRE(fifo.getLength() == 0);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynamic][etl][basic]") {
 
@@ -77,8 +77,8 @@ TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynam
     REQUIRE(fifo.pop() == 2);
 
     REQUIRE(fifo.getLength() == 0);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static][etl][basic]") {
 
@@ -102,8 +102,8 @@ TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static
     REQUIRE(fifo.pop() == 2);
 
     REQUIRE(fifo.getLength() == 0);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> element access", "[fifo][etl]") {
 
@@ -132,8 +132,8 @@ TEST_CASE("Etl::Fifo<> element access", "[fifo][etl]") {
     REQUIRE(fifo[3] == 5);
     REQUIRE(fifo[-1] == 5);
     REQUIRE(fifo[-4] == 2);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
 
@@ -172,8 +172,8 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
         --it;
         REQUIRE(*it == fifo[i]);
     }
-
 }
+
 
 TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
 
@@ -208,8 +208,8 @@ TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
 
     REQUIRE(fifo[0] == 4);
     REQUIRE(fifo[-1] == 6);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
 
@@ -236,8 +236,8 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
 
     REQUIRE(fifo.getCapacity() == SIZE2);
     REQUIRE(fifo.getLength() == 0);
-
 }
+
 
 TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 
@@ -278,8 +278,8 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     REQUIRE(fifo.getLength() == 6);
     REQUIRE(fifo[-1] == 6);
     REQUIRE(fifo[0] == 1);
-
 }
+
 
 TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic]") {
 
@@ -304,7 +304,7 @@ TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic
     REQUIRE(fifo.pop() == 2);
 
     REQUIRE(fifo.getLength() == 0);
-
 }
+
 
 

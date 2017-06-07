@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "etlSupport.h"
 
-#include "ContainerProxy.h"
+#include "Proxy.h"
 #include "Base/FifoIndexing.h"
 #include "Base/AFifoIterator.h"
 
@@ -52,11 +52,11 @@ class FifoAccess : public FifoIndexing {
 
   private:  // variables
 
-    TypedContainerProxy<T> proxy;
+    MutableProxy<T> proxy;
 
   public:   // functions
 
-    explicit FifoAccess(const TypedContainerProxy<T>& p) :
+    explicit FifoAccess(const MutableProxy<T>& p) :
         FifoIndexing(p.getSize()),
         proxy(p) {};
 

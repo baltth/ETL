@@ -23,9 +23,10 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "Vector.h"
-#include "Test/UnalignedTester.h"
-#include "Test/ContainerTester.h"
+#include <Vector.h>
+
+#include "UnalignedTester.h"
+#include "ContainerTester.h"
 
 
 // Etl::Dynamic::Vector tests -------------------------------------------------
@@ -169,12 +170,21 @@ TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vector][dynamic][etl]")
     REQUIRE(vector.getSize() == 2);
     REQUIRE(vector.getCapacity() >= 5);
 
+    uint32_t newSize = vector.getSize() + 3;
+
+    vector.resize(newSize);
+    REQUIRE(vector.getSize() == newSize);
+
     uint32_t capacity = vector.getCapacity();
-    uint32_t newSize = capacity + 3;
+    newSize = capacity + 3;
 
     vector.resize(newSize);
     REQUIRE(vector.getSize() == newSize);
     REQUIRE(vector.getCapacity() >= newSize);
+
+    vector.resize(2);
+    REQUIRE(vector.getSize() == 2);
+    REQUIRE(vector.getCapacity() >= 2);
 
     capacity = vector.getCapacity();
     vector.clear();
@@ -363,6 +373,7 @@ TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vector][dynamic][etl][basic]") {
     REQUIRE(vector.getSize() == 1);
 }
 
+
 TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vector][dynamic][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
@@ -516,11 +527,21 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vector][static][etl][bas
     REQUIRE(vector.getSize() == 2);
     REQUIRE(vector.getCapacity() == CAPACITY);
 
+    uint32_t newSize = vector.getSize() + 3;
+
+    vector.resize(newSize);
+    REQUIRE(vector.getSize() == newSize);
+    REQUIRE(vector.getCapacity() == CAPACITY);
+
     size_t oldSize = vector.getSize();
-    uint32_t newSize = CAPACITY + 3;
+    newSize = CAPACITY + 3;
 
     vector.resize(newSize);
     REQUIRE(vector.getSize() == oldSize);
+    REQUIRE(vector.getCapacity() == CAPACITY);
+
+    vector.resize(2);
+    REQUIRE(vector.getSize() == 2);
     REQUIRE(vector.getCapacity() == CAPACITY);
 
     vector.clear();

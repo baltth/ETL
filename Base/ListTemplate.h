@@ -68,11 +68,11 @@ class ListTemplate : protected AListBase {
             item(value) {};
 #endif
 
-        static void* operator new (size_t size) {
+        static void* operator new(size_t size) {
             return ListTemplate::allocator.allocate(1);
         }
 
-        static void operator delete (void* ptr) {
+        static void operator delete(void* ptr) {
             ListTemplate::allocator.deallocate(static_cast<Node*>(ptr), 1);
         }
 

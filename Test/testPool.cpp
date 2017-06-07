@@ -23,7 +23,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include "MemoryPool.h"
+#include <MemoryPool.h>
 
 
 TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
@@ -51,8 +51,8 @@ TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
     REQUIRE(pool.push(item0));
     ++freeCnt;
     CHECK(pool.getFreeCount() == freeCnt);
-
 }
+
 
 TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
 
@@ -75,8 +75,8 @@ TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
         CAPTURE(*it);
         CHECK(pool.push(*it));
     }
-
 }
+
 
 TEST_CASE("Etl::MemoryPool<> free fail", "[pool][etl]") {
 
@@ -93,8 +93,8 @@ TEST_CASE("Etl::MemoryPool<> free fail", "[pool][etl]") {
     REQUIRE(pool.push(item0) == false);
 
     REQUIRE(pool.push(item2));
-
 }
+
 
 TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
 
@@ -142,8 +142,8 @@ TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
     REQUIRE(((items[4] == item4) || (items[4] == item6) || (items[4] == item7)));
     REQUIRE(((items[6] == item4) || (items[6] == item6) || (items[6] == item7)));
     REQUIRE(((items[7] == item4) || (items[7] == item6) || (items[7] == item7)));
-
 }
+
 
 TEST_CASE("Etl::PoolBase multi-pop", "[pool][etl]") {
 
@@ -152,6 +152,6 @@ TEST_CASE("Etl::PoolBase multi-pop", "[pool][etl]") {
     Etl::PoolBase base(data, registry);
 
     REQUIRE(base.pop(3) == NULL);
-
 }
+
 

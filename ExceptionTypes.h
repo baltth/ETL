@@ -44,7 +44,7 @@ class Exception : public std::exception {
     explicit Exception(const char* t) :
         text(t) {};
 
-    virtual const char* what() const throw () {
+    virtual const char* what() const throw() {
         return text;
     }
 
