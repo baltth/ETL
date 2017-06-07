@@ -158,12 +158,16 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
     std::pair<Iterator, bool> found = findSortedPosition(item);
 
     if (found.second == false) {
+
         found.first = container.insert(found.first, item);
+        if (found.first != end()) {
+            found.second = true;
+        }
+
     } else {
         --found.first;
+        found.second = false;
     }
-
-    found.second = !found.second;
 
     return found;
 }
