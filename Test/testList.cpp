@@ -164,6 +164,82 @@ TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
 }
 
 
+TEST_CASE("Etl::List<>::splice() test", "[list][etl]") {
+
+    typedef ContainerTester ItemType;
+    typedef Etl::List<ItemType> ListType;
+
+    ListType list1;
+    ListType list2;
+
+    for (uint32_t i = 0; i < 8; ++i) {
+        list1.pushBack(ItemType(i));
+    }
+
+    CHECK(list1.getSize() == 8);
+    CHECK(list2.getSize() == 0);
+
+    SECTION("Splice to empty") {
+
+        list2.splice(list2.end(), list1, list1.begin());
+
+        REQUIRE(list1.getSize() == 7);
+        REQUIRE(list2.getSize() == 1);
+
+        REQUIRE(ContainerTester::getObjectCount() == 8);
+
+        REQUIRE(*list1.begin() == ItemType(1));
+        REQUIRE(*list2.begin() == ItemType(0));
+    }
+
+    SECTION("Splice to existing") {
+
+        list2.pushBack(ItemType(8));
+        CHECK(list2.getSize() == 1);
+
+        ListType::ConstIterator it = list1.begin();
+        ++it;
+        ++it;
+        ++it;
+
+        CHECK(*it == ItemType(3));
+
+        list2.splice(list2.begin(), list1, list1.begin(), it);
+
+        REQUIRE(list1.getSize() == 5);
+        REQUIRE(list2.getSize() == 4);
+
+        list2.splice(list2.end(), list1);
+
+        REQUIRE(list1.getSize() == 0);
+        REQUIRE(list2.getSize() == 9);
+
+        REQUIRE(ContainerTester::getObjectCount() == 9);
+
+        it = list2.begin();
+        REQUIRE(*it == ItemType(0));
+        ++it;
+        REQUIRE(*it == ItemType(1));
+        ++it;
+        REQUIRE(*it == ItemType(2));
+        ++it;
+        REQUIRE(*it == ItemType(8));
+        ++it;
+        REQUIRE(*it == ItemType(3));
+        ++it;
+        REQUIRE(*it == ItemType(4));
+        ++it;
+        REQUIRE(*it == ItemType(5));
+        ++it;
+        REQUIRE(*it == ItemType(6));
+        ++it;
+        REQUIRE(*it == ItemType(7));
+        ++it;
+        REQUIRE(it == list2.end());
+    }
+}
+
+
 TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     typedef int ItemType;
@@ -220,7 +296,7 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
         CHECK(list.getSize() == NUM);
 
-        ListType::Iterator it = list.insert(list.begin(),ContainerTester(NUM));
+        ListType::Iterator it = list.insert(list.begin(), ContainerTester(NUM));
         REQUIRE(list.getSize() == NUM);
         REQUIRE(it == list.end());
     }

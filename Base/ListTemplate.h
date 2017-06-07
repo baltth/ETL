@@ -256,6 +256,20 @@ class ListTemplate : protected AListBase {
 
 #endif
 
+    void splice(ConstIterator pos, ListTemplate& other) {
+        splice(pos, other, other.begin(), other.end());
+    }
+
+    void splice(ConstIterator pos, ListTemplate& other, ConstIterator it) {
+        ConstIterator it2 = it;
+        ++it2;
+        splice(pos, other, it, it2);
+    }
+
+    void splice(ConstIterator pos,
+                ListTemplate& other,
+                ConstIterator first,
+                ConstIterator last);
     /// @}
 
     template<typename F, typename V>
@@ -368,7 +382,7 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator p
 template<class T, template<class> class A>
 template<typename... Args >
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::emplace(ConstIterator pos, Args&& ... args) {
-    
+
     Iterator it = end();
     Node* inserted = new Node(std::forward<Args>(args)...);
     if (inserted != NULLPTR) {
@@ -437,6 +451,22 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator sta
 }
 
 #endif
+
+template<class T, template<class> class A>
+void ListTemplate<T, A>::splice(ConstIterator pos,
+                                ListTemplate& other,
+                                ConstIterator first,
+                                ConstIterator last) {
+
+    ConstIterator item = first;
+
+    while (item != last) {
+        ConstIterator next = item;
+        ++next;
+        AListBase::insert(pos, other.remove(item));
+        item = next;
+    }
+}
 
 }
 
