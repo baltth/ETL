@@ -190,6 +190,43 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 }
 
 
+TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
+
+    static const uint32_t NUM = 16;
+    typedef ContainerTester ItemType;
+    typedef Etl::Pooled::List<ItemType, NUM> ListType;
+
+    ListType list;
+
+    SECTION("Basic allocation") {
+
+        list.pushBack(ContainerTester(1));
+
+        ListType::Iterator it = list.begin();
+        REQUIRE(it.operator->() != NULL);
+
+        list.pushBack(ContainerTester(1));
+        ListType::Iterator it2 = it;
+        ++it2;
+        REQUIRE(it2.operator->() != NULL);
+        REQUIRE(it2.operator->() != it.operator->());
+    }
+
+    SECTION("Allocate all") {
+
+        for (uint32_t i = 0; i < NUM; ++i) {
+            list.pushBack(ContainerTester(i));
+        }
+
+        CHECK(list.getSize() == NUM);
+
+        ListType::Iterator it = list.insert(list.begin(),ContainerTester(NUM));
+        REQUIRE(list.getSize() == NUM);
+        REQUIRE(it == list.end());
+    }
+}
+
+
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);

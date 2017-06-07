@@ -304,6 +304,44 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 }
 
 
+TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
+
+    static const uint32_t NUM = 16;
+    typedef ContainerTester ItemType;
+    typedef Etl::Pooled::Set<ItemType, NUM> SetType;
+
+    SetType set;
+
+    SECTION("Basic allocation") {
+
+        set.insert(ContainerTester(5));
+
+        SetType::Iterator it = set.begin();
+        REQUIRE(it.operator->() != NULL);
+
+        set.insert(ContainerTester(6));
+        SetType::Iterator it2 = it;
+        ++it2;
+        REQUIRE(it2.operator->() != NULL);
+        REQUIRE(it2.operator->() != it.operator->());
+    }
+
+    SECTION("Allocate all") {
+
+        for (uint32_t i = 0; i < NUM; ++i) {
+            set.insert(ContainerTester(i));
+        }
+
+        CHECK(set.getSize() == NUM);
+
+        std::pair<SetType::Iterator, bool> res = set.insert(ContainerTester(NUM));
+        REQUIRE(set.getSize() == NUM);
+        REQUIRE(res.first == set.end());
+        REQUIRE(res.second == false);
+    }
+}
+
+
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);

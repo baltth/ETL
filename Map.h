@@ -28,6 +28,7 @@ limitations under the License.
 
 #include "Base/Sorted.h"
 #include "Base/MapItem.h"
+#include "PoolAllocator.h"
 
 #include <memory>
 #include <utility>
@@ -233,6 +234,43 @@ std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::emplace(const K& 
 }
 
 #endif
+
+
+namespace Pooled {
+
+
+template<class K, class E, uint32_t N>
+class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> MapBase;
+    typedef typename MapBase::Iterator Iterator;
+    typedef typename MapBase::ConstIterator ConstIterator;
+
+  public:   // functions
+
+    Map() {};
+
+    Map(const MapBase& other) :
+        MapBase(other) {};
+
+    Map& operator=(const MapBase& other) {
+        MapBase::clear();
+        copyElementsFrom(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Map(const std::initializer_list<std::pair<K, E>>& initList) :
+        MapBase(initList) {};
+
+#endif
+
+};
+
+}
 
 }
 

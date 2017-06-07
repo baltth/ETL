@@ -68,7 +68,7 @@ class ListTemplate : protected AListBase {
             item(value) {};
 #endif
 
-        static void* operator new(size_t size) {
+        static void* operator new(size_t size) throw() {
             return ListTemplate::allocator.allocate(1);
         }
 
@@ -233,13 +233,8 @@ class ListTemplate : protected AListBase {
 
     /// \name Element operations
     /// @{
-    inline void pushFront(const T& item) {
-        return AListBase::pushFront(new Node(item));
-    }
-
-    inline void pushBack(const T& item) {
-        return AListBase::pushBack(new Node(item));
-    }
+    inline void pushFront(const T& item);
+    inline void pushBack(const T& item);
 
     inline void popFront() {
         delete static_cast<Node*>(AListBase::popBack());
@@ -343,6 +338,26 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator sta
 }
 
 
+template<class T, template<class> class A>
+void ListTemplate<T, A>::pushFront(const T& item) {
+
+    Node* p = new Node(item);
+    if (p != NULLPTR) {
+        AListBase::pushFront(p);
+    }
+}
+
+
+template<class T, template<class> class A>
+void ListTemplate<T, A>::pushBack(const T& item) {
+
+    Node* p = new Node(item);
+    if (p != NULLPTR) {
+        AListBase::pushBack(p);
+    }
+}
+
+
 #if ETL_USE_CPP11
 
 
@@ -355,10 +370,15 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator p
 template<class T, template<class> class A>
 template<typename... Args >
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::emplace(ConstIterator pos, Args&& ... args) {
-
+    
+    Iterator it = end();
     Node* inserted = new Node(std::forward<Args>(args)...);
-    AListBase::insert(pos, inserted);
-    return Iterator(inserted);
+    if (inserted != NULLPTR) {
+        AListBase::insert(pos, inserted);
+        it = Iterator(inserted);
+    }
+
+    return it;
 }
 
 
@@ -388,9 +408,14 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator sta
 template<class T, template<class> class A>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator pos, const T& item) {
 
+    Iterator it = end();
     Node* inserted = new Node(item);
-    AListBase::insert(pos, inserted);
-    return Iterator(inserted);
+    if (inserted != NULLPTR) {
+        AListBase::insert(pos, inserted);
+        it = Iterator(inserted);
+    }
+
+    return it;
 }
 
 

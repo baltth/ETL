@@ -27,6 +27,7 @@ limitations under the License.
 #include "etlSupport.h"
 
 #include "Base/Sorted.h"
+#include "PoolAllocator.h"
 
 #include <memory>
 #include <utility>
@@ -127,6 +128,43 @@ void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
     for (Iterator it = other.begin(); it != endIt; ++it) {
         insert(*it);
     }
+}
+
+
+namespace Pooled {
+
+
+template<class E, uint32_t N>
+class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> SetBase;
+    typedef typename SetBase::Iterator Iterator;
+    typedef typename SetBase::ConstIterator ConstIterator;
+
+  public:   // functions
+
+    Set() {};
+
+    Set(const SetBase& other) :
+        SetBase(other) {};
+
+    Set& operator=(const SetBase& other) {
+        SetBase::clear();
+        copyElementsFrom(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Set(const std::initializer_list<E>& initList) :
+        SetBase(initList) {};
+
+#endif
+
+};
+
 }
 
 }

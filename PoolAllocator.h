@@ -62,6 +62,17 @@ class PoolAllocator {
 
 };
 
+
+template<uint32_t N>
+class PoolHelper {
+
+  public:   // types
+
+    template<class T>
+    class Allocator : public PoolAllocator<T, N> {};
+
+};
+
 }
 
 #endif /* __ETL_POOLALLOCATOR_H__ */

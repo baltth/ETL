@@ -420,6 +420,44 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 }
 
 
+TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
+
+    static const uint32_t NUM = 16;
+    typedef ContainerTester ItemType;
+    typedef Etl::Pooled::Map<uint32_t, ItemType, NUM> MapType;
+
+    MapType map;
+
+    SECTION("Basic allocation") {
+
+        map.insert(5, ContainerTester(-5));
+
+        MapType::Iterator it = map.begin();
+        REQUIRE(it.operator->() != NULL);
+
+        map.insert(6, ContainerTester(-6));
+        MapType::Iterator it2 = it;
+        ++it2;
+        REQUIRE(it2.operator->() != NULL);
+        REQUIRE(it2.operator->() != it.operator->());
+    }
+
+    SECTION("Allocate all") {
+
+        for (uint32_t i = 0; i < NUM; ++i) {
+            map.insert(i, ContainerTester(i));
+        }
+
+        CHECK(map.getSize() == NUM);
+
+        std::pair<MapType::Iterator, bool> res = map.insert(NUM, ContainerTester(NUM));
+        REQUIRE(map.getSize() == NUM);
+        REQUIRE(res.first == map.end());
+        REQUIRE(res.second == false);
+    }
+}
+
+
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
