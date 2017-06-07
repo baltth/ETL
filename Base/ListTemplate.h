@@ -69,11 +69,11 @@ class ListTemplate : protected AListBase {
 #endif
 
         static void* operator new(size_t size) throw() {
-            return ListTemplate::allocator.allocate(1);
+            return ListTemplate::allocator().allocate(1);
         }
 
         static void operator delete(void* ptr) {
-            ListTemplate::allocator.deallocate(static_cast<Node*>(ptr), 1);
+            ListTemplate::allocator().deallocate(static_cast<Node*>(ptr), 1);
         }
 
     };
@@ -188,10 +188,6 @@ class ListTemplate : protected AListBase {
 
     friend Node;
 
-  private:  // variables
-
-    static Allocator allocator;
-
   public:   // functions
 
     ListTemplate() {};
@@ -288,10 +284,12 @@ class ListTemplate : protected AListBase {
 
 #endif
 
-};
+    static Allocator& allocator() {
+        static Allocator a;
+        return a;
+    }
 
-template<class T, template<class> class A>
-typename ListTemplate<T, A>::Allocator ListTemplate<T, A>::allocator;
+};
 
 
 #if ETL_USE_CPP11
