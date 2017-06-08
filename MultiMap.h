@@ -73,6 +73,10 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
         return MapBase::insert(ItemType(k, e));
     }
 
+    inline std::pair<Iterator, bool> insertUnique(const K& k, const E& e) {
+        return MapBase::insertUnique(ItemType(k, e));
+    }
+    
     uint32_t erase(const K& k);
 
     Iterator erase(Iterator pos) {

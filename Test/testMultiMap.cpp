@@ -95,6 +95,23 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
         REQUIRE(it->getElement() == 2);
         REQUIRE(map.getSize() == 2);
     }
+
+    SECTION("insertUnique()") {
+
+        std::pair<MapType::Iterator, bool> res = map.insertUnique(1, 3);
+
+        REQUIRE(res.second == false);
+        REQUIRE(map.getSize() == 1);
+        REQUIRE(res.first->getElement() == 2);
+
+        res = map.insertUnique(2, 2);
+
+        REQUIRE(res.second == true);
+        REQUIRE(map.getSize() == 2);
+        REQUIRE(res.first != map.end());
+        REQUIRE(res.first->getKey() == 2);
+        REQUIRE(res.first->getElement() == 2);
+    }
 }
 
 
