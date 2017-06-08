@@ -48,8 +48,6 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
     typedef Matcher<ItemType> ItemMatcher;
-    typedef typename ItemType::KeyMatcher KeyMatcher;
-    typedef typename ItemType::ElementMatcher ElementMatcher;
 
   public:   // functions
 
