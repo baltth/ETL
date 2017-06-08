@@ -137,6 +137,15 @@ class AListBase {
     Node* remove(Iterator pos) {
         return static_cast<AListBase::Node*>(list.remove(pos.node));
     }
+
+    void swap(AListBase& other) {
+        list.swap(other.list);
+    }
+
+    void splice(Iterator pos,
+                AListBase& other,
+                Iterator first,
+                Iterator last);
     /// @}
 
   private:

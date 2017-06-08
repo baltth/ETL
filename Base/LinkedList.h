@@ -42,7 +42,7 @@ class LinkedList {
         Node() :
             next(NULLPTR) {};
 
-        Node(Node* n) :
+        explicit Node(Node* n) :
             next(n) {};
 
     };
@@ -79,13 +79,14 @@ class LinkedList {
 
     void insertAfter(Node* pos, Node* node);
     Node* removeAfter(Node* pos);
-
-    void copy(const LinkedList& other);
-    void swap(LinkedList& other);
     void setEmpty();
+
+    void swap(LinkedList& other);
 
   protected:
 
+    void getListOf(const LinkedList& other);
+    
     static void linkNodes(Node* a, Node* b);
 
   private:

@@ -81,37 +81,38 @@ DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 }
 
 
-void DoubleLinkedList::copy(const DoubleLinkedList& other) {
+void DoubleLinkedList::getListOf(const DoubleLinkedList& other) {
 
-    frontNode.next = other.getFirst();
-    backNode.prev = other.getLast();
-    size = other.getSize();
+    if (&other != this) {
+        frontNode.next = other.getFirst();
+        backNode.prev = other.getLast();
+        size = other.getSize();
+    }
 }
 
 
 void DoubleLinkedList::swap(DoubleLinkedList& other) {
 
-    if ((getSize() > 0) && (other.getSize() > 0)) {
+    if (&other != this) {
 
-        Node* tmpFirst = getFirst();
-        Node* tmpLast = getLast();
-        uint32_t tmpSize = getSize();
+        if ((getSize() > 0) && (other.getSize() > 0)) {
 
-        copy(other);
+            DoubleLinkedList tmp;
+            tmp.getListOf(*this);
 
-        other.frontNode.next = tmpFirst;
-        other.backNode.prev = tmpLast;
-        other.size = tmpSize;
+            getListOf(other);
+            other.getListOf(tmp);
 
-    } else if (getSize() > 0) {
+        } else if (getSize() > 0) {
 
-        other.copy(*this);
-        setEmpty();
+            other.getListOf(*this);
+            setEmpty();
 
-    } else if (other.getSize() > 0) {
+        } else if (other.getSize() > 0) {
 
-        copy(other);
-        other.setEmpty();
+            getListOf(other);
+            other.setEmpty();
+        }
     }
 }
 
@@ -129,4 +130,5 @@ void DoubleLinkedList::linkNodes(Node* a, Node* b) {
     a->next = b;
     b->prev = a;
 }
+
 

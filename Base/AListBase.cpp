@@ -44,3 +44,23 @@ AListBase::Node* AListBase::popBack() {
     }
 }
 
+
+void AListBase::splice(Iterator pos,
+                       AListBase& other,
+                       Iterator first,
+                       Iterator last) {
+
+    if (&other != this) {
+
+        Iterator item = first;
+
+        while (item != last) {
+            Iterator next = item;
+            ++next;
+            insert(pos, other.remove(item));
+            item = next;
+        }
+    }
+}
+
+

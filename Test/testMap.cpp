@@ -299,6 +299,20 @@ TEST_CASE("Etl::Map<> copy", "[map][etl]") {
         REQUIRE(map2[4] == map[4]);
         REQUIRE(map2[5] == -5);
     }
+
+    SECTION("swap()") {
+
+        map.swap(map2);
+
+        //REQUIRE(map2.getSize() == 4);
+        //REQUIRE(map.getSize() == 2);
+        
+        //REQUIRE(map[1] == 1);
+        //REQUIRE(map[5] == -5);
+
+        //REQUIRE(map2[1] == -1);
+        //REQUIRE(map2[4] == -4);
+    }
 }
 
 

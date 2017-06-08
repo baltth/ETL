@@ -246,6 +246,23 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
         REQUIRE(set2.find(4) != set.end());
         REQUIRE(set2.find(5) != set.end());
     }
+/*    
+    SECTION("swap()") {
+
+        set.swap(set2);
+
+        REQUIRE(set2.getSize() == 4);
+        REQUIRE(set.getSize() == 2);
+        
+        REQUIRE(set.find(1) != set.end());
+        REQUIRE(set.find(5) != set.end());
+
+        REQUIRE(set2.find(1) != set.end());
+        REQUIRE(set2.find(2) != set.end());
+        REQUIRE(set2.find(3) != set.end());
+        REQUIRE(set2.find(4) != set.end());
+    }
+*/
 }
 
 

@@ -269,7 +269,13 @@ class ListTemplate : protected AListBase {
     void splice(ConstIterator pos,
                 ListTemplate& other,
                 ConstIterator first,
-                ConstIterator last);
+                ConstIterator last) {
+        AListBase::splice(pos, other, first, last);
+    }
+
+    void swap(ListTemplate& other) {
+        AListBase::swap(other);
+    }
     /// @}
 
     template<typename F, typename V>
@@ -451,22 +457,6 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::find(ConstIterator sta
 }
 
 #endif
-
-template<class T, template<class> class A>
-void ListTemplate<T, A>::splice(ConstIterator pos,
-                                ListTemplate& other,
-                                ConstIterator first,
-                                ConstIterator last) {
-
-    ConstIterator item = first;
-
-    while (item != last) {
-        ConstIterator next = item;
-        ++next;
-        AListBase::insert(pos, other.remove(item));
-        item = next;
-    }
-}
 
 }
 

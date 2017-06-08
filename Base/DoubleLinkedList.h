@@ -90,12 +90,13 @@ class DoubleLinkedList {
     void insertBefore(Node* pos, Node* node);
 
     Node* remove(Node* node);
-
-    void copy(const DoubleLinkedList& other);
-    void swap(DoubleLinkedList& other);
     void setEmpty();
 
+    void swap(DoubleLinkedList& other);
+
   protected:
+
+    void getListOf(const DoubleLinkedList& other);
 
     static void linkNodes(Node* a, Node* b);
 
