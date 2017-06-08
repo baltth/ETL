@@ -284,6 +284,10 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
     typedef Etl::Set<ItemType, DummyAllocator> SetType;
     typedef SetType::Allocator AllocatorType;
 
+    AllocatorType::reset();
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+    
     SetType set;
     set.insert(ContainerTester(5));
 
@@ -298,9 +302,6 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 
     set.erase(ContainerTester(5));
     REQUIRE(AllocatorType::getDeleteCount() == 1);
-
-    set.erase(ContainerTester(6));
-    REQUIRE(AllocatorType::getDeleteCount() == 2);
 }
 
 
@@ -344,6 +345,9 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 
+    typedef Etl::Set<ContainerTester, DummyAllocator> SetType;
+    
     CHECK(ContainerTester::getObjectCount() == 0);
+    CHECK(SetType::Allocator::getDeleteCount() == SetType::Allocator::getAllocCount());
 }
 

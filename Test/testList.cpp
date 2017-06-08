@@ -242,17 +242,21 @@ TEST_CASE("Etl::List<>::splice() test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
-    typedef int ItemType;
+    typedef ContainerTester ItemType;
     typedef Etl::List<ItemType, DummyAllocator> ListType;
     typedef ListType::Allocator AllocatorType;
 
+    AllocatorType::reset();
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+    
     ListType list;
-    list.pushBack(1);
+    list.pushBack(ContainerTester(1));
 
     ListType::Iterator it = list.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
-    list.pushBack(2);
+    list.pushBack(ContainerTester(2));
     ++it;
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
 
@@ -260,9 +264,6 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     list.popFront();
     REQUIRE(AllocatorType::getDeleteCount() == 1);
-
-    list.popBack();
-    REQUIRE(AllocatorType::getDeleteCount() == 2);
 }
 
 
@@ -305,6 +306,9 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
+    typedef Etl::List<ContainerTester, DummyAllocator> ListType;
+    
     CHECK(ContainerTester::getObjectCount() == 0);
+    CHECK(ListType::Allocator::getDeleteCount() == ListType::Allocator::getAllocCount());
 }
 

@@ -365,6 +365,10 @@ TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
     typedef Etl::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator AllocatorType;
 
+    AllocatorType::reset();
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+    
     MapType map;
     map.insert(5, ContainerTester(-5));
 
@@ -379,9 +383,6 @@ TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
 
     map.erase(5);
     REQUIRE(AllocatorType::getDeleteCount() == 1);
-
-    map.erase(6);
-    REQUIRE(AllocatorType::getDeleteCount() == 2);
 }
 
 
@@ -424,6 +425,9 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
 TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
+    typedef Etl::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
+    
     CHECK(ContainerTester::getObjectCount() == 0);
+    CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
 }
 

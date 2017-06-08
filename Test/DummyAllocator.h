@@ -30,7 +30,7 @@ class DummyAllocator {
   public:   // types
 
     typedef T ItemType;
-    static const uint32_t SIZE = 32;
+    static const uint32_t SIZE = 64;
 
   private:  // variables
 
@@ -65,7 +65,17 @@ class DummyAllocator {
         return deleteCnt;
     }
 
+    static uint32_t getAllocCount() {
+        return cnt;
+    }
+
+    static void reset() {
+        cnt = 0;
+        deleteCnt = 0;
+    }
+
 };
+
 
 template<class T>
 uint8_t DummyAllocator<T>::data[SIZE * sizeof(T)];
