@@ -83,32 +83,28 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
         return MapBase::erase(pos);
     }
 
-    Iterator find(const K& k) const;
+    ConstIterator find(const K& k) const;
+    
+    Iterator find(const K& k) {
+        return Iterator(static_cast<const Map*>(this)->find(k));
+    }
 
-    Iterator find(const ItemMatcher& matchCall) const {
+    ConstIterator find(const ItemMatcher& matchCall) const {
         return MapBase::find(matchCall);
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) const {
+    Iterator find(const ItemMatcher& matchCall) {
+        return Iterator(static_cast<const Map*>(this)->find(matchCall));
+    }
+
+    ConstIterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) const {
         return MapBase::find(startPos, endPos, matchCall);
     }
 
-    Iterator find(const KeyMatcher& matchCall) const {
-        return MapBase::find(typename ItemType::KeyMatcherForwarder(matchCall));
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) {
+        return Iterator(static_cast<const Map*>(this)->find(startPos, endPos, matchCall));
     }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const KeyMatcher& matchCall) const {
-        return MapBase::find(startPos, endPos, typename ItemType::KeyMatcherForwarder(matchCall));
-    }
-
-    Iterator find(const ElementMatcher& matchCall) const {
-        return MapBase::find(typename ItemType::ElementMatcherForwarder(matchCall));
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const ElementMatcher& matchCall) const {
-        return MapBase::find(startPos, endPos, typename ItemType::ElementMatcherForwarder(matchCall));
-    }
-
+    
     Iterator getItem(const K& k) const;
 
     E& getElement(const K& k) const {
@@ -168,9 +164,9 @@ void Map<K, E, A>::erase(const K& k) {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::Iterator  Map<K, E, A>::find(const K& k) const {
+typename Map<K, E, A>::ConstIterator  Map<K, E, A>::find(const K& k) const {
 
-    std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
+    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
     if (found.second == true) {
         return --found.first;

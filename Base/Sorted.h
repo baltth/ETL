@@ -118,11 +118,44 @@ class Sorted {
 
     Iterator insert(const ItemType& item);
     std::pair<Iterator, bool> insertUnique(const ItemType& item);
+    
+    std::pair<ConstIterator, ConstIterator> findSortedRange(const ItemType& item) const;
 
-    std::pair<Iterator, bool> findSortedPosition(const ItemType& item) const;
+    std::pair<Iterator, Iterator> findSortedRange(const ItemType& item) {
+        std::pair<ConstIterator, ConstIterator> res = static_cast<const Sorted*>(this)->findSortedRange(item);
+        return std::pair<Iterator, Iterator>(Iterator(res.first), Iterator(res.second));
+    }
 
     template<typename F, typename V>
-    std::pair<Iterator, bool> findSortedPosition(F f, const V& v) const;
+    std::pair<ConstIterator, ConstIterator> findSortedRange(F f, const V& v) const;
+
+    template<typename F, typename V>
+    std::pair<Iterator, Iterator> findSortedRange(F f, const V& v) { 
+        std::pair<ConstIterator, ConstIterator> res = static_cast<const Sorted*>(this)->findSortedRange<F, V>(f, v);
+        return std::pair<Iterator, Iterator>(Iterator(res.first), Iterator(res.second));
+    }
+
+    std::pair<Iterator, bool> findSortedPosition(const ItemType& item) {
+        std::pair<Iterator, Iterator> res = findSortedRange(item);
+        return std::pair<Iterator, bool>(res.second, (res.first != res.second));
+    }
+
+    std::pair<ConstIterator, bool> findSortedPosition(const ItemType& item) const {
+        std::pair<ConstIterator, ConstIterator> res = findSortedRange(item);
+        return std::pair<ConstIterator, bool>(res.second, (res.first != res.second));
+    }
+    
+    template<typename F, typename V>
+    std::pair<Iterator, bool> findSortedPosition(F f, const V& v) {
+        std::pair<Iterator, Iterator> res = findSortedRange<F, V>(f, v);
+        return std::pair<Iterator, bool>(res.second, (res.first != res.second));
+    }
+    
+    template<typename F, typename V>
+    std::pair<ConstIterator, bool> findSortedPosition(F f, const V& v) const {
+        std::pair<ConstIterator, ConstIterator> res = findSortedRange<F, V>(f, v);
+        return std::pair<ConstIterator, bool>(res.second, (res.first != res.second));
+    }
 
     Iterator insertTo(ConstIterator pos, const ItemType& item) const {
         return container.insert(pos, item);
@@ -174,80 +207,81 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
 
 
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
-std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::findSortedPosition(const ItemType& item) const {
+std::pair<typename Sorted<C, Comp>::ConstIterator, typename Sorted<C, Comp>::ConstIterator>
+Sorted<C, Comp>::findSortedRange(const ItemType& item) const {
+    
+    ConstIterator it = begin();
+    ConstIterator endIt = end();
+ 
+    std::pair<ConstIterator, ConstIterator> res(endIt, endIt);
 
-    Iterator startIt = begin();
-    Iterator endIt = end();
-    Iterator it = startIt;
+    if (it != endIt) {
 
-    if (it == endIt) {
-        return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, false);
-    }
+        bool notLessFound = false;
 
-    bool notLessFound = false;
-    bool equalFound = false;
+        while ((!notLessFound) && (it != endIt)) {
 
-    while ((!notLessFound) && (it != endIt)) {
+            if (comp(*it, item)) {
+                ++it;
+            } else {
+                res.first = it;
+                notLessFound = true;
+            }
+        }
 
-        if (comp(*it, item)) {
-            ++it;
-        } else {
-            notLessFound = true;
+        while (notLessFound && (it != endIt)) {
+
+            if (comp(item, *it)) {
+                res.second = it;
+                notLessFound = false;
+            } else {
+                ++it;
+            }
         }
     }
 
-    while (notLessFound && (it != endIt)) {
-
-        if (comp(item, *it)) {
-            notLessFound = false;
-        } else {
-            equalFound = true;
-            ++it;
-        }
-    }
-
-    return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, equalFound);
+    return res;
 }
 
 
 template<class C, class Comp /* = std::less<typename C::ItemType> */>
 template<typename F, typename V>
-std::pair<typename Sorted<C, Comp>::Iterator, bool>
-Sorted<C, Comp>::findSortedPosition(F f, const V& v) const {
+std::pair<typename Sorted<C, Comp>::ConstIterator, typename Sorted<C, Comp>::ConstIterator>
+Sorted<C, Comp>::findSortedRange(F f, const V& v) const {
+    
+    ConstIterator it = begin();
+    ConstIterator endIt = end();
+ 
+    std::pair<ConstIterator, ConstIterator> res(endIt, endIt);
 
+    if (it != endIt) {
 
-    Iterator startIt = begin();
-    Iterator endIt = end();
-    Iterator it = startIt;
+        bool notLessFound = false;
 
-    if (it == endIt) {
-        return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, false);
-    }
+        while ((!notLessFound) && (it != endIt)) {
 
-    bool notLessFound = false;
-    bool equalFound = false;
+            if (((*it).*f)() < v) {
+                ++it;
+            } else {
+                res.first = it;
+                notLessFound = true;
+            }
+        }
 
-    while ((!notLessFound) && (it != endIt)) {
+        while (notLessFound && (it != endIt)) {
 
-        if (((*it).*f)() < v) {
-            ++it;
-        } else {
-            notLessFound = true;
+            if (v < ((*it).*f)()) {
+                res.second = it;
+                notLessFound = false;
+            } else {
+                ++it;
+            }
         }
     }
 
-    while (notLessFound && (it != endIt)) {
-
-        if (v < ((*it).*f)()) {
-            notLessFound = false;
-        } else {
-            equalFound = true;
-            ++it;
-        }
-    }
-
-    return std::pair<typename Sorted<C, Comp>::Iterator, bool>(it, equalFound);
+    return res;
 }
+
 
 }
 

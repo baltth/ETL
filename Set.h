@@ -77,7 +77,11 @@ class Set : public Sorted<ListTemplate<E, A> > {
         return SetBase::erase(pos);
     }
 
-    Iterator find(const E& e) const;
+    ConstIterator find(const E& e) const;
+    
+    Iterator find(const E& e) {
+        return Iterator(static_cast<const Set*>(this)->find(e));
+    }
 
     void copyElementsFrom(const Set<E, A>& other);
 
@@ -109,9 +113,9 @@ void Set<E, A>::erase(const E& e) {
 
 
 template<class E, template<class> class A>
-typename Set<E, A>::Iterator  Set<E, A>::find(const E& e) const {
+typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
 
-    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
+    std::pair<ConstIterator, bool> found = SetBase::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
