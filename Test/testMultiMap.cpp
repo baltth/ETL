@@ -303,6 +303,23 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
 
         REQUIRE(map2.getSize() == 6);
     }
+    
+    SECTION("swap()") {
+
+        map.swap(map2);
+
+        REQUIRE(map.getSize() == 2);
+        REQUIRE(map2.getSize() == 4);
+        
+        MapType::Iterator it1 = map.begin();
+        MapType::Iterator it2 = map2.begin();
+
+        REQUIRE(it1->getKey() == 1);
+        REQUIRE(it1->getElement() == 1);
+        
+        REQUIRE(it2->getKey() == 1);
+        REQUIRE(it2->getElement() == -1);
+    }
 }
 
 

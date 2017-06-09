@@ -85,7 +85,7 @@ class LinkedList {
 
   protected:
 
-    void getListOf(const LinkedList& other);
+    void getListOf(LinkedList& other);
     
     static void linkNodes(Node* a, Node* b);
 

@@ -96,7 +96,7 @@ class DoubleLinkedList {
 
   protected:
 
-    void getListOf(const DoubleLinkedList& other);
+    void getListOf(DoubleLinkedList& other);
 
     static void linkNodes(Node* a, Node* b);
 

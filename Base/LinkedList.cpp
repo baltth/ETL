@@ -71,11 +71,12 @@ LinkedList::Node* LinkedList::removeAfter(Node* pos) {
 }
 
 
-void LinkedList::getListOf(const LinkedList& other) {
+void LinkedList::getListOf(LinkedList& other) {
 
     if (&other != this) {
-        frontNode.next = other.getFirst();
+        linkNodes(&frontNode, other.getFirst());
         size = other.getSize();
+        other.setEmpty();
     }
 }
 

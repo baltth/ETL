@@ -81,12 +81,13 @@ DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 }
 
 
-void DoubleLinkedList::getListOf(const DoubleLinkedList& other) {
+void DoubleLinkedList::getListOf(DoubleLinkedList& other) {
 
     if (&other != this) {
-        frontNode.next = other.getFirst();
-        backNode.prev = other.getLast();
+        linkNodes(&frontNode, other.getFirst());
+        linkNodes(other.getLast(), &backNode);
         size = other.getSize();
+        other.setEmpty();
     }
 }
 

@@ -164,7 +164,7 @@ TEST_CASE("Etl::List<>::find<F, V>() test", "[list][etl]") {
 }
 
 
-TEST_CASE("Etl::List<>::splice() test", "[list][etl]") {
+TEST_CASE("Etl::List<>::splice() and ::swap() test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
     typedef Etl::List<ItemType> ListType;
@@ -237,6 +237,22 @@ TEST_CASE("Etl::List<>::splice() test", "[list][etl]") {
         ++it;
         REQUIRE(it == list2.end());
     }
+
+    SECTION("Swap") {
+
+        list2.swap(list1);
+
+        REQUIRE(list1.getSize() == 0);
+        REQUIRE(list2.getSize() == 8);
+
+        ListType::ConstIterator it = list2.begin();
+        REQUIRE(it->getValue() == 0);
+
+        it = list2.end();
+        --it;
+
+        REQUIRE(it->getValue() == 7);
+    }
 }
 
 
@@ -249,7 +265,7 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
-    
+
     ListType list;
     list.pushBack(ContainerTester(1));
 
@@ -307,7 +323,7 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
     typedef Etl::List<ContainerTester, DummyAllocator> ListType;
-    
+
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(ListType::Allocator::getDeleteCount() == ListType::Allocator::getAllocCount());
 }

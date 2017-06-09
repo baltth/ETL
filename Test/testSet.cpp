@@ -246,7 +246,7 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
         REQUIRE(set2.find(4) != set.end());
         REQUIRE(set2.find(5) != set.end());
     }
-/*    
+    
     SECTION("swap()") {
 
         set.swap(set2);
@@ -262,7 +262,6 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
         REQUIRE(set2.find(3) != set.end());
         REQUIRE(set2.find(4) != set.end());
     }
-*/
 }
 
 
