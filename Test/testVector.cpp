@@ -550,6 +550,25 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vector][static][etl][bas
 }
 
 
+TEST_CASE("Etl::Static::Vector<> full push test", "[vector][static][etl][basic]") {
+
+    static const uint32_t CAPACITY = 4;
+
+    typedef int ItemType;
+    typedef Etl::Static::Vector<ItemType, CAPACITY> VectorType;
+
+    VectorType vector;
+
+    vector.insert(vector.begin(), 4, 1);
+
+    CHECK(vector.getSize() == CAPACITY);
+
+    vector.pushBack(5);
+
+    REQUIRE(vector.getSize() == CAPACITY);
+}
+
+
 TEST_CASE("Etl::Static::Vector<> constructor test", "[vector][static][etl][basic]") {
 
     static const uint32_t CAPACITY = 16;

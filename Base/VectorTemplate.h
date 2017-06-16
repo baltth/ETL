@@ -230,14 +230,18 @@ typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position
 
     if (numToInsert > 0) {
 
-        if ((Base::getSize() + numToInsert) > Base::getCapacity()) {
+        uint32_t requestedCapacity = Base::getSize() + numToInsert;
+
+        if (requestedCapacity > Base::getCapacity()) {
 
             uint32_t positionIx = position - Base::begin();
-            this->reserveAtLeast(this->getSize() + numToInsert);
+            this->reserveAtLeast(requestedCapacity);
             position = Base::begin() + positionIx;
         }
 
-        position = Base::insertOperation(position, numToInsert, creatorCall);
+        if (requestedCapacity <= Base::getCapacity()) {
+            position = Base::insertOperation(position, numToInsert, creatorCall);
+        }
     }
 
     return position;
@@ -283,14 +287,17 @@ typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position
 
     if (numToInsert > 0) {
 
-        if ((Base::getSize() + numToInsert) > Base::getCapacity()) {
+        uint32_t requestedCapacity = Base::getSize() + numToInsert;
 
+        if (requestedCapacity > Base::getCapacity()) {
             uint32_t positionIx = position - Base::begin();
-            this->reserveAtLeast(this->getSize() + numToInsert);
+            this->reserveAtLeast(requestedCapacity);
             position = Base::begin() + positionIx;
         }
 
-        position = Base::insertOperation(position, numToInsert, creatorCall);
+        if (requestedCapacity <= Base::getCapacity()) {
+            position = Base::insertOperation(position, numToInsert, creatorCall);
+        }
     }
 
     return Iterator(position);
