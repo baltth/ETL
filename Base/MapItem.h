@@ -32,31 +32,6 @@ namespace ETL_NAMESPACE {
 template<typename K, class E>
 class MapItem {
 
-  public:   // types
-
-    typedef Matcher<K> KeyMatcher;
-    typedef Matcher<E> ElementMatcher;
-
-    struct KeyMatcherForwarder : Matcher<MapItem> {
-        const KeyMatcher& matcher;
-        // cppcheck-suppress noExplicitConstructor
-        KeyMatcherForwarder(const KeyMatcher& m) :
-            matcher(m) {};
-        virtual bool call(const MapItem& item) const OVERRIDE {
-            return matcher.call(item.getKey());
-        }
-    };
-
-    struct ElementMatcherForwarder : Matcher<MapItem> {
-        const ElementMatcher& matcher;
-        // cppcheck-suppress noExplicitConstructor
-        ElementMatcherForwarder(const ElementMatcher& m) :
-            matcher(m) {};
-        virtual bool call(const MapItem& item) const OVERRIDE {
-            return matcher.call(item.getElement());
-        }
-    };
-
   private:  // variables
 
     const K key;
@@ -110,31 +85,6 @@ class MapItem {
 
 template<typename K, class E>
 class MapItem<K, E*> {
-
-  public:   // types
-
-    typedef Matcher<K> KeyMatcher;
-    typedef Matcher<E*> ElementMatcher;
-
-    struct KeyMatcherForwarder : Matcher<MapItem> {
-        const KeyMatcher& matcher;
-        // cppcheck-suppress noExplicitConstructor
-        KeyMatcherForwarder(const KeyMatcher& m) :
-            matcher(m) {};
-        virtual bool call(const MapItem& item) const OVERRIDE {
-            return matcher.call(item.getKey());
-        }
-    };
-
-    struct ElementMatcherForwarder : Matcher<MapItem> {
-        const ElementMatcher& matcher;
-        // cppcheck-suppress noExplicitConstructor
-        ElementMatcherForwarder(const ElementMatcher& m) :
-            matcher(m) {};
-        virtual bool call(const MapItem& item) const OVERRIDE {
-            return matcher.call(item.getElement());
-        }
-    };
 
   protected: // variables
 

@@ -48,8 +48,6 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
     typedef Matcher<ItemType> ItemMatcher;
-    typedef typename ItemType::KeyMatcher KeyMatcher;
-    typedef typename ItemType::ElementMatcher ElementMatcher;
 
   public:   // functions
 
@@ -83,32 +81,28 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
         return MapBase::erase(pos);
     }
 
-    Iterator find(const K& k) const;
+    ConstIterator find(const K& k) const;
+    
+    Iterator find(const K& k) {
+        return Iterator(static_cast<const Map*>(this)->find(k));
+    }
 
-    Iterator find(const ItemMatcher& matchCall) const {
+    ConstIterator find(const ItemMatcher& matchCall) const {
         return MapBase::find(matchCall);
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) const {
+    Iterator find(const ItemMatcher& matchCall) {
+        return Iterator(static_cast<const Map*>(this)->find(matchCall));
+    }
+
+    ConstIterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) const {
         return MapBase::find(startPos, endPos, matchCall);
     }
 
-    Iterator find(const KeyMatcher& matchCall) const {
-        return MapBase::find(typename ItemType::KeyMatcherForwarder(matchCall));
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const ItemMatcher& matchCall) {
+        return Iterator(static_cast<const Map*>(this)->find(startPos, endPos, matchCall));
     }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const KeyMatcher& matchCall) const {
-        return MapBase::find(startPos, endPos, typename ItemType::KeyMatcherForwarder(matchCall));
-    }
-
-    Iterator find(const ElementMatcher& matchCall) const {
-        return MapBase::find(typename ItemType::ElementMatcherForwarder(matchCall));
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const ElementMatcher& matchCall) const {
-        return MapBase::find(startPos, endPos, typename ItemType::ElementMatcherForwarder(matchCall));
-    }
-
+    
     Iterator getItem(const K& k) const;
 
     E& getElement(const K& k) const {
@@ -168,9 +162,9 @@ void Map<K, E, A>::erase(const K& k) {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::Iterator  Map<K, E, A>::find(const K& k) const {
+typename Map<K, E, A>::ConstIterator  Map<K, E, A>::find(const K& k) const {
 
-    std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
+    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
     if (found.second == true) {
         return --found.first;
@@ -202,8 +196,8 @@ typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
 template<typename K, class E, template<class> class A>
 void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
 
-    Iterator endIt = other.end();
-    for (Iterator it = other.begin(); it != endIt; ++it) {
+    ConstIterator endIt = other.end();
+    for (ConstIterator it = other.begin(); it != endIt; ++it) {
         insertOrAssign(it->getKey(), it->getElement());
     }
 }
@@ -241,6 +235,8 @@ namespace Pooled {
 
 template<class K, class E, uint32_t N>
 class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
 
   public:   // types
 

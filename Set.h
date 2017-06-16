@@ -77,7 +77,11 @@ class Set : public Sorted<ListTemplate<E, A> > {
         return SetBase::erase(pos);
     }
 
-    Iterator find(const E& e) const;
+    ConstIterator find(const E& e) const;
+    
+    Iterator find(const E& e) {
+        return Iterator(static_cast<const Set*>(this)->find(e));
+    }
 
     void copyElementsFrom(const Set<E, A>& other);
 
@@ -109,9 +113,9 @@ void Set<E, A>::erase(const E& e) {
 
 
 template<class E, template<class> class A>
-typename Set<E, A>::Iterator  Set<E, A>::find(const E& e) const {
+typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
 
-    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
+    std::pair<ConstIterator, bool> found = SetBase::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
@@ -124,8 +128,8 @@ typename Set<E, A>::Iterator  Set<E, A>::find(const E& e) const {
 template<class E, template<class> class A>
 void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
-    Iterator endIt = other.end();
-    for (Iterator it = other.begin(); it != endIt; ++it) {
+    ConstIterator endIt = other.end();
+    for (ConstIterator it = other.begin(); it != endIt; ++it) {
         insert(*it);
     }
 }
@@ -136,6 +140,8 @@ namespace Pooled {
 
 template<class E, uint32_t N>
 class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
 
   public:   // types
 

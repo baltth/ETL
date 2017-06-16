@@ -71,34 +71,38 @@ LinkedList::Node* LinkedList::removeAfter(Node* pos) {
 }
 
 
-void LinkedList::copy(const LinkedList& other) {
+void LinkedList::getListOf(LinkedList& other) {
 
-    frontNode.next = other.getFirst();
-    size = other.getSize();
+    if (&other != this) {
+        linkNodes(&frontNode, other.getFirst());
+        size = other.getSize();
+        other.setEmpty();
+    }
 }
 
 
 void LinkedList::swap(LinkedList& other) {
 
-    if ((getSize() > 0) && (other.getSize() > 0)) {
+    if (&other != this) {
 
-        Node* tmpFirst = getFirst();
-        uint32_t tmpSize = getSize();
+        if ((getSize() > 0) && (other.getSize() > 0)) {
 
-        copy(other);
+            LinkedList tmp;
+            tmp.getListOf(*this);
 
-        other.frontNode.next = tmpFirst;
-        other.size = tmpSize;
+            getListOf(other);
+            other.getListOf(tmp);
 
-    } else if (getSize() > 0) {
+        } else if (getSize() > 0) {
 
-        other.copy(*this);
-        setEmpty();
+            other.getListOf(*this);
+            setEmpty();
 
-    } else if (other.getSize() > 0) {
+        } else if (other.getSize() > 0) {
 
-        copy(other);
-        other.setEmpty();
+            getListOf(other);
+            other.setEmpty();
+        }
     }
 }
 

@@ -96,6 +96,102 @@ TEST_CASE("Etl::List<> leak test", "[list][etl]") {
 }
 
 
+TEST_CASE("Etl::List<> copy", "[list][etl]") {
+
+    typedef Etl::List<int> ListType;
+
+    ListType list;
+
+    list.pushBack(1);
+    list.pushBack(2);
+    list.pushBack(3);
+    list.pushBack(4);
+
+    ListType list2;
+
+    list2.pushBack(1);
+    list2.pushBack(5);
+
+    CHECK(list.getSize() == 4);
+    CHECK(list2.getSize() == 2);
+
+    SECTION("copy assignment") {
+
+        list2 = list;
+
+        REQUIRE(list2.getSize() == 4);
+
+        ListType::ConstIterator it = list2.begin();
+
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+
+        it = list2.end();
+        --it;
+        REQUIRE(*it == 4);
+    }
+
+    SECTION("copy constructor") {
+
+        ListType list3 = list;
+
+        REQUIRE(list3.getSize() == 4);
+
+        ListType::ConstIterator it = list3.begin();
+
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+
+        it = list3.end();
+        --it;
+        REQUIRE(*it == 4);
+    }
+
+    SECTION("copyElementsFrom()") {
+
+        list2.copyElementsFrom(list);
+
+        REQUIRE(list2.getSize() == 6);
+
+        ListType::ConstIterator it = list2.begin();
+
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 5);
+        ++it;
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+        ++it;
+        REQUIRE(*it == 3);
+        ++it;
+        REQUIRE(*it == 4);
+    }
+
+    SECTION("swap()") {
+
+        list.swap(list2);
+
+        REQUIRE(list.getSize() == 2);
+        REQUIRE(list2.getSize() == 4);
+
+        ListType::ConstIterator it = list.begin();
+
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 5);
+
+        it = list2.begin();
+
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+    }
+}
+
+
 TEST_CASE("Etl::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
 
     typedef int ItemType;
@@ -242,17 +338,21 @@ TEST_CASE("Etl::List<>::splice() test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
-    typedef int ItemType;
+    typedef ContainerTester ItemType;
     typedef Etl::List<ItemType, DummyAllocator> ListType;
     typedef ListType::Allocator AllocatorType;
 
+    AllocatorType::reset();
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+
     ListType list;
-    list.pushBack(1);
+    list.pushBack(ContainerTester(1));
 
     ListType::Iterator it = list.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
-    list.pushBack(2);
+    list.pushBack(ContainerTester(2));
     ++it;
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
 
@@ -260,9 +360,6 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     list.popFront();
     REQUIRE(AllocatorType::getDeleteCount() == 1);
-
-    list.popBack();
-    REQUIRE(AllocatorType::getDeleteCount() == 2);
 }
 
 
@@ -305,6 +402,10 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
+    typedef Etl::List<ContainerTester, DummyAllocator> ListType;
+
     CHECK(ContainerTester::getObjectCount() == 0);
+    CHECK(ListType::Allocator::getDeleteCount() == ListType::Allocator::getAllocCount());
 }
+
 

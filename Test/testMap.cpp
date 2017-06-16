@@ -299,6 +299,20 @@ TEST_CASE("Etl::Map<> copy", "[map][etl]") {
         REQUIRE(map2[4] == map[4]);
         REQUIRE(map2[5] == -5);
     }
+
+    SECTION("swap()") {
+
+        map.swap(map2);
+
+        REQUIRE(map2.getSize() == 4);
+        REQUIRE(map.getSize() == 2);
+        
+        REQUIRE(map[1] == 1);
+        REQUIRE(map[5] == -5);
+
+        REQUIRE(map2[1] == -1);
+        REQUIRE(map2[4] == -4);
+    }
 }
 
 
@@ -330,50 +344,6 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
         REQUIRE(it == map.end());
     }
 
-    SECTION("find(KeyMatcher)") {
-
-        struct Matcher : MapType::KeyMatcher {
-            virtual bool call(const uint32_t& key) const {
-                return (key >= 2) && (key <= 3);
-            }
-        };
-
-        Matcher matchCall;
-
-        MapType::Iterator it = map.find(matchCall);
-        REQUIRE(it->getKey() == 2);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it->getKey() == 3);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it == map.end());
-    }
-
-    SECTION("find(ElementMatcher)") {
-
-        struct Matcher : MapType::ElementMatcher {
-            virtual bool call(const ContainerTester& c) const {
-                return (c.getValue() >= -3) && (c.getValue() <= -2);
-            }
-        };
-
-        Matcher matchCall;
-
-        MapType::Iterator it = map.find(matchCall);
-        REQUIRE(it->getKey() == 2);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it->getKey() == 3);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it == map.end());
-    }
-
     SECTION("find(ItemMatcher)") {
 
         struct Matcher : MapType::ItemMatcher {
@@ -400,6 +370,10 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
     typedef Etl::Map<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator AllocatorType;
 
+    AllocatorType::reset();
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+    
     MapType map;
     map.insert(5, ContainerTester(-5));
 
@@ -414,9 +388,6 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 
     map.erase(5);
     REQUIRE(AllocatorType::getDeleteCount() == 1);
-
-    map.erase(6);
-    REQUIRE(AllocatorType::getDeleteCount() == 2);
 }
 
 
@@ -460,6 +431,9 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
+    typedef Etl::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
+    
     CHECK(ContainerTester::getObjectCount() == 0);
+    CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
 }
 
