@@ -196,8 +196,8 @@ typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
 template<typename K, class E, template<class> class A>
 void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
 
-    Iterator endIt = other.end();
-    for (Iterator it = other.begin(); it != endIt; ++it) {
+    ConstIterator endIt = other.end();
+    for (ConstIterator it = other.begin(); it != endIt; ++it) {
         insertOrAssign(it->getKey(), it->getElement());
     }
 }
@@ -235,6 +235,8 @@ namespace Pooled {
 
 template<class K, class E, uint32_t N>
 class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
 
   public:   // types
 

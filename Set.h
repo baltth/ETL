@@ -128,8 +128,8 @@ typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
 template<class E, template<class> class A>
 void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
-    Iterator endIt = other.end();
-    for (Iterator it = other.begin(); it != endIt; ++it) {
+    ConstIterator endIt = other.end();
+    for (ConstIterator it = other.begin(); it != endIt; ++it) {
         insert(*it);
     }
 }
@@ -140,6 +140,8 @@ namespace Pooled {
 
 template<class E, uint32_t N>
 class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
 
   public:   // types
 

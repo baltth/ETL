@@ -66,12 +66,20 @@ class Sorted {
         return container.getSize();
     }
 
-    inline Iterator begin() const {
-        return Iterator(container.begin());
+    inline Iterator begin() {
+        return container.begin();
     }
 
-    inline Iterator end() const {
-        return Iterator(container.end());
+    inline ConstIterator begin() const {
+        return container.begin();
+    }
+
+    inline Iterator end() {
+        return container.end();
+    }
+    
+    inline ConstIterator end() const {
+        return container.end();
     }
 
     inline void clear() {

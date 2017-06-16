@@ -88,11 +88,11 @@ class TypedListBase : protected AListBase {
             return &(static_cast<TypedListBase<T>::Node*>(node)->item);
         }
 
-        bool operator==(const ConstIterator& other) {
+        bool operator==(const ConstIterator& other) const {
             return AListBase::Iterator::operator==(other);
         }
 
-        bool operator!=(const ConstIterator& other) {
+        bool operator!=(const ConstIterator& other) const {
             return !(operator==(other));
         }
 
@@ -141,11 +141,19 @@ class TypedListBase : protected AListBase {
             return &(static_cast<TypedListBase<T>::Node*>(this->node)->item);
         }
 
-        bool operator==(const Iterator& other) {
+        bool operator==(const Iterator& other) const {
             return ConstIterator::operator==(other);
         }
 
-        bool operator!=(const Iterator& other) {
+        bool operator!=(const Iterator& other) const {
+            return !(operator==(other));
+        }
+
+        bool operator==(const ConstIterator& other) const {
+            return AListBase::Iterator::operator==(other);
+        }
+
+        bool operator!=(const ConstIterator& other) const {
             return !(operator==(other));
         }
 
@@ -191,12 +199,20 @@ class TypedListBase : protected AListBase {
         return AListBase::getSize();
     }
 
-    inline Iterator begin() const {
+    inline Iterator begin() {
         return Iterator(AListBase::begin());
     }
+    
+    inline ConstIterator begin() const {
+        return ConstIterator(AListBase::begin());
+    }
 
-    inline Iterator end() const {
+    inline Iterator end() {
         return Iterator(AListBase::end());
+    }
+    
+    inline ConstIterator end() const {
+        return ConstIterator(AListBase::end());
     }
     /// @}
 

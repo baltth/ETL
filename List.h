@@ -63,6 +63,8 @@ namespace Pooled {
 template<class E, uint32_t N>
 class List : public ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
 
+    STATIC_ASSERT(N > 0);
+
   public:   // types
 
     typedef ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> ListBase;

@@ -76,7 +76,7 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     inline std::pair<Iterator, bool> insertUnique(const K& k, const E& e) {
         return MapBase::insertUnique(ItemType(k, e));
     }
-    
+
     uint32_t erase(const K& k);
 
     Iterator erase(Iterator pos) {
@@ -84,7 +84,7 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     }
 
     ConstIterator find(const K& k) const;
-    
+
     Iterator find(const K& k) {
         return Iterator(static_cast<const MultiMap*>(this)->find(k));
     }
@@ -92,7 +92,7 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     std::pair<ConstIterator, ConstIterator> equalRange(const K& k) const {
         return MapBase::findSortedRange(&ItemType::getKey, k);
     }
-    
+
     std::pair<Iterator, Iterator> equalRange(const K& k) {
         return MapBase::findSortedRange(&ItemType::getKey, k);
     }
@@ -116,7 +116,7 @@ uint32_t MultiMap<K, E, A>::erase(const K& k) {
     Iterator it = found.first;
     uint32_t count = 0;
 
-    while(it != found.second) {
+    while (it != found.second) {
         it = MapBase::erase(it);
         ++count;
     }
@@ -141,8 +141,8 @@ typename MultiMap<K, E, A>::ConstIterator  MultiMap<K, E, A>::find(const K& k) c
 template<typename K, class E, template<class> class A>
 void MultiMap<K, E, A>::copyElementsFrom(const MultiMap<K, E, A>& other) {
 
-    Iterator endIt = other.end();
-    for (Iterator it = other.begin(); it != endIt; ++it) {
+    ConstIterator endIt = other.end();
+    for (ConstIterator it = other.begin(); it != endIt; ++it) {
         insert(it->getKey(), it->getElement());
     }
 }
@@ -177,13 +177,15 @@ namespace Pooled {
 template<class K, class E, uint32_t N>
 class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
 
-    public:   // types
+    STATIC_ASSERT(N > 0);
+
+  public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> MapBase;
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
 
-    public:   // functions
+  public:   // functions
 
     MultiMap() {};
 
