@@ -102,6 +102,38 @@ class TypedVectorBase : public AVectorBase {
         }
     };
 
+    template<class InputIt>
+    class ContCreator : public CreatorFunctor {
+      private:
+
+        const InputIt first;
+        mutable InputIt last;
+        const uint32_t len;
+
+      public:
+
+        ContCreator(InputIt fst,
+                    InputIt lst) :
+            first(fst),
+            last(lst),
+            len((first < last) ? (last - first) : 0) {};
+
+        uint32_t getLength() const {
+            return len;
+        }
+
+        virtual void call(T* pos, bool place) const {
+            if (first < last) {
+                --last;
+                if (place) {
+                    placeValueTo(pos, *last);
+                } else {
+                    assignValueTo(pos, *last);
+                }
+            }
+        }
+    };
+
 #endif
 
   public:   // functions
@@ -111,7 +143,7 @@ class TypedVectorBase : public AVectorBase {
     }
 
     inline const T& operator[](uint32_t ix) const {
-        return *(static_cast<T*>(getItemPointer(ix)));
+        return *(static_cast<const T*>(getItemPointer(ix)));
     }
 
 #if ETL_USE_EXCEPTIONS
@@ -129,11 +161,19 @@ class TypedVectorBase : public AVectorBase {
         return static_cast<ConstIterator>(getItemPointer(0));
     }
 
+    inline ConstIterator cbegin() const {
+        return static_cast<ConstIterator>(getItemPointer(0));
+    }
+
     inline Iterator end() {
         return static_cast<Iterator>(getItemPointer(getSize()));
     }
 
     inline ConstIterator end() const {
+        return static_cast<ConstIterator>(getItemPointer(getSize()));
+    }
+
+    inline ConstIterator cend() const {
         return static_cast<ConstIterator>(getItemPointer(getSize()));
     }
 

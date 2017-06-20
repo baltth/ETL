@@ -468,33 +468,71 @@ TEST_CASE("Etl::Static::Vector<> insert/erase test", "[vector][static][etl][basi
 
     CHECK(vector.getSize() == 4);
 
-    VectorType::Iterator it = vector.begin() + 2;
-    it = vector.insert(it, 2);
-    REQUIRE(vector[2] == 2);
-    REQUIRE(vector.getSize() == 5);
-    REQUIRE(it == &vector[2]);
+    SECTION("insert(ConstIterator, uint32_t, const T&)") {
 
-    ++it;
-    it = vector.insert(it, 2, 3);
-    REQUIRE(vector[2] == 2);
-    REQUIRE(vector[3] == 3);
-    REQUIRE(vector[4] == 3);
-    REQUIRE(vector.getSize() == 7);
-    REQUIRE(it == &vector[3]);
+        VectorType::Iterator it = vector.begin() + 2;
+        it = vector.insert(it, 2);
+        REQUIRE(vector[2] == 2);
+        REQUIRE(vector.getSize() == 5);
+        REQUIRE(it == &vector[2]);
 
-    CHECK(vector[1] == 0);
-    CHECK(vector[5] == 0);
+        ++it;
+        it = vector.insert(it, 2, 3);
+        REQUIRE(vector[2] == 2);
+        REQUIRE(vector[3] == 3);
+        REQUIRE(vector[4] == 3);
+        REQUIRE(vector.getSize() == 7);
+        REQUIRE(it == &vector[3]);
 
-    it = vector.begin() + 2;
-    it = vector.erase(it);
-    REQUIRE(vector.getSize() == 6);
-    REQUIRE(vector[2] == 3);
-    REQUIRE(it == &vector[2]);
+        CHECK(vector[1] == 0);
+        CHECK(vector[5] == 0);
 
-    it = vector.erase(it, it + 2);
-    REQUIRE(vector.getSize() == 4);
-    REQUIRE(vector[2] == 0);
-    REQUIRE(it == &vector[2]);
+        it = vector.begin() + 2;
+        it = vector.erase(it);
+        REQUIRE(vector.getSize() == 6);
+        REQUIRE(vector[2] == 3);
+        REQUIRE(it == &vector[2]);
+
+        it = vector.erase(it, it + 2);
+        REQUIRE(vector.getSize() == 4);
+        REQUIRE(vector[2] == 0);
+        REQUIRE(it == &vector[2]);
+    }
+
+    SECTION("insert(ConstIterator, InputIt, InputIt)") {
+
+        vector[0] = 1;
+        vector[1] = 2;
+        vector[2] = 3;
+        vector[3] = 4;
+
+        VectorType vector2(1, 0);
+        CHECK(vector2.getSize() == 1);
+
+        SECTION("Correct insert") {
+
+            CHECK(vector.getSize() == 4);
+
+            VectorType::ConstIterator last = vector.end() - 1;
+            VectorType::Iterator it = vector2.insert(vector2.end(), vector.begin(), last);
+
+            REQUIRE(vector2.getSize() == 4);
+            REQUIRE(it == &vector2[1]);
+
+            REQUIRE(vector2[0] == 0);
+            REQUIRE(vector2[1] == 1);
+            REQUIRE(vector2[2] == 2);
+            REQUIRE(vector2[3] == 3);
+        }
+
+        SECTION("Invalid insert") {
+
+            VectorType::Iterator it = vector2.insert(vector2.end(), vector.end(), vector.begin());
+
+            REQUIRE(vector2.getSize() == 1);
+            REQUIRE(it == vector2.end());
+        }
+    }
 }
 
 

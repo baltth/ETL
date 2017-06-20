@@ -61,7 +61,8 @@ class Vector : public TypedVectorBase<T> {
         return insert(position, 1, value);
     }
 
-    Iterator insert(ConstIterator position, uint32_t num, const T& value);
+    inline Iterator insert(ConstIterator position, uint32_t num, const T& value);
+    inline Iterator insert(ConstIterator position, ConstIterator first, ConstIterator last);
 
     inline void pushFront(const T& value) {
         insert(Base::begin(), value);
@@ -324,6 +325,15 @@ typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
 
 #endif
 
+
+template<class T>
+typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, ConstIterator first, ConstIterator last) {
+
+    typename Base::template ContCreator<ConstIterator> cc(first, last);
+    return insertWithCreator(position, cc.getLength(), cc);
+}
+
+
 template class Vector<void*>;
 
 
@@ -399,6 +409,12 @@ class Vector<T*> : public Vector<void*> {
                                                        value));
     }
 
+    inline Iterator insert(ConstIterator position, ConstIterator first, ConstIterator last) {
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+                                                       first,
+                                                       last));
+    }
+
     inline Iterator erase(Iterator pos) {
         return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
     }
@@ -418,7 +434,7 @@ class Vector<T*> : public Vector<void*> {
 
   protected:
 
-    Vector(AMemStrategy<StrategyBase>& s) :
+    explicit Vector(AMemStrategy<StrategyBase>& s) :
         Base(s) {};
 
     Vector& operator=(const Vector& other) {
