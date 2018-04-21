@@ -28,11 +28,12 @@ limitations under the License.
 #if ((ETL_USE_CPP11 > 0) && (__cplusplus < 201103L))
 #undef ETL_USE_CPP11
 #define ETL_USE_CPP11   0
+#warning "Incorrect compiler version for c++11"
 #endif
 
 #else
 
-#if __cplusplus > 201103L
+#if __cplusplus >= 201103L
 #define ETL_USE_CPP11   1
 #endif
 
@@ -74,7 +75,7 @@ class NullptrT {
 #define FINAL           final
 
 #define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
-#define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed")
+#define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
 
 #endif
 

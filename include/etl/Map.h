@@ -157,7 +157,7 @@ typename Map<K, E, A>::ConstIterator  Map<K, E, A>::find(const K& k) const {
 template<typename K, class E, template<class> class A>
 typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
 
-    std::pair<Iterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
+    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
 
     if (found.second == false) {
 #if ETL_USE_CPP11
@@ -169,7 +169,7 @@ typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
         --found.first;
     }
 
-    return found.first;
+    return Iterator(found.first);
 }
 
 

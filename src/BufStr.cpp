@@ -25,6 +25,8 @@ limitations under the License.
 
 #if ETL_USE_CPP11
 #include <cmath>
+using std::isnan;
+using std::isinf;
 #else
 #include <math.h>
 #endif

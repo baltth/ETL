@@ -87,13 +87,13 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     Vector(Vector&& other) :
         Base(strategy),
         strategy(data, N) {
-        operator=(std::move(other))
+        operator=(std::move(other));
     }
 
     Vector(const std::initializer_list<T>& initList) :
         Base(strategy),
         strategy(data, N) {
-        operator=(initList)
+        operator=(initList);
     }
 
     Vector& operator=(Vector&& other) {

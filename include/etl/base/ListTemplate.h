@@ -82,7 +82,7 @@ class ListTemplate : public TypedListBase<T> {
         return *this;
     }
 
-    ListTemplate(const std::initializer_list<T, A>& initList);
+    ListTemplate(const std::initializer_list<T>& initList);
 
 #endif
 

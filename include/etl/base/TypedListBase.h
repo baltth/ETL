@@ -193,7 +193,6 @@ class TypedListBase : protected AListBase {
 
     ///\name AListBase forward
     /// @{
-
     uint32_t getSize() const {
         return AListBase::getSize();
     }
@@ -253,21 +252,19 @@ class TypedListBase : protected AListBase {
     template<typename F, typename V>
     Iterator find(ConstIterator startPos, ConstIterator endPos, F f, const V& v) const;
 
-#if ETL_USE_CPP11
-
-    Iterator find(Matcher<T>&& matchCall) const {
-        return find(begin(), end(), std::move(matchCall));
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, Matcher<T>&& matchCall) const;
-
-#else
-
     Iterator find(const Matcher<T>& matchCall) const {
         return find(begin(), end(), matchCall);
     }
 
     Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<T>& matchCall) const;
+
+#if ETL_USE_CPP11
+
+    Iterator find(MatchFunc<T>&& matchCall) const {
+        return find(begin(), end(), std::move(matchCall));
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<T>&& matchCall) const;
 
 #endif
     /// @}
@@ -322,32 +319,6 @@ typename TypedListBase<T>::Iterator TypedListBase<T>::find(ConstIterator startPo
 }
 
 
-#if ETL_USE_CPP11
-
-
-template<class T>
-typename TypedListBase<T>::Iterator TypedListBase<T>::find(ConstIterator startPos,
-                                                           ConstIterator endPos,
-                                                           Matcher<T>&& matchCall) const {
-
-    bool match = false;
-
-    while (!match && (startPos != endPos)) {
-
-        match = matchCall(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return Iterator(startPos);
-}
-
-
-#else
-
-
 template<class T>
 typename TypedListBase<T>::Iterator TypedListBase<T>::find(ConstIterator startPos,
                                                            ConstIterator endPos,
@@ -358,6 +329,28 @@ typename TypedListBase<T>::Iterator TypedListBase<T>::find(ConstIterator startPo
     while (!match && (startPos != endPos)) {
 
         match = matchCall.call(*startPos);
+
+        if (!match) {
+            ++startPos;
+        }
+    }
+
+    return Iterator(startPos);
+}
+
+
+#if ETL_USE_CPP11
+
+template<class T>
+typename TypedListBase<T>::Iterator TypedListBase<T>::find(ConstIterator startPos,
+                                                           ConstIterator endPos,
+                                                           MatchFunc<T>&& matchCall) const {
+
+    bool match = false;
+
+    while (!match && (startPos != endPos)) {
+
+        match = matchCall(*startPos);
 
         if (!match) {
             ++startPos;

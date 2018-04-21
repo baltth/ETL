@@ -57,12 +57,6 @@ using std::size_t;
 
 namespace ETL_NAMESPACE {
 
-#if ETL_USE_CPP11
-
-template<typename T>
-using Mathcer = std::function<bool(const T&)>;
-
-#else
 
 template<typename T>
 struct Matcher {
@@ -70,6 +64,11 @@ struct Matcher {
     virtual bool call(const T&) const = 0;
 
 };
+
+#if ETL_USE_CPP11
+
+template<typename T>
+using MatchFunc = std::function<bool(const T&)>;
 
 #endif
 

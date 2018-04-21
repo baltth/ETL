@@ -101,26 +101,6 @@ class Sorted {
         return container.find(startPos, endPos, f, v);
     }
 
-#if ETL_USE_CPP11
-
-    Iterator find(Matcher<ItemType>&& matchCall) {
-        return container.find(begin(), end(), std::move(matchCall));
-    }
-
-    ConstIterator find(Matcher<ItemType>&& matchCall) const {
-        return container.find(begin(), end(), std::move(matchCall));
-    }
-
-    Iterator find(ConstIterator startPos, ConstIterator endPos, Matcher<ItemType>&& matchCall) {
-        return container.find(startPos, endPos, std::move(matchCall));
-    }
-
-    ConstIterator find(ConstIterator startPos, ConstIterator endPos, Matcher<ItemType>&& matchCall) const {
-        return container.find(startPos, endPos, std::move(matchCall));
-    }
-
-#else
-
     Iterator find(const Matcher<ItemType>& matchCall) {
         return container.find(begin(), end(), matchCall);
     }
@@ -135,6 +115,24 @@ class Sorted {
 
     ConstIterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matchCall) const {
         return container.find(startPos, endPos, matchCall);
+    }
+
+#if ETL_USE_CPP11
+
+    Iterator find(MatchFunc<ItemType>&& matchCall) {
+        return container.find(begin(), end(), std::move(matchCall));
+    }
+
+    ConstIterator find(MatchFunc<ItemType>&& matchCall) const {
+        return container.find(begin(), end(), std::move(matchCall));
+    }
+
+    Iterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ItemType>&& matchCall) {
+        return container.find(startPos, endPos, std::move(matchCall));
+    }
+
+    ConstIterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ItemType>&& matchCall) const {
+        return container.find(startPos, endPos, std::move(matchCall));
     }
 
 #endif
