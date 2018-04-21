@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/base/PoolBase.h>
+#include <etl/base/PoolBase.h>
 
 using ETL_NAMESPACE::PoolBase;
 using ETL_NAMESPACE::GenericProxy;

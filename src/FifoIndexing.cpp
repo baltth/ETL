@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/base/FifoIndexing.h>
+#include <etl/base/FifoIndexing.h>
 
 using ETL_NAMESPACE::FifoIndexing;
 

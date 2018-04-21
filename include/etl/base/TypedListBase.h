@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_TYPEDLISTBASE_H__
 #define __ETL_TYPEDLISTBASE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/AListBase.h>
+#include <etl/etlSupport.h>
+#include <etl/base/AListBase.h>
 
 #undef min
 #undef max

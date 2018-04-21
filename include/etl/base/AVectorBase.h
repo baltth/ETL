@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/Proxy.h>
+#include <etl/etlSupport.h>
+#include <etl/Proxy.h>
 
 namespace ETL_NAMESPACE {
 

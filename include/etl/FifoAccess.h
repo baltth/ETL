@@ -19,53 +19,48 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_FIFOTEMPLATE_H__
-#define __ETL_FIFOTEMPLATE_H__
+#ifndef __ETL_FIFOACCESS_H__
+#define __ETL_FIFOACCESS_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/FifoIndexing.h>
-#include <ETL/base/AFifoIterator.h>
+#include <etl/etlSupport.h>
+#include <etl/Proxy.h>
+#include <etl/base/FifoIndexing.h>
+#include <etl/base/AFifoIterator.h>
 
 namespace ETL_NAMESPACE {
 
 
-template<class C>
-class FifoTemplate : protected C, public FifoIndexing {
+template<class T>
+class FifoAccess : public FifoIndexing {
 
   public:   // types
 
-    typedef typename C::ItemType ItemType;
+    typedef T ItemType;
 
     class Iterator : public FifoIterator<ItemType> {
-        friend class FifoTemplate<C>;
+        friend class FifoAccess<ItemType>;
 
       private:
 
-        Iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
+        Iterator(const FifoAccess<ItemType>* fifo, uint32_t ix) :
             FifoIterator<ItemType>(const_cast<ItemType*>(fifo->getData()), fifo, ix) {};
 
     };
 
+  private:  // variables
+
+    MutableProxy<T> proxy;
+
   public:   // functions
 
-#if ETL_USE_CPP11
+    explicit FifoAccess(const MutableProxy<T>& p) :
+        FifoIndexing(p.getSize()),
+        proxy(p) {};
 
-    template<typename... Args>
-    explicit FifoTemplate<C>(Args... args) :
-        C(args...),
-        FifoIndexing(C::getSize()) {};
-
-#else
-
-    FifoTemplate<C>() :
-        C(),
-        FifoIndexing(C::getSize()) {};
-
-    FifoTemplate<C>(uint32_t len) :
-        C(len),
-        FifoIndexing(C::getSize()) {};
-
-#endif
+    template<class C>
+    explicit FifoAccess(C& container) :
+        FifoIndexing(container.getSize()),
+        proxy(container) {};
 
     uint32_t getCapacity() const {
         return FifoIndexing::getCapacity();
@@ -96,41 +91,51 @@ class FifoTemplate : protected C, public FifoIndexing {
         return Iterator(this, ix);
     }
 
+  protected:
+
+    void* getData() const {
+        return proxy.getData();
+    }
+
+  private:
+
+    FifoAccess<T>();
+
 };
 
 
-template<class C>
-void FifoTemplate<C>::push(const ItemType& item) {
+template<class T>
+void FifoAccess<T>::push(const ItemType& item) {
 
     FifoIndexing::push();
-    C::operator[](FifoIndexing::getWriteIx()) = item;
+    proxy.operator[](FifoIndexing::getWriteIx()) = item;
 }
 
 
-template<class C>
-typename FifoTemplate<C>::ItemType FifoTemplate<C>::pop() {
+template<class T>
+typename FifoAccess<T>::ItemType FifoAccess<T>::pop() {
 
     FifoIndexing::pop();
-    return C::operator[](FifoIndexing::getReadIx());
+    return proxy.operator[](FifoIndexing::getReadIx());
 }
 
 
-template<class C>
-typename FifoTemplate<C>::ItemType FifoTemplate<C>::getFromBack(uint32_t ix) const {
+template<class T>
+typename FifoAccess<T>::ItemType FifoAccess<T>::getFromBack(uint32_t ix) const {
 
-    return C::operator[](FifoIndexing::getIndexFromFront(ix));
+    return proxy.operator[](FifoIndexing::getIndexFromFront(ix));
 }
 
 
-template<class C>
-typename FifoTemplate<C>::ItemType FifoTemplate<C>::getFromFront(uint32_t ix) const {
+template<class T>
+typename FifoAccess<T>::ItemType FifoAccess<T>::getFromFront(uint32_t ix) const {
 
-    return C::operator[](FifoIndexing::getIndexFromBack(ix));
+    return proxy.operator[](FifoIndexing::getIndexFromBack(ix));
 }
 
 
-template<class C>
-typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix) {
+template<class T>
+typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) {
 
     if (ix < 0) {
         ix = -1 - ix;
@@ -139,12 +144,12 @@ typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix) {
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return C::operator[](ix);
+    return proxy.operator[](ix);
 }
 
 
-template<class C>
-const typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix) const {
+template<class T>
+const typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) const {
 
     if (ix < 0) {
         ix = -1 - ix;
@@ -153,11 +158,10 @@ const typename FifoTemplate<C>::ItemType& FifoTemplate<C>::operator[](int32_t ix
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return C::operator[](ix);
+    return proxy.operator[](ix);
 }
 
-
 }
 
-#endif /* __ETL_FIFOTEMPLATE_H__ */
+#endif /* __ETL_FIFOACCESS_H__ */
 

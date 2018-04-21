@@ -19,15 +19,15 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_DOUBLELINKEDLIST_H__
-#define __ETL_DOUBLELINKEDLIST_H__
+#ifndef __ETL_LINKEDLIST_H__
+#define __ETL_LINKEDLIST_H__
 
-#include <ETL/etlSupport.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
 
-class DoubleLinkedList {
+class LinkedList {
 
   public:   // types
 
@@ -35,15 +35,12 @@ class DoubleLinkedList {
 
       public:
 
-        Node* prev;
         Node* next;
 
         Node() :
-            prev(NULLPTR),
             next(NULLPTR) {};
 
-        Node(Node* p, Node* n) :
-            prev(p),
+        explicit Node(Node* n) :
             next(n) {};
 
     };
@@ -51,20 +48,18 @@ class DoubleLinkedList {
   private:  // variables
 
     Node frontNode;
-    Node backNode;
     uint32_t size;
 
   public:   // functions
 
-    DoubleLinkedList() :
-        frontNode(NULLPTR, &backNode),
-        backNode(&frontNode, NULLPTR),
+    LinkedList() :
+        frontNode(),
         size(0) {};
 
 #if ETL_USE_CPP11
 
-    DoubleLinkedList(DoubleLinkedList&& other);
-    DoubleLinkedList& operator=(DoubleLinkedList&& other);
+    LinkedList(LinkedList&& other);
+    LinkedList& operator=(LinkedList&& other);
 
 #endif
 
@@ -80,33 +75,26 @@ class DoubleLinkedList {
         return frontNode.next;
     }
 
-    Node* getLast() const {
-        return backNode.prev;
-    }
-
     void insertAfter(Node* pos, Node* node);
-    void insertBefore(Node* pos, Node* node);
-
-    Node* remove(Node* node);
+    Node* removeAfter(Node* pos);
     void setEmpty();
 
-    void swap(DoubleLinkedList& other);
+    void swap(LinkedList& other);
 
   private:
 
-    DoubleLinkedList(const DoubleLinkedList& other);
-    DoubleLinkedList& operator=(const DoubleLinkedList& other);
+    LinkedList(const LinkedList& other);
+    LinkedList& operator=(const LinkedList& other);
 
-    void getListOf(DoubleLinkedList& other);
+    void getListOf(LinkedList& other);
 
     static void linkNodes(Node* a, Node* b) {
         a->next = b;
-        b->prev = a;
     }
 
 };
 
 }
 
-#endif /* __ETL_DOUBLELINKEDLIST_H__ */
+#endif /* __ETL_LINKEDLIST_H__ */
 

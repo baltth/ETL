@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/BufStr.h>
+#include <etl/BufStr.h>
 
 #include <cstring>
 

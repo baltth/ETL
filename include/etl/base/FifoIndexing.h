@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_FIFOINDEXING_H__
 #define __ETL_FIFOINDEXING_H__
 
-#include <ETL/etlSupport.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 

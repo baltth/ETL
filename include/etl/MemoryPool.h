@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_MEMORYPOOL_H__
 #define __ETL_MEMORYPOOL_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/PoolBase.h>
-#include <ETL/Array.h>
+#include <etl/etlSupport.h>
+#include <etl/base/PoolBase.h>
+#include <etl/Array.h>
 
 namespace ETL_NAMESPACE {
 

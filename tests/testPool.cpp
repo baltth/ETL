@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/MemoryPool.h>
+#include <etl/MemoryPool.h>
 
 
 TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {

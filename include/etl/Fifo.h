@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_FIFO_H__
 #define __ETL_FIFO_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/FifoTemplate.h>
-#include <ETL/Array.h>
+#include <etl/etlSupport.h>
+#include <etl/base/FifoTemplate.h>
+#include <etl/Array.h>
 
 namespace ETL_NAMESPACE {
 

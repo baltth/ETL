@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/base/DoubleLinkedList.h>
+#include <etl/base/DoubleLinkedList.h>
 
 using ETL_NAMESPACE::DoubleLinkedList;
 

@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_BUFSTR_H__
 #define __ETL_BUFSTR_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/Vector.h>
+#include <etl/etlSupport.h>
+#include <etl/Vector.h>
 
 namespace ETL_NAMESPACE {
 

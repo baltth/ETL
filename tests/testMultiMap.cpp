@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/MultiMap.h>
+#include <etl/MultiMap.h>
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"

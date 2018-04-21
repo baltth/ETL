@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/Vector.h>
+#include <etl/Vector.h>
 
 #include "UnalignedTester.h"
 #include "ContainerTester.h"

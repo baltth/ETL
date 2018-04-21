@@ -21,8 +21,8 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/Array.h>
-#include <ETL/Proxy.h>
+#include <etl/Array.h>
+#include <etl/Proxy.h>
 
 #include "UnalignedTester.h"
 

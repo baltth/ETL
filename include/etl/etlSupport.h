@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_ETLSUPPORT_H__
 #define __ETL_ETLSUPPORT_H__
 
-#include <ETL/langSupport.h>
+#include <etl/langSupport.h>
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl

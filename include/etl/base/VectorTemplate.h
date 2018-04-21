@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_VECTORTEMPLATE_H__
 #define __ETL_VECTORTEMPLATE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/TypedVectorBase.h>
-#include <ETL/base/MemStrategies.h>
+#include <etl/etlSupport.h>
+#include <etl/base/TypedVectorBase.h>
+#include <etl/base/MemStrategies.h>
 
 #undef min
 #undef max

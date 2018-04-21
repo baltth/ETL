@@ -22,11 +22,11 @@ limitations under the License.
 #ifndef __ETL_TYPEDVECTORBASE_H__
 #define __ETL_TYPEDVECTORBASE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/AVectorBase.h>
+#include <etl/etlSupport.h>
+#include <etl/base/AVectorBase.h>
 
 #if ETL_USE_EXCEPTIONS
-#include <ETL/ExceptionTypes.h>
+#include <etl/ExceptionTypes.h>
 #endif
 
 #undef min

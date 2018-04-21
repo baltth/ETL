@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/AVectorBase.h>
+#include <etl/etlSupport.h>
+#include <etl/base/AVectorBase.h>
 
 using ETL_NAMESPACE::AVectorBase;
 

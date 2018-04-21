@@ -19,15 +19,15 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LINKEDLIST_H__
-#define __ETL_LINKEDLIST_H__
+#ifndef __ETL_DOUBLELINKEDLIST_H__
+#define __ETL_DOUBLELINKEDLIST_H__
 
-#include <ETL/etlSupport.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
 
-class LinkedList {
+class DoubleLinkedList {
 
   public:   // types
 
@@ -35,12 +35,15 @@ class LinkedList {
 
       public:
 
+        Node* prev;
         Node* next;
 
         Node() :
+            prev(NULLPTR),
             next(NULLPTR) {};
 
-        explicit Node(Node* n) :
+        Node(Node* p, Node* n) :
+            prev(p),
             next(n) {};
 
     };
@@ -48,18 +51,20 @@ class LinkedList {
   private:  // variables
 
     Node frontNode;
+    Node backNode;
     uint32_t size;
 
   public:   // functions
 
-    LinkedList() :
-        frontNode(),
+    DoubleLinkedList() :
+        frontNode(NULLPTR, &backNode),
+        backNode(&frontNode, NULLPTR),
         size(0) {};
 
 #if ETL_USE_CPP11
 
-    LinkedList(LinkedList&& other);
-    LinkedList& operator=(LinkedList&& other);
+    DoubleLinkedList(DoubleLinkedList&& other);
+    DoubleLinkedList& operator=(DoubleLinkedList&& other);
 
 #endif
 
@@ -75,26 +80,33 @@ class LinkedList {
         return frontNode.next;
     }
 
+    Node* getLast() const {
+        return backNode.prev;
+    }
+
     void insertAfter(Node* pos, Node* node);
-    Node* removeAfter(Node* pos);
+    void insertBefore(Node* pos, Node* node);
+
+    Node* remove(Node* node);
     void setEmpty();
 
-    void swap(LinkedList& other);
+    void swap(DoubleLinkedList& other);
 
   private:
 
-    LinkedList(const LinkedList& other);
-    LinkedList& operator=(const LinkedList& other);
+    DoubleLinkedList(const DoubleLinkedList& other);
+    DoubleLinkedList& operator=(const DoubleLinkedList& other);
 
-    void getListOf(LinkedList& other);
+    void getListOf(DoubleLinkedList& other);
 
     static void linkNodes(Node* a, Node* b) {
         a->next = b;
+        b->prev = a;
     }
 
 };
 
 }
 
-#endif /* __ETL_LINKEDLIST_H__ */
+#endif /* __ETL_DOUBLELINKEDLIST_H__ */
 

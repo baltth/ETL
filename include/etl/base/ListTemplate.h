@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_LISTTEMPLATE_H__
 #define __ETL_LISTTEMPLATE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/TypedListBase.h>
+#include <etl/etlSupport.h>
+#include <etl/base/TypedListBase.h>
 
 #if ETL_USE_CPP11
 #include <initializer_list>

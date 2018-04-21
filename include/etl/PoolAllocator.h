@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_POOLALLOCATOR_H__
 #define __ETL_POOLALLOCATOR_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/MemoryPool.h>
+#include <etl/etlSupport.h>
+#include <etl/MemoryPool.h>
 
 #include <new>
 

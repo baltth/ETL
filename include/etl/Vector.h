@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_VECTOR_H__
 #define __ETL_VECTOR_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/VectorTemplate.h>
-#include <ETL/base/MemStrategies.h>
+#include <etl/etlSupport.h>
+#include <etl/base/VectorTemplate.h>
+#include <etl/base/MemStrategies.h>
 
 namespace ETL_NAMESPACE {
 

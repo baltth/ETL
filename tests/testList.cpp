@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/List.h>
+#include <etl/List.h>
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"

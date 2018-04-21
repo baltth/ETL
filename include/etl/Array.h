@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_ARRAY_H__
 #define __ETL_ARRAY_H__
 
-#include <ETL/etlSupport.h>
+#include <etl/etlSupport.h>
 
 #if ETL_USE_EXCEPTIONS
-#include <ETL/ExceptionTypes.h>
+#include <etl/ExceptionTypes.h>
 #endif
 
 namespace ETL_NAMESPACE {

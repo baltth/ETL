@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_MULTIMAP_H__
 #define __ETL_MULTIMAP_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/Sorted.h>
-#include <ETL/base/MapItem.h>
-#include <ETL/PoolAllocator.h>
+#include <etl/etlSupport.h>
+#include <etl/base/Sorted.h>
+#include <etl/base/MapItem.h>
+#include <etl/PoolAllocator.h>
 
 #include <memory>
 #include <utility>

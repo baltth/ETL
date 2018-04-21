@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/BufStr.h>
+#include <etl/BufStr.h>
 
 #include <iostream>
 #include <cstring>

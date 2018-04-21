@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_LIST_H__
 #define __ETL_LIST_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/ListTemplate.h>
-#include <ETL/PoolAllocator.h>
+#include <etl/etlSupport.h>
+#include <etl/base/ListTemplate.h>
+#include <etl/PoolAllocator.h>
 
 #include <memory>
 

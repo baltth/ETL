@@ -21,11 +21,11 @@ limitations under the License.
 
 #include "catch.hpp"
 
-#include <ETL/Fifo.h>
-#include <ETL/FifoAccess.h>
+#include <etl/Fifo.h>
+#include <etl/FifoAccess.h>
 
-#include <ETL/Array.h>
-#include <ETL/Vector.h>
+#include <etl/Array.h>
+#include <etl/Vector.h>
 
 
 TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {

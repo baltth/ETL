@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_ALISTBASE_H__
 #define __ETL_ALISTBASE_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/DoubleLinkedList.h>
+#include <etl/etlSupport.h>
+#include <etl/base/DoubleLinkedList.h>
 
 #include <utility>
 

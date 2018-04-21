@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/base/LinkedList.h>
+#include <etl/base/LinkedList.h>
 
 using ETL_NAMESPACE::LinkedList;
 

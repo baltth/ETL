@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_EXCEPTIONTYPES_H__
 #define __ETL_EXCEPTIONTYPES_H__
 
-#include <ETL/etlSupport.h>
+#include <etl/etlSupport.h>
 
 #if ETL_USE_EXCEPTIONS
 

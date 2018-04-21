@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include <ETL/base/AListBase.h>
+#include <etl/base/AListBase.h>
 
 using ETL_NAMESPACE::AListBase;
 

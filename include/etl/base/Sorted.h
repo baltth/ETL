@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_SORTED_H__
 #define __ETL_SORTED_H__
 
-#include <ETL/etlSupport.h>
-#include <ETL/base/ListTemplate.h>
+#include <etl/etlSupport.h>
+#include <etl/base/ListTemplate.h>
 
 #include <functional>
 
