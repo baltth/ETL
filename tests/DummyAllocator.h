@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017. 03. 02.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +19,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __DUMMYALLOCATOR_H__
-#define __DUMMYALLOCATOR_H__
+#ifndef __ETL_TEST_DUMMYALLOCATOR_H__
+#define __ETL_TEST_DUMMYALLOCATOR_H__
+
+namespace ETL_NAMESPACE {
+namespace Test {
+
 
 template<class T>
 class DummyAllocator {
@@ -86,5 +88,8 @@ uint32_t DummyAllocator<T>::cnt = 0;
 template<class T>
 uint32_t DummyAllocator<T>::deleteCnt = 0;
 
-#endif /* __DUMMYALLOCATOR_H__ */
+}
+}
+
+#endif /* __ETL_TEST_DUMMYALLOCATOR_H__ */
 

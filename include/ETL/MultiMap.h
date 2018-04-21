@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2015.05.26.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,11 +22,10 @@ limitations under the License.
 #ifndef __ETL_MULTIMAP_H__
 #define __ETL_MULTIMAP_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/Sorted.h"
-#include "ETL/base/MapItem.h"
-#include "ETL/PoolAllocator.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/Sorted.h>
+#include <ETL/base/MapItem.h>
+#include <ETL/PoolAllocator.h>
 
 #include <memory>
 #include <utility>
@@ -69,6 +66,9 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
 #endif
 
+    using MapBase::find;
+    using MapBase::erase;
+
     inline Iterator insert(const K& k, const E& e) {
         return MapBase::insert(ItemType(k, e));
     }
@@ -78,10 +78,6 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     }
 
     uint32_t erase(const K& k);
-
-    Iterator erase(Iterator pos) {
-        return MapBase::erase(pos);
-    }
 
     ConstIterator find(const K& k) const;
 
@@ -175,13 +171,13 @@ namespace Pooled {
 
 
 template<class K, class E, uint32_t N>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> MapBase;
+    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> MapBase;
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
 

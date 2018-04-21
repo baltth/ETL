@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.20.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,9 +22,8 @@ limitations under the License.
 #ifndef __ETL_LISTTEMPLATE_H__
 #define __ETL_LISTTEMPLATE_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/TypedListBase.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/TypedListBase.h>
 
 #if ETL_USE_CPP11
 #include <initializer_list>
@@ -44,30 +41,7 @@ class ListTemplate : public TypedListBase<T> {
     typedef const T ConstItemType;
     typedef TypedListBase<T> ListBase;
 
-    class Node : public ListBase::Node {
-
-      public:   // functions
-
-#if ETL_USE_CPP11
-        template<typename... Args>
-        Node(Args&& ... args) :
-            ListBase::Node(std::forward<Args>(args)...) {};
-#else
-        Node() {};
-        explicit Node(const T& value) :
-            ListBase::Node(value) {};
-#endif
-
-        static void* operator new(size_t size) throw() {
-            return ListTemplate::allocator().allocate(1);
-        }
-
-        static void operator delete(void* ptr) {
-            ListTemplate::allocator().deallocate(static_cast<Node*>(ptr), 1);
-        }
-
-    };
-
+    typedef typename ListBase::Node Node;
     typedef typename ListBase::Iterator Iterator;
     typedef typename ListBase::ConstIterator ConstIterator;
 
@@ -75,14 +49,21 @@ class ListTemplate : public TypedListBase<T> {
 
     friend Node;
 
+  private:  // variables
+
+    mutable Allocator allocator;
+
   public:   // functions
 
     ListTemplate() {};
 
+    explicit ListTemplate(const Allocator& a) :
+        allocator(a) {};
+
     ListTemplate(const ListTemplate& other) {
         copyElementsFrom(other);
     }
-        
+
     ListTemplate& operator=(const ListTemplate& other);
 
     ListTemplate(const ListBase& other) {
@@ -116,20 +97,20 @@ class ListTemplate : public TypedListBase<T> {
     inline void pushFront(const T& item);
     inline void pushBack(const T& item);
 
-    inline void popFront() {
-        delete static_cast<Node*>(AListBase::popBack());
+    void popFront() {
+        deleteNode(static_cast<Node*>(AListBase::popBack()));
     }
 
-    inline void popBack() {
-        delete static_cast<Node*>(AListBase::popBack());
+    void popBack() {
+        deleteNode(static_cast<Node*>(AListBase::popBack()));
     }
 
     inline Iterator insert(ConstIterator pos, const T& item);
 
-    inline Iterator erase(Iterator pos) {
+    Iterator erase(Iterator pos) {
         Iterator next = pos;
         ++next;
-        delete static_cast<Node*>(AListBase::remove(pos));
+        deleteNode(static_cast<Node*>(AListBase::remove(pos)));
         return next;
     }
 
@@ -143,9 +124,17 @@ class ListTemplate : public TypedListBase<T> {
     void copyElementsFrom(const ListBase& other);
     /// @}
 
-    static Allocator& allocator() {
-        static Allocator a;
-        return a;
+    Allocator& getAllocator() const {
+        return allocator;
+    }
+
+  private:
+
+    void deleteNode(Node* ptr) {
+        if (ptr) {
+            ptr->~Node();
+            allocator.deallocate(ptr, 1);
+        }
     }
 
 };
@@ -200,8 +189,9 @@ void ListTemplate<T, A>::clear() {
 template<class T, template<class> class A>
 void ListTemplate<T, A>::pushFront(const T& item) {
 
-    Node* p = new Node(item);
+    Node* p = allocator.allocate(1);
     if (p != NULLPTR) {
+        new (p) Node(item);
         AListBase::pushFront(p);
     }
 }
@@ -210,8 +200,9 @@ void ListTemplate<T, A>::pushFront(const T& item) {
 template<class T, template<class> class A>
 void ListTemplate<T, A>::pushBack(const T& item) {
 
-    Node* p = new Node(item);
+    Node* p = allocator.allocate(1);
     if (p != NULLPTR) {
+        new (p) Node(item);
         AListBase::pushBack(p);
     }
 }
@@ -231,8 +222,9 @@ template<typename... Args >
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::emplace(ConstIterator pos, Args&& ... args) {
 
     Iterator it = this->end();
-    Node* inserted = new Node(std::forward<Args>(args)...);
+    Node* inserted = allocator.allocate(1);
     if (inserted != NULLPTR) {
+        new (inserted) Node(std::forward<Args>(args)...);
         it = ListBase::insert(pos, *inserted);
     }
 
@@ -247,8 +239,9 @@ template<class T, template<class> class A>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator pos, const T& item) {
 
     Iterator it = this->end();
-    Node* inserted = new Node(item);
+    Node* inserted = allocator.allocate(1);
     if (inserted != NULLPTR) {
+        new (inserted) Node(item);
         it = ListBase::insert(pos, *inserted);
     }
 
@@ -269,7 +262,6 @@ void ListTemplate<T, A>::copyElementsFrom(const TypedListBase<T>& other) {
         ++it;
     }
 }
-
 
 }
 

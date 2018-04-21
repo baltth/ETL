@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2015.04.28.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,10 +22,9 @@ limitations under the License.
 #ifndef __ETL_LIST_H__
 #define __ETL_LIST_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/ListTemplate.h"
-#include "ETL/PoolAllocator.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/ListTemplate.h>
+#include <ETL/PoolAllocator.h>
 
 #include <memory>
 
@@ -40,6 +37,7 @@ class List : public ListTemplate<T, A> {
   public:   // types
 
     typedef ListTemplate<T, A> ListBase;
+    typedef typename ListBase::Allocator Allocator;
     typedef typename ListBase::Iterator Iterator;
     typedef typename ListBase::ConstIterator ConstIterator;
     typedef typename ListBase::Node Node;
@@ -47,6 +45,9 @@ class List : public ListTemplate<T, A> {
   public:   // functions
 
     List() {};
+
+    explicit List(const Allocator& a) :
+        ListBase(a) {};
 
 #if ETL_USE_CPP11
 
@@ -61,13 +62,13 @@ class List : public ListTemplate<T, A> {
 namespace Pooled {
 
 template<class E, uint32_t N>
-class List : public ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+class List : public ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> ListBase;
+    typedef ETL_NAMESPACE::List<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> ListBase;
     typedef typename ListBase::Iterator Iterator;
     typedef typename ListBase::ConstIterator ConstIterator;
 

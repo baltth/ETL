@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.20.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,13 +22,13 @@ limitations under the License.
 #ifndef __ETL_MEMSTARTEGIES_H__
 #define __ETL_MEMSTARTEGIES_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/AVectorBase.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/AVectorBase.h>
 
 #include <memory>
 
 namespace ETL_NAMESPACE {
+
 
 template<class C>
 class AMemStrategy {
@@ -47,7 +45,7 @@ class AMemStrategy {
 
 
 
-/** Mem strategy with static size, allocated externally */
+/// Mem strategy with static size, allocated externally.
 template<class C>
 class StaticSized : public AMemStrategy<C> {
 
@@ -127,7 +125,7 @@ void StaticSized<C>::setupData(C& cont, uint32_t length) {
 
 
 
-/** Mem strategy with dynamic size, allocated with Allocator */
+/// Mem strategy with dynamic size, allocated with Allocator
 template<class C, class A>
 class DynamicSized : public AMemStrategy<C> {
 

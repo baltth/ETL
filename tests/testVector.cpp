@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017.02.16.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2017 Tóth Balázs.
+Copyright 2017 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +26,9 @@ limitations under the License.
 #include "UnalignedTester.h"
 #include "ContainerTester.h"
 
+using ETL_NAMESPACE::Test::UnalignedTester;
+using ETL_NAMESPACE::Test::ContainerTester;
+
 
 // Etl::Dynamic::Vector tests -------------------------------------------------
 
@@ -39,6 +40,7 @@ TEST_CASE("Etl::Dynamic::Vector<> basic test", "[vector][dynamic][etl][basic]") 
 
     VectorType vector;
 
+    REQUIRE(vector.isEmpty());
     REQUIRE(vector.getSize() == 0);
 
     vector.reserve(16);
@@ -46,8 +48,13 @@ TEST_CASE("Etl::Dynamic::Vector<> basic test", "[vector][dynamic][etl][basic]") 
     REQUIRE(vector.getSize() == 0);
 
     vector.pushBack(1);
+
+    REQUIRE_FALSE(vector.isEmpty());
+    REQUIRE(vector.getSize() == 1);
+
     vector.pushBack(2);
 
+    REQUIRE_FALSE(vector.isEmpty());
     REQUIRE(vector.getSize() == 2);
 
     VectorType::Iterator it = vector.begin();
@@ -216,10 +223,11 @@ TEST_CASE("Etl::Dynamic::Vector<> constructor test", "[vector][dynamic][etl]") {
     REQUIRE(vector3[3] == INIT_VALUE);
 
     VectorType vector4(vector3);
-    REQUIRE(vector4.getSize() == 4);
-    REQUIRE(vector4.getCapacity() >= 4);
+    REQUIRE(vector4.getSize() == vector3.getSize());
+    REQUIRE(vector4.getCapacity() >= vector4.getSize());
     REQUIRE(vector4[0] == INIT_VALUE);
     REQUIRE(vector4[3] == INIT_VALUE);
+    REQUIRE(vector4.begin() != vector3.begin());
 }
 
 
@@ -242,6 +250,7 @@ TEST_CASE("Etl::Dynamic::Vector<> assignment test", "[vector][dynamic][etl]") {
     vector1 = vector2;
 
     REQUIRE(vector1[0] == vector2[0]);
+    REQUIRE(vector1.begin() != vector2.begin());
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
 }
@@ -392,6 +401,7 @@ TEST_CASE("Etl::Static::Vector<> basic test", "[vector][static][etl][basic]") {
 
     VectorType vector;
 
+    REQUIRE(vector.isEmpty());
     REQUIRE(vector.getSize() == 0);
 
     vector.reserve(16);
@@ -399,8 +409,13 @@ TEST_CASE("Etl::Static::Vector<> basic test", "[vector][static][etl][basic]") {
     REQUIRE(vector.getSize() == 0);
 
     vector.pushBack(1);
+
+    REQUIRE_FALSE(vector.isEmpty());
+    REQUIRE(vector.getSize() == 1);
+
     vector.pushBack(2);
 
+    REQUIRE_FALSE(vector.isEmpty());
     REQUIRE(vector.getSize() == 2);
 
     VectorType::Iterator it = vector.begin();
@@ -636,25 +651,28 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vector][static][etl][basic
     SECTION("Copy from same size") {
 
         VectorType vector4(vector3);
-        REQUIRE(vector4.getSize() == 4);
+        REQUIRE(vector4.getSize() == vector3.getSize());
         REQUIRE(vector4.getCapacity() == CAPACITY);
-        REQUIRE(vector4[0] == INIT_VALUE);
-        REQUIRE(vector4[3] == INIT_VALUE);
+        REQUIRE(vector4[0] == vector3[0]);
+        REQUIRE(vector4[3] == vector3[3]);
+        REQUIRE(vector4.begin() != vector3.begin());
     }
 
     SECTION("Copy from different size") {
 
         VectorType4 vector4(vector3);
-        REQUIRE(vector4.getSize() == 4);
+        REQUIRE(vector4.getSize() == vector3.getSize());
         REQUIRE(vector4.getCapacity() == CAPACITY4);
-        REQUIRE(vector4[0] == INIT_VALUE);
-        REQUIRE(vector4[3] == INIT_VALUE);
+        REQUIRE(vector4[0] == vector3[0]);
+        REQUIRE(vector4[3] == vector3[3]);
+        REQUIRE(vector4.begin() != vector3.begin());
 
         VectorType vector5(vector4);
-        REQUIRE(vector5.getSize() == 4);
+        REQUIRE(vector5.getSize() == vector4.getSize());
         REQUIRE(vector5.getCapacity() == CAPACITY);
-        REQUIRE(vector5[0] == INIT_VALUE);
-        REQUIRE(vector5[3] == INIT_VALUE);
+        REQUIRE(vector5[0] == vector4[0]);
+        REQUIRE(vector5[3] == vector4[3]);
+        REQUIRE(vector5.begin() != vector4.begin());
     }
 }
 
@@ -678,6 +696,7 @@ TEST_CASE("Etl::Static::Vector<> assignment test", "[vector][static][etl]") {
     vector1 = vector2;
 
     REQUIRE(vector1[0] == vector2[0]);
+    REQUIRE(vector1.begin() != vector2.begin());
     REQUIRE(vector1.getSize() == vector2.getSize());
     REQUIRE(ItemType::getObjectCount() == (2 * vector2.getSize()));
 }

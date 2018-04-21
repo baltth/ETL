@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.19.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,9 +19,10 @@ limitations under the License.
 \endparblock
 */
 
-#include "ETL/base/LinkedList.h"
+#include <ETL/base/LinkedList.h>
 
-using namespace ETL_NAMESPACE;
+using ETL_NAMESPACE::LinkedList;
+
 
 #if ETL_USE_CPP11
 
@@ -41,6 +40,7 @@ LinkedList& LinkedList::operator=(LinkedList&& other) {
 }
 
 #endif
+
 
 void LinkedList::insertAfter(Node* pos, Node* node) {
 
@@ -111,11 +111,5 @@ void LinkedList::setEmpty() {
 
     frontNode.next = NULLPTR;
     size = 0;
-}
-
-
-void LinkedList::linkNodes(Node* a, Node* b) {
-
-    a->next = b;
 }
 

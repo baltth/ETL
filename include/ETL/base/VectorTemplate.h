@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.20.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,10 +22,9 @@ limitations under the License.
 #ifndef __ETL_VECTORTEMPLATE_H__
 #define __ETL_VECTORTEMPLATE_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/TypedVectorBase.h"
-#include "ETL/base/MemStrategies.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/TypedVectorBase.h>
+#include <ETL/base/MemStrategies.h>
 
 #undef min
 #undef max
@@ -43,13 +40,13 @@ class Vector : public TypedVectorBase<T> {
 
   public:   // types
 
-    typedef TypedVectorBase<T> base;
-    typedef base StrategyBase;
+    typedef TypedVectorBase<T> Base;
+    typedef Base StrategyBase;
     typedef T ItemType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
 
-    typedef typename base::CreatorFunctor CreatorFunctor;
+    typedef typename Base::CreatorFunctor CreatorFunctor;
 
   private: // variables
 
@@ -65,11 +62,11 @@ class Vector : public TypedVectorBase<T> {
     inline Iterator insert(ConstIterator position, ConstIterator first, ConstIterator last);
 
     inline void pushFront(const T& value) {
-        insert(base::begin(), value);
+        insert(Base::begin(), value);
     }
 
     inline void pushBack(const T& value) {
-        insert(base::end(), value);
+        insert(Base::end(), value);
     }
 
     inline void swap(Vector<T>& other) {
@@ -231,17 +228,17 @@ typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = base::getSize() + numToInsert;
+        uint32_t requestedCapacity = Base::getSize() + numToInsert;
 
-        if (requestedCapacity > base::getCapacity()) {
+        if (requestedCapacity > Base::getCapacity()) {
 
-            uint32_t positionIx = position - base::begin();
+            uint32_t positionIx = position - Base::begin();
             this->reserveAtLeast(requestedCapacity);
-            position = base::begin() + positionIx;
+            position = Base::begin() + positionIx;
         }
 
-        if (requestedCapacity <= base::getCapacity()) {
-            position = base::insertOperation(position, numToInsert, creatorCall);
+        if (requestedCapacity <= Base::getCapacity()) {
+            position = Base::insertOperation(position, numToInsert, creatorCall);
         }
     }
 
@@ -276,7 +273,7 @@ template<class T>
 typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, uint32_t num,
                                                const T& value) {
 
-    typename base::CopyCreator cc(value);
+    typename Base::CopyCreator cc(value);
     return insertWithCreator(position, num, cc);
 }
 
@@ -288,16 +285,16 @@ typename Vector<T>::Iterator Vector<T>::insertWithCreator(ConstIterator position
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = base::getSize() + numToInsert;
+        uint32_t requestedCapacity = Base::getSize() + numToInsert;
 
-        if (requestedCapacity > base::getCapacity()) {
-            uint32_t positionIx = position - base::begin();
+        if (requestedCapacity > Base::getCapacity()) {
+            uint32_t positionIx = position - Base::begin();
             this->reserveAtLeast(requestedCapacity);
-            position = base::begin() + positionIx;
+            position = Base::begin() + positionIx;
         }
 
-        if (requestedCapacity <= base::getCapacity()) {
-            position = base::insertOperation(position, numToInsert, creatorCall);
+        if (requestedCapacity <= Base::getCapacity()) {
+            position = Base::insertOperation(position, numToInsert, creatorCall);
         }
     }
 
@@ -329,7 +326,7 @@ typename Vector<T>::Iterator Vector<T>::find(ConstIterator startPos,
 template<class T>
 typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position, ConstIterator first, ConstIterator last) {
 
-    typename base::template ContCreator<ConstIterator> cc(first, last);
+    typename Base::template ContCreator<ConstIterator> cc(first, last);
     return insertWithCreator(position, cc.getLength(), cc);
 }
 
@@ -343,8 +340,8 @@ class Vector<T*> : public Vector<void*> {
   public:   // types
 
     typedef T* ItemType;
-    typedef Vector<void*> base;
-    typedef base::StrategyBase StrategyBase;
+    typedef Vector<void*> Base;
+    typedef Base::StrategyBase StrategyBase;
     typedef ItemType* Iterator;
     typedef const ItemType* ConstIterator;
 
@@ -359,98 +356,98 @@ class Vector<T*> : public Vector<void*> {
     }
 
     inline Iterator begin() {
-        return reinterpret_cast<Iterator>(base::begin());
+        return reinterpret_cast<Iterator>(Base::begin());
     }
 
     inline ConstIterator begin() const {
-        return reinterpret_cast<ConstIterator>(base::begin());
+        return reinterpret_cast<ConstIterator>(Base::begin());
     }
 
     inline Iterator end() {
-        return reinterpret_cast<Iterator>(base::end());
+        return reinterpret_cast<Iterator>(Base::end());
     }
 
     inline ConstIterator end() const {
-        return reinterpret_cast<ConstIterator>(base::end());
+        return reinterpret_cast<ConstIterator>(Base::end());
     }
 
     inline ItemType& front() {
-        return reinterpret_cast<ItemType&>(base::front());
+        return reinterpret_cast<ItemType&>(Base::front());
     }
 
     inline const ItemType& front() const {
-        return reinterpret_cast<const ItemType&>(base::front());
+        return reinterpret_cast<const ItemType&>(Base::front());
     }
 
     inline ItemType& back() {
-        return reinterpret_cast<ItemType&>(base::back());
+        return reinterpret_cast<ItemType&>(Base::back());
     }
 
     inline const ItemType& back() const {
-        return reinterpret_cast<const ItemType&>(base::back());
+        return reinterpret_cast<const ItemType&>(Base::back());
     }
 
     inline ItemType* getData() {
-        return static_cast<ItemType*>(base::getData());
+        return static_cast<ItemType*>(Base::getData());
     }
 
     inline const ItemType* getData() const {
-        return static_cast<ItemType*>(base::getData());
+        return static_cast<ItemType*>(Base::getData());
     }
 
     inline Iterator insert(Iterator position, const ItemType& value) {
-        return reinterpret_cast<Iterator>(base::insert(reinterpret_cast<base::Iterator>(position),
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
                                                        value));
     }
 
     inline Iterator insert(Iterator position, uint32_t num, const ItemType& value) {
-        return reinterpret_cast<Iterator>(base::insert(reinterpret_cast<base::Iterator>(position),
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
                                                        num,
                                                        value));
     }
 
     inline Iterator insert(ConstIterator position, ConstIterator first, ConstIterator last) {
-        return reinterpret_cast<Iterator>(base::insert(reinterpret_cast<base::Iterator>(position),
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
                                                        first,
                                                        last));
     }
 
     inline Iterator erase(Iterator pos) {
-        return reinterpret_cast<Iterator>(base::erase(reinterpret_cast<base::Iterator>(pos)));
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
     }
 
     inline Iterator erase(Iterator first, Iterator last) {
-        return reinterpret_cast<Iterator>(base::erase(reinterpret_cast<base::Iterator>(first),
-                                                      reinterpret_cast<base::Iterator>(last)));
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(first),
+                                                      reinterpret_cast<Base::Iterator>(last)));
     }
 
     inline void pushBack(const ItemType& value) {
-        base::insert(base::end(), 1, value);
+        Base::insert(Base::end(), 1, value);
     }
 
     inline void popBack() {
-        base::erase(base::end());
+        Base::erase(Base::end());
     }
 
   protected:
 
     explicit Vector(AMemStrategy<StrategyBase>& s) :
-        base(s) {};
+        Base(s) {};
 
     Vector& operator=(const Vector& other) {
-        base::operator=(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
     Vector& operator=(Vector&& other) {
-        base::operator=(std::move(other));
+        Base::operator=(std::move(other));
         return *this;
     }
 
     Vector& operator=(const std::initializer_list<T>& initList) {
-        base::operator=(initList);
+        Base::operator=(initList);
         return *this;
     }
 

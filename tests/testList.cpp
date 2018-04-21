@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017.02.22.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2017 Tóth Balázs.
+Copyright 2017 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +26,9 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 
+using ETL_NAMESPACE::Test::ContainerTester;
+using ETL_NAMESPACE::Test::DummyAllocator;
+
 
 TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
 
@@ -37,11 +38,16 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
     ListType list;
 
     REQUIRE(list.getSize() == 0);
+    REQUIRE(list.isEmpty());
 
     list.pushBack(2);
+
+    REQUIRE_FALSE(list.isEmpty());
+
     list.pushFront(1);
 
     REQUIRE(list.getSize() == 2);
+    REQUIRE_FALSE(list.isEmpty());
 
     ListType::Iterator it = list.begin();
     REQUIRE(*it == 1);
@@ -59,6 +65,7 @@ TEST_CASE("Etl::List<> basic test", "[list][etl][basic]") {
     list.popBack();
 
     REQUIRE(list.getSize() == 0);
+    REQUIRE(list.isEmpty());
 }
 
 
@@ -168,6 +175,8 @@ TEST_CASE("Etl::List<> copy", "[list][etl]") {
         REQUIRE(*it == 3);
         ++it;
         REQUIRE(*it == 4);
+        ++it;
+        REQUIRE(it == list2.end());
     }
 
     SECTION("swap()") {
@@ -178,16 +187,84 @@ TEST_CASE("Etl::List<> copy", "[list][etl]") {
         REQUIRE(list2.getSize() == 4);
 
         ListType::ConstIterator it = list.begin();
-
         REQUIRE(*it == 1);
         ++it;
         REQUIRE(*it == 5);
+        ++it;
+        REQUIRE(it == list.end());
+        --it;
+        REQUIRE(*it == 5);
+        --it;
+        REQUIRE(it == list.begin());
 
         it = list2.begin();
-
         REQUIRE(*it == 1);
         ++it;
         REQUIRE(*it == 2);
+        ++it;
+        REQUIRE(*it == 3);
+        ++it;
+        REQUIRE(*it == 4);
+        ++it;
+        REQUIRE(it == list2.end());
+        --it;
+        REQUIRE(*it == 4);
+        --it;
+        --it;
+        --it;
+        REQUIRE(it == list2.begin());
+    }
+
+    SECTION("swap() with empty") {
+
+        ListType list3;
+
+        CHECK(list.getSize() == 4);
+        CHECK(list3.getSize() == 0);
+
+        list.swap(list3);
+
+        REQUIRE(list.getSize() == 0);
+        REQUIRE(list3.getSize() == 4);
+
+        ListType::ConstIterator it = list.begin();
+
+        REQUIRE(it == list.end());
+
+        it = list3.begin();
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+        ++it;
+        REQUIRE(*it == 3);
+        ++it;
+        REQUIRE(*it == 4);
+        ++it;
+        REQUIRE(it == list3.end());
+        --it;
+        REQUIRE(*it == 4);
+
+        list.swap(list3);
+
+        REQUIRE(list.getSize() == 4);
+        REQUIRE(list3.getSize() == 0);
+
+        it = list.begin();
+        REQUIRE(*it == 1);
+        ++it;
+        REQUIRE(*it == 2);
+        ++it;
+        REQUIRE(*it == 3);
+        ++it;
+        REQUIRE(*it == 4);
+        ++it;
+        REQUIRE(it == list.end());
+        --it;
+        REQUIRE(*it == 4);
+
+        it = list3.begin();
+
+        REQUIRE(it == list3.end());
     }
 }
 
@@ -371,6 +448,9 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
     ListType list;
 
+    CHECK(list.getAllocator().getCapacity() == NUM);
+    REQUIRE(list.getAllocator().isEmpty());
+
     SECTION("Basic allocation") {
 
         list.pushBack(ContainerTester(1));
@@ -383,6 +463,9 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
+
+        REQUIRE_FALSE(list.getAllocator().isEmpty());
+        REQUIRE(list.getAllocator().getSize() == 2);
     }
 
     SECTION("Allocate all") {
@@ -397,6 +480,28 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
         REQUIRE(list.getSize() == NUM);
         REQUIRE(it == list.end());
     }
+
+    SECTION("Common pool checks") {
+
+        list.pushBack(ContainerTester(1));
+        list.pushBack(ContainerTester(2));
+
+        CHECK(list.getSize() == list.getAllocator().getSize());
+
+        ListType list2;
+        list2.pushBack(ContainerTester(3));
+        list2.pushBack(ContainerTester(4));
+
+        REQUIRE((list.getSize() + list2.getSize()) == list.getAllocator().getSize());
+
+        list2.splice(list2.begin(), list);
+
+        CHECK(list.isEmpty());
+        REQUIRE(list2.getSize() == list.getAllocator().getSize());
+    }
+
+    list.clear();
+    REQUIRE(list.getAllocator().isEmpty());
 }
 
 

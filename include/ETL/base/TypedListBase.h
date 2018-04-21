@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.20.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,9 +22,8 @@ limitations under the License.
 #ifndef __ETL_TYPEDLISTBASE_H__
 #define __ETL_TYPEDLISTBASE_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/AListBase.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/AListBase.h>
 
 #undef min
 #undef max
@@ -68,17 +65,18 @@ class TypedListBase : protected AListBase {
             item(value) {};
 #endif
 
-      private:
-
-        static void* operator new(size_t size) throw();
-        static void operator delete(void* ptr);
-
     };
 
     class ConstIterator : public AListBase::Iterator {
         friend class TypedListBase<T>;
 
       public:
+
+        ConstIterator() :
+            AListBase::Iterator(NULLPTR) {};
+
+        explicit ConstIterator(const AListBase::Iterator& it) :
+            AListBase::Iterator(it) {};
 
         ConstItemType& operator*() const {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
@@ -118,9 +116,6 @@ class TypedListBase : protected AListBase {
             return old;
         }
 
-        explicit ConstIterator(const AListBase::Iterator& it) :
-            AListBase::Iterator(it) {};
-
       protected:
 
         explicit ConstIterator(TypedListBase<T>::Node* n) :
@@ -132,6 +127,12 @@ class TypedListBase : protected AListBase {
         friend class TypedListBase<T>;
 
       public:
+
+        Iterator() :
+            ConstIterator(NULLPTR) {};
+
+        explicit Iterator(const AListBase::Iterator& it) :
+            ConstIterator(it) {};
 
         ItemType& operator*() const {
             return static_cast<TypedListBase<T>::Node*>(this->node)->item;
@@ -179,9 +180,6 @@ class TypedListBase : protected AListBase {
             return old;
         }
 
-        explicit Iterator(const AListBase::Iterator& it) :
-            ConstIterator(it) {};
-
       protected:
 
         explicit Iterator(TypedListBase<T>::Node* n) :
@@ -195,23 +193,28 @@ class TypedListBase : protected AListBase {
 
     ///\name AListBase forward
     /// @{
-    inline uint32_t getSize() const {
+
+    uint32_t getSize() const {
         return AListBase::getSize();
     }
 
-    inline Iterator begin() {
+    bool isEmpty() const {
+        return AListBase::isEmpty();
+    }
+
+    Iterator begin() {
         return Iterator(AListBase::begin());
     }
-    
-    inline ConstIterator begin() const {
+
+    ConstIterator begin() const {
         return ConstIterator(AListBase::begin());
     }
 
-    inline Iterator end() {
+    Iterator end() {
         return Iterator(AListBase::end());
     }
-    
-    inline ConstIterator end() const {
+
+    ConstIterator end() const {
         return ConstIterator(AListBase::end());
     }
     /// @}

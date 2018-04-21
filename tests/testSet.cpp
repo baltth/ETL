@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017.02.22.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2017 Tóth Balázs.
+Copyright 2017 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,15 +26,22 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 
+using ETL_NAMESPACE::Test::ContainerTester;
+using ETL_NAMESPACE::Test::DummyAllocator;
+
 
 TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]") {
 
     typedef Etl::Set<ContainerTester> SetType;
     SetType set;
 
+    REQUIRE(set.isEmpty());
+    REQUIRE(set.getSize() == 0);
+
     ContainerTester a(4);
     set.insert(a);
 
+    REQUIRE_FALSE(set.isEmpty());
     REQUIRE(set.getSize() == 1);
     SetType::Iterator it = set.begin();
     REQUIRE(*it == a);
@@ -246,14 +251,14 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
         REQUIRE(set2.find(4) != set2.end());
         REQUIRE(set2.find(5) != set2.end());
     }
-    
+
     SECTION("swap()") {
 
         set.swap(set2);
 
         REQUIRE(set2.getSize() == 4);
         REQUIRE(set.getSize() == 2);
-        
+
         REQUIRE(set.find(1) != set.end());
         REQUIRE(set.find(5) != set.end());
 
@@ -303,7 +308,7 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
-    
+
     SetType set;
     set.insert(ContainerTester(5));
 
@@ -362,7 +367,7 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 
     typedef Etl::Set<ContainerTester, DummyAllocator> SetType;
-    
+
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(SetType::Allocator::getDeleteCount() == SetType::Allocator::getAllocCount());
 }

@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.19.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,10 +22,9 @@ limitations under the License.
 #ifndef __ETL_SET_H__
 #define __ETL_SET_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/Sorted.h"
-#include "ETL/PoolAllocator.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/Sorted.h>
+#include <ETL/PoolAllocator.h>
 
 #include <memory>
 #include <utility>
@@ -67,18 +64,17 @@ class Set : public Sorted<ListTemplate<E, A> > {
 
 #endif
 
+    using SetBase::find;
+    using SetBase::erase;
+
     std::pair<Iterator, bool> insert(const E& e) {
         return SetBase::insertUnique(e);
     }
 
     void erase(const E& e);
 
-    Iterator erase(Iterator pos) {
-        return SetBase::erase(pos);
-    }
-
     ConstIterator find(const E& e) const;
-    
+
     Iterator find(const E& e) {
         return Iterator(static_cast<const Set*>(this)->find(e));
     }
@@ -139,13 +135,13 @@ namespace Pooled {
 
 
 template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> SetBase;
+    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> SetBase;
     typedef typename SetBase::Iterator Iterator;
     typedef typename SetBase::ConstIterator ConstIterator;
 

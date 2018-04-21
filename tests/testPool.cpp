@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017.05.07.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2017 Tóth Balázs.
+Copyright 2017 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,26 +29,28 @@ TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
     Etl::MemoryPool<16, 16> pool;
 
     uint32_t freeCnt = pool.getFreeCount();
-    REQUIRE(pool.getSize() == freeCnt);
+    REQUIRE(pool.getCapacity() == freeCnt);
     REQUIRE(freeCnt == 16);
-    REQUIRE_FALSE(pool.isEmpty());
+    REQUIRE(pool.getCount() == 0);
 
     void* item0 = NULL;
     item0 = pool.pop();
     REQUIRE(item0 != NULL);
     --freeCnt;
     REQUIRE(pool.getFreeCount() == freeCnt);
-    REQUIRE_FALSE(pool.isEmpty());
+    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
 
     void* item1 = NULL;
     item1 = pool.pop();
     REQUIRE(item1 != NULL);
     --freeCnt;
     REQUIRE(pool.getFreeCount() == freeCnt);
+    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
 
     REQUIRE(pool.push(item0));
     ++freeCnt;
-    CHECK(pool.getFreeCount() == freeCnt);
+    REQUIRE(pool.getFreeCount() == freeCnt);
+    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
 }
 
 
@@ -67,7 +67,7 @@ TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
         CHECK(*it != NULL);
     }
 
-    REQUIRE(pool.isEmpty());
+    REQUIRE(pool.getCount() == pool.getCapacity());
     REQUIRE(pool.pop() == NULL);
 
     for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {

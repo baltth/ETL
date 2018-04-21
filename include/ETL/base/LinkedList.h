@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.19.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_LINKEDLIST_H__
 #define __ETL_LINKEDLIST_H__
 
-#include "ETL/etlSupport.h"
+#include <ETL/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -83,16 +81,16 @@ class LinkedList {
 
     void swap(LinkedList& other);
 
-  protected:
-
-    void getListOf(LinkedList& other);
-    
-    static void linkNodes(Node* a, Node* b);
-
   private:
 
     LinkedList(const LinkedList& other);
     LinkedList& operator=(const LinkedList& other);
+
+    void getListOf(LinkedList& other);
+
+    static void linkNodes(Node* a, Node* b) {
+        a->next = b;
+    }
 
 };
 

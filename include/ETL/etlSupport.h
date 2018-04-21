@@ -1,11 +1,9 @@
-/**
-\file
-\date 2016.01.20.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_ETLSUPPORT_H__
 #define __ETL_ETLSUPPORT_H__
 
-#include "ETL/langSupport.h"
+#include <ETL/langSupport.h>
 
 #ifndef ETL_NAMESPACE
 #define ETL_NAMESPACE   Etl
@@ -35,10 +33,24 @@ limitations under the License.
 #endif
 
 #if ETL_USE_CPP11
+
 #include <cstdint>
 #include <functional>
+
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
+using std::int8_t;
+using std::int16_t;
+using std::int32_t;
+using std::int64_t;
+using std::size_t;
+
 #else
+
 #include <stdint.h>
+
 #endif
 
 #include <stdexcept>    // For new overrides
@@ -65,7 +77,7 @@ struct Matcher {
 
 #if ETL_DISABLE_HEAP
 
-inline void* operator new(std::size_t count, const std::nothrow_t& tag) {
+inline void* operator new (std::size_t count, const std::nothrow_t& tag) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -75,7 +87,7 @@ inline void* operator new[](std::size_t count, const std::nothrow_t& tag) {
     return invalid_operator_new_call();
 }
 
-inline void* operator new(std::size_t) throw(std::bad_alloc) {
+inline void* operator new (std::size_t) throw(std::bad_alloc) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -85,7 +97,7 @@ inline void* operator new[](std::size_t) throw(std::bad_alloc) {
     return invalid_operator_new_call();
 }
 
-inline void operator delete(void* ptr, const std::nothrow_t& tag) {
+inline void operator delete (void* ptr, const std::nothrow_t& tag) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }
@@ -95,7 +107,7 @@ inline void operator delete[](void* ptr, const std::nothrow_t& tag) {
     invalid_operator_delete_call();
 }
 
-inline void operator delete(void* ptr) {
+inline void operator delete (void* ptr) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }

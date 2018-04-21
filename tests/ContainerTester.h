@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.03.16.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_CONTAINERTESTER_H__
-#define __ETL_CONTAINERTESTER_H__
+#ifndef __ETL_TEST_CONTAINERTESTER_H__
+#define __ETL_TEST_CONTAINERTESTER_H__
 
 #include <ETL/etlSupport.h>
 
@@ -31,6 +29,10 @@ limitations under the License.
 #if PRINT_TO_IOSTREAM
 #include <iostream>
 #endif
+
+namespace ETL_NAMESPACE {
+namespace Test {
+
 
 class ContainerTester {
 
@@ -189,6 +191,8 @@ inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
     return lhs.getValue() < rhs.getValue();
 }
 
+}
+}
 
-#endif /* __ETL_CONTAINERTESTER_H__ */
+#endif /* __ETL_TEST_CONTAINERTESTER_H__ */
 

@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.19.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,9 +19,10 @@ limitations under the License.
 \endparblock
 */
 
-#include "ETL/base/DoubleLinkedList.h"
+#include <ETL/base/DoubleLinkedList.h>
 
-using namespace ETL_NAMESPACE;
+using ETL_NAMESPACE::DoubleLinkedList;
+
 
 #if ETL_USE_CPP11
 
@@ -44,30 +43,33 @@ DoubleLinkedList& DoubleLinkedList::operator=(DoubleLinkedList&& other) {
 
 void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
-    if (pos != &backNode) {
-        Node* next = pos->next;
-        linkNodes(pos, node);
-        linkNodes(node, next);
-        ++size;
+    if ((pos) && (node)) {
+        if (pos != &backNode) {
+            Node* next = pos->next;
+            linkNodes(pos, node);
+            linkNodes(node, next);
+            ++size;
+        }
     }
 }
 
 
 void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
-    if (pos != &frontNode) {
-        Node* prev = pos->prev;
-        linkNodes(node, pos);
-        linkNodes(prev, node);
-        ++size;
+    if ((pos) && (node)) {
+        if (pos != &frontNode) {
+            Node* prev = pos->prev;
+            linkNodes(node, pos);
+            linkNodes(prev, node);
+            ++size;
+        }
     }
 }
 
 
 DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
-    if (size > 0) {
-
+    if ((size > 0) && (node)) {
         if ((node != &frontNode) && (node != &backNode)) {
 
             linkNodes(node->prev, node->next);
@@ -100,19 +102,16 @@ void DoubleLinkedList::swap(DoubleLinkedList& other) {
 
             DoubleLinkedList tmp;
             tmp.getListOf(*this);
-
             getListOf(other);
             other.getListOf(tmp);
 
         } else if (getSize() > 0) {
 
             other.getListOf(*this);
-            setEmpty();
 
         } else if (other.getSize() > 0) {
 
             getListOf(other);
-            other.setEmpty();
         }
     }
 }
@@ -124,12 +123,4 @@ void DoubleLinkedList::setEmpty() {
     backNode.prev = &frontNode;
     size = 0;
 }
-
-
-void DoubleLinkedList::linkNodes(Node* a, Node* b) {
-
-    a->next = b;
-    b->prev = a;
-}
-
 

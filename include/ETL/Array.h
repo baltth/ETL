@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2015.07.23.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_ARRAY_H__
 #define __ETL_ARRAY_H__
 
-#include "ETL/etlSupport.h"
+#include <ETL/etlSupport.h>
 
 #if ETL_USE_EXCEPTIONS
-#include "ETL/ExceptionTypes.h"
+#include <ETL/ExceptionTypes.h>
 #endif
 
 namespace ETL_NAMESPACE {
@@ -58,43 +56,43 @@ class Array {
 
     Array<T, N>& operator=(const Array<T, N>& other);
 
-    inline T& operator[](uint32_t ix) {
+    T& operator[](uint32_t ix) {
         return data[ix];
     }
 
-    inline const T& operator[](uint32_t ix) const {
+    const T& operator[](uint32_t ix) const {
         return data[ix];
     }
 
-    inline Iterator begin() {
+    Iterator begin() {
         return static_cast<Iterator>(data);
     }
 
-    inline ConstIterator begin() const {
+    ConstIterator begin() const {
         return static_cast<ConstIterator>(data);
     }
 
-    inline Iterator end() {
+    Iterator end() {
         return static_cast<Iterator>(&data[N]);
     }
 
-    inline ConstIterator end() const {
+    ConstIterator end() const {
         return static_cast<ConstIterator>(&data[N]);
     }
 
-    inline T* getData() {
+    T* getData() {
         return data;
     }
 
-    inline const T* getData() const {
+    const T* getData() const {
         return data;
     }
 
-    inline uint32_t getSize() const {
+    uint32_t getSize() const {
         return N;
     }
 
-    inline uint32_t getCapacity() const {
+    uint32_t getCapacity() const {
         return N;
     }
 

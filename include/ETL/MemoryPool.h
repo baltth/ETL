@@ -1,11 +1,9 @@
-/**
-\file
-\date 2017.05.07.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2017 Tóth Balázs.
+Copyright 2017 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,10 +22,9 @@ limitations under the License.
 #ifndef __ETL_MEMORYPOOL_H__
 #define __ETL_MEMORYPOOL_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/PoolBase.h"
-#include "ETL/Array.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/PoolBase.h>
+#include <ETL/Array.h>
 
 namespace ETL_NAMESPACE {
 
@@ -74,16 +71,12 @@ class MemoryPool {
         return base.getFreeCount();
     }
 
-    inline uint32_t getSize() const {
+    inline uint32_t getCapacity() const {
         return N;
     }
 
     inline uint32_t getCount() const {
-        return getSize() - getFreeCount();
-    }
-
-    inline bool isEmpty() const {
-        return (getFreeCount() == 0);
+        return getCapacity() - getFreeCount();
     }
 
   private:

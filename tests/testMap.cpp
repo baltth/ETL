@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.03.16.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,14 +26,21 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 
+using ETL_NAMESPACE::Test::ContainerTester;
+using ETL_NAMESPACE::Test::DummyAllocator;
+
 
 TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
 
     Etl::Map<uint32_t, ContainerTester> map;
 
+    REQUIRE(map.isEmpty());
+    REQUIRE(map.getSize() == 0);
+
     ContainerTester a(4);
     map.insertOrAssign(4, a);
 
+    REQUIRE_FALSE(map.isEmpty());
     REQUIRE(map.getSize() == 1);
     REQUIRE(map[4].getValue() == a.getValue());
 
@@ -306,7 +311,7 @@ TEST_CASE("Etl::Map<> copy", "[map][etl]") {
 
         REQUIRE(map2.getSize() == 4);
         REQUIRE(map.getSize() == 2);
-        
+
         REQUIRE(map[1] == 1);
         REQUIRE(map[5] == -5);
 
@@ -373,7 +378,7 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
-    
+
     MapType map;
     map.insert(5, ContainerTester(-5));
 
@@ -432,7 +437,7 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
     typedef Etl::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
-    
+
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
 }

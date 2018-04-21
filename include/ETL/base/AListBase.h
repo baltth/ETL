@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2015.05.21.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,9 +22,8 @@ limitations under the License.
 #ifndef __ETL_ALISTBASE_H__
 #define __ETL_ALISTBASE_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/DoubleLinkedList.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/DoubleLinkedList.h>
 
 #include <utility>
 
@@ -103,17 +100,21 @@ class AListBase {
 
 #endif
 
-    inline uint32_t getSize() const {
+    uint32_t getSize() const {
         return list.getSize();
+    }
+
+    bool isEmpty() const {
+        return list.isEmpty();
     }
 
   protected:
 
-    inline Iterator begin() const {
+    Iterator begin() const {
         return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
     }
 
-    inline Iterator end() const {
+    Iterator end() const {
         return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
     }
 

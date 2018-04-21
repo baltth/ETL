@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.01.11.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,14 +22,14 @@ limitations under the License.
 #ifndef __ETL_VECTOR_H__
 #define __ETL_VECTOR_H__
 
-#include "ETL/etlSupport.h"
-
-#include "ETL/base/VectorTemplate.h"
-#include "ETL/base/MemStrategies.h"
+#include <ETL/etlSupport.h>
+#include <ETL/base/VectorTemplate.h>
+#include <ETL/base/MemStrategies.h>
 
 namespace ETL_NAMESPACE {
 
 namespace Static {
+
 
 template<class T, size_t N>
 class Vector : public ETL_NAMESPACE::Vector<T> {
@@ -41,10 +39,10 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:   // types
 
     typedef T ItemType;
-    typedef ETL_NAMESPACE::Vector<T> base;
-    typedef typename base::StrategyBase StrategyBase;
-    typedef typename base::Iterator Iterator;
-    typedef typename base::ConstIterator ConstIterator;
+    typedef ETL_NAMESPACE::Vector<T> Base;
+    typedef typename Base::StrategyBase StrategyBase;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
   private:  // variables
 
@@ -54,7 +52,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:   // functions
 
     Vector() :
-        base(strategy),
+        Base(strategy),
         strategy(data, N) {
         this->reserve(N);
     }
@@ -63,48 +61,48 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     Vector(uint32_t len, const T& item);
 
     Vector(const Vector& other) :
-        base(strategy),
+        Base(strategy),
         strategy(data, N) {
         operator=(other);
     }
 
-    Vector(const base& other) :
-        base(strategy),
+    Vector(const Base& other) :
+        Base(strategy),
         strategy(data, N) {
         operator=(other);
     }
 
     Vector& operator=(const Vector& other) {
-        base::operator=(other);
+        Base::operator=(other);
         return *this;
     }
 
-    Vector& operator=(const base& other) {
-        base::operator=(other);
+    Vector& operator=(const Base& other) {
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
     Vector(Vector&& other) :
-        base(strategy),
+        Base(strategy),
         strategy(data, N) {
         operator=(std::move(other))
     }
 
     Vector(const std::initializer_list<T>& initList) :
-        base(strategy),
+        Base(strategy),
         strategy(data, N) {
         operator=(initList)
     }
 
     Vector& operator=(Vector&& other) {
-        base::operator=(std::move(other));
+        Base::operator=(std::move(other));
         return *this;
     }
 
     Vector& operator=(const std::initializer_list<T>& initList) {
-        base::operator=(initList);
+        Base::operator=(initList);
         return *this;
     }
 
@@ -118,7 +116,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
 template<class T, size_t N>
 Vector<T, N>::Vector(uint32_t len) :
-    base(strategy),
+    Base(strategy),
     strategy(data, N) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
@@ -128,7 +126,7 @@ Vector<T, N>::Vector(uint32_t len) :
 
 template<class T, size_t N>
 Vector<T, N>::Vector(uint32_t len, const T& item) :
-    base(strategy),
+    Base(strategy),
     strategy(data, N) {
 
     this->insert(this->begin(), len, item);
@@ -145,10 +143,10 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:   // types
 
     typedef T ItemType;
-    typedef ETL_NAMESPACE::Vector<T> base;
-    typedef typename base::StrategyBase StrategyBase;
-    typedef typename base::Iterator Iterator;
-    typedef typename base::ConstIterator ConstIterator;
+    typedef ETL_NAMESPACE::Vector<T> Base;
+    typedef typename Base::StrategyBase StrategyBase;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
     typedef A<typename StrategyBase::ItemType> Allocator;
 
   private:  // variables
@@ -158,49 +156,49 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:   // functions
 
     Vector() :
-        base(strategy) {};
+        Base(strategy) {};
 
     explicit Vector(uint32_t len);
     Vector(uint32_t len, const T& item);
 
     Vector(const Vector& other) :
-        base(strategy) {
-        base::operator=(other);
+        Base(strategy) {
+        Base::operator=(other);
     }
 
-    Vector(const base& other) :
-        base(strategy) {
-        base::operator=(other);
+    Vector(const Base& other) :
+        Base(strategy) {
+        Base::operator=(other);
     }
 
     Vector& operator=(const Vector& other) {
-        base::operator=(other);
+        Base::operator=(other);
         return *this;
     }
 
-    Vector& operator=(const base& other) {
-        base::operator=(other);
+    Vector& operator=(const Base& other) {
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
     Vector(Vector&& other) :
-        base(strategy) {
+        Base(strategy) {
         operator=(std::move(other));
     }
 
     Vector(const std::initializer_list<T>& initList) :
-        base(strategy) {
+        Base(strategy) {
         operator=(initList);
     }
 
     Vector& operator=(Vector&& other) {
-        return base::operator=(std::move(other));
+        return Base::operator=(std::move(other));
     }
 
     Vector& operator=(const std::initializer_list<T>& initList) {
-        return base::operator=(initList);
+        return Base::operator=(initList);
     }
 
 #endif
@@ -214,7 +212,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
 template<class T, template<class> class A /* = std::allocator<T> */>
 Vector<T, A>::Vector(uint32_t len) :
-    base(strategy) {
+    Base(strategy) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
@@ -223,7 +221,7 @@ Vector<T, A>::Vector(uint32_t len) :
 
 template<class T, template<class> class A /* = std::allocator<T> */>
 Vector<T, A>::Vector(uint32_t len, const T& item) :
-    base(strategy) {
+    Base(strategy) {
 
     this->insert(this->begin(), len, item);
 }

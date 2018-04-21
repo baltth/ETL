@@ -1,11 +1,9 @@
-﻿/**
-\file
-\date 2016.03.16.
-\author Tóth Balázs - baltth@gmail.com
+/** \file
+\author Balazs Toth - baltth@gmail.com
 
 \copyright
 \parblock
-Copyright 2016 Tóth Balázs.
+Copyright 2016 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +25,9 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+
+using ETL_NAMESPACE::Test::ContainerTester;
+using ETL_NAMESPACE::Test::DummyAllocator;
 
 
 TEST_CASE("Etl::MultiMap<> basic test", "[multimap][etl][basic]") {
@@ -78,7 +79,7 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
     SECTION("second element") {
 
         it = map.insert(2, 2);
-    
+
         REQUIRE(it != map.end());
         REQUIRE(it->getKey() == 2);
         REQUIRE(map.getSize() == 2);
@@ -222,7 +223,7 @@ TEST_CASE("Etl::MultiMap<> element order", "[multimap][etl]") {
     ++it;
     REQUIRE(it->getKey() == 3);
     REQUIRE(it->getElement() == -3);
-    
+
     ++it;
     REQUIRE(it->getKey() == 3);
     REQUIRE(it->getElement() == -9);
@@ -260,7 +261,7 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
         map2 = map;
 
         REQUIRE(map2.getSize() == 4);
-       
+
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it2 = map2.begin();
 
@@ -281,10 +282,10 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
         MapType map3 = map;
 
         REQUIRE(map3.getSize() == 4);
-        
+
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it3 = map3.begin();
-        
+
         REQUIRE(it3->getKey() == it1->getKey());
         REQUIRE(it3->getElement() == it1->getElement());
         ++it3;
@@ -303,20 +304,20 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
 
         REQUIRE(map2.getSize() == 6);
     }
-    
+
     SECTION("swap()") {
 
         map.swap(map2);
 
         REQUIRE(map.getSize() == 2);
         REQUIRE(map2.getSize() == 4);
-        
+
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it2 = map2.begin();
 
         REQUIRE(it1->getKey() == 1);
         REQUIRE(it1->getElement() == 1);
-        
+
         REQUIRE(it2->getKey() == 1);
         REQUIRE(it2->getElement() == -1);
     }
@@ -365,7 +366,7 @@ TEST_CASE("Etl::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(res.second->getElement() == -3);
         REQUIRE(++res.first == res.second);
     }
-    
+
     SECTION("equalRange(Key) for more") {
 
         std::pair<MapType::ConstIterator, MapType::ConstIterator> res = map.equalRange(3);
@@ -402,7 +403,7 @@ TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
-    
+
     MapType map;
     map.insert(5, ContainerTester(-5));
 
@@ -460,7 +461,7 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
     typedef Etl::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
-    
+
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
 }
