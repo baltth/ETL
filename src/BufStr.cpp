@@ -232,7 +232,6 @@ bool BufStr::handleFloatSpecials(double val) {
 
 void BufStr::toString(double val) {
 
-    size_t len = 0;
     int64_t upscaled;
     double rounded;
     int64_t integerPart;
