@@ -21,6 +21,8 @@ limitations under the License.
 
 #include "ContainerTester.h"
 
+#include <sstream>
+
 using ETL_NAMESPACE::Test::ContainerTester;
 
 
@@ -31,4 +33,15 @@ uint32_t ContainerTester::copyCnt = 0;
 #if ETL_USE_CPP11
 uint32_t ContainerTester::moveCnt = 0;
 #endif
+
+bool ContainerTester::enablePrint = false;
+
+
+std::string ContainerTester::toString() const {
+
+    std::ostringstream str;
+    str << "Id " << objectId;
+    str << " Value " << value;
+    return str.str();
+}
 

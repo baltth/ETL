@@ -56,28 +56,14 @@ class Array {
 
     Array<T, N>& operator=(const Array<T, N>& other);
 
+    /// \name Element access
+    /// \{
     T& operator[](uint32_t ix) {
         return data[ix];
     }
 
     const T& operator[](uint32_t ix) const {
         return data[ix];
-    }
-
-    Iterator begin() {
-        return static_cast<Iterator>(data);
-    }
-
-    ConstIterator begin() const {
-        return static_cast<ConstIterator>(data);
-    }
-
-    Iterator end() {
-        return static_cast<Iterator>(&data[N]);
-    }
-
-    ConstIterator end() const {
-        return static_cast<ConstIterator>(&data[N]);
     }
 
     T* getData() {
@@ -88,22 +74,62 @@ class Array {
         return data;
     }
 
-    uint32_t getSize() const {
+#if ETL_USE_EXCEPTIONS
+    inline T& at(uint32_t ix);
+    inline const T& at(uint32_t ix) const;
+#endif
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    Iterator begin() {
+        return static_cast<Iterator>(data);
+    }
+
+    ConstIterator begin() const {
+        return static_cast<ConstIterator>(data);
+    }
+
+    ConstIterator cbegin() const {
+        return begin();
+    }
+
+    Iterator end() {
+        return static_cast<Iterator>(&data[N]);
+    }
+
+    ConstIterator end() const {
+        return static_cast<ConstIterator>(&data[N]);
+    }
+
+    ConstIterator cend() const {
+        return end();
+    }
+    /// \}
+
+    /// \name Capacity
+    /// \{
+    size_t getSize() const {
         return N;
     }
 
-    uint32_t getCapacity() const {
-        return N;
+    size_t getCapacity() const {
+        return getSize();
     }
+    /// \}
+
+    /// \name stl compatible interface
+    /// \{
+    bool empty() const {
+        return N == 0;
+    }
+
+    size_t size() const {
+        return getSize();
+    }
+    /// \}
 
     void fill(const T& value);
-
-#if ETL_USE_EXCEPTIONS
-
-    T& at(uint32_t ix);
-    const T& at(uint32_t ix) const;
-
-#endif
 
 };
 

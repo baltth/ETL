@@ -383,6 +383,69 @@ TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vector][dynamic][etl][basic]") {
 }
 
 
+#if ETL_USE_CPP11
+
+TEST_CASE("Etl::Dynamic::Vector<> with std::initializer_list<>", "[vector][dynamic][etl][cpp11]") {
+
+    typedef int ItemType;
+    typedef Etl::Dynamic::Vector<ItemType> VectorType;
+
+    SECTION("Construct") {
+
+        SECTION("With paren") {
+
+            VectorType vec({1, 2});
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+
+        SECTION("With double braces") {
+
+            VectorType vec{{1, 2}};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+
+        SECTION("Uniform") {
+
+            VectorType vec{1, 2};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+    }
+
+    SECTION("Assign") {
+
+        VectorType vec({4, 5, 6, 7});
+        CHECK(vec.getSize() == 4);
+
+        SECTION("Empty") {
+
+            vec = {};
+
+            REQUIRE(vec.getSize() == 0);
+        }
+
+        SECTION("Non-empty") {
+
+            vec = {1, 2};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+    }
+}
+
+#endif
+
+
 TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vector][dynamic][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
@@ -766,6 +829,69 @@ TEST_CASE("Etl::Static::Vector<T*> test", "[vector][static][etl][basic]") {
     REQUIRE(*vector.begin() == &b);
     REQUIRE(vector.getSize() == 1);
 }
+
+
+#if ETL_USE_CPP11
+
+TEST_CASE("Etl::Static::Vector<> with std::initializer_list<>", "[vector][static][etl][cpp11]") {
+
+    typedef int ItemType;
+    typedef Etl::Static::Vector<ItemType, 16> VectorType;
+
+    SECTION("Construct") {
+
+        SECTION("With paren") {
+
+            VectorType vec({1, 2});
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+
+        SECTION("With double braces") {
+
+            VectorType vec{{1, 2}};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+
+        SECTION("Uniform") {
+
+            VectorType vec{1, 2};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+    }
+
+    SECTION("Assign") {
+
+        VectorType vec({4, 5, 6, 7});
+        CHECK(vec.getSize() == 4);
+
+        SECTION("Empty") {
+
+            vec = {};
+
+            REQUIRE(vec.getSize() == 0);
+        }
+
+        SECTION("Non-empty") {
+
+            vec = {1, 2};
+
+            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec[0] == 1);
+            REQUIRE(vec[1] == 2);
+        }
+    }
+}
+
+#endif
 
 
 TEST_CASE("Etl::Static::Vector<> test cleanup", "[vector][static][etl]") {

@@ -236,24 +236,37 @@ TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
 
     SECTION("write existing") {
 
+        //ContainerTester::enablePrint = true;
         map[4] = ContainerTester(-5);
+        //ContainerTester::enablePrint = false;
+
+        CAPTURE(map.find(4)->getElement().toString());
+        CAPTURE(ContainerTester(-5).toString())
         REQUIRE(map.find(4)->getElement() == ContainerTester(-5));
     }
 
     SECTION("write new") {
 
+        //ContainerTester::enablePrint = true;
         map[5] = ContainerTester(-5);
+        //ContainerTester::enablePrint = false;
+
+        CAPTURE(map.find(5)->getElement().toString());
+        CAPTURE(ContainerTester(-5).toString())
         REQUIRE(map.find(5)->getElement() == ContainerTester(-5));
     }
 
     SECTION("read existing") {
 
         REQUIRE(map[4] == ContainerTester(-4));
+        REQUIRE(&(map[4]) == &(map.find(4)->getElement()));
     }
 
     SECTION("read new - default insertion") {
 
+        //ContainerTester::enablePrint = true;
         REQUIRE(map[5] == ContainerTester());
+        //ContainerTester::enablePrint = false;
     }
 }
 

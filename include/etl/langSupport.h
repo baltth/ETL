@@ -67,12 +67,14 @@ class NullptrT {
 
 #define OVERRIDE
 #define FINAL
+#define CONSTEXPR
 
 #else
 
 #define NULLPTR         nullptr
 #define OVERRIDE        override
 #define FINAL           final
+#define CONSTEXPR       constexpr
 
 #define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")

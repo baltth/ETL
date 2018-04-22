@@ -52,7 +52,7 @@ class Vector : public TypedVectorBase<T> {
     typedef typename Base::CreateFunc CreateFunc;
 #endif
 
-  private: // variables
+  private:  // variables
 
     AMemStrategy<StrategyBase>& strategy;
 
@@ -146,7 +146,9 @@ template<class T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
 
     this->reserve(other.getSize());
-    this->copyOperation(other.begin(), other.getSize());
+    if (this->getCapacity() >= other.getSize()) {
+        this->copyOperation(other.begin(), other.getSize());
+    }
     return *this;
 }
 
@@ -215,7 +217,10 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 template<class T>
 Vector<T>& Vector<T>::operator=(const std::initializer_list<T>& initList) {
 
-    this->copyOperation(initList.begin(), initList.size());
+    this->reserve(initList.size());
+    if (this->getCapacity() >= initList.size()) {
+        this->copyOperation(initList.begin(), initList.size());
+    }
     return *this;
 }
 

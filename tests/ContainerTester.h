@@ -23,12 +23,8 @@ limitations under the License.
 #define __ETL_TEST_CONTAINERTESTER_H__
 
 #include <etl/etlSupport.h>
-
-#define PRINT_TO_IOSTREAM   0
-
-#if PRINT_TO_IOSTREAM
+#include <string>
 #include <iostream>
-#endif
 
 namespace ETL_NAMESPACE {
 namespace Test {
@@ -49,6 +45,10 @@ class ContainerTester {
     static uint32_t moveCnt;
 #endif
 
+  public:
+
+    static bool enablePrint;
+
   public:   // functions
 
     explicit ContainerTester(int32_t v = 0) :
@@ -56,8 +56,11 @@ class ContainerTester {
         objectId(++objectRef) {
 
         ++objectCnt;
-        reportConstructor();
-        reportValue();
+
+        if (enablePrint) {
+            reportConstructor();
+            reportValue();
+        }
     }
 
     ContainerTester(const ContainerTester& other) :
@@ -66,23 +69,31 @@ class ContainerTester {
 
         ++objectCnt;
         ++copyCnt;
-        reportCopyConstructor();
-        reportValue();
+
+        if (enablePrint) {
+            reportCopyConstructor();
+            reportValue();
+        }
     }
 
     ContainerTester& operator=(const ContainerTester& other) {
 
         value = other.value;
         ++copyCnt;
-        reportCopyAssignment();
-        reportValue();
+
+        if (enablePrint) {
+            reportCopyAssignment();
+            reportValue();
+        }
         return *this;
     }
 
     ~ContainerTester() {
         --objectCnt;
-        reportDesctructor();
-        reportValue();
+        if (enablePrint) {
+            reportDesctructor();
+            reportValue();
+        }
     }
 
     int32_t getValue() const {
@@ -109,21 +120,25 @@ class ContainerTester {
 
     ContainerTester(ContainerTester&& other) :
         value(other.value),
-        objectId(other.objectId) {
+        objectId(++objectRef) {
 
         ++objectCnt;
         ++moveCnt;
-        reportMoveConstructor();
-        reportValue();
+        if (enablePrint) {
+            reportMoveConstructor();
+            reportValue();
+        }
     }
 
     ContainerTester& operator=(ContainerTester&& other) {
 
         value = other.value;
-        value = other.objectId;
+
         ++moveCnt;
-        reportMoveAssignment();
-        reportValue();
+        if (enablePrint) {
+            reportMoveAssignment();
+            reportValue();
+        }
         return *this;
     }
 
@@ -132,9 +147,6 @@ class ContainerTester {
     }
 
 #endif
-
-
-#if PRINT_TO_IOSTRREAM
 
     void reportConstructor() {
         std::cout << "C()     ";
@@ -161,20 +173,10 @@ class ContainerTester {
     }
 
     void reportValue() {
-        std::cout << "value @ " << this << ": " << value << std::endl;
+        std::cout << "id " << objectId << " @ " << this << " value: " << value << std::endl;
     }
 
-#else
-
-    void reportConstructor() {};
-    void reportCopyConstructor() {};
-    void reportCopyAssignment() {};
-    void reportMoveConstructor() {};
-    void reportMoveAssignment() {};
-    void reportDesctructor() {};
-    void reportValue() {};
-
-#endif
+    std::string toString() const;
 
 };
 

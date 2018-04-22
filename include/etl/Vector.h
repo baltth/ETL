@@ -194,11 +194,13 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector& operator=(Vector&& other) {
-        return Base::operator=(std::move(other));
+        Base::operator=(std::move(other));
+        return *this;
     }
 
     Vector& operator=(const std::initializer_list<T>& initList) {
-        return Base::operator=(initList);
+        Base::operator=(initList);
+        return *this;
     }
 
 #endif
