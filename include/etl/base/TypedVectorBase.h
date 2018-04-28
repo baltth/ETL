@@ -328,30 +328,30 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
 
         uint32_t distanceFromEnd = end() - position;
 
-        uint32_t uninitedCopyNumber = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
-        uint32_t initedCopyNumber = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
-        uint32_t uninitedInsertNumber = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
-        uint32_t initedInsertNumber = uninitedCopyNumber;
+        uint32_t uninitedCopyCnt = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
+        uint32_t initedCopyCnt = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
+        uint32_t uninitedInsertCnt = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
+        uint32_t initedInsertCnt = uninitedCopyCnt;
 
-        T* src = end() - uninitedCopyNumber;
-        T* dst = end() + numToInsert - uninitedCopyNumber;
+        T* src = end() - uninitedCopyCnt;
+        T* dst = end() + numToInsert - uninitedCopyCnt;
 
-        uninitializedCopy(src, dst, uninitedCopyNumber);
+        uninitializedCopy(src, dst, uninitedCopyCnt);
 
-        src -= initedCopyNumber;
-        dst -= initedCopyNumber;
+        src -= initedCopyCnt;
+        dst -= initedCopyCnt;
 
-        initializedCopyUp(src, dst, initedCopyNumber);
+        initializedCopyUp(src, dst, initedCopyCnt);
 
         T* uninitedInsertPos = dst;
-        dst -= uninitedInsertNumber;
+        dst -= uninitedInsertCnt;
 
         while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall.call(uninitedInsertPos, true);
         }
 
-        dst -= initedInsertNumber;
+        dst -= initedInsertCnt;
 
         while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
@@ -376,30 +376,30 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
 
         uint32_t distanceFromEnd = end() - position;
 
-        uint32_t uninitedCopyNumber = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
-        uint32_t initedCopyNumber = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
-        uint32_t uninitedInsertNumber = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
-        uint32_t initedInsertNumber = uninitedCopyNumber;
+        uint32_t uninitedCopyCnt = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
+        uint32_t initedCopyCnt = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
+        uint32_t uninitedInsertCnt = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
+        uint32_t initedInsertCnt = uninitedCopyCnt;
 
-        T* src = end() - uninitedCopyNumber;
-        T* dst = end() + numToInsert - uninitedCopyNumber;
+        T* src = end() - uninitedCopyCnt;
+        T* dst = end() + numToInsert - uninitedCopyCnt;
 
-        uninitializedCopy(src, dst, uninitedCopyNumber);
+        uninitializedCopy(src, dst, uninitedCopyCnt);
 
-        src -= initedCopyNumber;
-        dst -= initedCopyNumber;
+        src -= initedCopyCnt;
+        dst -= initedCopyCnt;
 
-        initializedCopyUp(src, dst, initedCopyNumber);
+        initializedCopyUp(src, dst, initedCopyCnt);
 
         T* uninitedInsertPos = dst;
-        dst -= uninitedInsertNumber;
+        dst -= uninitedInsertCnt;
 
         while (uninitedInsertPos > dst) {
             --uninitedInsertPos;
             creatorCall(uninitedInsertPos, true);
         }
 
-        dst -= initedInsertNumber;
+        dst -= initedInsertCnt;
 
         while (uninitedInsertPos > dst) {
             --uninitedInsertPos;

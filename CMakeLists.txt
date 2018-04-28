@@ -36,7 +36,7 @@ if(BuildEtl03)
 add_library(etl-03 ${ETL_SRCS})
 target_include_directories(etl-03 PUBLIC ${ETL_INCLUDE_DIR})
 target_compile_definitions(etl-03 PUBLIC ETL_USE_EXCEPTIONS=0)
-target_compile_options(etl-03 PUBLIC --std=c++03 -Wall -g)
+target_compile_options(etl-03 PUBLIC --std=c++03 -Wall -Wno-parentheses -g)
 
 add_executable(testEtl-03 ${ETL_TEST_SRCS})
 target_link_libraries(testEtl-03 etl-03)
