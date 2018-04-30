@@ -25,7 +25,7 @@ limitations under the License.
 using ETL_NAMESPACE::AVectorBase;
 
 
-void AVectorBase::swap(AVectorBase& other) {
+void AVectorBase::swapProxy(AVectorBase& other) {
 
     AVectorBase::Proxy tmpProxy(proxy);
 

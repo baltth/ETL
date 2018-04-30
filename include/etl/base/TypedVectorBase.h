@@ -91,11 +91,7 @@ class TypedVectorBase : public AVectorBase {
             ref(refValue) {};
 
         virtual void call(T* pos, bool place) const {
-            if (place) {
-                placeValueTo(pos, ref);
-            } else {
-                assignValueTo(pos, ref);
-            }
+            copyValue(pos, ref, place);
         }
     };
 
@@ -133,11 +129,11 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // functions
 
-    inline T& operator[](uint32_t ix) {
+    T& operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    inline const T& operator[](uint32_t ix) const {
+    const T& operator[](uint32_t ix) const {
         return *(static_cast<const T*>(getItemPointer(ix)));
     }
 
@@ -148,63 +144,63 @@ class TypedVectorBase : public AVectorBase {
 
 #endif
 
-    inline Iterator begin() {
+    Iterator begin() {
         return static_cast<Iterator>(getItemPointer(0));
     }
 
-    inline ConstIterator begin() const {
+    ConstIterator begin() const {
         return static_cast<ConstIterator>(getItemPointer(0));
     }
 
-    inline ConstIterator cbegin() const {
-        return static_cast<ConstIterator>(getItemPointer(0));
+    ConstIterator cbegin() const {
+        return this->begin();
     }
 
-    inline Iterator end() {
+    Iterator end() {
         return static_cast<Iterator>(getItemPointer(getSize()));
     }
 
-    inline ConstIterator end() const {
+    ConstIterator end() const {
         return static_cast<ConstIterator>(getItemPointer(getSize()));
     }
 
-    inline ConstIterator cend() const {
-        return static_cast<ConstIterator>(getItemPointer(getSize()));
+    ConstIterator cend() const {
+        return this->end();
     }
 
-    inline T& front() {
+    T& front() {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    inline const T& front() const {
+    const T& front() const {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    inline T& back() {
+    T& back() {
         return *(static_cast<T*>(getItemPointer(getSize() - 1)));
     }
 
-    inline const T& back() const {
+    const T& back() const {
         return *(static_cast<const T*>(getItemPointer(getSize() - 1)));
     }
 
-    inline T* getData() {
+    T* getData() {
         return static_cast<T*>(getItemPointer(0));
     }
 
-    inline const T* getData() const {
+    const T* getData() const {
         return static_cast<const T*>(getItemPointer(0));
     }
 
-    inline void popFront() {
+    void popFront() {
         erase(begin());
     }
 
-    inline void popBack() {
+    void popBack() {
         erase(end() - 1);
     }
 
-    inline Iterator erase(Iterator pos) {
+    Iterator erase(Iterator pos) {
         Iterator next = pos;
         ++next;
         return erase(pos, next);
@@ -223,11 +219,11 @@ class TypedVectorBase : public AVectorBase {
         clear();
     }
 
-    static inline void assignDefaultTo(T* ptr) {
+    static void assignDefaultTo(T* ptr) {
         *ptr = T();
     }
 
-    static inline void placeDefaultTo(T* ptr) {
+    static void placeDefaultTo(T* ptr) {
         new (ptr) T();
     }
 
@@ -239,6 +235,16 @@ class TypedVectorBase : public AVectorBase {
         new (ptr) T(value);
     }
 
+    static void copyValue(T* ptr, const T& value, bool place) {
+        if (place) {
+            placeValueTo(ptr, value);
+        } else {
+            assignValueTo(ptr, value);
+        }
+    }
+
+    void copyOperation(T* dst, const T* src, uint32_t num);
+
 #if ETL_USE_CPP11
 
     static void assignValueTo(T* ptr, T&& value) {
@@ -249,9 +255,32 @@ class TypedVectorBase : public AVectorBase {
         new (ptr) T(std::move(value));
     }
 
-#endif
+    static void moveValue(T* ptr, T&& value, bool place) {
+        if (place) {
+            placeValueTo(ptr, std::move(value));
+        } else {
+            assignValueTo(ptr, std::move(value));
+        }
+    }
 
-    void copyOperation(const T* src, uint32_t num);
+
+    static void swapValues(T& lhs, T& rhs) {
+        T tmp(std::move(lhs));
+        lhs = std::move(rhs);
+        rhs = std::move(tmp);
+    }
+
+    void moveOperation(T* dst, T* src, uint32_t num);
+
+#else
+
+    static void swapValues(T& lhs, T& rhs) {
+        T tmp(lhs);
+        lhs = rhs;
+        rhs = tmp;
+    }
+
+#endif
 
     static void uninitializedCopy(T* src, T* dst, uint32_t num);
     static void initializedCopyUp(T* src, T* dst, uint32_t num);
@@ -266,6 +295,8 @@ class TypedVectorBase : public AVectorBase {
     Iterator insertOperation(ConstIterator position, uint32_t num, CreateFunc&& creatorCall);
 
 #endif
+
+    void swapElements(TypedVectorBase& other);
 
 };
 
@@ -292,30 +323,22 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, 
 
 
 template<class T>
-void TypedVectorBase<T>::copyOperation(const T* src, uint32_t num) {
+void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
     T* dataAlias = getData();
-    uint32_t i = 0;
 
-    if (num >= getSize()) {
+    if (dst >= dataAlias) {
 
-        for (; i < getSize(); ++i) {
-            assignValueTo((dataAlias + i), src[i]);
+        uint32_t totalNum = dst - dataAlias + num;
+
+        for (uint32_t i = 0; i < num; ++i) {
+            copyValue(dst, src[i], ((dst - dataAlias) >= this->getSize()));
+            ++dst;
         }
 
-        for (; i < num; ++i) {
-            placeValueTo((dataAlias + i), src[i]);
-        }
-
-    } else {
-
-        for (; i < num; ++i) {
-            assignValueTo((dataAlias + i), src[i]);
-        }
+        destruct(dst, end());
+        proxy.setSize(totalNum);
     }
-
-    destruct((dataAlias + i), end());
-    proxy.setSize(num);
 }
 
 
@@ -412,6 +435,26 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
     return Iterator(position);
 }
 
+
+template<class T>
+void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
+
+    T* dataAlias = getData();
+
+    if (dst >= dataAlias) {
+
+        uint32_t totalNum = dst - dataAlias + num;
+
+        for (uint32_t i = 0; i < num; ++i) {
+            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->getSize()));
+            ++dst;
+        }
+
+        destruct(dst, end());
+        proxy.setSize(totalNum);
+    }
+}
+
 #endif
 
 
@@ -474,6 +517,51 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
     while (startPos < endPos) {         // operator<() instead of !=() : protection for startPos > endPos cases
         startPos->~T();
         ++startPos;
+    }
+}
+
+
+template<class T>
+void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
+
+    uint32_t commonSize = 0;
+    uint32_t copyFromOther = 0;
+    uint32_t copyToOther = 0;
+
+    if (this->getSize() > other.getSize()) {
+
+        commonSize = other.getSize();
+        copyToOther = this->getSize() - other.getSize();
+
+    } else {
+
+        commonSize = this->getSize();
+        copyFromOther = other.getSize() - this->getSize();
+    }
+
+    for (uint32_t i = 0; i < commonSize; ++i) {
+        this->swapValues(this->operator[](i), other[i]);
+    }
+
+    if (copyFromOther > 0) {
+
+#if ETL_USE_CPP11
+        this->moveOperation(&this->operator[](commonSize), &other[commonSize], copyFromOther);
+#else
+        this->copyOperation(&this->operator[](commonSize), &other[commonSize], copyFromOther);
+#endif
+        other.destruct(&other[commonSize], other.end());
+        other.proxy.setSize(commonSize);
+
+    } else if (copyToOther > 0) {
+
+#if ETL_USE_CPP11
+        other.moveOperation(&other[commonSize], &this->operator[](commonSize), copyToOther);
+#else
+        other.copyOperation(&other[commonSize], &this->operator[](commonSize), copyToOther);
+#endif
+        this->destruct(&this->operator[](commonSize), this->end());
+        this->proxy.setSize(commonSize);
     }
 }
 

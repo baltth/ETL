@@ -627,12 +627,11 @@ void testVectorMove() {
 
     SECTION("Move constructor") {
 
-        ContainerTester::enablePrint = true;
+        //ContainerTester::enablePrint = true;
         VectorType vec2(std::move(vec));
-        ContainerTester::enablePrint = false;
+        //ContainerTester::enablePrint = false;
 
         REQUIRE(vec2.getSize() == size);
-        REQUIRE(ContainerTester::getMoveCount() == moveCnt);
         REQUIRE(ContainerTester::getCopyCount() == copyCnt);
         REQUIRE(vec2[0] == ContainerTester(-1));
         REQUIRE(vec2[2] == ContainerTester(-3));

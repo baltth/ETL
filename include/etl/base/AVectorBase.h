@@ -87,7 +87,7 @@ class AVectorBase {
     explicit AVectorBase(size_t itemSize) :
         proxy(itemSize) {};
 
-    void swap(AVectorBase& other);
+    void swapProxy(AVectorBase& other);
 
 };
 

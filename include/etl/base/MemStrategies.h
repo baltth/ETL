@@ -35,6 +35,7 @@ class AMemStrategy {
 
   public:   // functions
 
+    virtual uint32_t getMaxCapacity() const = 0;
     virtual void reserve(C& cont, uint32_t length) = 0;
     virtual void reserveAtLeast(C& cont, uint32_t length) = 0;
     virtual void shrinkToFit(C& cont) = 0;
@@ -56,11 +57,15 @@ class StaticSized : public AMemStrategy<C> {
 
   public:   // functions
 
-    // No StaticSized();
+    // No defult constructor;
 
-    StaticSized(void* initData, uint32_t initCapacity) :
-        data(initData),
-        capacity(initCapacity) {};
+    StaticSized(void* d, uint32_t c) :
+        data(d),
+        capacity(c) {};
+
+    virtual uint32_t getMaxCapacity() const FINAL OVERRIDE {
+        return capacity;
+    }
 
     virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
         setupData(cont, length);
@@ -140,6 +145,10 @@ class DynamicSized : public AMemStrategy<C> {
     A allocator;
 
   public:   // functions
+
+    virtual uint32_t getMaxCapacity() const FINAL OVERRIDE {
+        return UINT32_MAX;
+    }
 
     virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE;
 

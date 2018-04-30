@@ -194,7 +194,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector& operator=(Vector&& other) {
-        Base::operator=(std::move(other));
+        this->swap(other);
         return *this;
     }
 
@@ -207,6 +207,11 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     ~Vector() {
         strategy.cleanup(*this);
+    }
+
+    bool swap(Vector& other) {
+        AVectorBase::swapProxy(other);
+        return true;
     }
 
 };
