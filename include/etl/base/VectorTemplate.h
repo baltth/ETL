@@ -133,7 +133,7 @@ class Vector : public TypedVectorBase<T> {
 #if ETL_USE_CPP11
 
     Vector& operator=(Vector&& other);
-    Vector& operator=(const std::initializer_list<T>& initList);
+    Vector& operator=(std::initializer_list<T> initList);
 
     Iterator insertWithCreator(ConstIterator position, uint32_t num, CreateFunc&& creatorCall);
 
@@ -209,15 +209,17 @@ bool Vector<T>::swap(Vector<T>& other) {
 
     bool swapped = false;
 
-    if ((this->getMaxCapacity() >= other.getSize()) && (other.getMaxCapacity() >= this->getSize())) {
+    if (&other != this) {
+        if ((this->getMaxCapacity() >= other.getSize()) && (other.getMaxCapacity() >= this->getSize())) {
 
-        this->reserve(other.getSize());
-        other.reserve(this->getSize());
+            this->reserve(other.getSize());
+            other.reserve(this->getSize());
 
-        if ((this->getCapacity() >= other.getSize()) && (other.getCapacity() >= this->getSize())) {
+            if ((this->getCapacity() >= other.getSize()) && (other.getCapacity() >= this->getSize())) {
 
-            this->swapElements(other);
-            swapped = true;
+                this->swapElements(other);
+                swapped = true;
+            }
         }
     }
 
@@ -236,7 +238,7 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 
 
 template<class T>
-Vector<T>& Vector<T>::operator=(const std::initializer_list<T>& initList) {
+Vector<T>& Vector<T>::operator=(std::initializer_list<T> initList) {
 
     this->reserve(initList.size());
     if (this->getCapacity() >= initList.size()) {
@@ -477,7 +479,7 @@ class Vector<T*> : public Vector<void*> {
         return *this;
     }
 
-    Vector& operator=(const std::initializer_list<T>& initList) {
+    Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }

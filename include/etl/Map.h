@@ -62,7 +62,7 @@ class Map : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
 #if ETL_USE_CPP11
 
-    Map(const std::initializer_list<std::pair<K, E>>& initList);
+    Map(std::initializer_list<std::pair<K, E>> initList);
 
 #endif
 
@@ -185,7 +185,7 @@ void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
 #if ETL_USE_CPP11
 
 template<typename K, class E, template<class> class A>
-Map<K, E, A>::Map(const std::initializer_list<std::pair<K, E>>& initList) {
+Map<K, E, A>::Map(std::initializer_list<std::pair<K, E>> initList) {
 
     for (auto& item : initList) {
         insert(item.first, item.second);
@@ -228,7 +228,10 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
 
     Map() {};
 
-    Map(const MapBase& other) :
+    Map(const Map& other) :
+        MapBase(other) {};
+
+    explicit Map(const MapBase& other) :
         MapBase(other) {};
 
     Map& operator=(const MapBase& other) {
@@ -239,7 +242,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
 
 #if ETL_USE_CPP11
 
-    Map(const std::initializer_list<std::pair<K, E>>& initList) :
+    Map(std::initializer_list<std::pair<K, E>> initList) :
         MapBase(initList) {};
 
 #endif

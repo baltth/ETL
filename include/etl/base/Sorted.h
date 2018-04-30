@@ -52,7 +52,7 @@ class Sorted {
 
 #if ETL_USE_CPP11
 
-    Sorted(const std::initializer_list<ItemType>& initList) :
+    Sorted(std::initializer_list<ItemType> initList) :
         container(initList) {};
 
 #endif

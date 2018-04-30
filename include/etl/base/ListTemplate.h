@@ -82,7 +82,7 @@ class ListTemplate : public TypedListBase<T> {
         return *this;
     }
 
-    ListTemplate(const std::initializer_list<T>& initList);
+    ListTemplate(std::initializer_list<T> initList);
 
 #endif
 
@@ -167,7 +167,7 @@ ListTemplate<T, A>& ListTemplate<T, A>::operator=(const TypedListBase<T>& other)
 #if ETL_USE_CPP11
 
 template<class T, template<class> class A>
-ListTemplate<T, A>::ListTemplate(const std::initializer_list<T>& initList) {
+ListTemplate<T, A>::ListTemplate(std::initializer_list<T> initList) {
 
     for (auto& it : initList) {
         pushBack(it);

@@ -60,7 +60,7 @@ class Set : public Sorted<ListTemplate<E, A> > {
 
 #if ETL_USE_CPP11
 
-    Set(const std::initializer_list<E>& initList);
+    Set(std::initializer_list<E> initList);
 
 #endif
 
@@ -87,7 +87,7 @@ class Set : public Sorted<ListTemplate<E, A> > {
 #if ETL_USE_CPP11
 
 template<class E, template<class> class A>
-Set<E, A>::Set(const std::initializer_list<E>& initList) {
+Set<E, A>::Set(std::initializer_list<E> initList) {
 
     for (auto& item : initList) {
         SetBase::insertUnique(item);
@@ -149,7 +149,10 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
 
     Set() {};
 
-    Set(const SetBase& other) :
+    Set(const Set& other) :
+        SetBase(other) {};
+
+    explicit Set(const SetBase& other) :
         SetBase(other) {};
 
     Set& operator=(const SetBase& other) {
@@ -160,7 +163,7 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
 
 #if ETL_USE_CPP11
 
-    Set(const std::initializer_list<E>& initList) :
+    Set(std::initializer_list<E> initList) :
         SetBase(initList) {};
 
 #endif

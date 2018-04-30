@@ -66,7 +66,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(other);
     }
 
-    Vector(const Base& other) :
+    explicit Vector(const Base& other) :
         Base(strategy),
         strategy(data, N) {
         operator=(other);
@@ -90,7 +90,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(std::move(other));
     }
 
-    Vector(const std::initializer_list<T>& initList) :
+    Vector(std::initializer_list<T> initList) :
         Base(strategy),
         strategy(data, N) {
         operator=(initList);
@@ -101,7 +101,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-    Vector& operator=(const std::initializer_list<T>& initList) {
+    Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -166,7 +166,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         Base::operator=(other);
     }
 
-    Vector(const Base& other) :
+    explicit Vector(const Base& other) :
         Base(strategy) {
         Base::operator=(other);
     }
@@ -188,7 +188,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(std::move(other));
     }
 
-    Vector(const std::initializer_list<T>& initList) :
+    Vector(std::initializer_list<T> initList) :
         Base(strategy) {
         operator=(initList);
     }
@@ -198,7 +198,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-    Vector& operator=(const std::initializer_list<T>& initList) {
+    Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -210,8 +210,16 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     bool swap(Vector& other) {
-        AVectorBase::swapProxy(other);
-        return true;
+        if (&other != this) {
+            AVectorBase::swapProxy(other);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool swap(Base& other) {
+        return Base::swap(other);
     }
 
 };

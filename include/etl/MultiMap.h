@@ -62,7 +62,7 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
 #if ETL_USE_CPP11
 
-    MultiMap(const std::initializer_list<std::pair<K, E>>& initList);
+    MultiMap(std::initializer_list<std::pair<K, E>> initList);
 
 #endif
 
@@ -146,7 +146,7 @@ void MultiMap<K, E, A>::copyElementsFrom(const MultiMap<K, E, A>& other) {
 #if ETL_USE_CPP11
 
 template<typename K, class E, template<class> class A>
-MultiMap<K, E, A>::MultiMap(const std::initializer_list<std::pair<K, E>>& initList) {
+MultiMap<K, E, A>::MultiMap(std::initializer_list<std::pair<K, E>> initList) {
 
     for (auto& item : initList) {
         insert(item.first, item.second);
@@ -185,7 +185,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
 
     MultiMap() {};
 
-    MultiMap(const MapBase& other) :
+    MultiMap(const MultiMap& other) :
+        MapBase(other) {};
+
+    explicit MultiMap(const MapBase& other) :
         MapBase(other) {};
 
     MultiMap& operator=(const MapBase& other) {
@@ -196,7 +199,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
 
 #if ETL_USE_CPP11
 
-    MultiMap(const std::initializer_list<std::pair<K, E>>& initList) :
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
         MapBase(initList) {};
 
 #endif

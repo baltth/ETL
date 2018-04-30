@@ -51,7 +51,7 @@ class List : public ListTemplate<T, A> {
 
 #if ETL_USE_CPP11
 
-    List(const std::initializer_list<T>& initList) :
+    List(std::initializer_list<T> initList) :
         ListBase(initList) {};
 
 #endif
@@ -78,7 +78,7 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
 
 #if ETL_USE_CPP11
 
-    List(const std::initializer_list<T>& initList) :
+    List(std::initializer_list<T> initList) :
         ListBase(initList) {};
 
 #endif
