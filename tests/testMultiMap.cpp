@@ -51,7 +51,7 @@ TEST_CASE("Etl::MultiMap<> basic test", "[multimap][etl][basic]") {
 
     MapType::ConstIterator it = map.find(5);
     REQUIRE(it != map.end());
-    REQUIRE(it->getElement().getValue() == -5);
+    REQUIRE(it->second.getValue() == -5);
 
     uint32_t cnt = map.erase(4);
 
@@ -72,8 +72,8 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
 
     SECTION("first element") {
 
-        REQUIRE(it->getKey() == 1);
-        REQUIRE(it->getElement() == 2);
+        REQUIRE(it->first == 1);
+        REQUIRE(it->second == 2);
     }
 
     SECTION("second element") {
@@ -81,7 +81,7 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
         it = map.insert(2, 2);
 
         REQUIRE(it != map.end());
-        REQUIRE(it->getKey() == 2);
+        REQUIRE(it->first == 2);
         REQUIRE(map.getSize() == 2);
     }
 
@@ -91,9 +91,9 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
 
         REQUIRE(it2 != map.end());
         REQUIRE(it2 != it);
-        REQUIRE(it2->getKey() == 1);
-        REQUIRE(it2->getElement() == 3);
-        REQUIRE(it->getElement() == 2);
+        REQUIRE(it2->first == 1);
+        REQUIRE(it2->second == 3);
+        REQUIRE(it->second == 2);
         REQUIRE(map.getSize() == 2);
     }
 
@@ -103,15 +103,15 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
 
         REQUIRE(res.second == false);
         REQUIRE(map.getSize() == 1);
-        REQUIRE(res.first->getElement() == 2);
+        REQUIRE(res.first->second == 2);
 
         res = map.insertUnique(2, 2);
 
         REQUIRE(res.second == true);
         REQUIRE(map.getSize() == 2);
         REQUIRE(res.first != map.end());
-        REQUIRE(res.first->getKey() == 2);
-        REQUIRE(res.first->getElement() == 2);
+        REQUIRE(res.first->first == 2);
+        REQUIRE(res.first->second == 2);
     }
 }
 
@@ -171,13 +171,13 @@ TEST_CASE("Etl::MultiMap<> iteration tests", "[multimap][etl]") {
 
         MapType::Iterator it = map.begin();
 
-        REQUIRE(it->getKey() == 1);
-        REQUIRE(it->getElement() == -1);
+        REQUIRE(it->first == 1);
+        REQUIRE(it->second == -1);
 
         ++it;
 
-        REQUIRE(it->getKey() == 2);
-        REQUIRE(it->getElement() == -2);
+        REQUIRE(it->first == 2);
+        REQUIRE(it->second == -2);
     }
 
     SECTION("backward") {
@@ -186,13 +186,13 @@ TEST_CASE("Etl::MultiMap<> iteration tests", "[multimap][etl]") {
 
         --it;
 
-        REQUIRE(it->getKey() == 4);
-        REQUIRE(it->getElement() == -4);
+        REQUIRE(it->first == 4);
+        REQUIRE(it->second == -4);
 
         --it;
 
-        REQUIRE(it->getKey() == 3);
-        REQUIRE(it->getElement() == -9);
+        REQUIRE(it->first == 3);
+        REQUIRE(it->second == -9);
     }
 }
 
@@ -213,24 +213,24 @@ TEST_CASE("Etl::MultiMap<> element order", "[multimap][etl]") {
 
     MapType::Iterator it = map.begin();
 
-    REQUIRE(it->getKey() == 1);
-    REQUIRE(it->getElement() == -1);
+    REQUIRE(it->first == 1);
+    REQUIRE(it->second == -1);
 
     ++it;
-    REQUIRE(it->getKey() == 2);
-    REQUIRE(it->getElement() == -2);
+    REQUIRE(it->first == 2);
+    REQUIRE(it->second == -2);
 
     ++it;
-    REQUIRE(it->getKey() == 3);
-    REQUIRE(it->getElement() == -3);
+    REQUIRE(it->first == 3);
+    REQUIRE(it->second == -3);
 
     ++it;
-    REQUIRE(it->getKey() == 3);
-    REQUIRE(it->getElement() == -9);
+    REQUIRE(it->first == 3);
+    REQUIRE(it->second == -9);
 
     ++it;
-    REQUIRE(it->getKey() == 4);
-    REQUIRE(it->getElement() == -4);
+    REQUIRE(it->first == 4);
+    REQUIRE(it->second == -4);
 
     ++it;
     REQUIRE(it == map.end());
@@ -265,16 +265,16 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it2 = map2.begin();
 
-        REQUIRE(it2->getKey() == it1->getKey());
-        REQUIRE(it2->getElement() == it1->getElement());
+        REQUIRE(it2->first == it1->first);
+        REQUIRE(it2->second == it1->second);
         ++it2;
         ++it2;
         ++it2;
         ++it1;
         ++it1;
         ++it1;
-        REQUIRE(it2->getKey() == it1->getKey());
-        REQUIRE(it2->getElement() == it1->getElement());
+        REQUIRE(it2->first == it1->first);
+        REQUIRE(it2->second == it1->second);
     }
 
     SECTION("copy constructor") {
@@ -286,16 +286,16 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it3 = map3.begin();
 
-        REQUIRE(it3->getKey() == it1->getKey());
-        REQUIRE(it3->getElement() == it1->getElement());
+        REQUIRE(it3->first == it1->first);
+        REQUIRE(it3->second == it1->second);
         ++it3;
         ++it3;
         ++it3;
         ++it1;
         ++it1;
         ++it1;
-        REQUIRE(it3->getKey() == it1->getKey());
-        REQUIRE(it3->getElement() == it1->getElement());
+        REQUIRE(it3->first == it1->first);
+        REQUIRE(it3->second == it1->second);
     }
 
     SECTION("copyElementsFrom()") {
@@ -315,11 +315,11 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
         MapType::Iterator it1 = map.begin();
         MapType::Iterator it2 = map2.begin();
 
-        REQUIRE(it1->getKey() == 1);
-        REQUIRE(it1->getElement() == 1);
+        REQUIRE(it1->first == 1);
+        REQUIRE(it1->second == 1);
 
-        REQUIRE(it2->getKey() == 1);
-        REQUIRE(it2->getElement() == -1);
+        REQUIRE(it2->first == 1);
+        REQUIRE(it2->second == -1);
     }
 }
 
@@ -342,8 +342,8 @@ TEST_CASE("Etl::MultiMap<> search tests", "[multimap][etl]") {
         MapType::Iterator it = map.find(3);
 
         REQUIRE(it != map.end());
-        REQUIRE(it->getKey() == 3);
-        REQUIRE(it->getElement() == -9);
+        REQUIRE(it->first == 3);
+        REQUIRE(it->second == -9);
     }
 
     SECTION("find(Key) non-existing") {
@@ -360,10 +360,10 @@ TEST_CASE("Etl::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
         REQUIRE(res.first != res.second);
-        REQUIRE(res.first->getKey() == 2);
-        REQUIRE(res.first->getElement() == -2);
-        REQUIRE(res.second->getKey() == 3);
-        REQUIRE(res.second->getElement() == -3);
+        REQUIRE(res.first->first == 2);
+        REQUIRE(res.first->second == -2);
+        REQUIRE(res.second->first == 3);
+        REQUIRE(res.second->second == -3);
         REQUIRE(++res.first == res.second);
     }
 
@@ -374,13 +374,13 @@ TEST_CASE("Etl::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
         REQUIRE(res.first != res.second);
-        REQUIRE(res.first->getKey() == 3);
-        REQUIRE(res.first->getElement() == -3);
-        REQUIRE(res.second->getKey() == 4);
-        REQUIRE(res.second->getElement() == -4);
+        REQUIRE(res.first->first == 3);
+        REQUIRE(res.first->second == -3);
+        REQUIRE(res.second->first == 4);
+        REQUIRE(res.second->second == -4);
         ++res.first;
-        REQUIRE(res.first->getKey() == 3);
-        REQUIRE(res.first->getElement() == -9);
+        REQUIRE(res.first->first == 3);
+        REQUIRE(res.first->second == -9);
         REQUIRE(++res.first == res.second);
     }
 

@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/Sorted.h>
-#include <etl/base/MapItem.h>
+#include <etl/base/KeyCompare.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -34,14 +34,15 @@ namespace ETL_NAMESPACE {
 
 
 template<typename K, class E, template<class> class A = std::allocator>
-class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
+class MultiMap : public Sorted<ListTemplate<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types
 
-    typedef MapItem<K, E> ItemType;
+    typedef std::pair<const K, E> ItemType;
     typedef ListTemplate<ItemType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
-    typedef Sorted<ContainerType> MapBase;
+    typedef KeyCompare<K, E> Compare;
+    typedef Sorted<ContainerType, Compare> MapBase;
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
     typedef Matcher<ItemType> ItemMatcher;
@@ -86,11 +87,11 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
     }
 
     std::pair<ConstIterator, ConstIterator> equalRange(const K& k) const {
-        return MapBase::findSortedRange(&ItemType::getKey, k);
+        return MapBase::findSortedRange(getKey, k);
     }
 
     std::pair<Iterator, Iterator> equalRange(const K& k) {
-        return MapBase::findSortedRange(&ItemType::getKey, k);
+        return MapBase::findSortedRange(getKey, k);
     }
 
     void copyElementsFrom(const MultiMap<K, E, A>& other);
@@ -102,13 +103,17 @@ class MultiMap : public Sorted<ListTemplate<MapItem<K, E>, A> > {
 
 #endif
 
+    static K getKey(const ItemType& item) {
+        return item.first;
+    }
+
 };
 
 
 template<typename K, class E, template<class> class A>
 uint32_t MultiMap<K, E, A>::erase(const K& k) {
 
-    std::pair<Iterator, Iterator> found = MapBase::findSortedRange(&ItemType::getKey, k);
+    std::pair<Iterator, Iterator> found = MapBase::findSortedRange(getKey, k);
     Iterator it = found.first;
     uint32_t count = 0;
 
@@ -124,7 +129,7 @@ uint32_t MultiMap<K, E, A>::erase(const K& k) {
 template<typename K, class E, template<class> class A>
 typename MultiMap<K, E, A>::ConstIterator  MultiMap<K, E, A>::find(const K& k) const {
 
-    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(&ItemType::getKey, k);
+    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(getKey, k);
 
     if (found.second == true) {
         return --found.first;
@@ -139,7 +144,7 @@ void MultiMap<K, E, A>::copyElementsFrom(const MultiMap<K, E, A>& other) {
 
     ConstIterator endIt = other.end();
     for (ConstIterator it = other.begin(); it != endIt; ++it) {
-        insert(it->getKey(), it->getElement());
+        insert(it->first, it->second);
     }
 }
 
@@ -158,7 +163,7 @@ template<typename K, class E, template<class> class A>
 template<typename... Args>
 typename MultiMap<K, E, A>::Iterator MultiMap<K, E, A>::emplace(const K& k, Args&& ... args) {
 
-    auto found = MapBase::findSortedPosition(&ItemType::getKey, k);
+    auto found = MapBase::findSortedPosition(getKey, k);
     found.first = MapBase::emplaceTo(found.first, k, std::forward<Args>(args)...);
 
     return found.first;

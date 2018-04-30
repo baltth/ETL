@@ -75,8 +75,8 @@ TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
 
     SECTION("first element") {
 
-        REQUIRE(res.first->getKey() == 1);
-        REQUIRE(res.first->getElement() == 2);
+        REQUIRE(res.first->first == 1);
+        REQUIRE(res.first->second == 2);
     }
 
     SECTION("second element") {
@@ -160,13 +160,13 @@ TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
 
         MapType::Iterator it = map.begin();
 
-        REQUIRE(it->getKey() == 1);
-        REQUIRE(it->getElement() == -1);
+        REQUIRE(it->first == 1);
+        REQUIRE(it->second == -1);
 
         ++it;
 
-        REQUIRE(it->getKey() == 2);
-        REQUIRE(it->getElement() == -2);
+        REQUIRE(it->first == 2);
+        REQUIRE(it->second == -2);
     }
 
     SECTION("backward") {
@@ -175,13 +175,13 @@ TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
 
         --it;
 
-        REQUIRE(it->getKey() == 4);
-        REQUIRE(it->getElement() == -4);
+        REQUIRE(it->first == 4);
+        REQUIRE(it->second == -4);
 
         --it;
 
-        REQUIRE(it->getKey() == 3);
-        REQUIRE(it->getElement() == -3);
+        REQUIRE(it->first == 3);
+        REQUIRE(it->second == -3);
     }
 }
 
@@ -201,20 +201,20 @@ TEST_CASE("Etl::Map<> element order", "[map][etl]") {
 
     MapType::Iterator it = map.begin();
 
-    REQUIRE(it->getKey() == 1);
-    REQUIRE(it->getElement() == -1);
+    REQUIRE(it->first == 1);
+    REQUIRE(it->second == -1);
 
     ++it;
-    REQUIRE(it->getKey() == 2);
-    REQUIRE(it->getElement() == -2);
+    REQUIRE(it->first == 2);
+    REQUIRE(it->second == -2);
 
     ++it;
-    REQUIRE(it->getKey() == 3);
-    REQUIRE(it->getElement() == -3);
+    REQUIRE(it->first == 3);
+    REQUIRE(it->second == -3);
 
     ++it;
-    REQUIRE(it->getKey() == 4);
-    REQUIRE(it->getElement() == -4);
+    REQUIRE(it->first == 4);
+    REQUIRE(it->second == -4);
 
     ++it;
     REQUIRE(it == map.end());
@@ -240,9 +240,9 @@ TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
         map[4] = ContainerTester(-5);
         //ContainerTester::enablePrint = false;
 
-        CAPTURE(map.find(4)->getElement().toString());
+        CAPTURE(map.find(4)->second.toString());
         CAPTURE(ContainerTester(-5).toString())
-        REQUIRE(map.find(4)->getElement() == ContainerTester(-5));
+        REQUIRE(map.find(4)->second == ContainerTester(-5));
     }
 
     SECTION("write new") {
@@ -251,15 +251,15 @@ TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
         map[5] = ContainerTester(-5);
         //ContainerTester::enablePrint = false;
 
-        CAPTURE(map.find(5)->getElement().toString());
+        CAPTURE(map.find(5)->second.toString());
         CAPTURE(ContainerTester(-5).toString())
-        REQUIRE(map.find(5)->getElement() == ContainerTester(-5));
+        REQUIRE(map.find(5)->second == ContainerTester(-5));
     }
 
     SECTION("read existing") {
 
         REQUIRE(map[4] == ContainerTester(-4));
-        REQUIRE(&(map[4]) == &(map.find(4)->getElement()));
+        REQUIRE(&(map[4]) == &(map.find(4)->second));
     }
 
     SECTION("read new - default insertion") {
@@ -351,8 +351,8 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
         MapType::Iterator it = map.find(3);
 
         REQUIRE(it != map.end());
-        REQUIRE(it->getKey() == 3);
-        REQUIRE(it->getElement() == ContainerTester(-3));
+        REQUIRE(it->first == 3);
+        REQUIRE(it->second == ContainerTester(-3));
     }
 
     SECTION("find(Key) non-existing") {
@@ -366,14 +366,14 @@ TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
 
         struct Matcher : MapType::ItemMatcher {
             virtual bool call(const MapType::ItemType& item) const {
-                return (item.getKey() == 3) && (item.getElement().getValue() == -3);
+                return (item.first == 3) && (item.second.getValue() == -3);
             }
         };
 
         Matcher matchCall;
 
         MapType::Iterator it = map.find(matchCall);
-        REQUIRE(it->getKey() == 3);
+        REQUIRE(it->first == 3);
 
         ++it;
         it = map.find(it, map.end(), matchCall);

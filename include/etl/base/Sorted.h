@@ -288,7 +288,7 @@ Sorted<C, Comp>::findSortedRange(F f, const V& v) const {
 
         while ((!notLessFound) && (it != endIt)) {
 
-            if (((*it).*f)() < v) {
+            if ((*f)(*it) < v) {
                 ++it;
             } else {
                 res.first = it;
@@ -298,7 +298,7 @@ Sorted<C, Comp>::findSortedRange(F f, const V& v) const {
 
         while (notLessFound && (it != endIt)) {
 
-            if (v < ((*it).*f)()) {
+            if (v < (*f)(*it)) {
                 res.second = it;
                 notLessFound = false;
             } else {
