@@ -56,6 +56,15 @@ class List : public ListTemplate<T, A> {
 
 #endif
 
+    void swap(List& other) {
+        AListBase::swapNodeList(other);
+    }
+
+    template<template<class> class B>
+    void swap(ListTemplate<T, B>& other) {
+        swapElements(other);
+    }
+
 };
 
 
@@ -82,6 +91,15 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
         ListBase(initList) {};
 
 #endif
+
+    void swap(List& other) {
+        AListBase::swapNodeList(other);
+    }
+
+    template<template<class> class B>
+    void swap(ListTemplate<T, B>& other) {
+        swapElements(other);
+    }
 
 };
 

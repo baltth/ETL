@@ -139,7 +139,15 @@ class AListBase {
         return static_cast<AListBase::Node*>(list.remove(pos.node));
     }
 
-    void swap(AListBase& other) {
+    void replace(Iterator it1, Iterator it2) {
+        list.replace(it1.node, it2.node);
+    }
+
+    void replace(Node& n1, Node& n2) {
+        list.replace(&n1, &n2);
+    }
+
+    void swapNodeList(AListBase& other) {
         list.swap(other.list);
     }
 

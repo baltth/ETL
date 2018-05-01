@@ -88,6 +88,7 @@ class DoubleLinkedList {
     void insertBefore(Node* pos, Node* node);
 
     Node* remove(Node* node);
+    void replace(Node* n1, Node* n2);
     void setEmpty();
 
     void swap(DoubleLinkedList& other);

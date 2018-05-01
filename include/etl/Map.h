@@ -25,6 +25,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 #include <etl/base/Sorted.h>
 #include <etl/base/KeyCompare.h>
+#include <etl/List.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -34,12 +35,12 @@ namespace ETL_NAMESPACE {
 
 
 template<typename K, class E, template<class> class A = std::allocator>
-class Map : public Sorted<ListTemplate<std::pair<const K, E>, A>, KeyCompare<K, E> > {
+class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types
 
     typedef std::pair<const K, E> ItemType;
-    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef List<ItemType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef KeyCompare<K, E> Compare;
     typedef Sorted<ContainerType, Compare> MapBase;

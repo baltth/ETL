@@ -25,6 +25,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 #include <etl/base/Sorted.h>
 #include <etl/base/KeyCompare.h>
+#include <etl/List.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>

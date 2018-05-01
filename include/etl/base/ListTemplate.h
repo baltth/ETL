@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/TypedListBase.h>
+#include <etl/base/tools.h>
 
 #if ETL_USE_CPP11
 #include <initializer_list>
@@ -61,13 +62,13 @@ class ListTemplate : public TypedListBase<T> {
         allocator(a) {};
 
     ListTemplate(const ListTemplate& other) {
-        copyElementsFrom(other);
+        copyElements(other);
     }
 
     ListTemplate& operator=(const ListTemplate& other);
 
     ListTemplate(const ListBase& other) {
-        copyElementsFrom(other);
+        copyElements(other);
     }
 
     ListTemplate& operator=(const ListBase& other);
@@ -121,7 +122,29 @@ class ListTemplate : public TypedListBase<T> {
 
 #endif
 
-    void copyElementsFrom(const ListBase& other);
+    void copyElements(const ListBase& other) {
+        copyElements(other.begin(), other.end());
+    }
+
+    void copyElements(ConstIterator bIt, ConstIterator eIt);
+
+    template<template<class> class B>
+    void splice(ConstIterator pos, ListTemplate<T, B>& other) {
+        splice(pos, other, other.begin(), other.end());
+    }
+
+    template<template<class> class B>
+    void splice(ConstIterator pos, ListTemplate<T, B>& other, ConstIterator it) {
+        ConstIterator it2 = it;
+        ++it2;
+        splice(pos, other, it, it2);
+    }
+
+    template<template<class> class B>
+    void splice(ConstIterator pos,
+                ListTemplate<T, B>& other,
+                ConstIterator first,
+                ConstIterator last);
     /// @}
 
     Allocator& getAllocator() const {
@@ -130,12 +153,25 @@ class ListTemplate : public TypedListBase<T> {
 
   private:
 
+    Node* createNode(const T& item) {
+        Node* p = allocator.allocate(1);
+        if (p != NULLPTR) {
+            new (p) Node(item);
+        }
+        return p;
+    }
+
     void deleteNode(Node* ptr) {
         if (ptr) {
             ptr->~Node();
             allocator.deallocate(ptr, 1);
         }
     }
+
+    Node* copyAndReplace(Node& item, Node& other);
+
+    template<template<class> class B>
+    void swapElements(ListTemplate<T, B>& other);
 
 };
 
@@ -145,7 +181,7 @@ ListTemplate<T, A>& ListTemplate<T, A>::operator=(const ListTemplate<T, A>& othe
 
     if (&other != this) {
         clear();
-        copyElementsFrom(other);
+        copyElements(other);
     }
 
     return *this;
@@ -157,7 +193,7 @@ ListTemplate<T, A>& ListTemplate<T, A>::operator=(const TypedListBase<T>& other)
 
     if (&other != static_cast<TypedListBase<T>*>(this)) {
         clear();
-        copyElementsFrom(other);
+        copyElements(other);
     }
 
     return *this;
@@ -189,9 +225,8 @@ void ListTemplate<T, A>::clear() {
 template<class T, template<class> class A>
 void ListTemplate<T, A>::pushFront(const T& item) {
 
-    Node* p = allocator.allocate(1);
+    Node* p = createNode(item);
     if (p != NULLPTR) {
-        new (p) Node(item);
         AListBase::pushFront(p);
     }
 }
@@ -200,9 +235,8 @@ void ListTemplate<T, A>::pushFront(const T& item) {
 template<class T, template<class> class A>
 void ListTemplate<T, A>::pushBack(const T& item) {
 
-    Node* p = allocator.allocate(1);
+    Node* p = createNode(item);
     if (p != NULLPTR) {
-        new (p) Node(item);
         AListBase::pushBack(p);
     }
 }
@@ -239,9 +273,8 @@ template<class T, template<class> class A>
 typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator pos, const T& item) {
 
     Iterator it = this->end();
-    Node* inserted = allocator.allocate(1);
+    Node* inserted = createNode(item);
     if (inserted != NULLPTR) {
-        new (inserted) Node(item);
         it = ListBase::insert(pos, *inserted);
     }
 
@@ -253,13 +286,71 @@ typename ListTemplate<T, A>::Iterator ListTemplate<T, A>::insert(ConstIterator p
 
 
 template<class T, template<class> class A>
-void ListTemplate<T, A>::copyElementsFrom(const TypedListBase<T>& other) {
+void ListTemplate<T, A>::copyElements(ConstIterator bIt, ConstIterator eIt) {
 
-    ConstIterator it = other.begin();
+    while (bIt != eIt) {
+        pushBack(*bIt);
+        ++bIt;
+    }
+}
 
-    while (it != other.end()) {
-        pushBack(*it);
-        ++it;
+
+template<class T, template<class> class A>
+typename ListTemplate<T, A>::Node* ListTemplate<T, A>::copyAndReplace(Node& item, Node& other) {
+
+    Node* removed = NULLPTR;
+    Node* newItem = createNode(other);
+    if (newItem != NULLPTR) {
+        ListBase::replace(item, newItem);
+        removed = &item;
+    }
+
+    return removed;
+}
+
+
+template<class T, template<class> class A>
+template<template<class> class B>
+void ListTemplate<T, A>::splice(ConstIterator pos,
+                                ListTemplate<T, B>& other,
+                                ConstIterator first,
+                                ConstIterator last) {
+
+    if (&other != this) {
+        Iterator item(first);
+        while (item != last) {
+            insert(pos, *item);
+            item = other.erase(item);
+        }
+    }
+}
+
+
+template<class T, template<class> class A>
+template<template<class> class B>
+void ListTemplate<T, A>::swapElements(ListTemplate<T, B>& other) {
+
+    const SizeDiff diff(*this, other);
+
+    Iterator ownIt = this->begin();
+    Iterator otherIt = other.begin();
+
+    for (uint32_t i = 0; i < diff.common; ++i) {
+
+        Node* removed = copyAndReplace(*ownIt, *otherIt);
+        if (removed != NULLPTR) {
+            *otherIt = *removed;
+            deleteNode(removed);
+        }
+
+        ++ownIt;
+        ++otherIt;
+    }
+
+    if (diff.lGreaterWith > 0) {
+        other.splice(other.end(), *this, ownIt, this->end());
+    } else if (diff.rGreaterWith > 0) {
+        this->splice(this->end(), other, otherIt, other.end());
     }
 }
 

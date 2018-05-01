@@ -209,6 +209,10 @@ class TypedListBase : protected AListBase {
         return ConstIterator(AListBase::begin());
     }
 
+    ConstIterator cbegin() const {
+        return this->begin();
+    }
+
     Iterator end() {
         return Iterator(AListBase::end());
     }
@@ -216,29 +220,9 @@ class TypedListBase : protected AListBase {
     ConstIterator end() const {
         return ConstIterator(AListBase::end());
     }
-    /// @}
 
-    /// \name Element operations
-    /// @{
-    void splice(ConstIterator pos, TypedListBase& other) {
-        splice(pos, other, other.begin(), other.end());
-    }
-
-    void splice(ConstIterator pos, TypedListBase& other, ConstIterator it) {
-        ConstIterator it2 = it;
-        ++it2;
-        splice(pos, other, it, it2);
-    }
-
-    void splice(ConstIterator pos,
-                TypedListBase& other,
-                ConstIterator first,
-                ConstIterator last) {
-        AListBase::splice(pos, other, first, last);
-    }
-
-    void swap(TypedListBase& other) {
-        AListBase::swap(other);
+    ConstIterator cend() const {
+        return this->end();
     }
     /// @}
 
@@ -286,6 +270,10 @@ class TypedListBase : protected AListBase {
     Iterator insert(ConstIterator pos, Node& node) {
         AListBase::insert(pos, &node);
         return Iterator(&node);
+    }
+
+    void replace(Node& n1, Node& n2) {
+        AListBase::replace(&n1, &n2);
     }
 
   private:

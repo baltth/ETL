@@ -156,9 +156,9 @@ TEST_CASE("Etl::List<> copy", "[list][etl]") {
         REQUIRE(*it == 4);
     }
 
-    SECTION("copyElementsFrom()") {
+    SECTION("copyElements()") {
 
-        list2.copyElementsFrom(list);
+        list2.copyElements(list);
 
         REQUIRE(list2.getSize() == 6);
 

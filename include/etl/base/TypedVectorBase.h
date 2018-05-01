@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/AVectorBase.h>
+#include <etl/base/tools.h>
 
 #if ETL_USE_EXCEPTIONS
 #include <etl/ExceptionTypes.h>
@@ -524,44 +525,31 @@ void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
 template<class T>
 void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
 
-    uint32_t commonSize = 0;
-    uint32_t copyFromOther = 0;
-    uint32_t copyToOther = 0;
+    const SizeDiff diff(*this, other);
 
-    if (this->getSize() > other.getSize()) {
-
-        commonSize = other.getSize();
-        copyToOther = this->getSize() - other.getSize();
-
-    } else {
-
-        commonSize = this->getSize();
-        copyFromOther = other.getSize() - this->getSize();
-    }
-
-    for (uint32_t i = 0; i < commonSize; ++i) {
+    for (uint32_t i = 0; i < diff.common; ++i) {
         this->swapValues(this->operator[](i), other[i]);
     }
 
-    if (copyFromOther > 0) {
+    if (diff.rGreaterWith > 0) {
 
 #if ETL_USE_CPP11
-        this->moveOperation(&this->operator[](commonSize), &other[commonSize], copyFromOther);
+        this->moveOperation(&this->operator[](diff.common), &other[diff.common], diff.rGreaterWith);
 #else
-        this->copyOperation(&this->operator[](commonSize), &other[commonSize], copyFromOther);
+        this->copyOperation(&this->operator[](diff.common), &other[diff.common], diff.rGreaterWith);
 #endif
-        other.destruct(&other[commonSize], other.end());
-        other.proxy.setSize(commonSize);
+        other.destruct(&other[diff.common], other.end());
+        other.proxy.setSize(diff.common);
 
-    } else if (copyToOther > 0) {
+    } else if (diff.lGreaterWith > 0) {
 
 #if ETL_USE_CPP11
-        other.moveOperation(&other[commonSize], &this->operator[](commonSize), copyToOther);
+        other.moveOperation(&other[diff.common], &this->operator[](diff.common), diff.lGreaterWith);
 #else
-        other.copyOperation(&other[commonSize], &this->operator[](commonSize), copyToOther);
+        other.copyOperation(&other[diff.common], &this->operator[](diff.common), diff.lGreaterWith);
 #endif
-        this->destruct(&this->operator[](commonSize), this->end());
-        this->proxy.setSize(commonSize);
+        this->destruct(&this->operator[](diff.common), this->end());
+        this->proxy.setSize(diff.common);
     }
 }
 

@@ -83,6 +83,29 @@ DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 }
 
 
+void DoubleLinkedList::replace(Node* n1, Node* n2) {
+
+    if ((n1 != NULLPTR) && (n2 != NULLPTR) && (n1 != n2)) {
+
+        Node tmp = *n2;
+
+        linkNodes(n1->prev, n2);
+        linkNodes(n2, n1->next);
+
+        linkNodes(tmp.prev, n1);
+        linkNodes(n1, tmp.next);
+    }
+}
+
+
+void DoubleLinkedList::setEmpty() {
+
+    frontNode.next = &backNode;
+    backNode.prev = &frontNode;
+    size = 0;
+}
+
+
 void DoubleLinkedList::getListOf(DoubleLinkedList& other) {
 
     if (&other != this) {
@@ -114,13 +137,5 @@ void DoubleLinkedList::swap(DoubleLinkedList& other) {
             getListOf(other);
         }
     }
-}
-
-
-void DoubleLinkedList::setEmpty() {
-
-    frontNode.next = &backNode;
-    backNode.prev = &frontNode;
-    size = 0;
 }
 

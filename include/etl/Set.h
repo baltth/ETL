@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/Sorted.h>
+#include <etl/List.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -33,12 +34,12 @@ namespace ETL_NAMESPACE {
 
 
 template<class E, template<class> class A = std::allocator>
-class Set : public Sorted<ListTemplate<E, A> > {
+class Set : public Sorted<List<E, A> > {
 
   public:   // types
 
     typedef E ItemType;
-    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef List<ItemType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef Sorted<ContainerType> SetBase;
     typedef typename SetBase::Iterator Iterator;
