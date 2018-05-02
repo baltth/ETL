@@ -105,6 +105,14 @@ class DoubleLinkedList {
         b->prev = a;
     }
 
+    static void linkNodesProtected(Node* a, Node* b) {
+        if (a != NULLPTR) {
+            a->next = b;
+        }
+        if (b != NULLPTR) {
+            b->prev = a;
+        }
+    }
 };
 
 }

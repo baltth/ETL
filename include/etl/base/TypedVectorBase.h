@@ -264,7 +264,6 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-
     static void swapValues(T& lhs, T& rhs) {
         T tmp(std::move(lhs));
         lhs = std::move(rhs);

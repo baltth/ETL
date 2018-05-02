@@ -30,29 +30,30 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Dynamic {
 
-template<class T, template<class> class A = std::allocator>
-class List : public ListTemplate<T, A> {
+template<class T>
+class List : public ETL_NAMESPACE::List<T, std::allocator> {
 
   public:   // types
 
-    typedef ListTemplate<T, A> ListBase;
-    typedef typename ListBase::Allocator Allocator;
-    typedef typename ListBase::Iterator Iterator;
-    typedef typename ListBase::ConstIterator ConstIterator;
-    typedef typename ListBase::Node Node;
+    typedef ETL_NAMESPACE::List<T, std::allocator> Base;
+    typedef typename Base::Allocator Allocator;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::Node Node;
 
   public:   // functions
 
     List() {};
 
     explicit List(const Allocator& a) :
-        ListBase(a) {};
+        Base(a) {};
 
 #if ETL_USE_CPP11
 
     List(std::initializer_list<T> initList) :
-        ListBase(initList) {};
+        Base(initList) {};
 
 #endif
 
@@ -61,11 +62,46 @@ class List : public ListTemplate<T, A> {
     }
 
     template<template<class> class B>
-    void swap(ListTemplate<T, B>& other) {
-        swapElements(other);
+    void swap(ETL_NAMESPACE::List<T, B>& other) {
+        Base::swap(other);
     }
 
 };
+
+}
+
+
+namespace Static {
+
+template<class T, uint32_t N>
+class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
+
+    public:   // types
+
+    typedef ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
+typedef typename Base::Iterator Iterator;
+typedef typename Base::ConstIterator ConstIterator;
+
+public:   // functions
+
+List() {};
+
+#if ETL_USE_CPP11
+
+List(std::initializer_list<T> initList) :
+Base(initList) {};
+
+#endif
+
+template<template<class> class B>
+void swap(ETL_NAMESPACE::List<T, B>& other) {
+    Base::swap(other);
+}
+
+                 };
+}
 
 
 namespace Pooled {
@@ -77,9 +113,9 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
 
   public:   // types
 
-    typedef ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> ListBase;
-    typedef typename ListBase::Iterator Iterator;
-    typedef typename ListBase::ConstIterator ConstIterator;
+    typedef ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -88,7 +124,7 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
 #if ETL_USE_CPP11
 
     List(std::initializer_list<T> initList) :
-        ListBase(initList) {};
+        Base(initList) {};
 
 #endif
 
@@ -97,8 +133,8 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
     }
 
     template<template<class> class B>
-    void swap(ListTemplate<T, B>& other) {
-        swapElements(other);
+    void swap(ETL_NAMESPACE::List<T, B>& other) {
+        Base::swap(other);
     }
 
 };

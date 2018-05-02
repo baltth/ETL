@@ -272,8 +272,11 @@ class TypedListBase : protected AListBase {
         return Iterator(&node);
     }
 
-    void replace(Node& n1, Node& n2) {
-        AListBase::replace(&n1, &n2);
+    Node* replace(Iterator& it, Node* other) {
+        Node* removed = static_cast<TypedListBase::Node*>(it.node);
+        AListBase::replace(it.node, other);
+        it.node = other;
+        return removed;
     }
 
   private:

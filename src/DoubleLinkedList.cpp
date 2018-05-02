@@ -43,7 +43,7 @@ DoubleLinkedList& DoubleLinkedList::operator=(DoubleLinkedList&& other) {
 
 void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
-    if ((pos) && (node)) {
+    if ((pos != NULLPTR) && (node != NULLPTR)) {
         if (pos != &backNode) {
             Node* next = pos->next;
             linkNodes(pos, node);
@@ -56,7 +56,7 @@ void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
 
 void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
-    if ((pos) && (node)) {
+    if ((pos != NULLPTR) && (node != NULLPTR)) {
         if (pos != &frontNode) {
             Node* prev = pos->prev;
             linkNodes(node, pos);
@@ -69,7 +69,7 @@ void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
 DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
-    if ((size > 0) && (node)) {
+    if ((size > 0) && (node != NULLPTR)) {
         if ((node != &frontNode) && (node != &backNode)) {
 
             linkNodes(node->prev, node->next);
@@ -89,11 +89,11 @@ void DoubleLinkedList::replace(Node* n1, Node* n2) {
 
         Node tmp = *n2;
 
-        linkNodes(n1->prev, n2);
-        linkNodes(n2, n1->next);
+        linkNodesProtected(n1->prev, n2);
+        linkNodesProtected(n2, n1->next);
 
-        linkNodes(tmp.prev, n1);
-        linkNodes(n1, tmp.next);
+        linkNodesProtected(tmp.prev, n1);
+        linkNodesProtected(n1, tmp.next);
     }
 }
 

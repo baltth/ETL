@@ -35,12 +35,12 @@ namespace ETL_NAMESPACE {
 
 
 template<typename K, class E, template<class> class A = std::allocator>
-class MultiMap : public Sorted<ListTemplate<std::pair<const K, E>, A>, KeyCompare<K, E> > {
+class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types
 
     typedef std::pair<const K, E> ItemType;
-    typedef ListTemplate<ItemType, A> ContainerType;
+    typedef List<ItemType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef KeyCompare<K, E> Compare;
     typedef Sorted<ContainerType, Compare> MapBase;
@@ -183,22 +183,22 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> MapBase;
-    typedef typename MapBase::Iterator Iterator;
-    typedef typename MapBase::ConstIterator ConstIterator;
+    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
     MultiMap() {};
 
     MultiMap(const MultiMap& other) :
-        MapBase(other) {};
+        Base(other) {};
 
-    explicit MultiMap(const MapBase& other) :
-        MapBase(other) {};
+    explicit MultiMap(const Base& other) :
+        Base(other) {};
 
-    MultiMap& operator=(const MapBase& other) {
-        MapBase::clear();
+    MultiMap& operator=(const Base& other) {
+        Base::clear();
         copyElementsFrom(other);
         return *this;
     }
@@ -206,7 +206,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
 #if ETL_USE_CPP11
 
     MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        MapBase(initList) {};
+        Base(initList) {};
 
 #endif
 
