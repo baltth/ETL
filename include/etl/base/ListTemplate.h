@@ -50,6 +50,9 @@ class List : public TypedListBase<T> {
 
     friend Node;
 
+    template<class T2, template<class> class B>
+    friend class List;
+
   private:  // variables
 
     mutable Allocator allocator;
@@ -320,7 +323,7 @@ void List<T, A>::splice(ConstIterator pos,
                         ConstIterator first,
                         ConstIterator last) {
 
-    if (&other != this) {
+    if (static_cast<Base*>(&other) != static_cast<Base*>(this)) {
         Iterator item(first);
         while (item != last) {
             insert(pos, *item);
