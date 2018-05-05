@@ -41,30 +41,29 @@ class MemoryPool {
 
   private:  // types
 
+    static const size_t ITEMSIZE = (S > sizeof(PoolBase::FreeItem)) ? S : sizeof(PoolBase::FreeItem);
+
     typedef struct {
-        uint8_t dummy[S];
+        uint8_t dummy[ITEMSIZE];
     } ItemAlias;
 
   private:  // variables
 
     Array<ItemAlias, N> data;
-    Array<uint8_t, N> registry;
-
     PoolBase base;
 
   public:   // functions
 
     MemoryPool<S, N>() :
         data(),
-        registry(),
-        base(data, registry) {};
+        base(data) {};
 
-    inline void* pop(uint32_t n = 1) {
-        return base.pop(n);
+    inline void* pop() {
+        return base.pop();
     }
 
-    inline bool push(void* item, uint32_t n = 1) {
-        return base.push(item, n);
+    inline bool push(void* item) {
+        return base.push(item);
     }
 
     inline uint32_t getFreeCount() const {

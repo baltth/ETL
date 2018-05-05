@@ -84,26 +84,31 @@ TEST_CASE("Etl::MemoryPool<> free fail", "[pool][etl]") {
     void* item0 = NULL;
     void* item1 = static_cast<void*>(&item0);
 
-    REQUIRE(pool.push(item0) == false);
-    REQUIRE(pool.push(item1) == false);
+    REQUIRE_FALSE(pool.push(item0));
+    REQUIRE_FALSE(pool.push(item1));
 
     void* item2 = pool.pop();
 
-    REQUIRE(pool.push(item0) == false);
-    REQUIRE(pool.push(item0) == false);
+    REQUIRE_FALSE(pool.push(item0));
+    REQUIRE_FALSE(pool.push(item1));
 
     REQUIRE(pool.push(item2));
 }
 
 
-TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
+template<size_t S, uint32_t N>
+void testMemoryPoolRandomAccess() {
 
-    Etl::MemoryPool<16, 8> pool;
-    Etl::Array<void*, 8> items;
+    REQUIRE(N >= 8);
+
+    typedef Etl::Array<void*, N> Items;
+
+    Etl::MemoryPool<S, N> pool;
+    Items items;
 
     items.fill(NULL);
 
-    for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (typename Items::Iterator it = items.begin(); it < items.end(); ++it) {
         *it = pool.pop();
     }
 
@@ -144,14 +149,17 @@ TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
     REQUIRE(((items[7] == item4) || (items[7] == item6) || (items[7] == item7)));
 }
 
+TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
 
-TEST_CASE("Etl::PoolBase multi-pop", "[pool][etl]") {
+    SECTION("for size 16") {
+        testMemoryPoolRandomAccess<16, 8>();
+    }
 
-    Etl::Array<uint8_t[8], 8> data;
-    Etl::Array<uint8_t, 8> registry;
-    Etl::PoolBase base(data, registry);
+    SECTION("for size 17") {
+        testMemoryPoolRandomAccess<17, 8>();
+    }
 
-    REQUIRE(base.pop(3) == NULL);
+    SECTION("for size 1") {
+        testMemoryPoolRandomAccess<1, 8>();
+    }
 }
-
-

@@ -64,11 +64,16 @@ class PoolAllocator {
     }
 
     PtrType allocate(uint32_t n) {
-        return static_cast<PtrType>(pool.pop(n));
+        if (n == 1) {
+            return static_cast<PtrType>(pool.pop());
+        } else {
+            return NULLPTR;
+        }
     }
 
     void deallocate(PtrType ptr, uint32_t n) {
-        pool.push(ptr, n);
+        (void)n;
+        pool.push(ptr);
     }
 
     static void construct(PtrType ptr) {

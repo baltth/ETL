@@ -25,80 +25,43 @@ using ETL_NAMESPACE::PoolBase;
 using ETL_NAMESPACE::GenericProxy;
 
 
-PoolBase::PoolBase(const GenericProxy& d, const Registry& reg) :
-    data(d),
-    registry(reg),
-    freeCnt(reg.getCapacity()),
-    firstFreeIx(0) {
-
-    registry.fill(0);
-}
-
-
-void* PoolBase::pop(uint32_t n /* = 1 */) {
+void* PoolBase::pop() {
 
     void* result = NULL;
 
-    if ((firstFreeIx >= registry.getCapacity()) || (getFreeCount() == 0)) {
-        return NULL;        // Bad alloc
+    if (freeList.next != NULLPTR) {
+
+        result = freeList.next;
+        freeList.next = freeList.next->next;
+        --freeCnt;
+
+    } else if ((nextFreeIx < data.getCapacity()) && (getFreeCount() > 0)) {
+
+        result = data.getItemPointer(nextFreeIx);
+        ++nextFreeIx;
+        --freeCnt;
     }
-
-    if (n != 1) {
-        return NULL;        // Invalid arg
-    }
-
-    --freeCnt;
-    result = data.getItemPointer(firstFreeIx);
-    registry[firstFreeIx] = 1;
-
-    firstFreeIx = searchFreeFrom(firstFreeIx + 1);
 
     return result;
 }
 
 
-bool PoolBase::push(void* item, uint32_t n /* = 1 */) {
+bool PoolBase::push(void* item) {
 
-    const uint8_t* const itemEnd = static_cast<uint8_t*>(item) + (n * data.getItemSize());
+    const uint8_t* const itemEnd = static_cast<uint8_t*>(item) + data.getItemSize();
     const uint8_t* const regionStart = static_cast<uint8_t*>(data.getItemPointer(0));
-    const uint8_t* const regionEnd = static_cast<uint8_t*>(data.getItemPointer(registry.getCapacity()));
-
-    uint32_t ix = 0;
+    const uint8_t* const regionEnd = static_cast<uint8_t*>(data.getItemPointer(data.getCapacity()));
 
     if ((item < regionStart) || (itemEnd > regionEnd)) {
         return false;
+    } else {
+
+        FreeItem* alias = static_cast<FreeItem*>(item);
+        alias->next = freeList.next;
+        freeList.next = alias;
+        ++freeCnt;
+
+        return true;
     }
-
-    if (n != 1) {
-        return false;
-    }
-
-    ix = static_cast<uint32_t>(static_cast<uint8_t*>(item) - regionStart) / data.getItemSize();
-
-    if (firstFreeIx > ix) {
-        firstFreeIx = ix;
-    }
-
-    registry[ix] = 0;
-    ++freeCnt;
-
-    return true;
-}
-
-
-uint32_t PoolBase::searchFreeFrom(uint32_t ix) const {
-
-    uint32_t nextFree = (ix > registry.getCapacity()) ? registry.getCapacity() : ix;
-    bool freeFound = false;
-
-    while ((!freeFound) && (nextFree < registry.getCapacity())) {
-        if (registry[nextFree] == 0) {
-            freeFound = true;
-        } else {
-            nextFree++;
-        }
-    }
-
-    return nextFree;
 }
 

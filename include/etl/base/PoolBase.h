@@ -32,38 +32,37 @@ class PoolBase {
 
   public:   // types
 
-    typedef MutableProxy<uint8_t> Registry;
+    struct FreeItem {
+        FreeItem* next;
+        FreeItem() :
+            next(NULLPTR) {};
+        explicit FreeItem(void* ptr) :
+            next(static_cast<FreeItem*>(ptr)) {};
+    };
 
   private:  // variables
 
     GenericProxy data;
-    Registry registry;
+    FreeItem freeList;
 
     uint32_t freeCnt;
-    uint32_t firstFreeIx;
+    uint32_t nextFreeIx;
 
   public:   // functions
 
-    PoolBase(const GenericProxy& d, const Registry& reg);
+    explicit PoolBase(const GenericProxy& d) :
+        data(d),
+        freeCnt(data.getCapacity()),
+        nextFreeIx(0) {};
 
-    void* pop(uint32_t n = 1);
-    bool push(void* item, uint32_t n = 1);
-
-    uint32_t getFirstFree() const {
-        return firstFreeIx;
-    }
+    void* pop();
+    bool push(void* item);
 
     uint32_t getFreeCount() const {
         return freeCnt;
     }
 
-    uint32_t getCapacity() const {
-        return registry.getCapacity();
-    }
-
   private:
-
-    uint32_t searchFreeFrom(uint32_t ix) const;
 
     // Non-copiable
     PoolBase(const PoolBase& other);
