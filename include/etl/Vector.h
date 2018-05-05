@@ -30,7 +30,7 @@ namespace ETL_NAMESPACE {
 
 namespace Static {
 
-
+/// Vector with static memory strategy.
 template<class T, size_t N>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
@@ -137,6 +137,7 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
 
 namespace Dynamic {
 
+/// Vector with dynamic memory strategy, defaults to std::allocator.
 template<class T, template<class> class A = std::allocator>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 

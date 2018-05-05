@@ -732,26 +732,23 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 }
 
 
-TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
-
-    static const uint32_t NUM = 16;
-    typedef ContainerTester ItemType;
-    typedef Etl::Static::List<ItemType, NUM> ListT;
+template<class ListT, uint32_t NUM>
+void testSizedListAllocation() {
 
     ListT list;
 
     CHECK(list.getAllocator().getCapacity() == NUM);
-    REQUIRE(list.getAllocator().isEmpty());
+    CHECK(list.getAllocator().isEmpty());
 
     SECTION("Basic allocation") {
 
         list.pushBack(ContainerTester(1));
 
-        ListT::Iterator it = list.begin();
+        typename ListT::Iterator it = list.begin();
         REQUIRE(it.operator->() != NULL);
 
         list.pushBack(ContainerTester(1));
-        ListT::Iterator it2 = it;
+        typename ListT::Iterator it2 = it;
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
@@ -768,12 +765,28 @@ TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
 
         CHECK(list.getSize() == NUM);
 
-        ListT::Iterator it = list.insert(list.begin(), ContainerTester(NUM));
+        typename ListT::Iterator it = list.insert(list.begin(), ContainerTester(NUM));
         REQUIRE(list.getSize() == NUM);
         REQUIRE(it == list.end());
     }
 
+    list.clear();
+    REQUIRE(list.getAllocator().isEmpty());
+}
+
+TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
+
+    static const uint32_t NUM = 16;
+    typedef ContainerTester ItemType;
+    typedef Etl::Static::List<ItemType, NUM> ListT;
+
+    testSizedListAllocation<ListT, NUM>();
+
     SECTION("Unique pool checks") {
+
+        ListT list;
+        CHECK(list.getAllocator().getCapacity() == NUM);
+        CHECK(list.getAllocator().isEmpty());
 
         list.pushBack(ContainerTester(1));
         list.pushBack(ContainerTester(2));
@@ -793,9 +806,6 @@ TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
         REQUIRE(list.getAllocator().getSize() == 0);
         REQUIRE(list2.getSize() == list2.getAllocator().getSize());
     }
-
-    list.clear();
-    REQUIRE(list.getAllocator().isEmpty());
 }
 
 
@@ -805,42 +815,14 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
     typedef ContainerTester ItemType;
     typedef Etl::Pooled::List<ItemType, NUM> ListT;
 
-    ListT list;
-
-    CHECK(list.getAllocator().getCapacity() == NUM);
-    REQUIRE(list.getAllocator().isEmpty());
-
-    SECTION("Basic allocation") {
-
-        list.pushBack(ContainerTester(1));
-
-        ListT::Iterator it = list.begin();
-        REQUIRE(it.operator->() != NULL);
-
-        list.pushBack(ContainerTester(1));
-        ListT::Iterator it2 = it;
-        ++it2;
-        REQUIRE(it2.operator->() != NULL);
-        REQUIRE(it2.operator->() != it.operator->());
-
-        REQUIRE_FALSE(list.getAllocator().isEmpty());
-        REQUIRE(list.getAllocator().getSize() == 2);
-    }
-
-    SECTION("Allocate all") {
-
-        for (uint32_t i = 0; i < NUM; ++i) {
-            list.pushBack(ContainerTester(i));
-        }
-
-        CHECK(list.getSize() == NUM);
-
-        ListT::Iterator it = list.insert(list.begin(), ContainerTester(NUM));
-        REQUIRE(list.getSize() == NUM);
-        REQUIRE(it == list.end());
-    }
+    testSizedListAllocation<ListT, NUM>();
 
     SECTION("Common pool checks") {
+
+        ListT list;
+
+        CHECK(list.getAllocator().getCapacity() == NUM);
+        CHECK(list.getAllocator().isEmpty());
 
         list.pushBack(ContainerTester(1));
         list.pushBack(ContainerTester(2));
@@ -858,9 +840,6 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
         CHECK(list.isEmpty());
         REQUIRE(list2.getSize() == list.getAllocator().getSize());
     }
-
-    list.clear();
-    REQUIRE(list.getAllocator().isEmpty());
 }
 
 

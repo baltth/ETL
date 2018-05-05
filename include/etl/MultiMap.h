@@ -23,159 +23,97 @@ limitations under the License.
 #define __ETL_MULTIMAP_H__
 
 #include <etl/etlSupport.h>
-#include <etl/base/Sorted.h>
-#include <etl/base/KeyCompare.h>
-#include <etl/List.h>
+#include <etl/base/MultiMapTemplate.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
-#include <utility>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E, template<class> class A = std::allocator>
-class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
+namespace Dynamic {
+
+/// MultiMap with std::allocator.
+template<class K, class E>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, std::allocator> {
 
   public:   // types
 
-    typedef std::pair<const K, E> ItemType;
-    typedef List<ItemType, A> ContainerType;
-    typedef typename ContainerType::Allocator Allocator;
-    typedef KeyCompare<K, E> Compare;
-    typedef Sorted<ContainerType, Compare> MapBase;
-    typedef typename MapBase::Iterator Iterator;
-    typedef typename MapBase::ConstIterator ConstIterator;
-    typedef Matcher<ItemType> ItemMatcher;
+    typedef ETL_NAMESPACE::MultiMap<K, E, std::allocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
     MultiMap() {};
 
-    MultiMap(const MultiMap& other) {
-        copyElementsFrom(other);
-    }
+    MultiMap(const MultiMap& other) :
+        Base(other) {};
 
-    MultiMap& operator=(const MultiMap& other) {
-        MapBase::clear();
+    explicit MultiMap(const Base& other) :
+        Base(other) {};
+
+    MultiMap& operator=(const Base& other) {
+        Base::clear();
         copyElementsFrom(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
-    MultiMap(std::initializer_list<std::pair<K, E>> initList);
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        Base(initList) {};
 
 #endif
-
-    using MapBase::find;
-    using MapBase::erase;
-
-    inline Iterator insert(const K& k, const E& e) {
-        return MapBase::insert(ItemType(k, e));
-    }
-
-    inline std::pair<Iterator, bool> insertUnique(const K& k, const E& e) {
-        return MapBase::insertUnique(ItemType(k, e));
-    }
-
-    uint32_t erase(const K& k);
-
-    ConstIterator find(const K& k) const;
-
-    Iterator find(const K& k) {
-        return Iterator(static_cast<const MultiMap*>(this)->find(k));
-    }
-
-    std::pair<ConstIterator, ConstIterator> equalRange(const K& k) const {
-        return MapBase::findSortedRange(getKey, k);
-    }
-
-    std::pair<Iterator, Iterator> equalRange(const K& k) {
-        return MapBase::findSortedRange(getKey, k);
-    }
-
-    void copyElementsFrom(const MultiMap<K, E, A>& other);
-
-#if ETL_USE_CPP11
-
-    template<typename... Args>
-    inline Iterator emplace(const K& k, Args&& ... args);
-
-#endif
-
-    static K getKey(const ItemType& item) {
-        return item.first;
-    }
 
 };
 
-
-template<typename K, class E, template<class> class A>
-uint32_t MultiMap<K, E, A>::erase(const K& k) {
-
-    std::pair<Iterator, Iterator> found = MapBase::findSortedRange(getKey, k);
-    Iterator it = found.first;
-    uint32_t count = 0;
-
-    while (it != found.second) {
-        it = MapBase::erase(it);
-        ++count;
-    }
-
-    return count;
 }
 
+namespace Static {
 
-template<typename K, class E, template<class> class A>
-typename MultiMap<K, E, A>::ConstIterator  MultiMap<K, E, A>::find(const K& k) const {
+/// MultiMap with unique pool allocator.
+template<class K, class E, uint32_t N>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
 
-    std::pair<ConstIterator, bool> found = MapBase::findSortedPosition(getKey, k);
+    STATIC_ASSERT(N > 0);
 
-    if (found.second == true) {
-        return --found.first;
-    } else {
-        return MapBase::end();
+  public:   // types
+
+    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+
+  public:   // functions
+
+    MultiMap() {};
+
+    MultiMap(const MultiMap& other) :
+        Base(other) {};
+
+    explicit MultiMap(const Base& other) :
+        Base(other) {};
+
+    MultiMap& operator=(const Base& other) {
+        Base::clear();
+        copyElementsFrom(other);
+        return *this;
     }
-}
-
-
-template<typename K, class E, template<class> class A>
-void MultiMap<K, E, A>::copyElementsFrom(const MultiMap<K, E, A>& other) {
-
-    ConstIterator endIt = other.end();
-    for (ConstIterator it = other.begin(); it != endIt; ++it) {
-        insert(it->first, it->second);
-    }
-}
 
 #if ETL_USE_CPP11
 
-template<typename K, class E, template<class> class A>
-MultiMap<K, E, A>::MultiMap(std::initializer_list<std::pair<K, E>> initList) {
-
-    for (auto& item : initList) {
-        insert(item.first, item.second);
-    }
-}
-
-
-template<typename K, class E, template<class> class A>
-template<typename... Args>
-typename MultiMap<K, E, A>::Iterator MultiMap<K, E, A>::emplace(const K& k, Args&& ... args) {
-
-    auto found = MapBase::findSortedPosition(getKey, k);
-    found.first = MapBase::emplaceTo(found.first, k, std::forward<Args>(args)...);
-
-    return found.first;
-}
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        Base(initList) {};
 
 #endif
 
+};
+
+}
 
 namespace Pooled {
 
-
+/// MultiMap with common pool allocator.
 template<class K, class E, uint32_t N>
 class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
 

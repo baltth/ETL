@@ -23,141 +23,37 @@ limitations under the License.
 #define __ETL_SET_H__
 
 #include <etl/etlSupport.h>
-#include <etl/base/Sorted.h>
-#include <etl/List.h>
+#include <etl/base/SetTemplate.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
-#include <utility>
 
 namespace ETL_NAMESPACE {
 
+namespace Dynamic {
 
-template<class E, template<class> class A = std::allocator>
-class Set : public Sorted<List<E, A> > {
-
-  public:   // types
-
-    typedef E ItemType;
-    typedef List<ItemType, A> ContainerType;
-    typedef typename ContainerType::Allocator Allocator;
-    typedef Sorted<ContainerType> SetBase;
-    typedef typename SetBase::Iterator Iterator;
-    typedef typename SetBase::ConstIterator ConstIterator;
-
-  public:   // functions
-
-    Set() {};
-
-    Set(const Set& other) {
-        copyElementsFrom(other);
-    }
-
-    Set& operator=(const Set& other) {
-        SetBase::clear();
-        copyElementsFrom(other);
-        return *this;
-    }
-
-#if ETL_USE_CPP11
-
-    Set(std::initializer_list<E> initList);
-
-#endif
-
-    using SetBase::find;
-    using SetBase::erase;
-
-    std::pair<Iterator, bool> insert(const E& e) {
-        return SetBase::insertUnique(e);
-    }
-
-    void erase(const E& e);
-
-    ConstIterator find(const E& e) const;
-
-    Iterator find(const E& e) {
-        return Iterator(static_cast<const Set*>(this)->find(e));
-    }
-
-    void copyElementsFrom(const Set<E, A>& other);
-
-};
-
-
-#if ETL_USE_CPP11
-
-template<class E, template<class> class A>
-Set<E, A>::Set(std::initializer_list<E> initList) {
-
-    for (auto& item : initList) {
-        SetBase::insertUnique(item);
-    }
-}
-
-#endif
-
-
-template<class E, template<class> class A>
-void Set<E, A>::erase(const E& e) {
-
-    std::pair<Iterator, bool> found = SetBase::findSortedPosition(e);
-
-    if (found.second == true) {
-        SetBase::erase(--found.first);
-    }
-}
-
-
-template<class E, template<class> class A>
-typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
-
-    std::pair<ConstIterator, bool> found = SetBase::findSortedPosition(e);
-
-    if (found.second == true) {
-        return --found.first;
-    } else {
-        return SetBase::end();
-    }
-}
-
-
-template<class E, template<class> class A>
-void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
-
-    ConstIterator endIt = other.end();
-    for (ConstIterator it = other.begin(); it != endIt; ++it) {
-        insert(*it);
-    }
-}
-
-
-namespace Pooled {
-
-
-template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
-
-    STATIC_ASSERT(N > 0);
+/// Set with std::allocator.
+template<class E>
+class Set : public ETL_NAMESPACE::Set<E, std::allocator> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> SetBase;
-    typedef typename SetBase::Iterator Iterator;
-    typedef typename SetBase::ConstIterator ConstIterator;
+    typedef ETL_NAMESPACE::Set<E, std::allocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
     Set() {};
 
     Set(const Set& other) :
-        SetBase(other) {};
+        Base(other) {};
 
-    explicit Set(const SetBase& other) :
-        SetBase(other) {};
+    explicit Set(const Base& other) :
+        Base(other) {};
 
-    Set& operator=(const SetBase& other) {
-        SetBase::clear();
+    Set& operator=(const Base& other) {
+        Base::clear();
         copyElementsFrom(other);
         return *this;
     }
@@ -165,7 +61,89 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
 #if ETL_USE_CPP11
 
     Set(std::initializer_list<E> initList) :
-        SetBase(initList) {};
+        Base(initList) {};
+
+#endif
+
+};
+
+}
+
+namespace Static {
+
+/// Set with unique pool allocator.
+template<class E, uint32_t N>
+class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+
+    STATIC_ASSERT(N > 0);
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+
+public:   // functions
+
+    Set() {};
+
+    Set(const Set& other) :
+        Base(other) {};
+
+    explicit Set(const Base& other) :
+        Base(other) {};
+
+    Set& operator=(const Base& other) {
+        Base::clear();
+        copyElementsFrom(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Set(std::initializer_list<E> initList) :
+        Base(initList) {};
+
+#endif
+
+};
+
+}
+
+namespace Pooled {
+
+/// Set with common pool allocator.
+template<class E, uint32_t N>
+class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
+
+    STATIC_ASSERT(N > 0);
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
+    typedef typename Base::Iterator Iterator;
+    typedef typename Base::ConstIterator ConstIterator;
+
+  public:   // functions
+
+    Set() {};
+
+    Set(const Set& other) :
+        Base(other) {};
+
+    explicit Set(const Base& other) :
+        Base(other) {};
+
+    Set& operator=(const Base& other) {
+        Base::clear();
+        copyElementsFrom(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Set(std::initializer_list<E> initList) :
+        Base(initList) {};
 
 #endif
 
@@ -176,4 +154,3 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
 }
 
 #endif /* __ETL_SET_H__ */
-

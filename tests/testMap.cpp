@@ -30,9 +30,9 @@ using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
 
 
-TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
 
-    Etl::Map<uint32_t, ContainerTester> map;
+    Etl::Dynamic::Map<uint32_t, ContainerTester> map;
 
     REQUIRE(map.isEmpty());
     REQUIRE(map.getSize() == 0);
@@ -60,9 +60,9 @@ TEST_CASE("Etl::Map<> basic test", "[map][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
 
-    typedef Etl::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
     typedef std::pair<MapType::Iterator, bool> ResultType;
 
     MapType map;
@@ -108,9 +108,9 @@ TEST_CASE("Etl::Map<> insert test", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> erase tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
 
-    typedef Etl::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
 
     MapType map;
 
@@ -143,9 +143,9 @@ TEST_CASE("Etl::Map<> erase tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
 
-    typedef Etl::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
 
     MapType map;
 
@@ -186,9 +186,9 @@ TEST_CASE("Etl::Map<> iteration tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> element order", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> element order", "[map][etl]") {
 
-    typedef Etl::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
 
     MapType map;
 
@@ -221,9 +221,9 @@ TEST_CASE("Etl::Map<> element order", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> association tests", "[map][etl]") {
 
-    typedef Etl::Map<uint32_t, ContainerTester> MapType;
+    typedef Etl::Dynamic::Map<uint32_t, ContainerTester> MapType;
 
     MapType map;
 
@@ -271,9 +271,9 @@ TEST_CASE("Etl::Map<> association tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> copy", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
 
-    typedef Etl::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
 
     MapType map;
 
@@ -334,9 +334,9 @@ TEST_CASE("Etl::Map<> copy", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> search tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 
-    typedef Etl::Map<uint32_t, ContainerTester> MapType;
+    typedef Etl::Dynamic::Map<uint32_t, ContainerTester> MapType;
     MapType map;
 
     map.insert(1, ContainerTester(-1));

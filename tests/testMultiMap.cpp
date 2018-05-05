@@ -30,9 +30,9 @@ using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
 
 
-TEST_CASE("Etl::MultiMap<> basic test", "[multimap][etl][basic]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl][basic]") {
 
-    typedef Etl::MultiMap<int, ContainerTester> MapType;
+    typedef Etl::Dynamic::MultiMap<int, ContainerTester> MapType;
     MapType map;
 
     ContainerTester a(4);
@@ -60,9 +60,9 @@ TEST_CASE("Etl::MultiMap<> basic test", "[multimap][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> insert test", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
     MapType::Iterator it = map.insert(1, 2);
@@ -116,9 +116,9 @@ TEST_CASE("Etl::MultiMap<> insert test", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> erase tests", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> erase tests", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
 
@@ -153,9 +153,9 @@ TEST_CASE("Etl::MultiMap<> erase tests", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> iteration tests", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> iteration tests", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
 
@@ -197,9 +197,9 @@ TEST_CASE("Etl::MultiMap<> iteration tests", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> element order", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> element order", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
 
@@ -237,9 +237,9 @@ TEST_CASE("Etl::MultiMap<> element order", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> copy", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
 
@@ -324,9 +324,9 @@ TEST_CASE("Etl::MultiMap<> copy", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> search tests", "[multimap][etl]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<uint32_t, int> MapType;
+    typedef Etl::Dynamic::MultiMap<uint32_t, int> MapType;
     MapType map;
 
     map.insert(1, -1);

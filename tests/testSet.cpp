@@ -30,9 +30,9 @@ using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
 
 
-TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
 
-    typedef Etl::Set<ContainerTester> SetType;
+    typedef Etl::Dynamic::Set<ContainerTester> SetType;
     SetType set;
 
     REQUIRE(set.isEmpty());
@@ -63,9 +63,9 @@ TEST_CASE("Etl::Set<> basic test", "[set][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Set<> insert() test", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> insert() test", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
     typedef std::pair<SetType::Iterator, bool> ResultType;
 
     SetType set;
@@ -100,9 +100,9 @@ TEST_CASE("Etl::Set<> insert() test", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> erase tests", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> erase tests", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
 
     SetType set;
 
@@ -135,9 +135,9 @@ TEST_CASE("Etl::Set<> erase tests", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> iteration tests", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> iteration tests", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
 
     SetType set;
 
@@ -174,9 +174,9 @@ TEST_CASE("Etl::Set<> iteration tests", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> element order", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> element order", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
 
     SetType set;
 
@@ -205,9 +205,9 @@ TEST_CASE("Etl::Set<> element order", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> copy", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> copy", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
 
     SetType set;
 
@@ -270,9 +270,9 @@ TEST_CASE("Etl::Set<> copy", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> search tests", "[set][etl]") {
+TEST_CASE("Etl::Dynamic::Set<> search tests", "[set][etl]") {
 
-    typedef Etl::Set<int> SetType;
+    typedef Etl::Dynamic::Set<int> SetType;
     SetType set;
 
     set.insert(1);
