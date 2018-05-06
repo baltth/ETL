@@ -37,14 +37,24 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types
 
-    typedef std::pair<const K, E> ItemType;
-    typedef List<ItemType, A> ContainerType;
+    typedef K KeyType;
+    typedef E MappedType;
+    typedef std::pair<const K, E> ValueType;
+
+    typedef ValueType& Reference;
+    typedef const ValueType& ConstReference;
+    typedef ValueType* Pointer;
+    typedef const ValueType* ConstPointer;
+
+    typedef List<ValueType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef KeyCompare<K, E> Compare;
     typedef Sorted<ContainerType, Compare> Base;
+
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
-    typedef Matcher<ItemType> ItemMatcher;
+
+    typedef Matcher<ValueType> ItemMatcher;
 
   public:   // functions
 
@@ -70,7 +80,7 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
     using Base::erase;
 
     inline std::pair<Iterator, bool> insert(const K& k, const E& e) {
-        return Base::insertUnique(ItemType(k, e));
+        return Base::insertUnique(ValueType(k, e));
     }
 
     std::pair<Iterator, bool> insertOrAssign(const K& k, const E& e);
@@ -106,7 +116,7 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
 #endif
 
-    static K getKey(const ItemType& item) {
+    static K getKey(ConstReference item) {
         return item.first;
     }
 
@@ -122,7 +132,7 @@ std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::insertOrAssign(co
 #if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, k, e);
 #else
-        found.first = Base::insertTo(found.first, ItemType(k, e));
+        found.first = Base::insertTo(found.first, ValueType(k, e));
 #endif
     } else {
         --found.first;
@@ -165,9 +175,9 @@ typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
 
     if (found.second == false) {
 #if ETL_USE_CPP11
-        found.first = Base::emplaceTo(found.first, std::move(ItemType(k, E())));
+        found.first = Base::emplaceTo(found.first, std::move(ValueType(k, E())));
 #else
-        found.first = Base::insertTo(found.first, ItemType(k, E()));
+        found.first = Base::insertTo(found.first, ValueType(k, E()));
 #endif
     } else {
         --found.first;

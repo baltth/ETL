@@ -49,15 +49,20 @@ template<class, class> class DynamicSized;
 
 template<class T>
 class TypedVectorBase : public AVectorBase {
+
     friend StaticSized<TypedVectorBase>;
-    template<class C, class A>
-    friend class DynamicSized;
+    template<class C, class A> friend class DynamicSized;
 
   public:   // types
 
-    typedef T ItemType;
-    typedef T* Iterator;
-    typedef const T* ConstIterator;
+    typedef T ValueType;
+    typedef T& Reference;
+    typedef const T& ConstReference;
+    typedef T* Pointer;
+    typedef const T* ConstPointer;
+
+    typedef Pointer Iterator;
+    typedef ConstPointer ConstIterator;
 
   protected:
 
@@ -130,18 +135,18 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // functions
 
-    T& operator[](uint32_t ix) {
+    Reference operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    const T& operator[](uint32_t ix) const {
+    ConstReference operator[](uint32_t ix) const {
         return *(static_cast<const T*>(getItemPointer(ix)));
     }
 
 #if ETL_USE_EXCEPTIONS
 
-    T& at(uint32_t ix);
-    const T& at(uint32_t ix) const;
+    Reference at(uint32_t ix);
+    ConstReference at(uint32_t ix) const;
 
 #endif
 
@@ -169,19 +174,19 @@ class TypedVectorBase : public AVectorBase {
         return this->end();
     }
 
-    T& front() {
+    Reference front() {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    const T& front() const {
+    ConstReference front() const {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    T& back() {
+    Reference back() {
         return *(static_cast<T*>(getItemPointer(getSize() - 1)));
     }
 
-    const T& back() const {
+    ConstReference back() const {
         return *(static_cast<const T*>(getItemPointer(getSize() - 1)));
     }
 
@@ -567,7 +572,7 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 
 
 template<typename T>
-const T& TypedVectorBase<T>::at(uint32_t ix) const {
+ConstReference TypedVectorBase<T>::at(uint32_t ix) const {
 
     if (ix >= getSize()) {
         throw ETL_NAMESPACE::OutOfRangeException();

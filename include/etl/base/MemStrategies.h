@@ -226,7 +226,7 @@ void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
 template<class C, class A>
 void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
-    typename C::ItemType* oldData = cont.getData();
+    typename C::Pointer oldData = cont.getData();
     typename C::Iterator oldEnd = cont.end();
     uint32_t oldCapacity = cont.getCapacity();
 
@@ -238,7 +238,7 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
         if ((cont.getData() != NULLPTR) && (numToCopy > 0)) {
 
-            typename C::ItemType* dataAlias = cont.getData();
+            typename C::Pointer dataAlias = cont.getData();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 

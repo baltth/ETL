@@ -35,15 +35,19 @@ class FifoAccess : public FifoIndexing {
 
   public:   // types
 
-    typedef T ItemType;
+    typedef T ValueType;
+    typedef T& Reference;
+    typedef const T& ConstReference;
+    typedef T* Pointer;
+    typedef const T* ConstPointer;
 
-    class Iterator : public FifoIterator<ItemType> {
-        friend class FifoAccess<ItemType>;
+    class Iterator : public FifoIterator<ValueType> {
+        friend class FifoAccess<ValueType>;
 
       private:
 
-        Iterator(const FifoAccess<ItemType>* fifo, uint32_t ix) :
-            FifoIterator<ItemType>(const_cast<ItemType*>(fifo->getData()), fifo, ix) {};
+        Iterator(const FifoAccess<ValueType>* fifo, uint32_t ix) :
+            FifoIterator<ValueType>(const_cast<Pointer>(fifo->getData()), fifo, ix) {};
 
     };
 
@@ -66,18 +70,18 @@ class FifoAccess : public FifoIndexing {
         return FifoIndexing::getCapacity();
     }
 
-    void push(const ItemType& item);
-    ItemType pop();
+    void push(ConstReference item);
+    ValueType pop();
 
     void drop() {
         FifoIndexing::pop();
     }
 
-    ItemType getFromBack(uint32_t ix) const;
-    ItemType getFromFront(uint32_t ix) const;
+    ValueType getFromBack(uint32_t ix) const;
+    ValueType getFromFront(uint32_t ix) const;
 
-    ItemType& operator[](int32_t ix);
-    const ItemType& operator[](int32_t ix) const;
+    Reference operator[](int32_t ix);
+    ConstReference operator[](int32_t ix) const;
 
     Iterator begin() const {
         return iteratorFor(0);
@@ -105,7 +109,7 @@ class FifoAccess : public FifoIndexing {
 
 
 template<class T>
-void FifoAccess<T>::push(const ItemType& item) {
+void FifoAccess<T>::push(ConstReference item) {
 
     FifoIndexing::push();
     proxy.operator[](FifoIndexing::getWriteIx()) = item;
@@ -113,7 +117,7 @@ void FifoAccess<T>::push(const ItemType& item) {
 
 
 template<class T>
-typename FifoAccess<T>::ItemType FifoAccess<T>::pop() {
+typename FifoAccess<T>::ValueType FifoAccess<T>::pop() {
 
     FifoIndexing::pop();
     return proxy.operator[](FifoIndexing::getReadIx());
@@ -121,21 +125,21 @@ typename FifoAccess<T>::ItemType FifoAccess<T>::pop() {
 
 
 template<class T>
-typename FifoAccess<T>::ItemType FifoAccess<T>::getFromBack(uint32_t ix) const {
+typename FifoAccess<T>::ValueType FifoAccess<T>::getFromBack(uint32_t ix) const {
 
     return proxy.operator[](FifoIndexing::getIndexFromFront(ix));
 }
 
 
 template<class T>
-typename FifoAccess<T>::ItemType FifoAccess<T>::getFromFront(uint32_t ix) const {
+typename FifoAccess<T>::ValueType FifoAccess<T>::getFromFront(uint32_t ix) const {
 
     return proxy.operator[](FifoIndexing::getIndexFromBack(ix));
 }
 
 
 template<class T>
-typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) {
+typename FifoAccess<T>::Reference FifoAccess<T>::operator[](int32_t ix) {
 
     if (ix < 0) {
         ix = -1 - ix;
@@ -149,7 +153,7 @@ typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) {
 
 
 template<class T>
-const typename FifoAccess<T>::ItemType& FifoAccess<T>::operator[](int32_t ix) const {
+typename FifoAccess<T>::ConstReference FifoAccess<T>::operator[](int32_t ix) const {
 
     if (ix < 0) {
         ix = -1 - ix;

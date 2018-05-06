@@ -91,7 +91,7 @@ TEST_CASE("Etl::Static::Vector<> basic test", "[vec][static][etl][basic]") {
 template<class VecT>
 void testVectorPushAndPop() {
 
-    typedef typename VecT::ItemType ItemT;
+    typedef typename VecT::ValueType ItemT;
 
     static const ItemT itemBack1 = 1;
     static const ItemT itemBack2 = 2;
@@ -237,7 +237,7 @@ TEST_CASE("Etl::Static::Vector<> insert/erase test", "[vec][static][etl][basic]"
 template<class VecT>
 void testVectorFind() {
 
-    typedef typename VecT::ItemType ItemT;
+    typedef typename VecT::ValueType ItemT;
 
     class IntMatcher : public Etl::Matcher<ItemT> {
         const ItemT value;
@@ -292,7 +292,7 @@ TEST_CASE("Etl::Static::Vector<>::find(Etl::Matcher<>) test", "[vec][static][etl
 template<class VecT>
 void testVectorAssignment() {
 
-    typedef typename VecT::ItemType ItemT;
+    typedef typename VecT::ValueType ItemT;
 
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
@@ -542,7 +542,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 template<class VecT>
 void testVectorLeak() {
 
-    typedef typename VecT::ItemType ItemT;
+    typedef typename VecT::ValueType ItemT;
 
     static const int PATTERN = 123;
 

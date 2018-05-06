@@ -36,10 +36,17 @@ class Set : public Sorted<List<E, A> > {
 
   public:   // types
 
-    typedef E ItemType;
-    typedef List<ItemType, A> ContainerType;
+    typedef E KeyType;
+    typedef E ValueType;
+    typedef ValueType& Reference;
+    typedef const ValueType& ConstReference;
+    typedef ValueType* Pointer;
+    typedef const ValueType* ConstPointer;
+
+    typedef List<E, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef Sorted<ContainerType> Base;
+
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;
 

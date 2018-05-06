@@ -38,11 +38,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // types
 
-    typedef T ItemType;
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   private:  // variables
 
@@ -143,12 +140,9 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // types
 
-    typedef T ItemType;
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
-    typedef A<typename StrategyBase::ItemType> Allocator;
+    typedef A<typename StrategyBase::ValueType> Allocator;
 
   private:  // variables
 

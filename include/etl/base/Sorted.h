@@ -29,14 +29,20 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class C, class Comp = std::less<typename C::ItemType> >
+template<class C, class Comp = std::less<typename C::ValueType> >
 class Sorted {
 
   public:   // types
 
-    typedef typename C::ItemType ItemType;
+    typedef typename C::ValueType ValueType;
+    typedef typename C::Reference Reference;
+    typedef typename C::ConstReference ConstReference;
+    typedef typename C::Pointer Pointer;
+    typedef typename C::ConstPointer ConstPointer;
+
     typedef typename C::Iterator Iterator;
     typedef typename C::ConstIterator ConstIterator;
+
     typedef typename C::Node Node;
 
   protected: // variables
@@ -51,7 +57,7 @@ class Sorted {
 
 #if ETL_USE_CPP11
 
-    Sorted(std::initializer_list<ItemType> initList) :
+    Sorted(std::initializer_list<ValueType> initList) :
         container(initList) {};
 
 #endif
@@ -100,37 +106,37 @@ class Sorted {
         return container.find(startPos, endPos, f, v);
     }
 
-    Iterator find(const Matcher<ItemType>& matchCall) {
+    Iterator find(const Matcher<ValueType>& matchCall) {
         return container.find(begin(), end(), matchCall);
     }
 
-    ConstIterator find(const Matcher<ItemType>& matchCall) const {
+    ConstIterator find(const Matcher<ValueType>& matchCall) const {
         return container.find(begin(), end(), matchCall);
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matchCall) {
+    Iterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ValueType>& matchCall) {
         return container.find(startPos, endPos, matchCall);
     }
 
-    ConstIterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ItemType>& matchCall) const {
+    ConstIterator find(ConstIterator startPos, ConstIterator endPos, const Matcher<ValueType>& matchCall) const {
         return container.find(startPos, endPos, matchCall);
     }
 
 #if ETL_USE_CPP11
 
-    Iterator find(MatchFunc<ItemType>&& matchCall) {
+    Iterator find(MatchFunc<ValueType>&& matchCall) {
         return container.find(begin(), end(), std::move(matchCall));
     }
 
-    ConstIterator find(MatchFunc<ItemType>&& matchCall) const {
+    ConstIterator find(MatchFunc<ValueType>&& matchCall) const {
         return container.find(begin(), end(), std::move(matchCall));
     }
 
-    Iterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ItemType>&& matchCall) {
+    Iterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ValueType>&& matchCall) {
         return container.find(startPos, endPos, std::move(matchCall));
     }
 
-    ConstIterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ItemType>&& matchCall) const {
+    ConstIterator find(ConstIterator startPos, ConstIterator endPos, MatchFunc<ValueType>&& matchCall) const {
         return container.find(startPos, endPos, std::move(matchCall));
     }
 
@@ -143,12 +149,12 @@ class Sorted {
 
   protected:
 
-    Iterator insert(const ItemType& item);
-    std::pair<Iterator, bool> insertUnique(const ItemType& item);
+    Iterator insert(ConstReference item);
+    std::pair<Iterator, bool> insertUnique(ConstReference item);
 
-    std::pair<ConstIterator, ConstIterator> findSortedRange(const ItemType& item) const;
+    std::pair<ConstIterator, ConstIterator> findSortedRange(ConstReference item) const;
 
-    std::pair<Iterator, Iterator> findSortedRange(const ItemType& item) {
+    std::pair<Iterator, Iterator> findSortedRange(ConstReference item) {
         std::pair<ConstIterator, ConstIterator> res = static_cast<const Sorted*>(this)->findSortedRange(item);
         return std::pair<Iterator, Iterator>(Iterator(res.first), Iterator(res.second));
     }
@@ -162,12 +168,12 @@ class Sorted {
         return std::pair<Iterator, Iterator>(Iterator(res.first), Iterator(res.second));
     }
 
-    std::pair<Iterator, bool> findSortedPosition(const ItemType& item) {
+    std::pair<Iterator, bool> findSortedPosition(ConstReference item) {
         std::pair<Iterator, Iterator> res = findSortedRange(item);
         return std::pair<Iterator, bool>(res.second, (res.first != res.second));
     }
 
-    std::pair<ConstIterator, bool> findSortedPosition(const ItemType& item) const {
+    std::pair<ConstIterator, bool> findSortedPosition(ConstReference item) const {
         std::pair<ConstIterator, ConstIterator> res = findSortedRange(item);
         return std::pair<ConstIterator, bool>(res.second, (res.first != res.second));
     }
@@ -184,7 +190,7 @@ class Sorted {
         return std::pair<ConstIterator, bool>(res.second, (res.first != res.second));
     }
 
-    Iterator insertTo(ConstIterator pos, const ItemType& item) const {
+    Iterator insertTo(ConstIterator pos, ConstReference item) const {
         return container.insert(pos, item);
     }
 
@@ -200,20 +206,20 @@ class Sorted {
 };
 
 
-template<class C, class Comp /* = std::less<typename C::ItemType> */>
+template<class C, class Comp /* = std::less<typename C::ValueType> */>
 Comp Sorted<C, Comp>::comp;
 
 
-template<class C, class Comp /* = std::less<typename C::ItemType> */>
-typename Sorted<C, Comp>::Iterator Sorted<C, Comp>::insert(const ItemType& item) {
+template<class C, class Comp /* = std::less<typename C::ValueType> */>
+typename Sorted<C, Comp>::Iterator Sorted<C, Comp>::insert(ConstReference item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
     return container.insert(found.first, item);
 }
 
 
-template<class C, class Comp /* = std::less<typename C::ItemType> */>
-std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUnique(const ItemType& item) {
+template<class C, class Comp /* = std::less<typename C::ValueType> */>
+std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUnique(ConstReference item) {
 
     std::pair<Iterator, bool> found = findSortedPosition(item);
 
@@ -233,9 +239,9 @@ std::pair<typename Sorted<C, Comp>::Iterator, bool> Sorted<C, Comp>::insertUniqu
 }
 
 
-template<class C, class Comp /* = std::less<typename C::ItemType> */>
+template<class C, class Comp /* = std::less<typename C::ValueType> */>
 std::pair<typename Sorted<C, Comp>::ConstIterator, typename Sorted<C, Comp>::ConstIterator>
-Sorted<C, Comp>::findSortedRange(const ItemType& item) const {
+Sorted<C, Comp>::findSortedRange(ConstReference item) const {
 
     ConstIterator it = begin();
     ConstIterator endIt = end();
@@ -271,7 +277,7 @@ Sorted<C, Comp>::findSortedRange(const ItemType& item) const {
 }
 
 
-template<class C, class Comp /* = std::less<typename C::ItemType> */>
+template<class C, class Comp /* = std::less<typename C::ValueType> */>
 template<typename F, typename V>
 std::pair<typename Sorted<C, Comp>::ConstIterator, typename Sorted<C, Comp>::ConstIterator>
 Sorted<C, Comp>::findSortedRange(F f, const V& v) const {

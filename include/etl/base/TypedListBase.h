@@ -44,8 +44,11 @@ class TypedListBase : protected AListBase {
 
   public:   // types
 
-    typedef T ItemType;
-    typedef const T ConstItemType;
+    typedef T ValueType;
+    typedef T& Reference;
+    typedef const T& ConstReference;
+    typedef T* Pointer;
+    typedef const T* ConstPointer;
 
     class Node : public AListBase::Node {
 
@@ -78,11 +81,11 @@ class TypedListBase : protected AListBase {
         explicit ConstIterator(const AListBase::Iterator& it) :
             AListBase::Iterator(it) {};
 
-        ConstItemType& operator*() const {
+        ConstReference operator*() const {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
         }
 
-        ConstItemType* operator->() const {
+        ConstPointer operator->() const {
             return &(static_cast<TypedListBase<T>::Node*>(node)->item);
         }
 
@@ -134,11 +137,11 @@ class TypedListBase : protected AListBase {
         explicit Iterator(const AListBase::Iterator& it) :
             ConstIterator(it) {};
 
-        ItemType& operator*() const {
+        Reference operator*() const {
             return static_cast<TypedListBase<T>::Node*>(this->node)->item;
         }
 
-        ItemType* operator->() const {
+        Pointer operator->() const {
             return &(static_cast<TypedListBase<T>::Node*>(this->node)->item);
         }
 

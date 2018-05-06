@@ -94,7 +94,7 @@ TEST_CASE("Etl::Pooled::List<> basic test", "[list][etl][basic]") {
 template<class ListT>
 void testListLeak() {
 
-    typedef typename ListT::ItemType ItemType;
+    typedef typename ListT::ValueType ItemType;
     static const int PATTERN = 123;
 
 
@@ -443,7 +443,7 @@ TEST_CASE("Etl::Pooled::List<> swap", "[list][etl]") {
 template<class ListT1, class ListT2>
 void testListSplice() {
 
-    typedef typename ListT1::ItemType ItemType;
+    typedef typename ListT1::ValueType ItemType;
 
     ListT1 list1;
     ListT2 list2;

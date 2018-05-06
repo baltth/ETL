@@ -32,11 +32,6 @@ namespace ETL_NAMESPACE {
 template<class C>
 class Fifo : public FifoTemplate<C> {
 
-  public:   // types
-
-    typedef typename FifoTemplate<C>::ItemType ItemType;
-    typedef typename FifoTemplate<C>::Iterator Iterator;
-
   public:   // functions
 
 #if ETL_USE_CPP11
@@ -72,11 +67,6 @@ void Fifo<C>::setupFifo(uint32_t len) {
 template<>
 template<typename T, uint32_t N>
 class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
-
-  public:   // types
-
-    typedef typename FifoTemplate<Array<T, N> >::ItemType ItemType;
-    typedef typename FifoTemplate<Array<T, N> >::Iterator Iterator;
 
   public:   // functions
 

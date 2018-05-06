@@ -69,7 +69,24 @@ class NullptrT {
 #define FINAL
 #define CONSTEXPR
 
-#else
+namespace ETL_NAMESPACE {
+
+template<class T>
+struct RemoveReference {
+    typedef T type;
+};
+
+template<class T>
+struct RemoveReference<T&> {
+    typedef T type;
+};
+
+}
+
+
+#else /* ETL_USE_CPP11 == 1 */
+
+#include <type_traits>
 
 #define NULLPTR         nullptr
 #define OVERRIDE        override
@@ -78,6 +95,13 @@ class NullptrT {
 
 #define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
+
+namespace ETL_NAMESPACE {
+
+template<class T>
+using RemoveReference = std::remove_reference<T>;
+
+}
 
 #endif
 

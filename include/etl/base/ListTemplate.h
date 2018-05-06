@@ -38,10 +38,13 @@ class List : public TypedListBase<T> {
 
   public:   // types
 
-    typedef T ItemType;
-    typedef const T ConstItemType;
-    typedef TypedListBase<T> Base;
+    typedef T ValueType;
+    typedef T& Reference;
+    typedef const T& ConstReference;
+    typedef T* Pointer;
+    typedef const T* ConstPointer;
 
+    typedef TypedListBase<T> Base;
     typedef typename Base::Node Node;
     typedef typename Base::Iterator Iterator;
     typedef typename Base::ConstIterator ConstIterator;

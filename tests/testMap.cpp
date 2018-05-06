@@ -365,7 +365,7 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
     SECTION("find(ItemMatcher)") {
 
         struct Matcher : MapType::ItemMatcher {
-            virtual bool call(const MapType::ItemType& item) const {
+            virtual bool call(const MapType::ValueType& item) const {
                 return (item.first == 3) && (item.second.getValue() == -3);
             }
         };

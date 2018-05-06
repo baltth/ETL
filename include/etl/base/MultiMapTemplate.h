@@ -37,14 +37,24 @@ class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> 
 
   public:   // types
 
-    typedef std::pair<const K, E> ItemType;
-    typedef List<ItemType, A> ContainerType;
+    typedef K KeyType;
+    typedef E MappedType;
+    typedef std::pair<const K, E> ValueType;
+
+    typedef ValueType& Reference;
+    typedef const ValueType& ConstReference;
+    typedef ValueType* Pointer;
+    typedef const ValueType* ConstPointer;
+
+    typedef List<ValueType, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef KeyCompare<K, E> Compare;
     typedef Sorted<ContainerType, Compare> MapBase;
+
     typedef typename MapBase::Iterator Iterator;
     typedef typename MapBase::ConstIterator ConstIterator;
-    typedef Matcher<ItemType> ItemMatcher;
+
+    typedef Matcher<ValueType> ItemMatcher;
 
   public:   // functions
 
@@ -70,11 +80,11 @@ class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> 
     using MapBase::erase;
 
     inline Iterator insert(const K& k, const E& e) {
-        return MapBase::insert(ItemType(k, e));
+        return MapBase::insert(ValueType(k, e));
     }
 
     inline std::pair<Iterator, bool> insertUnique(const K& k, const E& e) {
-        return MapBase::insertUnique(ItemType(k, e));
+        return MapBase::insertUnique(ValueType(k, e));
     }
 
     uint32_t erase(const K& k);
@@ -102,7 +112,7 @@ class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> 
 
 #endif
 
-    static K getKey(const ItemType& item) {
+    static K getKey(ConstReference item) {
         return item.first;
     }
 

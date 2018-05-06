@@ -38,9 +38,14 @@ class Array {
 
   public:   // types
 
-    typedef T ItemType;
-    typedef T* Iterator;
-    typedef const T* ConstIterator;
+    typedef T ValueType;
+    typedef T& Reference;
+    typedef const T& ConstReference;
+    typedef T* Pointer;
+    typedef const T* ConstPointer;
+
+    typedef Pointer Iterator;
+    typedef ConstPointer ConstIterator;
 
   private:  // variables
 
@@ -58,11 +63,11 @@ class Array {
 
     /// \name Element access
     /// \{
-    T& operator[](uint32_t ix) {
+    Reference operator[](uint32_t ix) {
         return data[ix];
     }
 
-    const T& operator[](uint32_t ix) const {
+    ConstReference operator[](uint32_t ix) const {
         return data[ix];
     }
 
@@ -75,8 +80,8 @@ class Array {
     }
 
 #if ETL_USE_EXCEPTIONS
-    inline T& at(uint32_t ix);
-    inline const T& at(uint32_t ix) const;
+    inline Reference at(uint32_t ix);
+    inline ConstReference at(uint32_t ix) const;
 #endif
     /// \}
 
@@ -157,7 +162,7 @@ void Array<T, N>::fill(const T& value) {
 #if ETL_USE_EXCEPTIONS
 
 template<typename T, uint32_t N>
-T& Array<T, N>::at(uint32_t ix) {
+Array<T, N>::Reference Array<T, N>::at(uint32_t ix) {
 
     if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();
@@ -168,7 +173,7 @@ T& Array<T, N>::at(uint32_t ix) {
 
 
 template<typename T, uint32_t N>
-const T& Array<T, N>::at(uint32_t ix) const {
+Array<T, N>::ConstReference Array<T, N>::at(uint32_t ix) const {
 
     if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();
