@@ -72,7 +72,19 @@ using MatchFunc = std::function<bool(const T&)>;
 
 #endif
 
+
+template<typename S, typename T>
+struct CopyConst {
+    typedef T Type;
+};
+
+template<typename S, typename T>
+struct CopyConst<const S, T> {
+    typedef const T Type;
+};
+
 }
+
 
 #if ETL_DISABLE_HEAP
 

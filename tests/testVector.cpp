@@ -620,18 +620,40 @@ void testVectorWithPtrItem() {
 
 TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vec][dynamic][etl][basic]") {
 
-    typedef int* ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    SECTION("for T*") {
 
-    testVectorWithPtrItem<VecT>();
+        typedef int* ItemT;
+        typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+        testVectorWithPtrItem<VecT>();
+    }
+
+    SECTION("for const T*") {
+
+        typedef const int* ItemT;
+        typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+        testVectorWithPtrItem<VecT>();
+    }
 }
 
 TEST_CASE("Etl::Static::Vector<T*> test", "[vec][static][etl][basic]") {
 
-    typedef int* ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    SECTION("for T*") {
 
-    testVectorWithPtrItem<VecT>();
+        typedef int* ItemT;
+        typedef Etl::Static::Vector<ItemT, 16> VecT;
+
+        testVectorWithPtrItem<VecT>();
+    }
+
+    SECTION("for const T*") {
+
+        typedef const int* ItemT;
+        typedef Etl::Static::Vector<ItemT, 16> VecT;
+
+        testVectorWithPtrItem<VecT>();
+    }
 }
 
 

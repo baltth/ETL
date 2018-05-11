@@ -357,16 +357,17 @@ typename Vector<T>::Iterator Vector<T>::insert(ConstIterator position,
 // Specialization for pointers
 
 template class Vector<void*>;
+template class Vector<const void*>;
 
 
 template<class T>
-class Vector<T*> : public Vector<void*> {
+class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
   public:   // types
 
     typedef T* ValueType;
-    typedef Vector<void*> Base;
-    typedef Base::StrategyBase StrategyBase;
+    typedef Vector<typename CopyConst<T, void>::Type*> Base;
+    typedef typename Base::StrategyBase StrategyBase;
     typedef ValueType* Iterator;
     typedef const ValueType* ConstIterator;
 
@@ -379,11 +380,11 @@ class Vector<T*> : public Vector<void*> {
   public:   // functions
 
     ValueType& operator[](int32_t ix) {
-        return *(static_cast<ValueType*>(getItemPointer(ix)));
+        return *(static_cast<ValueType*>(Base::getItemPointer(ix)));
     }
 
     const ValueType& operator[](int32_t ix) const {
-        return *(static_cast<ValueType*>(getItemPointer(ix)));
+        return *(static_cast<ValueType*>(Base::getItemPointer(ix)));
     }
 
     Iterator begin() {
@@ -434,30 +435,30 @@ class Vector<T*> : public Vector<void*> {
         return static_cast<ValueType*>(Base::getData());
     }
 
-    Iterator insert(Iterator position, const ValueType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+    Iterator insert(ConstIterator position, const ValueType& value) {
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<typename Base::ConstIterator>(position),
                                                        value));
     }
 
-    Iterator insert(Iterator position, uint32_t num, const ValueType& value) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+    Iterator insert(ConstIterator position, uint32_t num, const ValueType& value) {
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<typename Base::ConstIterator>(position),
                                                        num,
                                                        value));
     }
 
     Iterator insert(ConstIterator position, ConstIterator first, ConstIterator last) {
-        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<Base::Iterator>(position),
+        return reinterpret_cast<Iterator>(Base::insert(reinterpret_cast<typename Base::ConstIterator>(position),
                                                        first,
                                                        last));
     }
 
     Iterator erase(Iterator pos) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(pos)));
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<typename Base::Iterator>(pos)));
     }
 
     Iterator erase(Iterator first, Iterator last) {
-        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<Base::Iterator>(first),
-                                                      reinterpret_cast<Base::Iterator>(last)));
+        return reinterpret_cast<Iterator>(Base::erase(reinterpret_cast<typename Base::Iterator>(first),
+                                                      reinterpret_cast<typename Base::Iterator>(last)));
     }
 
     void pushBack(const ValueType& value) {
