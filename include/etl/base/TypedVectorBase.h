@@ -198,20 +198,20 @@ class TypedVectorBase : public AVectorBase {
         return static_cast<const T*>(getItemPointer(0));
     }
 
-    void popFront() {
+    void pop_front() {
         erase(begin());
     }
 
-    void popBack() {
+    void pop_back() {
         erase(end() - 1);
     }
 
-    void pop_front() {
-        popFront();
+    void popFront() {
+        pop_front();
     }
 
-    void pop_back() {
-        popBack();
+    void popBack() {
+        pop_back();
     }
 
     iterator erase(iterator pos) {

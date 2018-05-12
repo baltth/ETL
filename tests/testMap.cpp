@@ -63,7 +63,7 @@ TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
 TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
 
     typedef Etl::Dynamic::Map<int, uint32_t> MapType;
-    typedef std::pair<MapType::Iterator, bool> ResultType;
+    typedef std::pair<MapType::iterator, bool> ResultType;
 
     MapType map;
 
@@ -129,9 +129,9 @@ TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
         REQUIRE(map.find(2) == map.end());
     }
 
-    SECTION("erase(Iterator)") {
+    SECTION("erase(iterator)") {
 
-        MapType::Iterator it = map.find(2);
+        MapType::iterator it = map.find(2);
         CHECK(it != map.end());
 
         it = map.erase(it);
@@ -158,7 +158,7 @@ TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
 
     SECTION("forward") {
 
-        MapType::Iterator it = map.begin();
+        MapType::iterator it = map.begin();
 
         REQUIRE(it->first == 1);
         REQUIRE(it->second == -1);
@@ -171,7 +171,7 @@ TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
 
     SECTION("backward") {
 
-        MapType::Iterator it = map.end();
+        MapType::iterator it = map.end();
 
         --it;
 
@@ -199,7 +199,7 @@ TEST_CASE("Etl::Dynamic::Map<> element order", "[map][etl]") {
 
     CHECK(map.getSize() == 4);
 
-    MapType::Iterator it = map.begin();
+    MapType::iterator it = map.begin();
 
     REQUIRE(it->first == 1);
     REQUIRE(it->second == -1);
@@ -348,7 +348,7 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 
     SECTION("find(Key)") {
 
-        MapType::Iterator it = map.find(3);
+        MapType::iterator it = map.find(3);
 
         REQUIRE(it != map.end());
         REQUIRE(it->first == 3);
@@ -357,7 +357,7 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 
     SECTION("find(Key) non-existing") {
 
-        MapType::Iterator it = map.find(7);
+        MapType::iterator it = map.find(7);
 
         REQUIRE(it == map.end());
     }
@@ -365,14 +365,14 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
     SECTION("find(ItemMatcher)") {
 
         struct Matcher : MapType::ItemMatcher {
-            virtual bool call(const MapType::ValueType& item) const {
+            virtual bool call(const MapType::value_type& item) const {
                 return (item.first == 3) && (item.second.getValue() == -3);
             }
         };
 
         Matcher matchCall;
 
-        MapType::Iterator it = map.find(matchCall);
+        MapType::iterator it = map.find(matchCall);
         REQUIRE(it->first == 3);
 
         ++it;
@@ -395,7 +395,7 @@ TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
     MapType map;
     map.insert(5, ContainerTester(-5));
 
-    MapType::Iterator it = map.begin();
+    MapType::iterator it = map.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
     map.insert(6, ContainerTester(-6));
@@ -421,11 +421,11 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
         map.insert(5, ContainerTester(-5));
 
-        MapType::Iterator it = map.begin();
+        MapType::iterator it = map.begin();
         REQUIRE(it.operator->() != NULL);
 
         map.insert(6, ContainerTester(-6));
-        MapType::Iterator it2 = it;
+        MapType::iterator it2 = it;
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
@@ -439,7 +439,7 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
         CHECK(map.getSize() == NUM);
 
-        std::pair<MapType::Iterator, bool> res = map.insert(NUM, ContainerTester(NUM));
+        std::pair<MapType::iterator, bool> res = map.insert(NUM, ContainerTester(NUM));
         REQUIRE(map.getSize() == NUM);
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == false);

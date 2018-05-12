@@ -71,20 +71,20 @@ class Vector : public TypedVectorBase<T> {
     iterator insert(const_iterator position, uint32_t num, const_reference value);
     iterator insert(const_iterator position, const_iterator first, const_iterator last);
 
-    void pushFront(const_reference value) {
+    void push_front(const_reference value) {
         insert(Base::begin(), value);
     }
 
-    void pushBack(const_reference value) {
+    void push_back(const_reference value) {
         insert(Base::end(), value);
     }
 
-    void push_front(const_reference value) {
-        pushFront(value);
+    void pushFront(const_reference value) {
+        push_front(value);
     }
 
-    void push_back(const_reference value) {
-        pushBack(value);
+    void pushBack(const_reference value) {
+        push_back(value);
     }
 
 #if ETL_USE_CPP11
@@ -467,14 +467,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     iterator erase(iterator first, iterator last) {
         return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(first),
                                                       reinterpret_cast<typename Base::iterator>(last)));
-    }
-
-    void pushBack(const value_type& value) {
-        Base::insert(Base::end(), 1, value);
-    }
-
-    void popBack() {
-        Base::erase(Base::end());
     }
 
   protected:

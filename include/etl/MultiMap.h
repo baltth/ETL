@@ -40,8 +40,6 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, std::allocator> {
   public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E, std::allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -81,8 +79,6 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
   public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -122,8 +118,6 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
   public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 

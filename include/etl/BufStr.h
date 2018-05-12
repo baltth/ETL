@@ -367,15 +367,15 @@ class BufStr {
     void writeWithPadding(const char* str, uint32_t len, uint8_t padding);
 
     void putChar(char c) {
-        data.pushBack(c);
+        data.push_back(c);
     }
 
     void closeStr() {
-        data.pushBack('\0');
+        data.push_back('\0');
     }
 
     void openStr() {
-        data.popBack();
+        data.pop_back();
     }
 
     static char tetradeToChar(uint8_t val);

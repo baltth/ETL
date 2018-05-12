@@ -49,7 +49,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl][basic]") {
 
     REQUIRE(map.getSize() == 3);
 
-    MapType::ConstIterator it = map.find(5);
+    MapType::const_iterator it = map.find(5);
     REQUIRE(it != map.end());
     REQUIRE(it->second.getValue() == -5);
 
@@ -65,7 +65,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> insert test", "[multimap][etl]") {
     typedef Etl::Dynamic::MultiMap<int, uint32_t> MapType;
 
     MapType map;
-    MapType::Iterator it = map.insert(1, 2);
+    MapType::iterator it = map.insert(1, 2);
 
     REQUIRE(it != map.end());
     REQUIRE(map.getSize() == 1);
@@ -87,7 +87,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> insert test", "[multimap][etl]") {
 
     SECTION("insert() of existing") {
 
-        MapType::Iterator it2 = map.insert(1, 3);
+        MapType::iterator it2 = map.insert(1, 3);
 
         REQUIRE(it2 != map.end());
         REQUIRE(it2 != it);
@@ -99,7 +99,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> insert test", "[multimap][etl]") {
 
     SECTION("insertUnique()") {
 
-        std::pair<MapType::Iterator, bool> res = map.insertUnique(1, 3);
+        std::pair<MapType::iterator, bool> res = map.insertUnique(1, 3);
 
         REQUIRE(res.second == false);
         REQUIRE(map.getSize() == 1);
@@ -140,9 +140,9 @@ TEST_CASE("Etl::Dynamic::MultiMap<> erase tests", "[multimap][etl]") {
         REQUIRE(map.find(2) == map.end());
     }
 
-    SECTION("erase(Iterator)") {
+    SECTION("erase(iterator)") {
 
-        MapType::Iterator it = map.find(2);
+        MapType::iterator it = map.find(2);
         CHECK(it != map.end());
 
         it = map.erase(it);
@@ -169,7 +169,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> iteration tests", "[multimap][etl]") {
 
     SECTION("forward") {
 
-        MapType::Iterator it = map.begin();
+        MapType::iterator it = map.begin();
 
         REQUIRE(it->first == 1);
         REQUIRE(it->second == -1);
@@ -182,7 +182,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> iteration tests", "[multimap][etl]") {
 
     SECTION("backward") {
 
-        MapType::Iterator it = map.end();
+        MapType::iterator it = map.end();
 
         --it;
 
@@ -211,7 +211,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> element order", "[multimap][etl]") {
 
     CHECK(map.getSize() == 5);
 
-    MapType::Iterator it = map.begin();
+    MapType::iterator it = map.begin();
 
     REQUIRE(it->first == 1);
     REQUIRE(it->second == -1);
@@ -262,8 +262,8 @@ TEST_CASE("Etl::Dynamic::MultiMap<> copy", "[multimap][etl]") {
 
         REQUIRE(map2.getSize() == 4);
 
-        MapType::Iterator it1 = map.begin();
-        MapType::Iterator it2 = map2.begin();
+        MapType::iterator it1 = map.begin();
+        MapType::iterator it2 = map2.begin();
 
         REQUIRE(it2->first == it1->first);
         REQUIRE(it2->second == it1->second);
@@ -283,8 +283,8 @@ TEST_CASE("Etl::Dynamic::MultiMap<> copy", "[multimap][etl]") {
 
         REQUIRE(map3.getSize() == 4);
 
-        MapType::Iterator it1 = map.begin();
-        MapType::Iterator it3 = map3.begin();
+        MapType::iterator it1 = map.begin();
+        MapType::iterator it3 = map3.begin();
 
         REQUIRE(it3->first == it1->first);
         REQUIRE(it3->second == it1->second);
@@ -312,8 +312,8 @@ TEST_CASE("Etl::Dynamic::MultiMap<> copy", "[multimap][etl]") {
         REQUIRE(map.getSize() == 2);
         REQUIRE(map2.getSize() == 4);
 
-        MapType::Iterator it1 = map.begin();
-        MapType::Iterator it2 = map2.begin();
+        MapType::iterator it1 = map.begin();
+        MapType::iterator it2 = map2.begin();
 
         REQUIRE(it1->first == 1);
         REQUIRE(it1->second == 1);
@@ -339,7 +339,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("find(Key)") {
 
-        MapType::Iterator it = map.find(3);
+        MapType::iterator it = map.find(3);
 
         REQUIRE(it != map.end());
         REQUIRE(it->first == 3);
@@ -348,14 +348,14 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("find(Key) non-existing") {
 
-        MapType::Iterator it = map.find(7);
+        MapType::iterator it = map.find(7);
 
         REQUIRE(it == map.end());
     }
 
     SECTION("equalRange(Key) for one") {
 
-        std::pair<MapType::ConstIterator, MapType::ConstIterator> res = map.equalRange(2);
+        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(2);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -369,7 +369,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("equalRange(Key) for more") {
 
-        std::pair<MapType::ConstIterator, MapType::ConstIterator> res = map.equalRange(3);
+        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(3);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -386,7 +386,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("equalRange(Key) non-existing") {
 
-        std::pair<MapType::ConstIterator, MapType::ConstIterator> res = map.equalRange(12);
+        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(12);
 
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == map.end());
@@ -407,7 +407,7 @@ TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
     MapType map;
     map.insert(5, ContainerTester(-5));
 
-    MapType::Iterator it = map.begin();
+    MapType::iterator it = map.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
     map.insert(6, ContainerTester(-6));
@@ -433,11 +433,11 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
         map.insert(5, ContainerTester(-5));
 
-        MapType::Iterator it = map.begin();
+        MapType::iterator it = map.begin();
         REQUIRE(it.operator->() != NULL);
 
         map.insert(6, ContainerTester(-6));
-        MapType::Iterator it2 = it;
+        MapType::iterator it2 = it;
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
@@ -451,7 +451,7 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
         CHECK(map.getSize() == NUM);
 
-        MapType::Iterator it = map.insert(NUM, ContainerTester(NUM));
+        MapType::iterator it = map.insert(NUM, ContainerTester(NUM));
         REQUIRE(map.getSize() == NUM);
         REQUIRE(it == map.end());
     }

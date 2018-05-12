@@ -43,7 +43,7 @@ TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
 
     REQUIRE_FALSE(set.isEmpty());
     REQUIRE(set.getSize() == 1);
-    SetType::Iterator it = set.begin();
+    SetType::iterator it = set.begin();
     REQUIRE(*it == a);
 
     set.insert(ContainerTester(5));
@@ -66,7 +66,7 @@ TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
 TEST_CASE("Etl::Dynamic::Set<> insert() test", "[set][etl]") {
 
     typedef Etl::Dynamic::Set<int> SetType;
-    typedef std::pair<SetType::Iterator, bool> ResultType;
+    typedef std::pair<SetType::iterator, bool> ResultType;
 
     SetType set;
 
@@ -121,9 +121,9 @@ TEST_CASE("Etl::Dynamic::Set<> erase tests", "[set][etl]") {
         REQUIRE(set.find(2) == set.end());
     }
 
-    SECTION("erase(Iterator)") {
+    SECTION("erase(iterator)") {
 
-        SetType::Iterator it = set.find(2);
+        SetType::iterator it = set.find(2);
         CHECK(it != set.end());
 
         it = set.erase(it);
@@ -150,7 +150,7 @@ TEST_CASE("Etl::Dynamic::Set<> iteration tests", "[set][etl]") {
 
     SECTION("forward") {
 
-        SetType::Iterator it = set.begin();
+        SetType::iterator it = set.begin();
 
         REQUIRE(*it == 1);
 
@@ -161,7 +161,7 @@ TEST_CASE("Etl::Dynamic::Set<> iteration tests", "[set][etl]") {
 
     SECTION("backward") {
 
-        SetType::Iterator it = set.end();
+        SetType::iterator it = set.end();
 
         --it;
 
@@ -187,7 +187,7 @@ TEST_CASE("Etl::Dynamic::Set<> element order", "[set][etl]") {
 
     CHECK(set.getSize() == 4);
 
-    SetType::Iterator it = set.begin();
+    SetType::iterator it = set.begin();
 
     REQUIRE(*it == 1);
 
@@ -284,7 +284,7 @@ TEST_CASE("Etl::Dynamic::Set<> search tests", "[set][etl]") {
 
     SECTION("find(Key)") {
 
-        SetType::Iterator it = set.find(3);
+        SetType::iterator it = set.find(3);
 
         REQUIRE(it != set.end());
         REQUIRE(*it == 3);
@@ -292,7 +292,7 @@ TEST_CASE("Etl::Dynamic::Set<> search tests", "[set][etl]") {
 
     SECTION("find(Key) non-existing") {
 
-        SetType::Iterator it = set.find(7);
+        SetType::iterator it = set.find(7);
 
         REQUIRE(it == set.end());
     }
@@ -312,7 +312,7 @@ TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
     SetType set;
     set.insert(ContainerTester(5));
 
-    SetType::Iterator it = set.begin();
+    SetType::iterator it = set.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
     set.insert(ContainerTester(6));
@@ -338,11 +338,11 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 
         set.insert(ContainerTester(5));
 
-        SetType::Iterator it = set.begin();
+        SetType::iterator it = set.begin();
         REQUIRE(it.operator->() != NULL);
 
         set.insert(ContainerTester(6));
-        SetType::Iterator it2 = it;
+        SetType::iterator it2 = it;
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
@@ -356,7 +356,7 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 
         CHECK(set.getSize() == NUM);
 
-        std::pair<SetType::Iterator, bool> res = set.insert(ContainerTester(NUM));
+        std::pair<SetType::iterator, bool> res = set.insert(ContainerTester(NUM));
         REQUIRE(set.getSize() == NUM);
         REQUIRE(res.first == set.end());
         REQUIRE(res.second == false);
