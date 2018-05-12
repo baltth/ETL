@@ -51,7 +51,7 @@ class GenericProxy {
         data(container.getData()),
         capacity(container.getCapacity()),
         size(container.getSize()),
-        itemSize(sizeof(typename C::ValueType)) {};
+        itemSize(sizeof(typename C::value_type)) {};
 
     void* getItemPointer(uint32_t ix) {
         return static_cast<void*>(static_cast<uint8_t*>(data) + (ix * itemSize));
@@ -89,17 +89,17 @@ class Proxy {
 
   public:   // types
 
-    typedef T ValueType;
+    typedef T value_type;
 
   protected: // variables
 
-    const ValueType* data;
+    const value_type* data;
     uint32_t capacity;
     uint32_t size;
 
   public:   // functions
 
-    Proxy(const ValueType* dataPointer, uint32_t cap, uint32_t len) :
+    Proxy(const value_type* dataPointer, uint32_t cap, uint32_t len) :
         data(dataPointer),
         capacity(cap),
         size(len) {};
@@ -110,15 +110,15 @@ class Proxy {
         capacity(container.getCapacity()),
         size(container.getSize()) {};
 
-    const ValueType* getData() const {
+    const value_type* getData() const {
         return data;
     }
 
-    const ValueType* getItemPointer(uint32_t ix) const {
+    const value_type* getItemPointer(uint32_t ix) const {
         return &(data[ix]);
     }
 
-    inline const ValueType& operator[](uint32_t ix) const {
+    inline const value_type& operator[](uint32_t ix) const {
         return data[ix];
     }
 
@@ -138,7 +138,7 @@ class MutableProxy : public GenericProxy {
 
   public:   // types
 
-    typedef T ValueType;
+    typedef T value_type;
 
   public:   // functions
 
@@ -149,12 +149,12 @@ class MutableProxy : public GenericProxy {
     MutableProxy(C& container) :
         GenericProxy(container) {};
 
-    ValueType* getData() const {
+    value_type* getData() const {
         return static_cast<T*>(data);
     }
 
-    ValueType* getItemPointer(uint32_t ix) const {
-        return const_cast<ValueType*>(static_cast<const ValueType*>(GenericProxy::getItemPointer(ix)));
+    value_type* getItemPointer(uint32_t ix) const {
+        return const_cast<value_type*>(static_cast<const value_type*>(GenericProxy::getItemPointer(ix)));
     }
 
     inline T& operator[](uint32_t ix) const {

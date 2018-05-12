@@ -148,7 +148,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     CHECK(fifo.getLength() == 3);
 
     int i = 0;
-    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
@@ -158,13 +158,13 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     fifo.push(6);
 
     i = 0;
-    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
 
     i = 0;
-    FifoType::Iterator it = fifo.end();
+    FifoType::iterator it = fifo.end();
     while (it != fifo.begin()) {
         --i;
         --it;

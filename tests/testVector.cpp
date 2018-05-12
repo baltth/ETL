@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "UnalignedTester.h"
 #include "ContainerTester.h"
+#include "compatibilityTests.h"
 
 using ETL_NAMESPACE::Test::UnalignedTester;
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -55,7 +56,7 @@ void testVectorBasic() {
     REQUIRE_FALSE(vec.isEmpty());
     REQUIRE(vec.getSize() == 2);
 
-    typename VecT::Iterator it = vec.begin();
+    typename VecT::iterator it = vec.begin();
     REQUIRE(*it == 1);
     REQUIRE(vec[0] == *it);
 
@@ -91,7 +92,7 @@ TEST_CASE("Etl::Static::Vector<> basic test", "[vec][static][etl][basic]") {
 template<class VecT>
 void testVectorPushAndPop() {
 
-    typedef typename VecT::ValueType ItemT;
+    typedef typename VecT::value_type ItemT;
 
     static const ItemT itemBack1 = 1;
     static const ItemT itemBack2 = 2;
@@ -150,9 +151,9 @@ void testVectorInsertAndErase() {
 
     CHECK(vec.getSize() == 4);
 
-    SECTION("insert(ConstIterator, uint32_t, const T&)") {
+    SECTION("insert(const_iterator, uint32_t, const T&)") {
 
-        typename VecT::Iterator it = vec.begin() + 2;
+        typename VecT::iterator it = vec.begin() + 2;
         it = vec.insert(it, 2);
         REQUIRE(vec[2] == 2);
         REQUIRE(vec.getSize() == 5);
@@ -181,7 +182,7 @@ void testVectorInsertAndErase() {
         REQUIRE(it == &vec[2]);
     }
 
-    SECTION("insert(ConstIterator, InputIt, InputIt)") {
+    SECTION("insert(const_iterator, InputIt, InputIt)") {
 
         vec[0] = 1;
         vec[1] = 2;
@@ -195,8 +196,8 @@ void testVectorInsertAndErase() {
 
             CHECK(vec.getSize() == 4);
 
-            typename VecT::ConstIterator last = vec.end() - 1;
-            typename VecT::Iterator it = vec2.insert(vec2.end(), vec.begin(), last);
+            typename VecT::const_iterator last = vec.end() - 1;
+            typename VecT::iterator it = vec2.insert(vec2.end(), vec.begin(), last);
 
             REQUIRE(vec2.getSize() == 4);
             REQUIRE(it == &vec2[1]);
@@ -209,7 +210,7 @@ void testVectorInsertAndErase() {
 
         SECTION("Invalid insert") {
 
-            typename VecT::Iterator it = vec2.insert(vec2.end(), vec.end(), vec.begin());
+            typename VecT::iterator it = vec2.insert(vec2.end(), vec.end(), vec.begin());
 
             REQUIRE(vec2.getSize() == 1);
             REQUIRE(it == vec2.end());
@@ -237,7 +238,7 @@ TEST_CASE("Etl::Static::Vector<> insert/erase test", "[vec][static][etl][basic]"
 template<class VecT>
 void testVectorFind() {
 
-    typedef typename VecT::ValueType ItemT;
+    typedef typename VecT::value_type ItemT;
 
     class IntMatcher : public Etl::Matcher<ItemT> {
         const ItemT value;
@@ -258,18 +259,33 @@ void testVectorFind() {
     vec.pushBack(1);
     vec.pushBack(2);
     vec.pushBack(REF_VALUE);
-    typename VecT::Iterator it1 = vec.end() - 1;
+    typename VecT::iterator it1 = vec.end() - 1;
     vec.pushBack(4);
     vec.pushBack(REF_VALUE);
-    typename VecT::Iterator it2 = vec.end() - 1;
+    typename VecT::iterator it2 = vec.end() - 1;
     vec.pushBack(6);
 
-    typename VecT::Iterator found = vec.find(IntMatcher(REF_VALUE));
-    REQUIRE(found == it1);
-    found = vec.find((++found), vec.end(), IntMatcher(REF_VALUE));
-    REQUIRE(found == it2);
-    found = vec.find((++found), vec.end(), IntMatcher(REF_VALUE));
-    REQUIRE(found == vec.end());
+    SECTION("With non-const") {
+
+        typename VecT::iterator found = vec.find(IntMatcher(REF_VALUE));
+        REQUIRE(found == it1);
+        found = vec.find((++found), vec.end(), IntMatcher(REF_VALUE));
+        REQUIRE(found == it2);
+        found = vec.find((++found), vec.end(), IntMatcher(REF_VALUE));
+        REQUIRE(found == vec.end());
+    }
+
+    SECTION("With const") {
+
+        const VecT& alias = vec;
+
+        typename VecT::const_iterator found = alias.find(IntMatcher(REF_VALUE));
+        REQUIRE(found == it1);
+        found = alias.find((++found), alias.end(), IntMatcher(REF_VALUE));
+        REQUIRE(found == it2);
+        found = alias.find((++found), alias.end(), IntMatcher(REF_VALUE));
+        REQUIRE(found == alias.end());
+    }
 }
 
 TEST_CASE("Etl::Dynamic::Vector<>::find(Etl::Matcher<>) test", "[vec][dynamic][etl]") {
@@ -292,7 +308,7 @@ TEST_CASE("Etl::Static::Vector<>::find(Etl::Matcher<>) test", "[vec][static][etl
 template<class VecT>
 void testVectorAssignment() {
 
-    typedef typename VecT::ValueType ItemT;
+    typedef typename VecT::value_type ItemT;
 
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
@@ -542,7 +558,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 template<class VecT>
 void testVectorLeak() {
 
-    typedef typename VecT::ValueType ItemT;
+    typedef typename VecT::value_type ItemT;
 
     static const int PATTERN = 123;
 
@@ -602,7 +618,7 @@ void testVectorWithPtrItem() {
 
     REQUIRE(vec.getSize() == 2);
 
-    typename VecT::Iterator it = vec.begin();
+    typename VecT::iterator it = vec.begin();
     REQUIRE(*it == &a);
     REQUIRE(vec[0] == *it);
 
@@ -1186,3 +1202,31 @@ TEST_CASE("Etl::Static::Vector<> test cleanup", "[vec][static][etl]") {
     CHECK(ContainerTester::getObjectCount() == 0);
 }
 
+
+
+// Etl::Vector compatibility tests ---------------------------------------------
+
+
+TEST_CASE("Etl::Vector<> with std::accumulate()", "[vec][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+    testAccumulate<VecT>();
+}
+
+TEST_CASE("Etl::Vector<> with std::partial_sum()", "[vec][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+    testPartialSum<VecT>();
+}
+
+TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+    testInnerProduct<VecT, VecT>();
+}

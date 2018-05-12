@@ -39,7 +39,7 @@ TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {
     uint32_t size = array.getSize();
     REQUIRE(size == 16);
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     *it = 1;
     CAPTURE(*it);
     REQUIRE(array[0] == *it);
@@ -53,7 +53,7 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
 
     ArrayType array;
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     *it = 1;
     ++it;
     *it = 2;
@@ -111,7 +111,7 @@ TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
     CAPTURE(itemSize);
     CHECK((itemSize % sizeof(uint32_t)) != 0);
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     uint64_t item0 = reinterpret_cast<uint64_t>(it);
     ++it;
     uint64_t item1 = reinterpret_cast<uint64_t>(it);

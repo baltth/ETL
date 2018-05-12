@@ -101,15 +101,15 @@ void StaticSized<C>::resize(C& cont, uint32_t length) {
 
         if (length > cont.getSize()) {
 
-            typename C::Iterator newEnd = cont.getData() + length;
+            typename C::iterator newEnd = cont.getData() + length;
 
-            for (typename C::Iterator it = cont.end(); it < newEnd; ++it) {
+            for (typename C::iterator it = cont.end(); it < newEnd; ++it) {
                 C::placeDefaultTo(it);
             }
 
         } else if (length < cont.getSize()) {
 
-            typename C::Iterator newEnd = cont.getData() + length;
+            typename C::iterator newEnd = cont.getData() + length;
             C::destruct(newEnd, cont.end());
         }
 
@@ -207,15 +207,15 @@ void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
             reallocateAndCopyFor(cont, getRoundedLength(length));
         }
 
-        typename C::Iterator newEnd = cont.getData() + length;
+        typename C::iterator newEnd = cont.getData() + length;
 
-        for (typename C::Iterator it = cont.end(); it < newEnd; ++it) {
+        for (typename C::iterator it = cont.end(); it < newEnd; ++it) {
             C::placeDefaultTo(it);
         }
 
     } else if (length < cont.getSize()) {
 
-        typename C::Iterator newEnd = cont.getData() + length;
+        typename C::iterator newEnd = cont.getData() + length;
         C::destruct(newEnd, cont.end());
     }
 
@@ -226,8 +226,8 @@ void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
 template<class C, class A>
 void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
-    typename C::Pointer oldData = cont.getData();
-    typename C::Iterator oldEnd = cont.end();
+    typename C::pointer oldData = cont.getData();
+    typename C::iterator oldEnd = cont.end();
     uint32_t oldCapacity = cont.getCapacity();
 
     allocate(cont, len);
@@ -238,7 +238,7 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
         if ((cont.getData() != NULLPTR) && (numToCopy > 0)) {
 
-            typename C::Pointer dataAlias = cont.getData();
+            typename C::pointer dataAlias = cont.getData();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 

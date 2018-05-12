@@ -34,19 +34,19 @@ class FifoTemplate : protected C, public FifoIndexing {
 
   public:   // types
 
-    typedef typename C::ValueType ValueType;
-    typedef typename C::Reference Reference;
-    typedef typename C::ConstReference ConstReference;
-    typedef typename C::Pointer Pointer;
-    typedef typename C::ConstPointer ConstPointer;
+    typedef typename C::value_type value_type;
+    typedef typename C::reference reference;
+    typedef typename C::const_reference const_reference;
+    typedef typename C::pointer pointer;
+    typedef typename C::const_pointer const_pointer;
 
-    class Iterator : public FifoIterator<ValueType> {
+    class iterator : public FifoIterator<value_type> {
         friend class FifoTemplate<C>;
 
       private:
 
-        Iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
-            FifoIterator<ValueType>(const_cast<Pointer>(fifo->getData()), fifo, ix) {};
+        iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
+            FifoIterator<value_type>(const_cast<pointer>(fifo->getData()), fifo, ix) {};
 
     };
 
@@ -75,36 +75,36 @@ class FifoTemplate : protected C, public FifoIndexing {
         return FifoIndexing::getCapacity();
     }
 
-    void push(ConstReference item);
-    ValueType pop();
+    void push(const_reference item);
+    value_type pop();
 
     void drop() {
         FifoIndexing::pop();
     }
 
-    ValueType getFromBack(uint32_t ix) const;
-    ValueType getFromFront(uint32_t ix) const;
+    value_type getFromBack(uint32_t ix) const;
+    value_type getFromFront(uint32_t ix) const;
 
-    Reference operator[](int32_t ix);
-    ConstReference operator[](int32_t ix) const;
+    reference operator[](int32_t ix);
+    const_reference operator[](int32_t ix) const;
 
-    Iterator begin() const {
+    iterator begin() const {
         return iteratorFor(0);
     }
 
-    Iterator end() const {
+    iterator end() const {
         return iteratorFor(getLength());
     }
 
-    Iterator iteratorFor(uint32_t ix) const {
-        return Iterator(this, ix);
+    iterator iteratorFor(uint32_t ix) const {
+        return iterator(this, ix);
     }
 
 };
 
 
 template<class C>
-void FifoTemplate<C>::push(ConstReference item) {
+void FifoTemplate<C>::push(const_reference item) {
 
     FifoIndexing::push();
     C::operator[](FifoIndexing::getWriteIx()) = item;
@@ -112,7 +112,7 @@ void FifoTemplate<C>::push(ConstReference item) {
 
 
 template<class C>
-typename FifoTemplate<C>::ValueType FifoTemplate<C>::pop() {
+typename FifoTemplate<C>::value_type FifoTemplate<C>::pop() {
 
     FifoIndexing::pop();
     return C::operator[](FifoIndexing::getReadIx());
@@ -120,21 +120,21 @@ typename FifoTemplate<C>::ValueType FifoTemplate<C>::pop() {
 
 
 template<class C>
-typename FifoTemplate<C>::ValueType FifoTemplate<C>::getFromBack(uint32_t ix) const {
+typename FifoTemplate<C>::value_type FifoTemplate<C>::getFromBack(uint32_t ix) const {
 
     return C::operator[](FifoIndexing::getIndexFromFront(ix));
 }
 
 
 template<class C>
-typename FifoTemplate<C>::ValueType FifoTemplate<C>::getFromFront(uint32_t ix) const {
+typename FifoTemplate<C>::value_type FifoTemplate<C>::getFromFront(uint32_t ix) const {
 
     return C::operator[](FifoIndexing::getIndexFromBack(ix));
 }
 
 
 template<class C>
-typename FifoTemplate<C>::Reference FifoTemplate<C>::operator[](int32_t ix) {
+typename FifoTemplate<C>::reference FifoTemplate<C>::operator[](int32_t ix) {
 
     if (ix < 0) {
         ix = -1 - ix;
@@ -148,7 +148,7 @@ typename FifoTemplate<C>::Reference FifoTemplate<C>::operator[](int32_t ix) {
 
 
 template<class C>
-typename FifoTemplate<C>::ConstReference FifoTemplate<C>::operator[](int32_t ix) const {
+typename FifoTemplate<C>::const_reference FifoTemplate<C>::operator[](int32_t ix) const {
 
     if (ix < 0) {
         ix = -1 - ix;

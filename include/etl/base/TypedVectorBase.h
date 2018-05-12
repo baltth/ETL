@@ -55,14 +55,14 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // types
 
-    typedef T ValueType;
-    typedef T& Reference;
-    typedef const T& ConstReference;
-    typedef T* Pointer;
-    typedef const T* ConstPointer;
+    typedef T value_type;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* pointer;
+    typedef const T* const_pointer;
 
-    typedef Pointer Iterator;
-    typedef ConstPointer ConstIterator;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
 
   protected:
 
@@ -135,58 +135,58 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // functions
 
-    Reference operator[](uint32_t ix) {
+    reference operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    ConstReference operator[](uint32_t ix) const {
+    const_reference operator[](uint32_t ix) const {
         return *(static_cast<const T*>(getItemPointer(ix)));
     }
 
 #if ETL_USE_EXCEPTIONS
 
-    Reference at(uint32_t ix);
-    ConstReference at(uint32_t ix) const;
+    reference at(uint32_t ix);
+    const_reference at(uint32_t ix) const;
 
 #endif
 
-    Iterator begin() {
-        return static_cast<Iterator>(getItemPointer(0));
+    iterator begin() {
+        return static_cast<iterator>(getItemPointer(0));
     }
 
-    ConstIterator begin() const {
-        return static_cast<ConstIterator>(getItemPointer(0));
+    const_iterator begin() const {
+        return static_cast<const_iterator>(getItemPointer(0));
     }
 
-    ConstIterator cbegin() const {
+    const_iterator cbegin() const {
         return this->begin();
     }
 
-    Iterator end() {
-        return static_cast<Iterator>(getItemPointer(getSize()));
+    iterator end() {
+        return static_cast<iterator>(getItemPointer(getSize()));
     }
 
-    ConstIterator end() const {
-        return static_cast<ConstIterator>(getItemPointer(getSize()));
+    const_iterator end() const {
+        return static_cast<const_iterator>(getItemPointer(getSize()));
     }
 
-    ConstIterator cend() const {
+    const_iterator cend() const {
         return this->end();
     }
 
-    Reference front() {
+    reference front() {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    ConstReference front() const {
+    const_reference front() const {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    Reference back() {
+    reference back() {
         return *(static_cast<T*>(getItemPointer(getSize() - 1)));
     }
 
-    ConstReference back() const {
+    const_reference back() const {
         return *(static_cast<const T*>(getItemPointer(getSize() - 1)));
     }
 
@@ -206,13 +206,21 @@ class TypedVectorBase : public AVectorBase {
         erase(end() - 1);
     }
 
-    Iterator erase(Iterator pos) {
-        Iterator next = pos;
+    void pop_front() {
+        popFront();
+    }
+
+    void pop_back() {
+        popBack();
+    }
+
+    iterator erase(iterator pos) {
+        iterator next = pos;
         ++next;
         return erase(pos, next);
     }
 
-    Iterator erase(Iterator first, Iterator last);
+    iterator erase(iterator first, iterator last);
 
     void clear();
 
@@ -291,13 +299,13 @@ class TypedVectorBase : public AVectorBase {
     static void initializedCopyUp(T* src, T* dst, uint32_t num);
     static void initializedCopyDown(T* src, T* dst, uint32_t num);
 
-    static void destruct(Iterator startPos, Iterator endPos);
+    static void destruct(iterator startPos, iterator endPos);
 
-    Iterator insertOperation(ConstIterator position, uint32_t num, const Creator& creatorCall);
+    iterator insertOperation(const_iterator position, uint32_t num, const Creator& creatorCall);
 
 #if ETL_USE_CPP11
 
-    Iterator insertOperation(ConstIterator position, uint32_t num, CreateFunc&& creatorCall);
+    iterator insertOperation(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
 
 #endif
 
@@ -307,10 +315,10 @@ class TypedVectorBase : public AVectorBase {
 
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, Iterator last) {
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, iterator last) {
 
     int numToErase = last - first;
-    Iterator itAfterDeleted = first;
+    iterator itAfterDeleted = first;
 
     if (numToErase > 0) {
 
@@ -348,7 +356,7 @@ void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
                                                                           uint32_t numToInsert,
                                                                           const Creator& creatorCall) {
 
@@ -389,14 +397,14 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
         proxy.setSize(getSize() + numToInsert);
     }
 
-    return Iterator(position);
+    return iterator(position);
 }
 
 
 #if ETL_USE_CPP11
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
                                                                           uint32_t numToInsert,
                                                                           CreateFunc&& creatorCall) {
 
@@ -437,7 +445,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
         proxy.setSize(getSize() + numToInsert);
     }
 
-    return Iterator(position);
+    return iterator(position);
 }
 
 
@@ -517,7 +525,7 @@ void TypedVectorBase<T>::clear() {
 
 
 template<class T>
-void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
+void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos) {
 
     while (startPos < endPos) {         // operator<() instead of !=() : protection for startPos > endPos cases
         startPos->~T();
@@ -572,7 +580,7 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 
 
 template<typename T>
-ConstReference TypedVectorBase<T>::at(uint32_t ix) const {
+const_reference TypedVectorBase<T>::at(uint32_t ix) const {
 
     if (ix >= getSize()) {
         throw ETL_NAMESPACE::OutOfRangeException();

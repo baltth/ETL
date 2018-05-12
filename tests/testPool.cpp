@@ -61,7 +61,7 @@ TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
 
     items.fill(NULL);
 
-    for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (Etl::Array<void*, 8>::iterator it = items.begin(); it < items.end(); ++it) {
         CAPTURE(pool.getFreeCount());
         *it = pool.pop();
         CHECK(*it != NULL);
@@ -70,7 +70,7 @@ TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
     REQUIRE(pool.getCount() == pool.getCapacity());
     REQUIRE(pool.pop() == NULL);
 
-    for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (Etl::Array<void*, 8>::iterator it = items.begin(); it < items.end(); ++it) {
         CAPTURE(pool.getFreeCount());
         CAPTURE(*it);
         CHECK(pool.push(*it));
@@ -108,7 +108,7 @@ void testMemoryPoolRandomAccess() {
 
     items.fill(NULL);
 
-    for (typename Items::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (typename Items::iterator it = items.begin(); it < items.end(); ++it) {
         *it = pool.pop();
     }
 
