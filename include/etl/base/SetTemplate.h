@@ -36,19 +36,19 @@ class Set : public Sorted<List<E, A> > {
 
   public:   // types
 
-    typedef E KeyType;
-    typedef E ValueType;
-    typedef ValueType& Reference;
-    typedef const ValueType& ConstReference;
-    typedef ValueType* Pointer;
-    typedef const ValueType* ConstPointer;
+    typedef E key_type;
+    typedef E value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
 
     typedef List<E, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef Sorted<ContainerType> Base;
 
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
   public:   // functions
 
@@ -73,16 +73,16 @@ class Set : public Sorted<List<E, A> > {
     using Base::find;
     using Base::erase;
 
-    std::pair<Iterator, bool> insert(const E& e) {
+    std::pair<iterator, bool> insert(const E& e) {
         return Base::insertUnique(e);
     }
 
     void erase(const E& e);
 
-    ConstIterator find(const E& e) const;
+    const_iterator find(const E& e) const;
 
-    Iterator find(const E& e) {
-        return Iterator(static_cast<const Set*>(this)->find(e));
+    iterator find(const E& e) {
+        return iterator(static_cast<const Set*>(this)->find(e));
     }
 
     void copyElementsFrom(const Set<E, A>& other);
@@ -106,7 +106,7 @@ Set<E, A>::Set(std::initializer_list<E> initList) {
 template<class E, template<class> class A>
 void Set<E, A>::erase(const E& e) {
 
-    std::pair<Iterator, bool> found = Base::findSortedPosition(e);
+    std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -115,9 +115,9 @@ void Set<E, A>::erase(const E& e) {
 
 
 template<class E, template<class> class A>
-typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
+typename Set<E, A>::const_iterator  Set<E, A>::find(const E& e) const {
 
-    std::pair<ConstIterator, bool> found = Base::findSortedPosition(e);
+    std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
@@ -130,8 +130,8 @@ typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
 template<class E, template<class> class A>
 void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
 
-    ConstIterator endIt = other.end();
-    for (ConstIterator it = other.begin(); it != endIt; ++it) {
+    const_iterator endIt = other.end();
+    for (const_iterator it = other.begin(); it != endIt; ++it) {
         insert(*it);
     }
 }

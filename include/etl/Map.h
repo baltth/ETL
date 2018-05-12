@@ -39,8 +39,6 @@ class Map : public ETL_NAMESPACE::Map<K, E, std::allocator> {
   public:   // types
 
     typedef ETL_NAMESPACE::Map<K, E, std::allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -81,8 +79,6 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
   public:   // types
 
     typedef ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -123,8 +119,6 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
   public:   // types
 
     typedef ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 

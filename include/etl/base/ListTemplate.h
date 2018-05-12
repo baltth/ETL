@@ -38,16 +38,16 @@ class List : public TypedListBase<T> {
 
   public:   // types
 
-    typedef T ValueType;
-    typedef T& Reference;
-    typedef const T& ConstReference;
-    typedef T* Pointer;
-    typedef const T* ConstPointer;
+    typedef T valueType;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* pointer;
+    typedef const T* const_pointer;
 
     typedef TypedListBase<T> Base;
     typedef typename Base::Node Node;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
     typedef A<Node> Allocator;
 
@@ -112,10 +112,26 @@ class List : public TypedListBase<T> {
         deleteNode(static_cast<Node*>(AListBase::popBack()));
     }
 
-    inline Iterator insert(ConstIterator pos, const T& item);
+    void push_front(const T& item) {
+        pushFront(item);
+    }
 
-    Iterator erase(Iterator pos) {
-        Iterator next = pos;
+    void push_back(const T& item) {
+        pushBack(item);
+    }
+
+    void pop_front() {
+        popFront();
+    }
+
+    void pop_back() {
+        popBack();
+    }
+
+    inline iterator insert(const_iterator pos, const T& item);
+
+    iterator erase(iterator pos) {
+        iterator next = pos;
         ++next;
         deleteNode(static_cast<Node*>(AListBase::remove(pos)));
         return next;
@@ -124,7 +140,7 @@ class List : public TypedListBase<T> {
 #if ETL_USE_CPP11
 
     template<typename... Args >
-    Iterator emplace(ConstIterator pos, Args&& ... args);
+    iterator emplace(const_iterator pos, Args&& ... args);
 
 #endif
 
@@ -132,25 +148,25 @@ class List : public TypedListBase<T> {
         copyElements(other.begin(), other.end());
     }
 
-    void copyElements(ConstIterator bIt, ConstIterator eIt);
+    void copyElements(const_iterator bIt, const_iterator eIt);
 
     template<template<class> class B>
-    void splice(ConstIterator pos, List<T, B>& other) {
+    void splice(const_iterator pos, List<T, B>& other) {
         splice(pos, other, other.begin(), other.end());
     }
 
     template<template<class> class B>
-    void splice(ConstIterator pos, List<T, B>& other, ConstIterator it) {
-        ConstIterator it2 = it;
+    void splice(const_iterator pos, List<T, B>& other, const_iterator it) {
+        const_iterator it2 = it;
         ++it2;
         splice(pos, other, it, it2);
     }
 
     template<template<class> class B>
-    void splice(ConstIterator pos,
+    void splice(const_iterator pos,
                 List<T, B>& other,
-                ConstIterator first,
-                ConstIterator last);
+                const_iterator first,
+                const_iterator last);
 
     template<template<class> class B>
     void swap(List<T, B>& other) {
@@ -179,7 +195,7 @@ class List : public TypedListBase<T> {
         }
     }
 
-    Node* copyAndReplace(Iterator& item, const T& value);
+    Node* copyAndReplace(iterator& item, const T& value);
 
     template<template<class> class B>
     void swapElements(List<T, B>& other);
@@ -257,16 +273,16 @@ void List<T, A>::pushBack(const T& item) {
 
 
 template<class T, template<class> class A>
-typename List<T, A>::Iterator List<T, A>::insert(ConstIterator pos, const T& item) {
+typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& item) {
     return emplace(pos, item);
 }
 
 
 template<class T, template<class> class A>
 template<typename... Args >
-typename List<T, A>::Iterator List<T, A>::emplace(ConstIterator pos, Args&& ... args) {
+typename List<T, A>::iterator List<T, A>::emplace(const_iterator pos, Args&& ... args) {
 
-    Iterator it = this->end();
+    iterator it = this->end();
     Node* inserted = allocator.allocate(1);
     if (inserted != NULLPTR) {
         new (inserted) Node(std::forward<Args>(args)...);
@@ -281,9 +297,9 @@ typename List<T, A>::Iterator List<T, A>::emplace(ConstIterator pos, Args&& ... 
 
 
 template<class T, template<class> class A>
-typename List<T, A>::Iterator List<T, A>::insert(ConstIterator pos, const T& item) {
+typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& item) {
 
-    Iterator it = this->end();
+    iterator it = this->end();
     Node* inserted = createNode(item);
     if (inserted != NULLPTR) {
         it = Base::insert(pos, *inserted);
@@ -297,7 +313,7 @@ typename List<T, A>::Iterator List<T, A>::insert(ConstIterator pos, const T& ite
 
 
 template<class T, template<class> class A>
-void List<T, A>::copyElements(ConstIterator bIt, ConstIterator eIt) {
+void List<T, A>::copyElements(const_iterator bIt, const_iterator eIt) {
 
     while (bIt != eIt) {
         pushBack(*bIt);
@@ -307,7 +323,7 @@ void List<T, A>::copyElements(ConstIterator bIt, ConstIterator eIt) {
 
 
 template<class T, template<class> class A>
-typename List<T, A>::Node* List<T, A>::copyAndReplace(Iterator& item, const T& value) {
+typename List<T, A>::Node* List<T, A>::copyAndReplace(iterator& item, const T& value) {
 
     Node* removed = NULLPTR;
     Node* newItem = createNode(value);
@@ -321,13 +337,13 @@ typename List<T, A>::Node* List<T, A>::copyAndReplace(Iterator& item, const T& v
 
 template<class T, template<class> class A>
 template<template<class> class B>
-void List<T, A>::splice(ConstIterator pos,
+void List<T, A>::splice(const_iterator pos,
                         List<T, B>& other,
-                        ConstIterator first,
-                        ConstIterator last) {
+                        const_iterator first,
+                        const_iterator last) {
 
     if (static_cast<Base*>(&other) != static_cast<Base*>(this)) {
-        Iterator item(first);
+        iterator item(first);
         while (item != last) {
             insert(pos, *item);
             item = other.erase(item);
@@ -342,8 +358,8 @@ void List<T, A>::swapElements(List<T, B>& other) {
 
     const SizeDiff diff(*this, other);
 
-    Iterator ownIt = this->begin();
-    Iterator otherIt = other.begin();
+    iterator ownIt = this->begin();
+    iterator otherIt = other.begin();
 
     for (uint32_t i = 0; i < diff.common; ++i) {
 
