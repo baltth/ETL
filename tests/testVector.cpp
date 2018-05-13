@@ -39,22 +39,22 @@ void testVectorBasic() {
 
     VecT vec;
 
-    REQUIRE(vec.isEmpty());
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.empty());
+    REQUIRE(vec.size() == 0);
 
     vec.reserve(16);
-    REQUIRE(vec.getCapacity() >= 16);
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.capacity() >= 16);
+    REQUIRE(vec.size() == 0);
 
     vec.push_back(1);
 
-    REQUIRE_FALSE(vec.isEmpty());
-    REQUIRE(vec.getSize() == 1);
+    REQUIRE_FALSE(vec.empty());
+    REQUIRE(vec.size() == 1);
 
     vec.push_back(2);
 
-    REQUIRE_FALSE(vec.isEmpty());
-    REQUIRE(vec.getSize() == 2);
+    REQUIRE_FALSE(vec.empty());
+    REQUIRE(vec.size() == 2);
 
     typename VecT::iterator it = vec.begin();
     REQUIRE(*it == 1);
@@ -69,7 +69,7 @@ void testVectorBasic() {
     vec.erase(vec.begin());
 
     REQUIRE(*vec.begin() == 3);
-    REQUIRE(vec.getSize() == 1);
+    REQUIRE(vec.size() == 1);
 }
 
 TEST_CASE("Etl::Dynamic::Vector<> basic test", "[vec][dynamic][etl][basic]") {
@@ -106,7 +106,7 @@ void testVectorPushAndPop() {
     vec.push_front(itemFront1);
     vec.push_front(itemFront2);
 
-    REQUIRE(vec.getSize() == 4);
+    REQUIRE(vec.size() == 4);
 
     REQUIRE(vec[0] == itemFront2);
     REQUIRE(vec[1] == itemFront1);
@@ -124,7 +124,7 @@ void testVectorPushAndPop() {
     vec.pop_back();
     vec.pop_front();
 
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.size() == 0);
 }
 
 TEST_CASE("Etl::Dynamic::Vector<> push/pop test", "[vec][dynamic][etl]") {
@@ -149,14 +149,14 @@ void testVectorInsertAndErase() {
 
     VecT vec(4, 0);
 
-    CHECK(vec.getSize() == 4);
+    CHECK(vec.size() == 4);
 
     SECTION("insert(const_iterator, uint32_t, const T&)") {
 
         typename VecT::iterator it = vec.begin() + 2;
         it = vec.insert(it, 2);
         REQUIRE(vec[2] == 2);
-        REQUIRE(vec.getSize() == 5);
+        REQUIRE(vec.size() == 5);
         REQUIRE(it == &vec[2]);
 
         ++it;
@@ -164,7 +164,7 @@ void testVectorInsertAndErase() {
         REQUIRE(vec[2] == 2);
         REQUIRE(vec[3] == 3);
         REQUIRE(vec[4] == 3);
-        REQUIRE(vec.getSize() == 7);
+        REQUIRE(vec.size() == 7);
         REQUIRE(it == &vec[3]);
 
         CHECK(vec[1] == 0);
@@ -172,12 +172,12 @@ void testVectorInsertAndErase() {
 
         it = vec.begin() + 2;
         it = vec.erase(it);
-        REQUIRE(vec.getSize() == 6);
+        REQUIRE(vec.size() == 6);
         REQUIRE(vec[2] == 3);
         REQUIRE(it == &vec[2]);
 
         it = vec.erase(it, it + 2);
-        REQUIRE(vec.getSize() == 4);
+        REQUIRE(vec.size() == 4);
         REQUIRE(vec[2] == 0);
         REQUIRE(it == &vec[2]);
     }
@@ -190,16 +190,16 @@ void testVectorInsertAndErase() {
         vec[3] = 4;
 
         VecT vec2(1, 0);
-        CHECK(vec2.getSize() == 1);
+        CHECK(vec2.size() == 1);
 
         SECTION("Correct insert") {
 
-            CHECK(vec.getSize() == 4);
+            CHECK(vec.size() == 4);
 
             typename VecT::const_iterator last = vec.end() - 1;
             typename VecT::iterator it = vec2.insert(vec2.end(), vec.begin(), last);
 
-            REQUIRE(vec2.getSize() == 4);
+            REQUIRE(vec2.size() == 4);
             REQUIRE(it == &vec2[1]);
 
             REQUIRE(vec2[0] == 0);
@@ -212,7 +212,7 @@ void testVectorInsertAndErase() {
 
             typename VecT::iterator it = vec2.insert(vec2.end(), vec.end(), vec.begin());
 
-            REQUIRE(vec2.getSize() == 1);
+            REQUIRE(vec2.size() == 1);
             REQUIRE(it == vec2.end());
         }
     }
@@ -317,16 +317,16 @@ void testVectorAssignment() {
     VecT vec2(8, ContainerTester(PATTERN2));
 
     CHECK(vec1[0] != vec2[0]);
-    CHECK(vec1.getSize() != vec2.getSize());
+    CHECK(vec1.size() != vec2.size());
 
-    REQUIRE(ItemT::getObjectCount() == (vec1.getSize() + vec2.getSize()));
+    REQUIRE(ItemT::getObjectCount() == (vec1.size() + vec2.size()));
 
     vec1 = vec2;
 
     REQUIRE(vec1[0] == vec2[0]);
     REQUIRE(vec1.begin() != vec2.begin());
-    REQUIRE(vec1.getSize() == vec2.getSize());
-    REQUIRE(ItemT::getObjectCount() == (2 * vec2.getSize()));
+    REQUIRE(vec1.size() == vec2.size());
+    REQUIRE(ItemT::getObjectCount() == (2 * vec2.size()));
 }
 
 TEST_CASE("Etl::Dynamic::Vector<> assignment test", "[vec][dynamic][etl]") {
@@ -359,13 +359,13 @@ void testVectorSwap() {
     vec2.push_back(-2);
     vec2.push_back(-3);
 
-    CHECK(vec1.getSize() == 3);
-    CHECK(vec2.getSize() == 3);
+    CHECK(vec1.size() == 3);
+    CHECK(vec2.size() == 3);
 
     SECTION("Swap ego") {
 
         REQUIRE_FALSE(vec1.swap(vec1));
-        REQUIRE(vec1.getSize() == 3);
+        REQUIRE(vec1.size() == 3);
 
         REQUIRE(vec1[0] == 1);
         REQUIRE(vec1[1] == 2);
@@ -376,8 +376,8 @@ void testVectorSwap() {
 
         REQUIRE(vec1.swap(vec2));
 
-        REQUIRE(vec1.getSize() == 3);
-        REQUIRE(vec2.getSize() == 3);
+        REQUIRE(vec1.size() == 3);
+        REQUIRE(vec2.size() == 3);
 
         REQUIRE(vec1[0] == -1);
         REQUIRE(vec1[1] == -2);
@@ -393,12 +393,12 @@ void testVectorSwap() {
         vec2.push_back(-4);
         vec2.push_back(-5);
 
-        CHECK(vec2.getSize() == 5);
+        CHECK(vec2.size() == 5);
 
         REQUIRE(vec1.swap(vec2));
 
-        REQUIRE(vec1.getSize() == 5);
-        REQUIRE(vec2.getSize() == 3);
+        REQUIRE(vec1.size() == 5);
+        REQUIRE(vec2.size() == 3);
 
         REQUIRE(vec1[0] == -1);
         REQUIRE(vec1[1] == -2);
@@ -412,8 +412,8 @@ void testVectorSwap() {
 
         REQUIRE(vec1.swap(vec2));
 
-        REQUIRE(vec1.getSize() == 3);
-        REQUIRE(vec2.getSize() == 5);
+        REQUIRE(vec1.size() == 3);
+        REQUIRE(vec2.size() == 5);
 
         REQUIRE(vec1[0] == 1);
         REQUIRE(vec1[2] == 3);
@@ -426,12 +426,12 @@ void testVectorSwap() {
 
         VecT2 vec3;
 
-        CHECK(vec3.isEmpty());
+        CHECK(vec3.empty());
 
         REQUIRE(vec1.swap(vec3));
 
-        REQUIRE(vec1.isEmpty());
-        REQUIRE(vec3.getSize() == 3);
+        REQUIRE(vec1.empty());
+        REQUIRE(vec3.size() == 3);
 
         REQUIRE(vec3[0] == 1);
         REQUIRE(vec3[1] == 2);
@@ -439,8 +439,8 @@ void testVectorSwap() {
 
         REQUIRE(vec1.swap(vec3));
 
-        REQUIRE(vec1.getSize() == 3);
-        REQUIRE(vec3.isEmpty());
+        REQUIRE(vec1.size() == 3);
+        REQUIRE(vec3.empty());
 
         REQUIRE(vec1[0] == 1);
         REQUIRE(vec1[1] == 2);
@@ -499,7 +499,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
         VecT vec1(4, 1);
         VecT2 vec2;
 
-        CHECK(vec1.getSize() == vec2.getMaxCapacity());
+        CHECK(vec1.size() == vec2.getMaxCapacity());
 
         SECTION("Allow at max capacity") {
 
@@ -507,15 +507,15 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
                 REQUIRE(vec1.swap(vec2));
 
-                REQUIRE(vec1.isEmpty());
-                REQUIRE(vec2.getSize() == 4);
+                REQUIRE(vec1.empty());
+                REQUIRE(vec2.size() == 4);
                 REQUIRE(vec2[0] == 1);
                 REQUIRE(vec2[3] == 1);
 
                 REQUIRE(vec1.swap(vec2));
 
-                REQUIRE(vec1.getSize() == 4);
-                REQUIRE(vec2.isEmpty());
+                REQUIRE(vec1.size() == 4);
+                REQUIRE(vec2.empty());
                 REQUIRE(vec1[0] == 1);
                 REQUIRE(vec1[3] == 1);
             }
@@ -524,15 +524,15 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
                 REQUIRE(vec2.swap(vec1));
 
-                REQUIRE(vec1.isEmpty());
-                REQUIRE(vec2.getSize() == 4);
+                REQUIRE(vec1.empty());
+                REQUIRE(vec2.size() == 4);
                 REQUIRE(vec2[0] == 1);
                 REQUIRE(vec2[3] == 1);
 
                 REQUIRE(vec2.swap(vec1));
 
-                REQUIRE(vec1.getSize() == 4);
-                REQUIRE(vec2.isEmpty());
+                REQUIRE(vec1.size() == 4);
+                REQUIRE(vec2.empty());
                 REQUIRE(vec1[0] == 1);
                 REQUIRE(vec1[3] == 1);
             }
@@ -541,7 +541,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
         SECTION("Disallow above max capacity") {
 
             vec1.push_back(2);
-            CHECK(vec1.getSize() > vec2.getMaxCapacity());
+            CHECK(vec1.size() > vec2.getMaxCapacity());
 
             SECTION("1->2") {
                 REQUIRE_FALSE(vec1.swap(vec2));
@@ -566,16 +566,16 @@ void testVectorLeak() {
     if (ItemT::getObjectCount() == 0) {
 
         VecT vec(8, ContainerTester(PATTERN));
-        CHECK(vec.getSize() == ItemT::getObjectCount());
+        CHECK(vec.size() == ItemT::getObjectCount());
 
         vec.pop_back();
-        REQUIRE(vec.getSize() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == ItemT::getObjectCount());
 
         vec.erase(vec.begin());
-        REQUIRE(vec.getSize() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == ItemT::getObjectCount());
 
         vec.erase((vec.begin() + 1), (vec.begin() + 3));
-        REQUIRE(vec.getSize() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == ItemT::getObjectCount());
     }
 
     REQUIRE(ItemT::getObjectCount() == 0);
@@ -603,11 +603,11 @@ void testVectorWithPtrItem() {
 
     VecT vec;
 
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.size() == 0);
 
     vec.reserve(16);
-    REQUIRE(vec.getCapacity() >= 16);
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.capacity() >= 16);
+    REQUIRE(vec.size() == 0);
 
     int a = 1;
     int b = 2;
@@ -616,7 +616,7 @@ void testVectorWithPtrItem() {
     vec.push_back(&a);
     vec.push_back(&b);
 
-    REQUIRE(vec.getSize() == 2);
+    REQUIRE(vec.size() == 2);
 
     typename VecT::iterator it = vec.begin();
     REQUIRE(*it == &a);
@@ -631,7 +631,7 @@ void testVectorWithPtrItem() {
     vec.erase(vec.begin());
 
     REQUIRE(*vec.begin() == &b);
-    REQUIRE(vec.getSize() == 1);
+    REQUIRE(vec.size() == 1);
 }
 
 TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vec][dynamic][etl][basic]") {
@@ -686,17 +686,17 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
     DVecT dVec(8, ContainerTester(PATTERN_D));
 
     CHECK(sVec[0] != dVec[0]);
-    CHECK(sVec.getSize() != dVec.getSize());
+    CHECK(sVec.size() != dVec.size());
 
-    REQUIRE(ItemT::getObjectCount() == (sVec.getSize() + dVec.getSize()));
+    REQUIRE(ItemT::getObjectCount() == (sVec.size() + dVec.size()));
 
     SECTION("S = D assignment") {
 
         sVec = dVec;
 
         REQUIRE(sVec[0] == dVec[0]);
-        REQUIRE(sVec.getSize() == dVec.getSize());
-        REQUIRE(ItemT::getObjectCount() == (2 * dVec.getSize()));
+        REQUIRE(sVec.size() == dVec.size());
+        REQUIRE(ItemT::getObjectCount() == (2 * dVec.size()));
     }
 
     SECTION("D = S assignment") {
@@ -704,33 +704,33 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
         dVec = sVec;
 
         REQUIRE(dVec[0] == sVec[0]);
-        REQUIRE(dVec.getSize() == sVec.getSize());
-        REQUIRE(ItemT::getObjectCount() == (2 * sVec.getSize()));
+        REQUIRE(dVec.size() == sVec.size());
+        REQUIRE(ItemT::getObjectCount() == (2 * sVec.size()));
     }
 
     SECTION("S(D) construction") {
 
         SVecT sVec2(dVec);
         REQUIRE(sVec2[0] == dVec[0]);
-        REQUIRE(sVec2.getSize() == dVec.getSize());
+        REQUIRE(sVec2.size() == dVec.size());
     }
 
     SECTION("D(S) construction") {
 
         DVecT dVec2(sVec);
         REQUIRE(dVec2[0] == sVec[0]);
-        REQUIRE(dVec2.getSize() == sVec.getSize());
+        REQUIRE(dVec2.size() == sVec.size());
     }
 
     SECTION("Swap") {
 
-        const uint32_t sInitSize = sVec.getSize();
-        const uint32_t dInitSize = dVec.getSize();
+        const uint32_t sInitSize = sVec.size();
+        const uint32_t dInitSize = dVec.size();
 
         REQUIRE(sVec.swap(dVec));
 
-        REQUIRE(sVec.getSize() == dInitSize);
-        REQUIRE(dVec.getSize() == sInitSize);
+        REQUIRE(sVec.size() == dInitSize);
+        REQUIRE(dVec.size() == sInitSize);
 
         REQUIRE(sVec.front() == ContainerTester(PATTERN_D));
         REQUIRE(sVec.back() == ContainerTester(PATTERN_D));
@@ -739,8 +739,8 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
 
         REQUIRE(dVec.swap(sVec));
 
-        REQUIRE(sVec.getSize() == sInitSize);
-        REQUIRE(dVec.getSize() == dInitSize);
+        REQUIRE(sVec.size() == sInitSize);
+        REQUIRE(dVec.size() == dInitSize);
 
         REQUIRE(sVec.front() == ContainerTester(PATTERN_S));
         REQUIRE(sVec.back() == ContainerTester(PATTERN_S));
@@ -764,7 +764,7 @@ void testVectorWithInitList() {
 
             VecT vec({1, 2});
 
-            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
             REQUIRE(vec[1] == 2);
         }
@@ -773,7 +773,7 @@ void testVectorWithInitList() {
 
             VecT vec{{1, 2}};
 
-            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
             REQUIRE(vec[1] == 2);
         }
@@ -782,7 +782,7 @@ void testVectorWithInitList() {
 
             VecT vec{1, 2};
 
-            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
             REQUIRE(vec[1] == 2);
         }
@@ -791,20 +791,20 @@ void testVectorWithInitList() {
     SECTION("Assign") {
 
         VecT vec({4, 5, 6, 7});
-        CHECK(vec.getSize() == 4);
+        CHECK(vec.size() == 4);
 
         SECTION("Empty") {
 
             vec = {};
 
-            REQUIRE(vec.getSize() == 0);
+            REQUIRE(vec.size() == 0);
         }
 
         SECTION("Non-empty") {
 
             vec = {1, 2};
 
-            REQUIRE(vec.getSize() == 2);
+            REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
             REQUIRE(vec[1] == 2);
         }
@@ -842,7 +842,7 @@ void testVectorEmplace() {
         vec.emplaceBack(-2);
         vec.emplaceBack(-3);
 
-        REQUIRE(vec.getSize() == 3);
+        REQUIRE(vec.size() == 3);
         REQUIRE(vec[0] == ContainerTester(-1));
         REQUIRE(vec[1] == ContainerTester(-2));
         REQUIRE(vec[2] == ContainerTester(-3));
@@ -862,7 +862,7 @@ void testVectorEmplace() {
         auto it = vec.begin();
         vec.emplace(++it, -5);
 
-        REQUIRE(vec.getSize() == 3);
+        REQUIRE(vec.size() == 3);
         REQUIRE(vec[0] == ContainerTester(-4));
         REQUIRE(vec[1] == ContainerTester(-5));
         REQUIRE(vec[2] == ContainerTester(-6));
@@ -894,7 +894,7 @@ void testVectorMove() {
     vec.push_back(ContainerTester(-2));
     vec.push_back(ContainerTester(-3));
 
-    const auto size = vec.getSize();
+    const auto size = vec.size();
 
     SECTION("Move constructor") {
 
@@ -905,7 +905,7 @@ void testVectorMove() {
         VecT vec2(std::move(vec));
         //ContainerTester::enablePrint = false;
 
-        REQUIRE(vec2.getSize() == size);
+        REQUIRE(vec2.size() == size);
         REQUIRE(ContainerTester::getCopyCount() == copyCnt);
         REQUIRE(ContainerTester::getMoveCount() >= moveCnt);
         REQUIRE(vec2[0] == ContainerTester(-1));
@@ -916,14 +916,14 @@ void testVectorMove() {
 
         VecT vec2(2, ContainerTester(10));
 
-        CHECK(vec2.getSize() != size);
+        CHECK(vec2.size() != size);
 
         const auto copyCnt = ContainerTester::getCopyCount();
         const auto moveCnt = ContainerTester::getMoveCount();
 
         vec2 = std::move(vec);
 
-        REQUIRE(vec2.getSize() == size);
+        REQUIRE(vec2.size() == size);
         REQUIRE(ContainerTester::getCopyCount() == copyCnt);
         REQUIRE(ContainerTester::getMoveCount() >= moveCnt);
         REQUIRE(vec2[0] == ContainerTester(-1));
@@ -966,44 +966,44 @@ TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vec][dynamic][etl]") {
 
     VecT vec;
 
-    REQUIRE(vec.getSize() == 0);
-    REQUIRE(vec.getCapacity() == 0);
+    REQUIRE(vec.size() == 0);
+    REQUIRE(vec.capacity() == 0);
 
     vec.reserve(16);
-    REQUIRE(vec.getCapacity() >= 16);
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.capacity() >= 16);
+    REQUIRE(vec.size() == 0);
 
     vec.push_back(1);
     vec.push_back(2);
-    REQUIRE(vec.getSize() == 2);
+    REQUIRE(vec.size() == 2);
 
     vec.shrinkToFit();
-    REQUIRE(vec.getCapacity() == 2);
+    REQUIRE(vec.capacity() == 2);
 
     vec.reserveAtLeast(5);
-    REQUIRE(vec.getSize() == 2);
-    REQUIRE(vec.getCapacity() >= 5);
+    REQUIRE(vec.size() == 2);
+    REQUIRE(vec.capacity() >= 5);
 
-    uint32_t newSize = vec.getSize() + 3;
+    uint32_t newSize = vec.size() + 3;
 
     vec.resize(newSize);
-    REQUIRE(vec.getSize() == newSize);
+    REQUIRE(vec.size() == newSize);
 
-    uint32_t capacity = vec.getCapacity();
+    uint32_t capacity = vec.capacity();
     newSize = capacity + 3;
 
     vec.resize(newSize);
-    REQUIRE(vec.getSize() == newSize);
-    REQUIRE(vec.getCapacity() >= newSize);
+    REQUIRE(vec.size() == newSize);
+    REQUIRE(vec.capacity() >= newSize);
 
     vec.resize(2);
-    REQUIRE(vec.getSize() == 2);
-    REQUIRE(vec.getCapacity() >= 2);
+    REQUIRE(vec.size() == 2);
+    REQUIRE(vec.capacity() >= 2);
 
-    capacity = vec.getCapacity();
+    capacity = vec.capacity();
     vec.clear();
-    REQUIRE(vec.getSize() == 0);
-    REQUIRE(vec.getCapacity() == capacity);
+    REQUIRE(vec.size() == 0);
+    REQUIRE(vec.capacity() == capacity);
 }
 
 
@@ -1015,23 +1015,23 @@ TEST_CASE("Etl::Dynamic::Vector<> constructor test", "[vec][dynamic][etl]") {
     static const ItemT INIT_VALUE = 123;
 
     VecT vec1;
-    REQUIRE(vec1.getSize() == 0);
-    REQUIRE(vec1.getCapacity() == 0);
+    REQUIRE(vec1.size() == 0);
+    REQUIRE(vec1.capacity() == 0);
 
     VecT vec2(4);
-    REQUIRE(vec2.getSize() == 4);
-    REQUIRE(vec2.getCapacity() >= 4);
+    REQUIRE(vec2.size() == 4);
+    REQUIRE(vec2.capacity() >= 4);
 
     CAPTURE(INIT_VALUE);
     VecT vec3(4, INIT_VALUE);
-    REQUIRE(vec3.getSize() == 4);
-    REQUIRE(vec3.getCapacity() >= 4);
+    REQUIRE(vec3.size() == 4);
+    REQUIRE(vec3.capacity() >= 4);
     REQUIRE(vec3[0] == INIT_VALUE);
     REQUIRE(vec3[3] == INIT_VALUE);
 
     VecT vec4(vec3);
-    REQUIRE(vec4.getSize() == vec3.getSize());
-    REQUIRE(vec4.getCapacity() >= vec4.getSize());
+    REQUIRE(vec4.size() == vec3.size());
+    REQUIRE(vec4.capacity() >= vec4.size());
     REQUIRE(vec4[0] == INIT_VALUE);
     REQUIRE(vec4[3] == INIT_VALUE);
     REQUIRE(vec4.begin() != vec3.begin());
@@ -1082,44 +1082,44 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]
 
     VecT vec;
 
-    REQUIRE(vec.getSize() == 0);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == 0);
+    REQUIRE(vec.capacity() == CAPACITY);
 
     vec.reserve(16);
-    REQUIRE(vec.getCapacity() == CAPACITY);
-    REQUIRE(vec.getSize() == 0);
+    REQUIRE(vec.capacity() == CAPACITY);
+    REQUIRE(vec.size() == 0);
 
     vec.push_back(1);
     vec.push_back(2);
-    REQUIRE(vec.getSize() == 2);
+    REQUIRE(vec.size() == 2);
 
     vec.shrinkToFit();
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.capacity() == CAPACITY);
 
     vec.reserveAtLeast(5);
-    REQUIRE(vec.getSize() == 2);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == 2);
+    REQUIRE(vec.capacity() == CAPACITY);
 
-    uint32_t newSize = vec.getSize() + 3;
+    uint32_t newSize = vec.size() + 3;
 
     vec.resize(newSize);
-    REQUIRE(vec.getSize() == newSize);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == newSize);
+    REQUIRE(vec.capacity() == CAPACITY);
 
-    size_t oldSize = vec.getSize();
+    size_t oldSize = vec.size();
     newSize = CAPACITY + 3;
 
     vec.resize(newSize);
-    REQUIRE(vec.getSize() == oldSize);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == oldSize);
+    REQUIRE(vec.capacity() == CAPACITY);
 
     vec.resize(2);
-    REQUIRE(vec.getSize() == 2);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == 2);
+    REQUIRE(vec.capacity() == CAPACITY);
 
     vec.clear();
-    REQUIRE(vec.getSize() == 0);
-    REQUIRE(vec.getCapacity() == CAPACITY);
+    REQUIRE(vec.size() == 0);
+    REQUIRE(vec.capacity() == CAPACITY);
 }
 
 
@@ -1134,11 +1134,11 @@ TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
 
     vec.insert(vec.begin(), 4, 1);
 
-    CHECK(vec.getSize() == CAPACITY);
+    CHECK(vec.size() == CAPACITY);
 
     vec.push_back(5);
 
-    REQUIRE(vec.getSize() == CAPACITY);
+    REQUIRE(vec.size() == CAPACITY);
 }
 
 
@@ -1154,25 +1154,25 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]")
     static const ItemT INIT_VALUE = 123;
 
     VecT vec1;
-    REQUIRE(vec1.getSize() == 0);
-    REQUIRE(vec1.getCapacity() == CAPACITY);
+    REQUIRE(vec1.size() == 0);
+    REQUIRE(vec1.capacity() == CAPACITY);
 
     VecT vec2(4);
-    REQUIRE(vec2.getSize() == 4);
-    REQUIRE(vec2.getCapacity() == CAPACITY);
+    REQUIRE(vec2.size() == 4);
+    REQUIRE(vec2.capacity() == CAPACITY);
 
     CAPTURE(INIT_VALUE);
     VecT vec3(4, INIT_VALUE);
-    REQUIRE(vec3.getSize() == 4);
-    REQUIRE(vec3.getCapacity() == CAPACITY);
+    REQUIRE(vec3.size() == 4);
+    REQUIRE(vec3.capacity() == CAPACITY);
     REQUIRE(vec3[0] == INIT_VALUE);
     REQUIRE(vec3[3] == INIT_VALUE);
 
     SECTION("Copy from same size") {
 
         VecT vec4(vec3);
-        REQUIRE(vec4.getSize() == vec3.getSize());
-        REQUIRE(vec4.getCapacity() == CAPACITY);
+        REQUIRE(vec4.size() == vec3.size());
+        REQUIRE(vec4.capacity() == CAPACITY);
         REQUIRE(vec4[0] == vec3[0]);
         REQUIRE(vec4[3] == vec3[3]);
         REQUIRE(vec4.begin() != vec3.begin());
@@ -1181,15 +1181,15 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]")
     SECTION("Copy from different size") {
 
         VecT4 vec4(vec3);
-        REQUIRE(vec4.getSize() == vec3.getSize());
-        REQUIRE(vec4.getCapacity() == CAPACITY4);
+        REQUIRE(vec4.size() == vec3.size());
+        REQUIRE(vec4.capacity() == CAPACITY4);
         REQUIRE(vec4[0] == vec3[0]);
         REQUIRE(vec4[3] == vec3[3]);
         REQUIRE(vec4.begin() != vec3.begin());
 
         VecT vec5(vec4);
-        REQUIRE(vec5.getSize() == vec4.getSize());
-        REQUIRE(vec5.getCapacity() == CAPACITY);
+        REQUIRE(vec5.size() == vec4.size());
+        REQUIRE(vec5.capacity() == CAPACITY);
         REQUIRE(vec5[0] == vec4[0]);
         REQUIRE(vec5[3] == vec4[3]);
         REQUIRE(vec5.begin() != vec4.begin());

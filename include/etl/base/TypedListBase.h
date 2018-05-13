@@ -208,13 +208,13 @@ class TypedListBase : protected AListBase {
     TypedListBase() {};
 
     ///\name AListBase forward
-    /// @{
-    uint32_t getSize() const {
-        return AListBase::getSize();
+    /// \{
+    uint32_t size() const {
+        return AListBase::size();
     }
 
-    bool isEmpty() const {
-        return AListBase::isEmpty();
+    bool empty() const {
+        return AListBase::empty();
     }
 
     iterator begin() {
@@ -240,10 +240,10 @@ class TypedListBase : protected AListBase {
     const_iterator cend() const {
         return this->end();
     }
-    /// @}
+    /// \}
 
     /// \name Search
-    /// @{
+    /// \{
     template<typename F, typename V>
     iterator find(F f, const V& v) const {
         return find(begin(), end(), f, v);
@@ -267,7 +267,7 @@ class TypedListBase : protected AListBase {
     iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const;
 
 #endif
-    /// @}
+    /// \}
 
   protected:
 

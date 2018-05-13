@@ -100,11 +100,11 @@ class AListBase {
 
 #endif
 
-    uint32_t getSize() const {
+    uint32_t size() const {
         return list.getSize();
     }
 
-    bool isEmpty() const {
+    bool empty() const {
         return list.isEmpty();
     }
 
@@ -119,7 +119,7 @@ class AListBase {
     }
 
     /// \name Element operations
-    /// @{
+    /// \{
     void pushFront(Node* item) {
         list.insertBefore(list.getFirst(), item);
     }
@@ -151,7 +151,7 @@ class AListBase {
                 AListBase& other,
                 Iterator first,
                 Iterator last);
-    /// @}
+    /// \}
 
   private:
 

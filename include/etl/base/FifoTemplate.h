@@ -46,7 +46,7 @@ class FifoTemplate : protected C, public FifoIndexing {
       private:
 
         iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
-            FifoIterator<value_type>(const_cast<pointer>(fifo->getData()), fifo, ix) {};
+            FifoIterator<value_type>(const_cast<pointer>(fifo->data()), fifo, ix) {};
 
     };
 
@@ -57,22 +57,26 @@ class FifoTemplate : protected C, public FifoIndexing {
     template<typename... Args>
     explicit FifoTemplate<C>(Args... args) :
         C(args...),
-        FifoIndexing(C::getSize()) {};
+        FifoIndexing(C::size()) {};
 
 #else
 
     FifoTemplate<C>() :
         C(),
-        FifoIndexing(C::getSize()) {};
+        FifoIndexing(C::size()) {};
 
-    FifoTemplate<C>(uint32_t len) :
+    explicit FifoTemplate<C>(uint32_t len) :
         C(len),
-        FifoIndexing(C::getSize()) {};
+        FifoIndexing(C::size()) {};
 
 #endif
 
-    uint32_t getCapacity() const {
-        return FifoIndexing::getCapacity();
+    bool empty() const {
+        return FifoIndexing::empty();
+    }
+
+    uint32_t capacity() const {
+        return FifoIndexing::capacity();
     }
 
     void push(const_reference item);

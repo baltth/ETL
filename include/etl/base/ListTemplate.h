@@ -100,7 +100,7 @@ class List : public TypedListBase<T> {
     void clear();
 
     /// \name Element operations
-    /// @{
+    /// \{
     inline void push_front(const T& item);
     inline void push_back(const T& item);
 
@@ -110,22 +110,6 @@ class List : public TypedListBase<T> {
 
     void pop_back() {
         deleteNode(static_cast<Node*>(AListBase::popBack()));
-    }
-
-    void pushFront(const T& item) {
-        push_front(item);
-    }
-
-    void pushBack(const T& item) {
-        push_back(item);
-    }
-
-    void popFront() {
-        pop_front();
-    }
-
-    void popBack() {
-        pop_back();
     }
 
     inline iterator insert(const_iterator pos, const T& item);
@@ -143,12 +127,6 @@ class List : public TypedListBase<T> {
     iterator emplace(const_iterator pos, Args&& ... args);
 
 #endif
-
-    void copyElements(const Base& other) {
-        copyElements(other.begin(), other.end());
-    }
-
-    void copyElements(const_iterator bIt, const_iterator eIt);
 
     template<template<class> class B>
     void splice(const_iterator pos, List<T, B>& other) {
@@ -172,11 +150,19 @@ class List : public TypedListBase<T> {
     void swap(List<T, B>& other) {
         swapElements(other);
     }
-    /// @}
+    /// \}
 
     Allocator& getAllocator() const {
         return allocator;
     }
+
+  protected:
+
+    void copyElements(const Base& other) {
+        copyElements(other.begin(), other.end());
+    }
+
+    void copyElements(const_iterator bIt, const_iterator eIt);
 
   private:
 
@@ -243,7 +229,7 @@ List<T, A>::List(std::initializer_list<T> initList) {
 template<class T, template<class> class A>
 void List<T, A>::clear() {
 
-    while (Base::getSize() > 0) {
+    while (Base::size() > 0) {
         pop_back();
     }
 }
@@ -316,7 +302,7 @@ template<class T, template<class> class A>
 void List<T, A>::copyElements(const_iterator bIt, const_iterator eIt) {
 
     while (bIt != eIt) {
-        pushBack(*bIt);
+        push_back(*bIt);
         ++bIt;
     }
 }

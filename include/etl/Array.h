@@ -49,7 +49,7 @@ class Array {
 
   private:  // variables
 
-    T data[N];
+    T data_[N];
 
   public:   // functions
 
@@ -64,19 +64,19 @@ class Array {
     /// \name Element access
     /// \{
     reference operator[](uint32_t ix) {
-        return data[ix];
+        return data_[ix];
     }
 
     const_reference operator[](uint32_t ix) const {
-        return data[ix];
+        return data_[ix];
     }
 
-    T* getData() {
-        return data;
+    T* data() {
+        return data_;
     }
 
-    const T* getData() const {
-        return data;
+    const T* data() const {
+        return data_;
     }
 
 #if ETL_USE_EXCEPTIONS
@@ -88,11 +88,11 @@ class Array {
     /// \name Iterators
     /// \{
     iterator begin() {
-        return static_cast<iterator>(data);
+        return static_cast<iterator>(data_);
     }
 
     const_iterator begin() const {
-        return static_cast<const_iterator>(data);
+        return static_cast<const_iterator>(data_);
     }
 
     const_iterator cbegin() const {
@@ -100,11 +100,11 @@ class Array {
     }
 
     iterator end() {
-        return static_cast<iterator>(&data[N]);
+        return static_cast<iterator>(&data_[N]);
     }
 
     const_iterator end() const {
-        return static_cast<const_iterator>(&data[N]);
+        return static_cast<const_iterator>(&data_[N]);
     }
 
     const_iterator cend() const {
@@ -114,23 +114,16 @@ class Array {
 
     /// \name Capacity
     /// \{
-    size_t getSize() const {
+    size_t size() const {
         return N;
     }
 
-    size_t getCapacity() const {
-        return getSize();
+    size_t capacity() const {
+        return size();
     }
-    /// \}
 
-    /// \name stl compatible interface
-    /// \{
     bool empty() const {
         return N == 0;
-    }
-
-    size_t size() const {
-        return getSize();
     }
     /// \}
 

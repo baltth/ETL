@@ -79,14 +79,6 @@ class Vector : public TypedVectorBase<T> {
         insert(Base::end(), value);
     }
 
-    void pushFront(const_reference value) {
-        push_front(value);
-    }
-
-    void pushBack(const_reference value) {
-        push_back(value);
-    }
-
 #if ETL_USE_CPP11
 
     iterator insert(const_iterator position, T&& value);
@@ -159,9 +151,9 @@ class Vector : public TypedVectorBase<T> {
 template<class T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
 
-    this->reserve(other.getSize());
-    if (this->getCapacity() >= other.getSize()) {
-        this->copyOperation(this->begin(), other.begin(), other.getSize());
+    this->reserve(other.size());
+    if (this->capacity() >= other.size()) {
+        this->copyOperation(this->begin(), other.begin(), other.size());
     }
     return *this;
 }
@@ -174,15 +166,15 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = Base::getSize() + numToInsert;
+        uint32_t requestedCapacity = Base::size() + numToInsert;
 
-        if (requestedCapacity > Base::getCapacity()) {
+        if (requestedCapacity > Base::capacity()) {
             uint32_t positionIx = position - Base::begin();
             this->reserveAtLeast(requestedCapacity);
             position = Base::begin() + positionIx;
         }
 
-        if (requestedCapacity <= Base::getCapacity()) {
+        if (requestedCapacity <= Base::capacity()) {
             position = Base::insertOperation(position, numToInsert, creatorCall);
         }
     }
@@ -224,12 +216,12 @@ bool Vector<T>::swap(Vector<T>& other) {
     bool swapped = false;
 
     if (&other != this) {
-        if ((this->getMaxCapacity() >= other.getSize()) && (other.getMaxCapacity() >= this->getSize())) {
+        if ((this->getMaxCapacity() >= other.size()) && (other.getMaxCapacity() >= this->size())) {
 
-            this->reserve(other.getSize());
-            other.reserve(this->getSize());
+            this->reserve(other.size());
+            other.reserve(this->size());
 
-            if ((this->getCapacity() >= other.getSize()) && (other.getCapacity() >= this->getSize())) {
+            if ((this->capacity() >= other.size()) && (other.capacity() >= this->size())) {
 
                 this->swapElements(other);
                 swapped = true;
@@ -255,7 +247,7 @@ template<class T>
 Vector<T>& Vector<T>::operator=(std::initializer_list<T> initList) {
 
     this->reserve(initList.size());
-    if (this->getCapacity() >= initList.size()) {
+    if (this->capacity() >= initList.size()) {
         this->copyOperation(this->begin(), initList.begin(), initList.size());
     }
     return *this;
@@ -309,16 +301,16 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = Base::getSize() + numToInsert;
+        uint32_t requestedCapacity = Base::size() + numToInsert;
 
-        if (requestedCapacity > Base::getCapacity()) {
+        if (requestedCapacity > Base::capacity()) {
 
             uint32_t positionIx = position - Base::begin();
             this->reserveAtLeast(requestedCapacity);
             position = Base::begin() + positionIx;
         }
 
-        if (requestedCapacity <= Base::getCapacity()) {
+        if (requestedCapacity <= Base::capacity()) {
             position = Base::insertOperation(position, numToInsert, std::move(creatorCall));
         }
     }
@@ -435,12 +427,12 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         return reinterpret_cast<const value_type&>(Base::back());
     }
 
-    value_type* getData() {
-        return static_cast<value_type*>(Base::getData());
+    value_type* data() {
+        return static_cast<value_type*>(Base::data());
     }
 
-    const value_type* getData() const {
-        return static_cast<value_type*>(Base::getData());
+    const value_type* data() const {
+        return static_cast<value_type*>(Base::data());
     }
 
     iterator insert(const_iterator position, const value_type& value) {

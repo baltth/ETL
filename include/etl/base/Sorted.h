@@ -63,13 +63,13 @@ class Sorted {
 #endif
 
     ///\name Container<> forward
-    /// @{
-    uint32_t getSize() const {
-        return container.getSize();
+    /// \{
+    uint32_t size() const {
+        return container.size();
     }
 
-    bool isEmpty() const {
-        return (container.getSize() == 0);
+    bool empty() const {
+        return (container.size() == 0);
     }
 
     iterator begin() {
@@ -145,7 +145,7 @@ class Sorted {
     void swap(Sorted& other) {
         container.swap(other.container);
     }
-    /// @}
+    /// \}
 
   protected:
 

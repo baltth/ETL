@@ -38,15 +38,15 @@ class AVectorBase {
       public:   // functions
 
         void setData(void* d) {
-            data = d;
+            data_ = d;
         }
 
         void setCapacity(uint32_t c) {
-            capacity = c;
+            capacity_ = c;
         }
 
         void setSize(uint32_t s) {
-            size = s;
+            size_ = s;
         }
 
       protected:
@@ -62,16 +62,16 @@ class AVectorBase {
 
   public:   // functions
 
-    uint32_t getCapacity() const {
-        return proxy.getCapacity();
+    uint32_t capacity() const {
+        return proxy.capacity();
     }
 
-    uint32_t getSize() const {
-        return proxy.getSize();
+    uint32_t size() const {
+        return proxy.size();
     }
 
-    bool isEmpty() const {
-        return (proxy.getSize() == 0);
+    bool empty() const {
+        return (proxy.size() == 0);
     }
 
     void* getItemPointer(uint32_t ix) {

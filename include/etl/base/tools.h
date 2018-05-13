@@ -38,15 +38,15 @@ struct SizeDiff {
         lGreaterWith(0),
         rGreaterWith(0) {
 
-        if (l.getSize() > r.getSize()) {
+        if (l.size() > r.size()) {
 
-            common = r.getSize();
-            lGreaterWith = l.getSize() - r.getSize();
+            common = r.size();
+            lGreaterWith = l.size() - r.size();
 
         } else {
 
-            common = l.getSize();
-            rGreaterWith = r.getSize() - l.getSize();
+            common = l.size();
+            rGreaterWith = r.size() - l.size();
         }
     }
 };

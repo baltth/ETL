@@ -163,11 +163,11 @@ class TypedVectorBase : public AVectorBase {
     }
 
     iterator end() {
-        return static_cast<iterator>(getItemPointer(getSize()));
+        return static_cast<iterator>(getItemPointer(size()));
     }
 
     const_iterator end() const {
-        return static_cast<const_iterator>(getItemPointer(getSize()));
+        return static_cast<const_iterator>(getItemPointer(size()));
     }
 
     const_iterator cend() const {
@@ -183,18 +183,18 @@ class TypedVectorBase : public AVectorBase {
     }
 
     reference back() {
-        return *(static_cast<T*>(getItemPointer(getSize() - 1)));
+        return *(static_cast<T*>(getItemPointer(size() - 1)));
     }
 
     const_reference back() const {
-        return *(static_cast<const T*>(getItemPointer(getSize() - 1)));
+        return *(static_cast<const T*>(getItemPointer(size() - 1)));
     }
 
-    T* getData() {
+    T* data() {
         return static_cast<T*>(getItemPointer(0));
     }
 
-    const T* getData() const {
+    const T* data() const {
         return static_cast<const T*>(getItemPointer(0));
     }
 
@@ -204,14 +204,6 @@ class TypedVectorBase : public AVectorBase {
 
     void pop_back() {
         erase(end() - 1);
-    }
-
-    void popFront() {
-        pop_front();
-    }
-
-    void popBack() {
-        pop_back();
     }
 
     iterator erase(iterator pos) {
@@ -328,7 +320,7 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, 
         first += numToMove;
         destruct(first, end());
 
-        proxy.setSize(getSize() - numToErase);
+        proxy.setSize(size() - numToErase);
     }
 
     return itAfterDeleted;
@@ -338,14 +330,14 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, 
 template<class T>
 void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
-    T* dataAlias = getData();
+    T* dataAlias = data();
 
     if (dst >= dataAlias) {
 
         uint32_t totalNum = dst - dataAlias + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            copyValue(dst, src[i], ((dst - dataAlias) >= this->getSize()));
+            copyValue(dst, src[i], ((dst - dataAlias) >= this->size()));
             ++dst;
         }
 
@@ -394,7 +386,7 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
             creatorCall.call(uninitedInsertPos, false);
         }
 
-        proxy.setSize(getSize() + numToInsert);
+        proxy.setSize(size() + numToInsert);
     }
 
     return iterator(position);
@@ -442,7 +434,7 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
             creatorCall(uninitedInsertPos, false);
         }
 
-        proxy.setSize(getSize() + numToInsert);
+        proxy.setSize(size() + numToInsert);
     }
 
     return iterator(position);
@@ -452,14 +444,14 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 template<class T>
 void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
 
-    T* dataAlias = getData();
+    T* dataAlias = data();
 
     if (dst >= dataAlias) {
 
         uint32_t totalNum = dst - dataAlias + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->getSize()));
+            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->size()));
             ++dst;
         }
 
@@ -571,7 +563,7 @@ void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
 template<typename T>
 T& TypedVectorBase<T>::at(uint32_t ix) {
 
-    if (ix >= getSize()) {
+    if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 
@@ -582,7 +574,7 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 template<typename T>
 const_reference TypedVectorBase<T>::at(uint32_t ix) const {
 
-    if (ix >= getSize()) {
+    if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 

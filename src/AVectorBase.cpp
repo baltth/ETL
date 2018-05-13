@@ -29,12 +29,12 @@ void AVectorBase::swapProxy(AVectorBase& other) {
 
     AVectorBase::Proxy tmpProxy(proxy);
 
-    proxy.data = other.proxy.data;
-    proxy.capacity = other.proxy.capacity;
-    proxy.size = other.proxy.size;
+    proxy.data_ = other.proxy.data_;
+    proxy.capacity_ = other.proxy.capacity_;
+    proxy.size_ = other.proxy.size_;
 
-    other.proxy.data = tmpProxy.data;
-    other.proxy.capacity = tmpProxy.capacity;
-    other.proxy.size = tmpProxy.size;
+    other.proxy.data_ = tmpProxy.data_;
+    other.proxy.capacity_ = tmpProxy.capacity_;
+    other.proxy.size_ = tmpProxy.size_;
 }
 

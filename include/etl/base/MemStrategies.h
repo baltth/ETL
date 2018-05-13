@@ -99,17 +99,17 @@ void StaticSized<C>::resize(C& cont, uint32_t length) {
 
         setupData(cont, length);
 
-        if (length > cont.getSize()) {
+        if (length > cont.size()) {
 
-            typename C::iterator newEnd = cont.getData() + length;
+            typename C::iterator newEnd = cont.data() + length;
 
             for (typename C::iterator it = cont.end(); it < newEnd; ++it) {
                 C::placeDefaultTo(it);
             }
 
-        } else if (length < cont.getSize()) {
+        } else if (length < cont.size()) {
 
-            typename C::iterator newEnd = cont.getData() + length;
+            typename C::iterator newEnd = cont.data() + length;
             C::destruct(newEnd, cont.end());
         }
 
@@ -170,7 +170,7 @@ class DynamicSized : public AMemStrategy<C> {
     void allocate(C& cont, uint32_t len);
 
     void deallocate(C& cont) {
-        allocator.deallocate(cont.getData(), cont.getCapacity());
+        allocator.deallocate(cont.data(), cont.capacity());
     }
 
     static uint32_t getRoundedLength(uint32_t length) {
@@ -183,7 +183,7 @@ class DynamicSized : public AMemStrategy<C> {
 template<class C, class A>
 void DynamicSized<C, A>::reserve(C& cont, uint32_t length) {
 
-    if (length > cont.getCapacity()) {
+    if (length > cont.capacity()) {
         reallocateAndCopyFor(cont, length);
     }
 }
@@ -192,8 +192,8 @@ void DynamicSized<C, A>::reserve(C& cont, uint32_t length) {
 template<class C, class A>
 void DynamicSized<C, A>::shrinkToFit(C& cont) {
 
-    if (cont.getCapacity() > cont.getSize()) {
-        reallocateAndCopyFor(cont, cont.getSize());
+    if (cont.capacity() > cont.size()) {
+        reallocateAndCopyFor(cont, cont.size());
     }
 }
 
@@ -201,21 +201,21 @@ void DynamicSized<C, A>::shrinkToFit(C& cont) {
 template<class C, class A>
 void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
 
-    if (length > cont.getSize()) {
+    if (length > cont.size()) {
 
-        if (length > cont.getCapacity()) {
+        if (length > cont.capacity()) {
             reallocateAndCopyFor(cont, getRoundedLength(length));
         }
 
-        typename C::iterator newEnd = cont.getData() + length;
+        typename C::iterator newEnd = cont.data() + length;
 
         for (typename C::iterator it = cont.end(); it < newEnd; ++it) {
             C::placeDefaultTo(it);
         }
 
-    } else if (length < cont.getSize()) {
+    } else if (length < cont.size()) {
 
-        typename C::iterator newEnd = cont.getData() + length;
+        typename C::iterator newEnd = cont.data() + length;
         C::destruct(newEnd, cont.end());
     }
 
@@ -226,19 +226,19 @@ void DynamicSized<C, A>::resize(C& cont, uint32_t length) {
 template<class C, class A>
 void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
-    typename C::pointer oldData = cont.getData();
+    typename C::pointer oldData = cont.data();
     typename C::iterator oldEnd = cont.end();
-    uint32_t oldCapacity = cont.getCapacity();
+    uint32_t oldCapacity = cont.capacity();
 
     allocate(cont, len);
 
     if (oldData != NULLPTR) {
 
-        uint32_t numToCopy = (len < cont.getSize()) ? len : cont.getSize();
+        uint32_t numToCopy = (len < cont.size()) ? len : cont.size();
 
-        if ((cont.getData() != NULLPTR) && (numToCopy > 0)) {
+        if ((cont.data() != NULLPTR) && (numToCopy > 0)) {
 
-            typename C::pointer dataAlias = cont.getData();
+            typename C::pointer dataAlias = cont.data();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
         }
 
@@ -257,7 +257,7 @@ void DynamicSized<C, A>::allocate(C& cont, uint32_t len) {
         cont.proxy.setData(NULLPTR);
     }
 
-    if (cont.getData() != NULLPTR) {
+    if (cont.data() != NULLPTR) {
         cont.proxy.setCapacity(len);
     } else {
         cont.proxy.setCapacity(0);

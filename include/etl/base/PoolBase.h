@@ -52,7 +52,7 @@ class PoolBase {
 
     explicit PoolBase(const GenericProxy& d) :
         data(d),
-        freeCnt(data.getCapacity()),
+        freeCnt(data.capacity()),
         nextFreeIx(0) {};
 
     void* pop();

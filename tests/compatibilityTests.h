@@ -56,7 +56,7 @@ void testPartialSum() {
     c.push_back(4);
     c.push_back(5);
 
-    CHECK(c.getSize() == 5);
+    CHECK(c.size() == 5);
 
     static const int RES[] = {
         1,
@@ -68,11 +68,11 @@ void testPartialSum() {
 
     std::partial_sum(c.begin(), c.end(), std::back_inserter(res));
 
-    REQUIRE(res.getSize() == c.getSize());
+    REQUIRE(res.size() == c.size());
 
     typename Cont::const_iterator it = res.begin();
 
-    for (uint32_t i = 0; i < res.getSize(); ++i) {
+    for (uint32_t i = 0; i < res.size(); ++i) {
         REQUIRE(*it == RES[i]);
         ++it;
     }

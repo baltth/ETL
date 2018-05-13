@@ -51,16 +51,16 @@ class PoolAllocator {
 
   public:   // functions
 
-    uint32_t getSize() const {
+    uint32_t size() const {
         return pool.getCount();
     }
 
-    uint32_t getCapacity() const {
-        return pool.getCapacity();
+    uint32_t capacity() const {
+        return pool.capacity();
     }
 
-    bool isEmpty() const {
-        return (getSize() == 0);
+    bool empty() const {
+        return (size() == 0);
     }
 
     PtrType allocate(uint32_t n) {
@@ -136,16 +136,16 @@ class CommonPoolAllocator {
 
   public:   // functions
 
-    uint32_t getSize() const {
-        return allocator().getSize();
+    uint32_t size() const {
+        return allocator().size();
     }
 
-    uint32_t getCapacity() const {
-        return allocator().getCapacity();
+    uint32_t capacity() const {
+        return allocator().capacity();
     }
 
-    bool isEmpty() const {
-        return allocator().isEmpty();
+    bool empty() const {
+        return allocator().empty();
     }
 
     PtrType allocate(uint32_t n) {

@@ -34,29 +34,29 @@ TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
 
     Etl::Dynamic::Map<uint32_t, ContainerTester> map;
 
-    REQUIRE(map.isEmpty());
-    REQUIRE(map.getSize() == 0);
+    REQUIRE(map.empty());
+    REQUIRE(map.size() == 0);
 
     ContainerTester a(4);
     map.insertOrAssign(4, a);
 
-    REQUIRE_FALSE(map.isEmpty());
-    REQUIRE(map.getSize() == 1);
+    REQUIRE_FALSE(map.empty());
+    REQUIRE(map.size() == 1);
     REQUIRE(map[4].getValue() == a.getValue());
 
     map.insert(5, ContainerTester(-5));
 
-    REQUIRE(map.getSize() == 2);
+    REQUIRE(map.size() == 2);
 
     ContainerTester b(-4);
     map.insertOrAssign(4, b);
 
-    REQUIRE(map.getSize() == 2);
+    REQUIRE(map.size() == 2);
     REQUIRE(map[4].getValue() == b.getValue());
 
     map.erase(5);
 
-    REQUIRE(map.getSize() == 1);
+    REQUIRE(map.size() == 1);
 }
 
 
@@ -71,7 +71,7 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
 
     REQUIRE(res.second == true);
     REQUIRE(res.first != map.end());
-    REQUIRE(map.getSize() == 1);
+    REQUIRE(map.size() == 1);
 
     SECTION("first element") {
 
@@ -84,7 +84,7 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
         res = map.insert(2, 2);
 
         REQUIRE(res.second == true);
-        REQUIRE(map.getSize() == 2);
+        REQUIRE(map.size() == 2);
         REQUIRE(map[2] == 2);
     }
 
@@ -93,7 +93,7 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
         res = map.insert(1, 3);
 
         REQUIRE(res.second == false);
-        REQUIRE(map.getSize() == 1);
+        REQUIRE(map.size() == 1);
         REQUIRE(map[1] == 2);
     }
 
@@ -102,7 +102,7 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
         res = map.insertOrAssign(1, 3);
 
         REQUIRE(res.second == false);
-        REQUIRE(map.getSize() == 1);
+        REQUIRE(map.size() == 1);
         REQUIRE(map[1] == 3);
     }
 }
@@ -119,13 +119,13 @@ TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
     map.insert(3, -3);
     map.insert(4, -4);
 
-    CHECK(map.getSize() == 4);
+    CHECK(map.size() == 4);
 
     SECTION("erase(Key)") {
 
         map.erase(2);
 
-        REQUIRE(map.getSize() == 3);
+        REQUIRE(map.size() == 3);
         REQUIRE(map.find(2) == map.end());
     }
 
@@ -136,7 +136,7 @@ TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
 
         it = map.erase(it);
 
-        REQUIRE(map.getSize() == 3);
+        REQUIRE(map.size() == 3);
         REQUIRE(map.find(2) == map.end());
         REQUIRE(it == map.find(3));
     }
@@ -154,7 +154,7 @@ TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
     map.insert(3, -3);
     map.insert(4, -4);
 
-    CHECK(map.getSize() == 4);
+    CHECK(map.size() == 4);
 
     SECTION("forward") {
 
@@ -197,7 +197,7 @@ TEST_CASE("Etl::Dynamic::Map<> element order", "[map][etl]") {
     map.insert(2, -2);
     map.insert(4, -4);
 
-    CHECK(map.getSize() == 4);
+    CHECK(map.size() == 4);
 
     MapType::iterator it = map.begin();
 
@@ -232,7 +232,7 @@ TEST_CASE("Etl::Dynamic::Map<> association tests", "[map][etl]") {
     map.insert(3, ContainerTester(-3));
     map.insert(4, ContainerTester(-4));
 
-    CHECK(map.getSize() == 4);
+    CHECK(map.size() == 4);
 
     SECTION("write existing") {
 
@@ -287,14 +287,14 @@ TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
     map2.insert(1, 1);
     map2.insert(5, -5);
 
-    CHECK(map.getSize() == 4);
-    CHECK(map2.getSize() == 2);
+    CHECK(map.size() == 4);
+    CHECK(map2.size() == 2);
 
     SECTION("copy assignment") {
 
         map2 = map;
 
-        REQUIRE(map2.getSize() == 4);
+        REQUIRE(map2.size() == 4);
         REQUIRE(map2[1] == map[1]);
         REQUIRE(map2[4] == map[4]);
     }
@@ -303,7 +303,7 @@ TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
 
         MapType map3 = map;
 
-        REQUIRE(map3.getSize() == 4);
+        REQUIRE(map3.size() == 4);
         REQUIRE(map3[1] == map[1]);
         REQUIRE(map3[4] == map[4]);
     }
@@ -312,7 +312,7 @@ TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
 
         map2.copyElementsFrom(map);
 
-        REQUIRE(map2.getSize() == 5);
+        REQUIRE(map2.size() == 5);
         REQUIRE(map2[1] == map[1]);
         REQUIRE(map2[4] == map[4]);
         REQUIRE(map2[5] == -5);
@@ -322,8 +322,8 @@ TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
 
         map.swap(map2);
 
-        REQUIRE(map2.getSize() == 4);
-        REQUIRE(map.getSize() == 2);
+        REQUIRE(map2.size() == 4);
+        REQUIRE(map.size() == 2);
 
         REQUIRE(map[1] == 1);
         REQUIRE(map[5] == -5);
@@ -344,7 +344,7 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
     map.insert(3, ContainerTester(-3));
     map.insert(4, ContainerTester(-4));
 
-    CHECK(map.getSize() == 4);
+    CHECK(map.size() == 4);
 
     SECTION("find(Key)") {
 
@@ -437,10 +437,10 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
             map.insert(i, ContainerTester(i));
         }
 
-        CHECK(map.getSize() == NUM);
+        CHECK(map.size() == NUM);
 
         std::pair<MapType::iterator, bool> res = map.insert(NUM, ContainerTester(NUM));
-        REQUIRE(map.getSize() == NUM);
+        REQUIRE(map.size() == NUM);
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == false);
     }
