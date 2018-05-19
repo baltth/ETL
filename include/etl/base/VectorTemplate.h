@@ -65,18 +65,35 @@ class Vector : public TypedVectorBase<T> {
   public:   // functions
 
     iterator insert(const_iterator position, const_reference value) {
-        return insert(position, 1, value);
+        return insert(position, 1U, value);
     }
 
     iterator insert(const_iterator position, uint32_t num, const_reference value);
-    iterator insert(const_iterator position, const_iterator first, const_iterator last);
+
+    template<typename InputIt>
+    typename std::enable_if < !std::is_integral<InputIt>::value, iterator >::type
+    insert(const_iterator position, InputIt first, InputIt last) {
+        typename Base::template ContCreator<InputIt> cc(first, last);
+        return insertWithCreator(position, cc.getLength(), cc);
+    }
+
+    void assign(uint32_t num, const_reference value) {
+        this->clear();
+        insert(this->begin(), num, value);
+    }
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(this->begin(), first, last);
+    }
 
     void push_front(const_reference value) {
-        insert(Base::begin(), value);
+        insert(this->begin(), value);
     }
 
     void push_back(const_reference value) {
-        insert(Base::end(), value);
+        insert(this->end(), value);
     }
 
 #if ETL_USE_CPP11
@@ -87,8 +104,8 @@ class Vector : public TypedVectorBase<T> {
     iterator emplace(const_iterator pos, Args&& ... args);
 
     template<typename... Args >
-    void emplaceBack(Args&& ... args) {
-        emplace(Base::end(), args...);
+    void emplace_back(Args&& ... args) {
+        emplace(this->end(), args...);
     }
 
     iterator find(MatchFunc<T>&& matcher) const {
@@ -168,13 +185,13 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
         uint32_t requestedCapacity = Base::size() + numToInsert;
 
-        if (requestedCapacity > Base::capacity()) {
-            uint32_t positionIx = position - Base::begin();
+        if (requestedCapacity > this->capacity()) {
+            uint32_t positionIx = position - this->begin();
             this->reserveAtLeast(requestedCapacity);
-            position = Base::begin() + positionIx;
+            position = this->begin() + positionIx;
         }
 
-        if (requestedCapacity <= Base::capacity()) {
+        if (requestedCapacity <= this->capacity()) {
             position = Base::insertOperation(position, numToInsert, creatorCall);
         }
     }
@@ -199,14 +216,6 @@ typename Vector<T>::iterator Vector<T>::find(const_iterator startPos,
     }
 
     return iterator(startPos);
-}
-
-
-template<class T>
-typename Vector<T>::iterator Vector<T>::insert(const_iterator position, const_iterator first, const_iterator last) {
-
-    typename Base::template ContCreator<const_iterator> cc(first, last);
-    return insertWithCreator(position, cc.getLength(), cc);
 }
 
 
@@ -303,14 +312,14 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
         uint32_t requestedCapacity = Base::size() + numToInsert;
 
-        if (requestedCapacity > Base::capacity()) {
+        if (requestedCapacity > this->capacity()) {
 
-            uint32_t positionIx = position - Base::begin();
+            uint32_t positionIx = position - this->begin();
             this->reserveAtLeast(requestedCapacity);
-            position = Base::begin() + positionIx;
+            position = this->begin() + positionIx;
         }
 
-        if (requestedCapacity <= Base::capacity()) {
+        if (requestedCapacity <= this->capacity()) {
             position = Base::insertOperation(position, numToInsert, std::move(creatorCall));
         }
     }
@@ -446,7 +455,8 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
                                                        value));
     }
 
-    iterator insert(const_iterator position, const_iterator first, const_iterator last) {
+    template<typename InputIt>
+    iterator insert(const_iterator position, InputIt first, InputIt last) {
         return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
                                                        first,
                                                        last));

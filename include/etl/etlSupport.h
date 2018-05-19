@@ -54,6 +54,7 @@ using std::size_t;
 #endif
 
 #include <stdexcept>    // For new overrides
+#include <iterator>
 
 namespace ETL_NAMESPACE {
 
@@ -81,6 +82,29 @@ struct CopyConst {
 template<typename S, typename T>
 struct CopyConst<const S, T> {
     typedef const T Type;
+};
+
+
+template<typename T>
+struct IsIterator {
+
+    typedef char Yes;
+    typedef long No;
+
+    template<typename U, typename = typename U::iterator_category>
+    struct HasIteratorCategory {
+        static const Yes value;
+    };
+
+    template<typename U>
+    static HasIteratorCategory<U> test(U*);
+
+    template<typename U>
+    static No test(...);
+
+
+
+    static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
 };
 
 }

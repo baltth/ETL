@@ -196,8 +196,8 @@ void testVectorInsertAndErase() {
 
             CHECK(vec.size() == 4);
 
-            typename VecT::const_iterator last = vec.end() - 1;
-            typename VecT::iterator it = vec2.insert(vec2.end(), vec.begin(), last);
+            typename VecT::const_iterator last = vec.cend() - 1;
+            typename VecT::iterator it = vec2.insert(vec2.end(), vec.cbegin(), last);
 
             REQUIRE(vec2.size() == 4);
             REQUIRE(it == &vec2[1]);
@@ -210,7 +210,7 @@ void testVectorInsertAndErase() {
 
         SECTION("Invalid insert") {
 
-            typename VecT::iterator it = vec2.insert(vec2.end(), vec.end(), vec.begin());
+            typename VecT::iterator it = vec2.insert(vec2.end(), vec.cend(), vec.cbegin());
 
             REQUIRE(vec2.size() == 1);
             REQUIRE(it == vec2.end());
@@ -836,11 +836,11 @@ void testVectorEmplace() {
 
     VecT vec;
 
-    SECTION("emplaceBack()") {
+    SECTION("emplace_back()") {
 
-        vec.emplaceBack(-1);
-        vec.emplaceBack(-2);
-        vec.emplaceBack(-3);
+        vec.emplace_back(-1);
+        vec.emplace_back(-2);
+        vec.emplace_back(-3);
 
         REQUIRE(vec.size() == 3);
         REQUIRE(vec[0] == ContainerTester(-1));
