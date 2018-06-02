@@ -80,6 +80,10 @@ class Sorted {
         return container.begin();
     }
 
+    const_iterator cbegin() const {
+        return container.cbegin();
+    }
+
     iterator end() {
         return container.end();
     }
@@ -88,22 +92,16 @@ class Sorted {
         return container.end();
     }
 
+    const_iterator cend() const {
+        return container.cend();
+    }
+
     void clear() {
         container.clear();
     }
 
     iterator erase(iterator pos) {
         return container.erase(pos);
-    }
-
-    template<typename F, typename V>
-    iterator find(F f, const V& v) const {
-        return container.find(begin(), end(), f, v);
-    }
-
-    template<typename F, typename V>
-    iterator find(const_iterator startPos, const_iterator endPos, F f, const V& v) const {
-        return container.find(startPos, endPos, f, v);
     }
 
     iterator find(const Matcher<value_type>& matchCall) {
@@ -149,46 +147,43 @@ class Sorted {
 
   protected:
 
+    template<typename It, typename CV, class CF>
+    std::pair<It, It> findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const;
+
+    template<typename CV>
+    std::pair<iterator, iterator> findSortedRange(const CV& val) {
+        return findSortedRangeBase(this->begin(), this->end(), val, comp);
+    }
+
+    template<typename CV>
+    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val) const {
+        return findSortedRangeBase(this->cbegin(), this->cend(), val, comp);
+    }
+
+    template<typename CV, class CF>
+    std::pair<iterator, iterator> findSortedRange(const CV& val, CF& compare) {
+        return findSortedRangeBase(this->begin(), this->end(), val, compare);
+    }
+
+    template<typename CV, class CF>
+    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val, CF& compare) const {
+        return findSortedRangeBase(this->cbegin(), this->cend(), val, compare);
+    }
+
+    template<typename CV>
+    std::pair<iterator, bool> findSortedPosition(const CV& val) {
+        std::pair<iterator, iterator> res = findSortedRange(val);
+        return std::pair<iterator, bool>(res.second, (res.first != res.second));
+    }
+
+    template<typename CV>
+    std::pair<const_iterator, bool> findSortedPosition(const CV& val) const {
+        std::pair<const_iterator, const_iterator> res = findSortedRange(val);
+        return std::pair<const_iterator, bool>(res.second, (res.first != res.second));
+    }
+
     iterator insert(const_reference item);
     std::pair<iterator, bool> insertUnique(const_reference item);
-
-    std::pair<const_iterator, const_iterator> findSortedRange(const_reference item) const;
-
-    std::pair<iterator, iterator> findSortedRange(const_reference item) {
-        std::pair<const_iterator, const_iterator> res = static_cast<const Sorted*>(this)->findSortedRange(item);
-        return std::pair<iterator, iterator>(iterator(res.first), iterator(res.second));
-    }
-
-    template<typename F, typename V>
-    std::pair<const_iterator, const_iterator> findSortedRange(F f, const V& v) const;
-
-    template<typename F, typename V>
-    std::pair<iterator, iterator> findSortedRange(F f, const V& v) {
-        std::pair<const_iterator, const_iterator> res = static_cast<const Sorted*>(this)->findSortedRange<F, V>(f, v);
-        return std::pair<iterator, iterator>(iterator(res.first), iterator(res.second));
-    }
-
-    std::pair<iterator, bool> findSortedPosition(const_reference item) {
-        std::pair<iterator, iterator> res = findSortedRange(item);
-        return std::pair<iterator, bool>(res.second, (res.first != res.second));
-    }
-
-    std::pair<const_iterator, bool> findSortedPosition(const_reference item) const {
-        std::pair<const_iterator, const_iterator> res = findSortedRange(item);
-        return std::pair<const_iterator, bool>(res.second, (res.first != res.second));
-    }
-
-    template<typename F, typename V>
-    std::pair<iterator, bool> findSortedPosition(F f, const V& v) {
-        std::pair<iterator, iterator> res = findSortedRange<F, V>(f, v);
-        return std::pair<iterator, bool>(res.second, (res.first != res.second));
-    }
-
-    template<typename F, typename V>
-    std::pair<const_iterator, bool> findSortedPosition(F f, const V& v) const {
-        std::pair<const_iterator, const_iterator> res = findSortedRange<F, V>(f, v);
-        return std::pair<const_iterator, bool>(res.second, (res.first != res.second));
-    }
 
     iterator insertTo(const_iterator pos, const_reference item) const {
         return container.insert(pos, item);
@@ -240,13 +235,10 @@ std::pair<typename Sorted<C, Comp>::iterator, bool> Sorted<C, Comp>::insertUniqu
 
 
 template<class C, class Comp /* = std::less<typename C::value_type> */>
-std::pair<typename Sorted<C, Comp>::const_iterator, typename Sorted<C, Comp>::const_iterator>
-Sorted<C, Comp>::findSortedRange(const_reference item) const {
+template<typename It, typename CV, class CF>
+std::pair<It, It> Sorted<C, Comp>::findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const {
 
-    const_iterator it = begin();
-    const_iterator endIt = end();
-
-    std::pair<const_iterator, const_iterator> res(endIt, endIt);
+    std::pair<It, It> res(endIt, endIt);
 
     if (it != endIt) {
 
@@ -254,7 +246,7 @@ Sorted<C, Comp>::findSortedRange(const_reference item) const {
 
         while ((!notLessFound) && (it != endIt)) {
 
-            if (comp(*it, item)) {
+            if (compare(*it, val)) {
                 ++it;
             } else {
                 res.first = it;
@@ -264,46 +256,7 @@ Sorted<C, Comp>::findSortedRange(const_reference item) const {
 
         while (notLessFound && (it != endIt)) {
 
-            if (comp(item, *it)) {
-                res.second = it;
-                notLessFound = false;
-            } else {
-                ++it;
-            }
-        }
-    }
-
-    return res;
-}
-
-
-template<class C, class Comp /* = std::less<typename C::value_type> */>
-template<typename F, typename V>
-std::pair<typename Sorted<C, Comp>::const_iterator, typename Sorted<C, Comp>::const_iterator>
-Sorted<C, Comp>::findSortedRange(F f, const V& v) const {
-
-    const_iterator it = begin();
-    const_iterator endIt = end();
-
-    std::pair<const_iterator, const_iterator> res(endIt, endIt);
-
-    if (it != endIt) {
-
-        bool notLessFound = false;
-
-        while ((!notLessFound) && (it != endIt)) {
-
-            if ((*f)(*it) < v) {
-                ++it;
-            } else {
-                res.first = it;
-                notLessFound = true;
-            }
-        }
-
-        while (notLessFound && (it != endIt)) {
-
-            if (v < (*f)(*it)) {
+            if (compare(val, *it)) {
                 res.second = it;
                 notLessFound = false;
             } else {

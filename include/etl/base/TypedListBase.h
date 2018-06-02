@@ -85,9 +85,6 @@ class TypedListBase : protected AListBase {
         const_iterator() :
             AListBase::Iterator(NULLPTR) {};
 
-        explicit const_iterator(const AListBase::Iterator& it) :
-            AListBase::Iterator(it) {};
-
         const_reference operator*() const {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
         }
@@ -126,14 +123,17 @@ class TypedListBase : protected AListBase {
             return old;
         }
 
-      protected:
+      private:
 
         explicit const_iterator(TypedListBase<T>::Node* n) :
             AListBase::Iterator(n) {};
 
+        explicit const_iterator(const AListBase::Iterator& it) :
+            AListBase::Iterator(it) {};
+
     };
 
-    class iterator : public const_iterator {
+    class iterator : public AListBase::Iterator {
         friend class TypedListBase<T>;
 
       public:
@@ -145,10 +145,11 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         iterator() :
-            const_iterator(NULLPTR) {};
+            AListBase::Iterator(NULLPTR) {};
 
-        explicit iterator(const AListBase::Iterator& it) :
-            const_iterator(it) {};
+        operator const_iterator() const {
+            return const_iterator(*this);
+        }
 
         reference operator*() const {
             return static_cast<TypedListBase<T>::Node*>(this->node)->item;
@@ -159,7 +160,7 @@ class TypedListBase : protected AListBase {
         }
 
         bool operator==(const iterator& other) const {
-            return const_iterator::operator==(other);
+            return AListBase::Iterator::operator==(other);
         }
 
         bool operator!=(const iterator& other) const {
@@ -196,10 +197,13 @@ class TypedListBase : protected AListBase {
             return old;
         }
 
-      protected:
+      private:
 
         explicit iterator(TypedListBase<T>::Node* n) :
-            const_iterator(n) {};
+            AListBase::Iterator(n) {};
+
+        explicit iterator(const AListBase::Iterator& it) :
+            AListBase::Iterator(it) {};
 
     };
 
@@ -242,29 +246,67 @@ class TypedListBase : protected AListBase {
     }
     /// \}
 
+    reference front() {
+        return *begin();
+    }
+
+    const_reference front() const {
+        return *begin();
+    }
+
+    reference back() {
+        return *(--end());
+    }
+
+    const_reference back() const {
+        return *(--end());
+    }
+
     /// \name Search
     /// \{
+    /*
     template<typename F, typename V>
-    iterator find(F f, const V& v) const {
+    const_iterator find(F f, const V& v) const {
         return find(begin(), end(), f, v);
     }
 
     template<typename F, typename V>
-    iterator find(const_iterator startPos, const_iterator endPos, F f, const V& v) const;
+    const_iterator find(const_iterator startPos, const_iterator endPos, F f, const V& v) const;
+    */
 
-    iterator find(const Matcher<T>& matchCall) const {
+    iterator find(const Matcher<T>& matchCall) {
         return find(begin(), end(), matchCall);
     }
 
-    iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const;
+    const_iterator find(const Matcher<T>& matchCall) const {
+        return find(begin(), end(), matchCall);
+    }
+
+    iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) {
+        return findBase<iterator>(startPos, endPos, matchCall);
+    }
+
+    const_iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const {
+        return findBase<const_iterator>(startPos, endPos, matchCall);
+    }
 
 #if ETL_USE_CPP11
 
-    iterator find(MatchFunc<T>&& matchCall) const {
+    iterator find(MatchFunc<T>&& matchCall) {
         return find(begin(), end(), std::move(matchCall));
     }
 
-    iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const;
+    const_iterator find(MatchFunc<T>&& matchCall) const {
+        return find(begin(), end(), std::move(matchCall));
+    }
+
+    iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) {
+        return findBase<iterator>(startPos, endPos, std::move(matchCall));
+    }
+
+    const_iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const {
+        return findBase<const_iterator>(startPos, endPos, std::move(matchCall));
+    }
 
 #endif
     /// \}
@@ -295,21 +337,33 @@ class TypedListBase : protected AListBase {
         return removed;
     }
 
+    static iterator convert(const_iterator it) {
+        return iterator(it);
+    }
+
   private:
 
     // Non-copiable
     TypedListBase(const TypedListBase& other);
     TypedListBase& operator=(const TypedListBase& other);
 
+    template<typename It>
+    It findBase(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const;
+
+#if ETL_USE_CPP11
+    template<typename It>
+    It findBase(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const;
+#endif
+
 };
 
-
+/*
 template<class T>
 template<typename F, typename V>
-typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startPos,
-                                                           const_iterator endPos,
-                                                           F f,
-                                                           const V& v) const {
+typename TypedListBase<T>::const_iterator TypedListBase<T>::find(const_iterator startPos,
+                                                                 const_iterator endPos,
+                                                                 F f,
+                                                                 const V& v) const {
 
     bool match = false;
 
@@ -322,14 +376,15 @@ typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startP
         }
     }
 
-    return iterator(startPos);
+    return startPos;
 }
-
+*/
 
 template<class T>
-typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startPos,
-                                                           const_iterator endPos,
-                                                           const Matcher<T>& matchCall) const {
+template<class It>
+It TypedListBase<T>::findBase(const_iterator startPos,
+                              const_iterator endPos,
+                              const Matcher<T>& matchCall) const {
 
     bool match = false;
 
@@ -342,16 +397,17 @@ typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startP
         }
     }
 
-    return iterator(startPos);
+    return It(startPos);
 }
 
 
 #if ETL_USE_CPP11
 
 template<class T>
-typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startPos,
-                                                           const_iterator endPos,
-                                                           MatchFunc<T>&& matchCall) const {
+template<class It>
+It TypedListBase<T>::findBase(const_iterator startPos,
+                              const_iterator endPos,
+                              MatchFunc<T>&& matchCall) const {
 
     bool match = false;
 
@@ -364,7 +420,7 @@ typename TypedListBase<T>::iterator TypedListBase<T>::find(const_iterator startP
         }
     }
 
-    return iterator(startPos);
+    return It(startPos);
 }
 
 #endif

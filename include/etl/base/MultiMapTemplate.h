@@ -89,18 +89,15 @@ class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> 
 
     uint32_t erase(const K& k);
 
+    iterator find(const K& k);
     const_iterator find(const K& k) const;
 
-    iterator find(const K& k) {
-        return iterator(static_cast<const MultiMap*>(this)->find(k));
+    std::pair<iterator, iterator> equalRange(const K& k) {
+        return MapBase::findSortedRange(k);
     }
 
     std::pair<const_iterator, const_iterator> equalRange(const K& k) const {
-        return MapBase::findSortedRange(getKey, k);
-    }
-
-    std::pair<iterator, iterator> equalRange(const K& k) {
-        return MapBase::findSortedRange(getKey, k);
+        return MapBase::findSortedRange(k);
     }
 
     void copyElementsFrom(const MultiMap<K, E, A>& other);
@@ -122,7 +119,7 @@ class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> 
 template<typename K, class E, template<class> class A>
 uint32_t MultiMap<K, E, A>::erase(const K& k) {
 
-    std::pair<iterator, iterator> found = MapBase::findSortedRange(getKey, k);
+    std::pair<iterator, iterator> found = MapBase::findSortedRange(k);
     iterator it = found.first;
     uint32_t count = 0;
 
@@ -136,9 +133,22 @@ uint32_t MultiMap<K, E, A>::erase(const K& k) {
 
 
 template<typename K, class E, template<class> class A>
+typename MultiMap<K, E, A>::iterator  MultiMap<K, E, A>::find(const K& k) {
+
+    std::pair<iterator, bool> found = MapBase::findSortedPosition(k);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return MapBase::end();
+    }
+}
+
+
+template<typename K, class E, template<class> class A>
 typename MultiMap<K, E, A>::const_iterator  MultiMap<K, E, A>::find(const K& k) const {
 
-    std::pair<const_iterator, bool> found = MapBase::findSortedPosition(getKey, k);
+    std::pair<const_iterator, bool> found = MapBase::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -172,7 +182,7 @@ template<typename K, class E, template<class> class A>
 template<typename... Args>
 typename MultiMap<K, E, A>::iterator MultiMap<K, E, A>::emplace(const K& k, Args&& ... args) {
 
-    auto found = MapBase::findSortedPosition(getKey, k);
+    auto found = MapBase::findSortedPosition(k);
     found.first = MapBase::emplaceTo(found.first, k, std::forward<Args>(args)...);
 
     return found.first;

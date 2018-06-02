@@ -64,6 +64,26 @@ class Vector : public TypedVectorBase<T> {
 
   public:   // functions
 
+
+    void assign(uint32_t num, const_reference value) {
+        this->clear();
+        insert(this->begin(), num, value);
+    }
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(this->begin(), first, last);
+    }
+
+#if ETL_USE_CPP11
+
+    void assign(std::initializer_list<T> initList) {
+        assign(initList.begin(), initList.end());
+    }
+
+#endif
+
     iterator insert(const_iterator position, const_reference value) {
         return insert(position, 1U, value);
     }
@@ -77,25 +97,6 @@ class Vector : public TypedVectorBase<T> {
         return insertWithCreator(position, cc.getLength(), cc);
     }
 
-    void assign(uint32_t num, const_reference value) {
-        this->clear();
-        insert(this->begin(), num, value);
-    }
-
-    template<typename InputIt>
-    void assign(InputIt first, InputIt last) {
-        this->clear();
-        insert(this->begin(), first, last);
-    }
-
-    void push_front(const_reference value) {
-        insert(this->begin(), value);
-    }
-
-    void push_back(const_reference value) {
-        insert(this->end(), value);
-    }
-
 #if ETL_USE_CPP11
 
     iterator insert(const_iterator position, T&& value);
@@ -107,6 +108,18 @@ class Vector : public TypedVectorBase<T> {
     void emplace_back(Args&& ... args) {
         emplace(this->end(), args...);
     }
+
+#endif
+
+    void push_front(const_reference value) {
+        insert(this->begin(), value);
+    }
+
+    void push_back(const_reference value) {
+        insert(this->end(), value);
+    }
+
+#if ETL_USE_CPP11
 
     iterator find(MatchFunc<T>&& matcher) const {
         return find(this->begin(), this->end(), std::move(matcher));
@@ -149,31 +162,29 @@ class Vector : public TypedVectorBase<T> {
     Vector(AMemStrategy<StrategyBase>& s) :
         strategy(s) {};
 
-    Vector& operator=(const Vector& other);
+    Vector& operator=(const Vector& other) {
+        if (&other != this) {
+            assign(other.begin(), other.end());
+        }
+        return *this;
+    }
 
     iterator insertWithCreator(const_iterator position, uint32_t num, const Creator& creatorCall);
 
 #if ETL_USE_CPP11
 
     Vector& operator=(Vector&& other);
-    Vector& operator=(std::initializer_list<T> initList);
+
+    Vector& operator=(std::initializer_list<T> initList) {
+        assign(initList);
+        return *this;
+    }
 
     iterator insertWithCreator(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
 
 #endif
 
 };
-
-
-template<class T>
-Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
-
-    this->reserve(other.size());
-    if (this->capacity() >= other.size()) {
-        this->copyOperation(this->begin(), other.begin(), other.size());
-    }
-    return *this;
-}
 
 
 template<class T>
@@ -248,17 +259,6 @@ template<class T>
 Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 
     this->swap(other);
-    return *this;
-}
-
-
-template<class T>
-Vector<T>& Vector<T>::operator=(std::initializer_list<T> initList) {
-
-    this->reserve(initList.size());
-    if (this->capacity() >= initList.size()) {
-        this->copyOperation(this->begin(), initList.begin(), initList.size());
-    }
     return *this;
 }
 

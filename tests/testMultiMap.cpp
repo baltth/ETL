@@ -355,7 +355,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("equalRange(Key) for one") {
 
-        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(2);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(2);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -369,7 +369,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("equalRange(Key) for more") {
 
-        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(3);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(3);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -386,7 +386,7 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 
     SECTION("equalRange(Key) non-existing") {
 
-        std::pair<MapType::const_iterator, MapType::const_iterator> res = map.equalRange(12);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(12);
 
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == map.end());

@@ -673,11 +673,13 @@ TEST_CASE("Etl::Dynamic::List<>::find<F, V>() test", "[list][etl]") {
     ListT::iterator it2 = --list.end();
     list.push_back(ItemType(6));
 
-    ListT::iterator found = list.find(&ItemType::getValue, REF_VALUE);
+    Etl::MethodMatcher<ItemType, int> mm(&ItemType::getValue, REF_VALUE);
+
+    ListT::iterator found = list.find(mm);
     REQUIRE(found == it1);
-    found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
+    found = list.find((++found), list.end(), mm);
     REQUIRE(found == it2);
-    found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
+    found = list.find((++found), list.end(), mm);
     REQUIRE(found == list.end());
 }
 

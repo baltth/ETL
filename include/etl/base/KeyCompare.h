@@ -33,6 +33,12 @@ struct KeyCompare {
     bool operator()(const ItemType& lhs, const ItemType& rhs) const {
         return std::less<K>()(lhs.first, rhs.first);
     }
+    bool operator()(const ItemType& lhs, const K& rhs) const {
+        return std::less<K>()(lhs.first, rhs);
+    }
+    bool operator()(const K& lhs, const ItemType& rhs) const {
+        return std::less<K>()(lhs, rhs.first);
+    }
 };
 
 }

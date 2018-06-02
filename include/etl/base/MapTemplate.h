@@ -79,7 +79,7 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
     using Base::find;
     using Base::erase;
 
-    inline std::pair<iterator, bool> insert(const K& k, const E& e) {
+    std::pair<iterator, bool> insert(const K& k, const E& e) {
         return Base::insertUnique(value_type(k, e));
     }
 
@@ -87,27 +87,16 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
     void erase(const K& k);
 
+    iterator find(const K& k);
     const_iterator find(const K& k) const;
 
-    iterator find(const K& k) {
-        return iterator(static_cast<const Map*>(this)->find(k));
-    }
+    iterator getItem(const K& k);
 
-    iterator getItem(const K& k) const;
-
-    E& getElement(const K& k) const {
+    E& operator[](const K& k) {
         return getItem(k)->second;
     }
 
     void copyElementsFrom(const Map<K, E, A>& other);
-
-    E& operator[](const K& k) {
-        return Map<K, E, A>::getElement(k);
-    }
-
-    const E& operator[](const K& k) const {
-        return Map<K, E, A>::getElement(k);
-    }
 
 #if ETL_USE_CPP11
 
@@ -126,7 +115,7 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 template<typename K, class E, template<class> class A>
 std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::insertOrAssign(const K& k, const E& e) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
 #if ETL_USE_CPP11
@@ -147,7 +136,7 @@ std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::insertOrAssign(co
 template<typename K, class E, template<class> class A>
 void Map<K, E, A>::erase(const K& k) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -156,9 +145,9 @@ void Map<K, E, A>::erase(const K& k) {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::const_iterator  Map<K, E, A>::find(const K& k) const {
+typename Map<K, E, A>::iterator  Map<K, E, A>::find(const K& k) {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -169,9 +158,22 @@ typename Map<K, E, A>::const_iterator  Map<K, E, A>::find(const K& k) const {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::iterator Map<K, E, A>::getItem(const K& k) const {
+typename Map<K, E, A>::const_iterator  Map<K, E, A>::find(const K& k) const {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
+    }
+}
+
+
+template<typename K, class E, template<class> class A>
+typename Map<K, E, A>::iterator Map<K, E, A>::getItem(const K& k) {
+
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
 #if ETL_USE_CPP11
@@ -183,7 +185,7 @@ typename Map<K, E, A>::iterator Map<K, E, A>::getItem(const K& k) const {
         --found.first;
     }
 
-    return iterator(found.first);
+    return found.first;
 }
 
 
@@ -211,7 +213,7 @@ template<typename K, class E, template<class> class A>
 template<typename... Args>
 std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::emplace(const K& k, Args&& ... args) {
 
-    auto found = Base::findSortedPosition(getKey, k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);

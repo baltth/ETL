@@ -79,11 +79,8 @@ class Set : public Sorted<List<E, A> > {
 
     void erase(const E& e);
 
+    iterator find(const E& e);
     const_iterator find(const E& e) const;
-
-    iterator find(const E& e) {
-        return iterator(static_cast<const Set*>(this)->find(e));
-    }
 
     void copyElementsFrom(const Set<E, A>& other);
 
@@ -110,6 +107,19 @@ void Set<E, A>::erase(const E& e) {
 
     if (found.second == true) {
         Base::erase(--found.first);
+    }
+}
+
+
+template<class E, template<class> class A>
+typename Set<E, A>::iterator  Set<E, A>::find(const E& e) {
+
+    std::pair<iterator, bool> found = Base::findSortedPosition(e);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
     }
 }
 

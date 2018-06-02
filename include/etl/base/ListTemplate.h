@@ -68,15 +68,14 @@ class List : public TypedListBase<T> {
         allocator(a) {};
 
     List(const List& other) {
-        copyElements(other);
+        assign(other.begin(), other.end());
+    }
+
+    explicit List(const Base& other) {
+        assign(other.begin(), other.end());
     }
 
     List& operator=(const List& other);
-
-    List(const Base& other) {
-        copyElements(other);
-    }
-
     List& operator=(const Base& other);
 
 #if ETL_USE_CPP11
@@ -99,6 +98,25 @@ class List : public TypedListBase<T> {
 
     void clear();
 
+    void assign(uint32_t num, const_reference value) {
+        this->clear();
+        insert(this->begin(), num, value);
+    }
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(this->begin(), first, last);
+    }
+
+#if ETL_USE_CPP11
+
+    void assign(std::initializer_list<T> initList) {
+        assign(initList.begin(), initList.end());
+    }
+
+#endif
+
     /// \name Element operations
     /// \{
     inline void push_front(const T& item);
@@ -113,6 +131,18 @@ class List : public TypedListBase<T> {
     }
 
     inline iterator insert(const_iterator pos, const T& item);
+
+    iterator insert(const_iterator pos, uint32_t n, const T& item) {
+        iterator it = this->end();
+        while (n > 0) {
+            it = insert(pos, item);
+        }
+        return it;
+    }
+
+    template<typename InputIt>
+    typename std::enable_if < !std::is_integral<InputIt>::value, iterator >::type
+    insert(const_iterator position, InputIt first, InputIt last);
 
     iterator erase(iterator pos) {
         iterator next = pos;
@@ -156,14 +186,6 @@ class List : public TypedListBase<T> {
         return allocator;
     }
 
-  protected:
-
-    void copyElements(const Base& other) {
-        copyElements(other.begin(), other.end());
-    }
-
-    void copyElements(const_iterator bIt, const_iterator eIt);
-
   private:
 
     Node* createNode(const T& item) {
@@ -193,8 +215,7 @@ template<class T, template<class> class A>
 List<T, A>& List<T, A>::operator=(const List<T, A>& other) {
 
     if (&other != this) {
-        clear();
-        copyElements(other);
+        assign(other.begin(), other.end());
     }
 
     return *this;
@@ -205,8 +226,7 @@ template<class T, template<class> class A>
 List<T, A>& List<T, A>::operator=(const TypedListBase<T>& other) {
 
     if (&other != static_cast<TypedListBase<T>*>(this)) {
-        clear();
-        copyElements(other);
+        assign(other.begin(), other.end());
     }
 
     return *this;
@@ -299,12 +319,22 @@ typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& it
 
 
 template<class T, template<class> class A>
-void List<T, A>::copyElements(const_iterator bIt, const_iterator eIt) {
+template<typename InputIt>
+typename std::enable_if < !std::is_integral<InputIt>::value, typename List<T, A>::iterator >::type
+List<T, A>::insert(const_iterator position, InputIt first, InputIt last) {
 
-    while (bIt != eIt) {
-        push_back(*bIt);
-        ++bIt;
+    iterator res = Base::convert(position);
+
+    if (first != last) {
+        res = this->insert(position, *first);
+        ++first;
+        while (first != last) {
+            this->insert(position, *first);
+            ++first;
+        }
     }
+
+    return res;
 }
 
 
@@ -329,7 +359,7 @@ void List<T, A>::splice(const_iterator pos,
                         const_iterator last) {
 
     if (static_cast<Base*>(&other) != static_cast<Base*>(this)) {
-        iterator item(first);
+        iterator item = Base::convert(first);
         while (item != last) {
             insert(pos, *item);
             item = other.erase(item);
