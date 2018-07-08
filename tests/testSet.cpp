@@ -242,16 +242,6 @@ TEST_CASE("Etl::Dynamic::Set<> copy", "[set][etl]") {
         REQUIRE(set3.find(4) != set3.end());
     }
 
-    SECTION("copyElementsFrom()") {
-
-        set2.copyElementsFrom(set);
-
-        REQUIRE(set2.size() == 5);
-        REQUIRE(set2.find(1) != set2.end());
-        REQUIRE(set2.find(4) != set2.end());
-        REQUIRE(set2.find(5) != set2.end());
-    }
-
     SECTION("swap()") {
 
         set.swap(set2);

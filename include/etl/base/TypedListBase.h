@@ -76,7 +76,7 @@ class TypedListBase : protected AListBase {
 
       public:
 
-        typedef void difference_type;
+        typedef int difference_type;
         typedef const T value_type;
         typedef const T* pointer;
         typedef const T& reference;
@@ -84,6 +84,12 @@ class TypedListBase : protected AListBase {
 
         const_iterator() :
             AListBase::Iterator(NULLPTR) {};
+
+        const_iterator(const const_iterator& it) :
+            AListBase::Iterator(it) {};
+
+        explicit const_iterator(const AListBase::Iterator& it) :
+            AListBase::Iterator(it) {};
 
         const_reference operator*() const {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
@@ -128,9 +134,6 @@ class TypedListBase : protected AListBase {
         explicit const_iterator(TypedListBase<T>::Node* n) :
             AListBase::Iterator(n) {};
 
-        explicit const_iterator(const AListBase::Iterator& it) :
-            AListBase::Iterator(it) {};
-
     };
 
     class iterator : public AListBase::Iterator {
@@ -138,7 +141,7 @@ class TypedListBase : protected AListBase {
 
       public:
 
-        typedef void difference_type;
+        typedef int difference_type;
         typedef T value_type;
         typedef T* pointer;
         typedef T& reference;
@@ -146,6 +149,9 @@ class TypedListBase : protected AListBase {
 
         iterator() :
             AListBase::Iterator(NULLPTR) {};
+
+        iterator(const iterator& it) :
+            AListBase::Iterator(it) {};
 
         operator const_iterator() const {
             return const_iterator(*this);
@@ -207,11 +213,14 @@ class TypedListBase : protected AListBase {
 
     };
 
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
   public:   // functions
 
     TypedListBase() {};
 
-    ///\name AListBase forward
+    /// \name Capacity
     /// \{
     uint32_t size() const {
         return AListBase::size();
@@ -220,7 +229,10 @@ class TypedListBase : protected AListBase {
     bool empty() const {
         return AListBase::empty();
     }
+    /// \}
 
+    /// \name Iterators
+    /// \{
     iterator begin() {
         return iterator(AListBase::begin());
     }
@@ -244,8 +256,34 @@ class TypedListBase : protected AListBase {
     const_iterator cend() const {
         return this->end();
     }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(this->cend());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(this->cbegin());
+    }
     /// \}
 
+    /// \name Element access
+    /// \{
     reference front() {
         return *begin();
     }
@@ -261,19 +299,10 @@ class TypedListBase : protected AListBase {
     const_reference back() const {
         return *(--end());
     }
+    /// \}
 
-    /// \name Search
+    /// \name Lookup
     /// \{
-    /*
-    template<typename F, typename V>
-    const_iterator find(F f, const V& v) const {
-        return find(begin(), end(), f, v);
-    }
-
-    template<typename F, typename V>
-    const_iterator find(const_iterator startPos, const_iterator endPos, F f, const V& v) const;
-    */
-
     iterator find(const Matcher<T>& matchCall) {
         return find(begin(), end(), matchCall);
     }
@@ -357,28 +386,6 @@ class TypedListBase : protected AListBase {
 
 };
 
-/*
-template<class T>
-template<typename F, typename V>
-typename TypedListBase<T>::const_iterator TypedListBase<T>::find(const_iterator startPos,
-                                                                 const_iterator endPos,
-                                                                 F f,
-                                                                 const V& v) const {
-
-    bool match = false;
-
-    while (!match && (startPos != endPos)) {
-
-        match = (((*startPos).*f)() == v);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return startPos;
-}
-*/
 
 template<class T>
 template<class It>

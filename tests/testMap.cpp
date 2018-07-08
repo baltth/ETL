@@ -38,7 +38,7 @@ TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
     REQUIRE(map.size() == 0);
 
     ContainerTester a(4);
-    map.insertOrAssign(4, a);
+    map.insert_or_assign(4, a);
 
     REQUIRE_FALSE(map.empty());
     REQUIRE(map.size() == 1);
@@ -49,7 +49,7 @@ TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
     REQUIRE(map.size() == 2);
 
     ContainerTester b(-4);
-    map.insertOrAssign(4, b);
+    map.insert_or_assign(4, b);
 
     REQUIRE(map.size() == 2);
     REQUIRE(map[4].getValue() == b.getValue());
@@ -97,9 +97,9 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
         REQUIRE(map[1] == 2);
     }
 
-    SECTION("insertOrAssign() of existing shall overwrite") {
+    SECTION("insert_or_assign() of existing shall overwrite") {
 
-        res = map.insertOrAssign(1, 3);
+        res = map.insert_or_assign(1, 3);
 
         REQUIRE(res.second == false);
         REQUIRE(map.size() == 1);
@@ -306,16 +306,6 @@ TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
         REQUIRE(map3.size() == 4);
         REQUIRE(map3[1] == map[1]);
         REQUIRE(map3[4] == map[4]);
-    }
-
-    SECTION("copyElementsFrom()") {
-
-        map2.copyElementsFrom(map);
-
-        REQUIRE(map2.size() == 5);
-        REQUIRE(map2[1] == map[1]);
-        REQUIRE(map2[4] == map[4]);
-        REQUIRE(map2[5] == -5);
     }
 
     SECTION("swap()") {

@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "sequenceTests.h"
 #include "compatibilityTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -89,6 +90,83 @@ TEST_CASE("Etl::Pooled::List<> basic test", "[list][etl][basic]") {
     typedef Etl::Pooled::List<ItemType, 16> ListT;
 
     testListBasic<ListT>();
+}
+
+
+TEST_CASE("Etl::Dynamic::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Dynamic::List<ItemType> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+TEST_CASE("Etl::Static::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Static::List<ItemType, 16> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+TEST_CASE("Etl::Pooled::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Pooled::List<ItemType, 16> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+
+TEST_CASE("Etl::Dynamic::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Dynamic::List<ItemType> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
+}
+
+TEST_CASE("Etl::Static::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Static::List<ItemType, 16> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
+}
+
+TEST_CASE("Etl::Pooled::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Pooled::List<ItemType, 16> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
 }
 
 

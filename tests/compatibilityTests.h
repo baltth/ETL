@@ -19,6 +19,9 @@ limitations under the License.
 \endparblock
 */
 
+#ifndef __ETL_TEST_COMPATIBILITYTESTS_H__
+#define __ETL_TEST_COMPATIBILITYTESTS_H__
+
 #include "catch.hpp"
 
 #include <etl/etlSupport.h>
@@ -101,3 +104,4 @@ void testInnerProduct() {
 }
 
 
+#endif /* __ETL_TEST_COMPATIBILITYTESTS_H__ */

@@ -123,7 +123,7 @@ class List : public TypedListBase<T> {
     inline void push_back(const T& item);
 
     void pop_front() {
-        deleteNode(static_cast<Node*>(AListBase::popBack()));
+        deleteNode(static_cast<Node*>(AListBase::popFront()));
     }
 
     void pop_back() {

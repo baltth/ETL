@@ -97,15 +97,15 @@ TEST_CASE("Etl::Dynamic::MultiMap<> insert test", "[multimap][etl]") {
         REQUIRE(map.size() == 2);
     }
 
-    SECTION("insertUnique()") {
+    SECTION("insert_unique()") {
 
-        std::pair<MapType::iterator, bool> res = map.insertUnique(1, 3);
+        std::pair<MapType::iterator, bool> res = map.insert_unique(1, 3);
 
         REQUIRE(res.second == false);
         REQUIRE(map.size() == 1);
         REQUIRE(res.first->second == 2);
 
-        res = map.insertUnique(2, 2);
+        res = map.insert_unique(2, 2);
 
         REQUIRE(res.second == true);
         REQUIRE(map.size() == 2);
@@ -298,13 +298,6 @@ TEST_CASE("Etl::Dynamic::MultiMap<> copy", "[multimap][etl]") {
         REQUIRE(it3->second == it1->second);
     }
 
-    SECTION("copyElementsFrom()") {
-
-        map2.copyElementsFrom(map);
-
-        REQUIRE(map2.size() == 6);
-    }
-
     SECTION("swap()") {
 
         map.swap(map2);
@@ -353,9 +346,9 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(it == map.end());
     }
 
-    SECTION("equalRange(Key) for one") {
+    SECTION("equal_range(Key) for one") {
 
-        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(2);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equal_range(2);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -367,9 +360,9 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(++res.first == res.second);
     }
 
-    SECTION("equalRange(Key) for more") {
+    SECTION("equal_range(Key) for more") {
 
-        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(3);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equal_range(3);
 
         REQUIRE(res.first != map.end());
         REQUIRE(res.second != map.end());
@@ -384,9 +377,9 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(++res.first == res.second);
     }
 
-    SECTION("equalRange(Key) non-existing") {
+    SECTION("equal_range(Key) non-existing") {
 
-        std::pair<MapType::iterator, MapType::iterator> res = map.equalRange(12);
+        std::pair<MapType::iterator, MapType::iterator> res = map.equal_range(12);
 
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == map.end());

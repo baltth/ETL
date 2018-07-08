@@ -51,8 +51,7 @@ class Set : public ETL_NAMESPACE::Set<E, std::allocator> {
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -90,8 +89,7 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -129,8 +127,7 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 

@@ -36,8 +36,8 @@ class AMemStrategy {
   public:   // functions
 
     virtual uint32_t getMaxCapacity() const = 0;
+    virtual void reserveExactly(C& cont, uint32_t length) = 0;
     virtual void reserve(C& cont, uint32_t length) = 0;
-    virtual void reserveAtLeast(C& cont, uint32_t length) = 0;
     virtual void shrinkToFit(C& cont) = 0;
     virtual void resize(C& cont, uint32_t length) = 0;
     virtual void cleanup(C& cont) = 0;
@@ -67,11 +67,11 @@ class StaticSized : public AMemStrategy<C> {
         return capacity;
     }
 
-    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
+    virtual void reserveExactly(C& cont, uint32_t length) FINAL OVERRIDE {
         setupData(cont, length);
     }
 
-    virtual void reserveAtLeast(C& cont, uint32_t length) FINAL OVERRIDE {
+    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
         setupData(cont, length);
     }
 
@@ -150,10 +150,10 @@ class DynamicSized : public AMemStrategy<C> {
         return UINT32_MAX;
     }
 
-    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE;
+    virtual void reserveExactly(C& cont, uint32_t length) FINAL OVERRIDE;
 
-    virtual void reserveAtLeast(C& cont, uint32_t length) FINAL OVERRIDE {
-        reserve(cont, getRoundedLength(length));
+    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
+        reserveExactly(cont, getRoundedLength(length));
     }
 
     virtual void shrinkToFit(C& cont) FINAL OVERRIDE;
@@ -181,7 +181,7 @@ class DynamicSized : public AMemStrategy<C> {
 
 
 template<class C, class A>
-void DynamicSized<C, A>::reserve(C& cont, uint32_t length) {
+void DynamicSized<C, A>::reserveExactly(C& cont, uint32_t length) {
 
     if (length > cont.capacity()) {
         reallocateAndCopyFor(cont, length);

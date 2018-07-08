@@ -35,6 +35,7 @@ limitations under the License.
 
 #include <new>
 #include <utility>
+#include <iterator>
 
 #if ETL_USE_CPP11
 #include <functional>
@@ -63,6 +64,8 @@ class TypedVectorBase : public AVectorBase {
 
     typedef pointer iterator;
     typedef const_pointer const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   protected:
 
@@ -135,6 +138,8 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // functions
 
+    /// \name Element access
+    /// \{
     reference operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
@@ -149,30 +154,6 @@ class TypedVectorBase : public AVectorBase {
     const_reference at(uint32_t ix) const;
 
 #endif
-
-    iterator begin() {
-        return static_cast<iterator>(getItemPointer(0));
-    }
-
-    const_iterator begin() const {
-        return static_cast<const_iterator>(getItemPointer(0));
-    }
-
-    const_iterator cbegin() const {
-        return this->begin();
-    }
-
-    iterator end() {
-        return static_cast<iterator>(getItemPointer(size()));
-    }
-
-    const_iterator end() const {
-        return static_cast<const_iterator>(getItemPointer(size()));
-    }
-
-    const_iterator cend() const {
-        return this->end();
-    }
 
     reference front() {
         return *(static_cast<T*>(getItemPointer(0)));
@@ -197,6 +178,69 @@ class TypedVectorBase : public AVectorBase {
     const T* data() const {
         return static_cast<const T*>(getItemPointer(0));
     }
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    iterator begin() {
+        return static_cast<iterator>(getItemPointer(0));
+    }
+
+    const_iterator begin() const {
+        return static_cast<const_iterator>(getItemPointer(0));
+    }
+
+    const_iterator cbegin() const {
+        return this->begin();
+    }
+
+    iterator end() {
+        return static_cast<iterator>(getItemPointer(size()));
+    }
+
+    const_iterator end() const {
+        return static_cast<const_iterator>(getItemPointer(size()));
+    }
+
+    const_iterator cend() const {
+        return this->end();
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(this->cend());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(this->cbegin());
+    }
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    void clear();
+    iterator erase(iterator first, iterator last);
+
+    iterator erase(iterator pos) {
+        iterator next = pos;
+        ++next;
+        return erase(pos, next);
+    }
 
     void pop_front() {
         erase(begin());
@@ -205,16 +249,7 @@ class TypedVectorBase : public AVectorBase {
     void pop_back() {
         erase(end() - 1);
     }
-
-    iterator erase(iterator pos) {
-        iterator next = pos;
-        ++next;
-        return erase(pos, next);
-    }
-
-    iterator erase(iterator first, iterator last);
-
-    void clear();
+    /// \}
 
   protected:
 

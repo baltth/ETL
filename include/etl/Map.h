@@ -51,8 +51,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, std::allocator> {
         Base(other) {};
 
     Map& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -91,8 +90,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
         Base(other) {};
 
     Map& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -131,8 +129,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::templa
         Base(other) {};
 
     Map& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 

@@ -52,8 +52,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, std::allocator> {
         Base(other) {};
 
     MultiMap& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -91,8 +90,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
         Base(other) {};
 
     MultiMap& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -130,8 +128,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<
         Base(other) {};
 
     MultiMap& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 

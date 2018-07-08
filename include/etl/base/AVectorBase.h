@@ -62,6 +62,8 @@ class AVectorBase {
 
   public:   // functions
 
+    /// \name Capacity
+    /// \{
     uint32_t capacity() const {
         return proxy.capacity();
     }
@@ -73,6 +75,7 @@ class AVectorBase {
     bool empty() const {
         return (proxy.size() == 0);
     }
+    /// \}
 
     void* getItemPointer(uint32_t ix) {
         return proxy.getItemPointer(ix);

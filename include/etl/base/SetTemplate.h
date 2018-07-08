@@ -55,12 +55,11 @@ class Set : public Sorted<List<E, A> > {
     Set() {};
 
     Set(const Set& other) {
-        copyElementsFrom(other);
+        assign(other);
     }
 
     Set& operator=(const Set& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -77,12 +76,32 @@ class Set : public Sorted<List<E, A> > {
         return Base::insertUnique(e);
     }
 
+    template<class InputIt>
+    typename std::enable_if<!std::is_integral<InputIt>::value>::type    // *NOPAD*
+    insert(InputIt first, InputIt last) {
+        while (first != last) {
+            insert(*first);
+            ++first;
+        }
+    }
+
     void erase(const E& e);
 
     iterator find(const E& e);
     const_iterator find(const E& e) const;
 
-    void copyElementsFrom(const Set<E, A>& other);
+  protected:
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(first, last);
+    }
+
+    template<class Cont>
+    void assign(const Cont& other) {
+        assign(other.begin(), other.end());
+    }
 
 };
 
@@ -133,16 +152,6 @@ typename Set<E, A>::const_iterator  Set<E, A>::find(const E& e) const {
         return --found.first;
     } else {
         return Base::end();
-    }
-}
-
-
-template<class E, template<class> class A>
-void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
-
-    const_iterator endIt = other.end();
-    for (const_iterator it = other.begin(); it != endIt; ++it) {
-        insert(*it);
     }
 }
 

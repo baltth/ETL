@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "UnalignedTester.h"
 #include "ContainerTester.h"
+#include "sequenceTests.h"
 #include "compatibilityTests.h"
 
 using ETL_NAMESPACE::Test::UnalignedTester;
@@ -89,50 +90,13 @@ TEST_CASE("Etl::Static::Vector<> basic test", "[vec][static][etl][basic]") {
 }
 
 
-template<class VecT>
-void testVectorPushAndPop() {
-
-    typedef typename VecT::value_type ItemT;
-
-    static const ItemT itemBack1 = 1;
-    static const ItemT itemBack2 = 2;
-    static const ItemT itemFront1 = 3;
-    static const ItemT itemFront2 = 4;
-
-    VecT vec;
-
-    vec.push_back(itemBack1);
-    vec.push_back(itemBack2);
-    vec.push_front(itemFront1);
-    vec.push_front(itemFront2);
-
-    REQUIRE(vec.size() == 4);
-
-    REQUIRE(vec[0] == itemFront2);
-    REQUIRE(vec[1] == itemFront1);
-    REQUIRE(vec[2] == itemBack1);
-    REQUIRE(vec[3] == itemBack2);
-
-    REQUIRE(vec.back() == itemBack2);
-    vec.pop_back();
-    REQUIRE(vec.back() == itemBack1);
-
-    REQUIRE(vec.front() == itemFront2);
-    vec.pop_front();
-    REQUIRE(vec.front() == itemFront1);
-
-    vec.pop_back();
-    vec.pop_front();
-
-    REQUIRE(vec.size() == 0);
-}
-
 TEST_CASE("Etl::Dynamic::Vector<> push/pop test", "[vec][dynamic][etl]") {
 
     typedef int ItemT;
     typedef Etl::Dynamic::Vector<ItemT> VecT;
 
-    testVectorPushAndPop<VecT>();
+    testBackAccess<VecT>();
+    testFrontAccess<VecT>();
 }
 
 TEST_CASE("Etl::Static::Vector<> push/pop test", "[vec][static][etl][basic]") {
@@ -140,7 +104,41 @@ TEST_CASE("Etl::Static::Vector<> push/pop test", "[vec][static][etl][basic]") {
     typedef int ItemT;
     typedef Etl::Static::Vector<ItemT, 16> VecT;
 
-    testVectorPushAndPop<VecT>();
+    testBackAccess<VecT>();
+    testFrontAccess<VecT>();
+}
+
+
+TEST_CASE("Etl::Dynamic::Vector<> iteration test", "[vec][dynamic][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> VecT;
+
+    SECTION("iterator") {
+        testIterationForward<VecT>();
+        testIterationBackward<VecT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<VecT>();
+        testReverseIterationBackward<VecT>();
+    }
+}
+
+TEST_CASE("Etl::Static::Vector<> iteration test", "[vec][static][etl][basic]") {
+
+    typedef int ItemT;
+    typedef Etl::Static::Vector<ItemT, 16> VecT;
+
+    SECTION("iterator") {
+        testIterationForward<VecT>();
+        testIterationBackward<VecT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<VecT>();
+        testReverseIterationBackward<VecT>();
+    }
 }
 
 
@@ -499,7 +497,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
         VecT vec1(4, 1);
         VecT2 vec2;
 
-        CHECK(vec1.size() == vec2.getMaxCapacity());
+        CHECK(vec1.size() == vec2.max_size());
 
         SECTION("Allow at max capacity") {
 
@@ -541,7 +539,7 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
         SECTION("Disallow above max capacity") {
 
             vec1.push_back(2);
-            CHECK(vec1.size() > vec2.getMaxCapacity());
+            CHECK(vec1.size() > vec2.max_size());
 
             SECTION("1->2") {
                 REQUIRE_FALSE(vec1.swap(vec2));
@@ -977,10 +975,10 @@ TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vec][dynamic][etl]") {
     vec.push_back(2);
     REQUIRE(vec.size() == 2);
 
-    vec.shrinkToFit();
+    vec.shrink_to_fit();
     REQUIRE(vec.capacity() == 2);
 
-    vec.reserveAtLeast(5);
+    vec.reserve(5);
     REQUIRE(vec.size() == 2);
     REQUIRE(vec.capacity() >= 5);
 
@@ -1093,10 +1091,10 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]
     vec.push_back(2);
     REQUIRE(vec.size() == 2);
 
-    vec.shrinkToFit();
+    vec.shrink_to_fit();
     REQUIRE(vec.capacity() == CAPACITY);
 
-    vec.reserveAtLeast(5);
+    vec.reserve(5);
     REQUIRE(vec.size() == 2);
     REQUIRE(vec.capacity() == CAPACITY);
 

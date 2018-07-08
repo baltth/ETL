@@ -61,12 +61,11 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
     Map() {};
 
     Map(const Map& other) {
-        copyElementsFrom(other);
+        assign(other);
     }
 
     Map& operator=(const Map& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -79,11 +78,24 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
     using Base::find;
     using Base::erase;
 
-    std::pair<iterator, bool> insert(const K& k, const E& e) {
-        return Base::insertUnique(value_type(k, e));
+    std::pair<iterator, bool> insert(const value_type& item) {
+        return Base::insertUnique(item);
     }
 
-    std::pair<iterator, bool> insertOrAssign(const K& k, const E& e);
+    template<class InputIt>
+    typename std::enable_if<!std::is_integral<InputIt>::value>::type    // *NOPAD*
+    insert(InputIt first, InputIt last) {
+        while (first != last) {
+            insert(*first);
+            ++first;
+        }
+    }
+
+    std::pair<iterator, bool> insert(const K& k, const E& e) {
+        return insert(value_type(k, e));
+    }
+
+    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
 
     void erase(const K& k);
 
@@ -96,9 +108,11 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
         return getItem(k)->second;
     }
 
-    void copyElementsFrom(const Map<K, E, A>& other);
-
 #if ETL_USE_CPP11
+
+    void insert(std::initializer_list<value_type> initList) {
+        insert(initList.begin(), initList.end());
+    }
 
     template<typename... Args>
     inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
@@ -109,11 +123,24 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
         return item.first;
     }
 
+  protected:
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(first, last);
+    }
+
+    template<class Cont>
+    void assign(const Cont& other) {
+        assign(other.begin(), other.end());
+    }
+
 };
 
 
 template<typename K, class E, template<class> class A>
-std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::insertOrAssign(const K& k, const E& e) {
+std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::insert_or_assign(const K& k, const E& e) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -188,15 +215,6 @@ typename Map<K, E, A>::iterator Map<K, E, A>::getItem(const K& k) {
     return found.first;
 }
 
-
-template<typename K, class E, template<class> class A>
-void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
-
-    const_iterator endIt = other.end();
-    for (const_iterator it = other.begin(); it != endIt; ++it) {
-        insertOrAssign(it->first, it->second);
-    }
-}
 
 #if ETL_USE_CPP11
 

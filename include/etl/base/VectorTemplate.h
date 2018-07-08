@@ -51,6 +51,8 @@ class Vector : public TypedVectorBase<T> {
 
     typedef pointer iterator;
     typedef const_pointer const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     typedef typename Base::Creator Creator;
 
@@ -63,7 +65,6 @@ class Vector : public TypedVectorBase<T> {
     AMemStrategy<StrategyBase>& strategy;
 
   public:   // functions
-
 
     void assign(uint32_t num, const_reference value) {
         this->clear();
@@ -84,6 +85,31 @@ class Vector : public TypedVectorBase<T> {
 
 #endif
 
+    /// \name Capacity
+    /// \{
+    void resize(uint32_t length) {
+        strategy.resize(*this, length);
+    }
+
+    void reserve(uint32_t length) {
+        strategy.reserve(*this, length);
+    }
+
+    uint32_t max_size() const {
+        return strategy.getMaxCapacity();
+    }
+
+    void reserve_exactly(uint32_t length) {
+        strategy.reserveExactly(*this, length);
+    }
+
+    void shrink_to_fit() {
+        strategy.shrinkToFit(*this);
+    }
+    /// \}
+
+    /// \name Modifiers
+    /// \{
     iterator insert(const_iterator position, const_reference value) {
         return insert(position, 1U, value);
     }
@@ -91,13 +117,17 @@ class Vector : public TypedVectorBase<T> {
     iterator insert(const_iterator position, uint32_t num, const_reference value);
 
     template<typename InputIt>
-    typename std::enable_if < !std::is_integral<InputIt>::value, iterator >::type
+    typename std::enable_if<!std::is_integral<InputIt>::value, iterator>::type      // *NOPAD*
     insert(const_iterator position, InputIt first, InputIt last) {
         typename Base::template ContCreator<InputIt> cc(first, last);
         return insertWithCreator(position, cc.getLength(), cc);
     }
 
 #if ETL_USE_CPP11
+
+    void insert(const_iterator position, std::initializer_list<T> initList) {
+        insert(position, initList.begin(), initList.end());
+    }
 
     iterator insert(const_iterator position, T&& value);
 
@@ -119,6 +149,11 @@ class Vector : public TypedVectorBase<T> {
         insert(this->end(), value);
     }
 
+    bool swap(Vector& other);
+    /// \}
+
+    /// \name Lookup
+    /// \{
 #if ETL_USE_CPP11
 
     iterator find(MatchFunc<T>&& matcher) const {
@@ -134,28 +169,7 @@ class Vector : public TypedVectorBase<T> {
     }
 
     iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matcher) const;
-
-    uint32_t getMaxCapacity() const {
-        return strategy.getMaxCapacity();
-    }
-
-    void reserve(uint32_t length) {
-        strategy.reserve(*this, length);
-    }
-
-    void reserveAtLeast(uint32_t length) {
-        strategy.reserveAtLeast(*this, length);
-    }
-
-    void shrinkToFit() {
-        strategy.shrinkToFit(*this);
-    }
-
-    void resize(uint32_t length) {
-        strategy.resize(*this, length);
-    }
-
-    bool swap(Vector& other);
+    /// \}
 
   protected:
 
@@ -198,7 +212,7 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
         if (requestedCapacity > this->capacity()) {
             uint32_t positionIx = position - this->begin();
-            this->reserveAtLeast(requestedCapacity);
+            this->reserve(requestedCapacity);
             position = this->begin() + positionIx;
         }
 
@@ -236,10 +250,10 @@ bool Vector<T>::swap(Vector<T>& other) {
     bool swapped = false;
 
     if (&other != this) {
-        if ((this->getMaxCapacity() >= other.size()) && (other.getMaxCapacity() >= this->size())) {
+        if ((this->max_size() >= other.size()) && (other.max_size() >= this->size())) {
 
-            this->reserve(other.size());
-            other.reserve(this->size());
+            this->reserve_exactly(other.size());
+            other.reserve_exactly(this->size());
 
             if ((this->capacity() >= other.size()) && (other.capacity() >= this->size())) {
 
@@ -315,7 +329,7 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
         if (requestedCapacity > this->capacity()) {
 
             uint32_t positionIx = position - this->begin();
-            this->reserveAtLeast(requestedCapacity);
+            this->reserve(requestedCapacity);
             position = this->begin() + positionIx;
         }
 
@@ -379,6 +393,8 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef typename Base::StrategyBase StrategyBase;
     typedef value_type* iterator;
     typedef const value_type* const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     typedef typename Base::Creator Creator;
 
@@ -418,6 +434,30 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
     const_iterator cend() const {
         return this->end();
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(this->cend());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(this->cbegin());
     }
 
     value_type& front() {
