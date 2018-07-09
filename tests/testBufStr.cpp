@@ -45,7 +45,7 @@ TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
     SECTION("Default state") {
 
         REQUIRE(data.begin() == bs.cStr());
-        REQUIRE(data.getSize() == 1);
+        REQUIRE(data.size() == 1);
         REQUIRE(data.back() == '\0');
 
         REQUIRE(bs.getFill() == 1);
@@ -382,6 +382,6 @@ TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
     bs << "1234567890";
     bs << "1234567890";
 
-    REQUIRE(bs.getSize() == 16);
+    REQUIRE(bs.size() == 16);
     REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
 }

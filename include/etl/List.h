@@ -40,8 +40,8 @@ class List : public ETL_NAMESPACE::List<T, std::allocator> {
 
     typedef ETL_NAMESPACE::List<T, std::allocator> Base;
     typedef typename Base::Allocator Allocator;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
     typedef typename Base::Node Node;
 
   public:   // functions
@@ -83,8 +83,8 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
   public:   // types
 
     typedef ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
   public:   // functions
 
@@ -118,8 +118,8 @@ class List : public ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::templat
   public:   // types
 
     typedef ETL_NAMESPACE::List<T, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
   public:   // functions
 

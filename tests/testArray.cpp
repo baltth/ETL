@@ -36,10 +36,10 @@ TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {
 
     ArrayType array;
 
-    uint32_t size = array.getSize();
+    uint32_t size = array.size();
     REQUIRE(size == 16);
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     *it = 1;
     CAPTURE(*it);
     REQUIRE(array[0] == *it);
@@ -53,7 +53,7 @@ TEST_CASE("Etl::Array<> iterators", "[array][etl]") {
 
     ArrayType array;
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     *it = 1;
     ++it;
     *it = 2;
@@ -111,7 +111,7 @@ TEST_CASE("Etl::Array<> alignment", "[array][etl]") {
     CAPTURE(itemSize);
     CHECK((itemSize % sizeof(uint32_t)) != 0);
 
-    ArrayType::Iterator it = array.begin();
+    ArrayType::iterator it = array.begin();
     uint64_t item0 = reinterpret_cast<uint64_t>(it);
     ++it;
     uint64_t item1 = reinterpret_cast<uint64_t>(it);
@@ -160,11 +160,11 @@ TEST_CASE("Etl::GenericProxy - Array<> test", "[array][etl][basic]") {
     Etl::Array<ItemType, 16> array;
     Etl::GenericProxy proxy(array);
 
-    REQUIRE(proxy.getCapacity() == array.getSize());
+    REQUIRE(proxy.capacity() == array.size());
     REQUIRE(proxy.getItemSize() == sizeof(ItemType));
-    REQUIRE(proxy.getData() == array.getData());
+    REQUIRE(proxy.data() == array.data());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
-    REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
+    REQUIRE(proxy.getItemPointer(proxy.capacity()) == array.end());
 }
 
 
@@ -175,10 +175,10 @@ TEST_CASE("Etl::Proxy - Array<> test", "[array][etl][basic]") {
     Etl::Array<ItemType, 16> array;
     Etl::Proxy<ItemType> proxy(array);
 
-    REQUIRE(proxy.getCapacity() == array.getSize());
-    REQUIRE(proxy.getData() == array.getData());
+    REQUIRE(proxy.capacity() == array.size());
+    REQUIRE(proxy.data() == array.data());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
-    REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
+    REQUIRE(proxy.getItemPointer(proxy.capacity()) == array.end());
 }
 
 
@@ -191,10 +191,10 @@ TEST_CASE("Etl::MutableProxy - Array<> test", "[array][etl][basic]") {
     Etl::Array<ItemType, 16> array;
     Etl::MutableProxy<ItemType> proxy(array);
 
-    REQUIRE(proxy.getCapacity() == array.getSize());
-    REQUIRE(proxy.getData() == array.getData());
+    REQUIRE(proxy.capacity() == array.size());
+    REQUIRE(proxy.data() == array.data());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
-    REQUIRE(proxy.getItemPointer(proxy.getCapacity()) == array.end());
+    REQUIRE(proxy.getItemPointer(proxy.capacity()) == array.end());
 
     CAPTURE(PATTERN1);
     array.fill(PATTERN1);

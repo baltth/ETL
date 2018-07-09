@@ -38,18 +38,18 @@ class Array {
 
   public:   // types
 
-    typedef T ValueType;
-    typedef T& Reference;
-    typedef const T& ConstReference;
-    typedef T* Pointer;
-    typedef const T* ConstPointer;
+    typedef T value_type;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* pointer;
+    typedef const T* const_pointer;
 
-    typedef Pointer Iterator;
-    typedef ConstPointer ConstIterator;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
 
   private:  // variables
 
-    T data[N];
+    T data_[N];
 
   public:   // functions
 
@@ -63,74 +63,67 @@ class Array {
 
     /// \name Element access
     /// \{
-    Reference operator[](uint32_t ix) {
-        return data[ix];
+    reference operator[](uint32_t ix) {
+        return data_[ix];
     }
 
-    ConstReference operator[](uint32_t ix) const {
-        return data[ix];
+    const_reference operator[](uint32_t ix) const {
+        return data_[ix];
     }
 
-    T* getData() {
-        return data;
+    T* data() {
+        return data_;
     }
 
-    const T* getData() const {
-        return data;
+    const T* data() const {
+        return data_;
     }
 
 #if ETL_USE_EXCEPTIONS
-    inline Reference at(uint32_t ix);
-    inline ConstReference at(uint32_t ix) const;
+    inline reference at(uint32_t ix);
+    inline const_reference at(uint32_t ix) const;
 #endif
     /// \}
 
     /// \name Iterators
     /// \{
-    Iterator begin() {
-        return static_cast<Iterator>(data);
+    iterator begin() {
+        return static_cast<iterator>(data_);
     }
 
-    ConstIterator begin() const {
-        return static_cast<ConstIterator>(data);
+    const_iterator begin() const {
+        return static_cast<const_iterator>(data_);
     }
 
-    ConstIterator cbegin() const {
+    const_iterator cbegin() const {
         return begin();
     }
 
-    Iterator end() {
-        return static_cast<Iterator>(&data[N]);
+    iterator end() {
+        return static_cast<iterator>(&data_[N]);
     }
 
-    ConstIterator end() const {
-        return static_cast<ConstIterator>(&data[N]);
+    const_iterator end() const {
+        return static_cast<const_iterator>(&data_[N]);
     }
 
-    ConstIterator cend() const {
+    const_iterator cend() const {
         return end();
     }
     /// \}
 
     /// \name Capacity
     /// \{
-    size_t getSize() const {
+    size_t size() const {
         return N;
     }
 
-    size_t getCapacity() const {
-        return getSize();
+    size_t capacity() const {
+        return size();
     }
-    /// \}
 
-    /// \name stl compatible interface
-    /// \{
     bool empty() const {
         return N == 0;
-    }
-
-    size_t size() const {
-        return getSize();
     }
     /// \}
 
@@ -162,7 +155,7 @@ void Array<T, N>::fill(const T& value) {
 #if ETL_USE_EXCEPTIONS
 
 template<typename T, uint32_t N>
-Array<T, N>::Reference Array<T, N>::at(uint32_t ix) {
+Array<T, N>::reference Array<T, N>::at(uint32_t ix) {
 
     if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();
@@ -173,7 +166,7 @@ Array<T, N>::Reference Array<T, N>::at(uint32_t ix) {
 
 
 template<typename T, uint32_t N>
-Array<T, N>::ConstReference Array<T, N>::at(uint32_t ix) const {
+Array<T, N>::const_reference Array<T, N>::at(uint32_t ix) const {
 
     if (ix >= N) {
         throw ETL_NAMESPACE::OutOfRangeException();

@@ -54,15 +54,45 @@ using std::size_t;
 #endif
 
 #include <stdexcept>    // For new overrides
+#include <iterator>
 
 namespace ETL_NAMESPACE {
 
 
 template<typename T>
 struct Matcher {
-
     virtual bool call(const T&) const = 0;
+    bool operator()(const T& item) const {
+        return this->call(item);
+    }
+};
 
+
+template<typename T, typename V>
+struct MethodMatcher : Matcher<T> {
+    typedef  V(T::*Method)() const;
+    Method method;
+    const V val;
+    MethodMatcher(Method m, const V& v) :
+        method(m),
+        val(v) {};
+    virtual bool call(const T& item) const OVERRIDE {
+        return ((item.*method)() == val);
+    }
+};
+
+
+template<typename T, typename V>
+struct FunctionMatcher : Matcher<T> {
+    typedef  V(*Func)(const T&);
+    Func func;
+    const V val;
+    FunctionMatcher(Func f, const V& v) :
+        func(f),
+        val(v) {};
+    virtual bool call(const T& item) const OVERRIDE {
+        return ((*func)(item) == val);
+    }
 };
 
 #if ETL_USE_CPP11
@@ -72,7 +102,42 @@ using MatchFunc = std::function<bool(const T&)>;
 
 #endif
 
+
+template<typename S, typename T>
+struct CopyConst {
+    typedef T Type;
+};
+
+template<typename S, typename T>
+struct CopyConst<const S, T> {
+    typedef const T Type;
+};
+
+
+template<typename T>
+struct IsIterator {
+
+    typedef char Yes;
+    typedef long No;
+
+    template<typename U, typename = typename U::iterator_category>
+    struct HasIteratorCategory {
+        static const Yes value;
+    };
+
+    template<typename U>
+    static HasIteratorCategory<U> test(U*);
+
+    template<typename U>
+    static No test(...);
+
+
+
+    static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
+};
+
 }
+
 
 #if ETL_DISABLE_HEAP
 

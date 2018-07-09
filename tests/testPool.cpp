@@ -29,7 +29,7 @@ TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
     Etl::MemoryPool<16, 16> pool;
 
     uint32_t freeCnt = pool.getFreeCount();
-    REQUIRE(pool.getCapacity() == freeCnt);
+    REQUIRE(pool.capacity() == freeCnt);
     REQUIRE(freeCnt == 16);
     REQUIRE(pool.getCount() == 0);
 
@@ -38,19 +38,19 @@ TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
     REQUIRE(item0 != NULL);
     --freeCnt;
     REQUIRE(pool.getFreeCount() == freeCnt);
-    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
+    REQUIRE(pool.getCount() == (pool.capacity() - freeCnt));
 
     void* item1 = NULL;
     item1 = pool.pop();
     REQUIRE(item1 != NULL);
     --freeCnt;
     REQUIRE(pool.getFreeCount() == freeCnt);
-    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
+    REQUIRE(pool.getCount() == (pool.capacity() - freeCnt));
 
     REQUIRE(pool.push(item0));
     ++freeCnt;
     REQUIRE(pool.getFreeCount() == freeCnt);
-    REQUIRE(pool.getCount() == (pool.getCapacity() - freeCnt));
+    REQUIRE(pool.getCount() == (pool.capacity() - freeCnt));
 }
 
 
@@ -61,16 +61,16 @@ TEST_CASE("Etl::MemoryPool<> alloc fail", "[pool][etl]") {
 
     items.fill(NULL);
 
-    for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (Etl::Array<void*, 8>::iterator it = items.begin(); it < items.end(); ++it) {
         CAPTURE(pool.getFreeCount());
         *it = pool.pop();
         CHECK(*it != NULL);
     }
 
-    REQUIRE(pool.getCount() == pool.getCapacity());
+    REQUIRE(pool.getCount() == pool.capacity());
     REQUIRE(pool.pop() == NULL);
 
-    for (Etl::Array<void*, 8>::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (Etl::Array<void*, 8>::iterator it = items.begin(); it < items.end(); ++it) {
         CAPTURE(pool.getFreeCount());
         CAPTURE(*it);
         CHECK(pool.push(*it));
@@ -108,7 +108,7 @@ void testMemoryPoolRandomAccess() {
 
     items.fill(NULL);
 
-    for (typename Items::Iterator it = items.begin(); it < items.end(); ++it) {
+    for (typename Items::iterator it = items.begin(); it < items.end(); ++it) {
         *it = pool.pop();
     }
 

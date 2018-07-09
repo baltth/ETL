@@ -142,7 +142,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
-    typedef A<typename StrategyBase::ValueType> Allocator;
+    typedef A<typename StrategyBase::value_type> Allocator;
 
   private:  // variables
 

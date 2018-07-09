@@ -39,8 +39,6 @@ class Set : public ETL_NAMESPACE::Set<E, std::allocator> {
   public:   // types
 
     typedef ETL_NAMESPACE::Set<E, std::allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -53,8 +51,7 @@ class Set : public ETL_NAMESPACE::Set<E, std::allocator> {
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -80,10 +77,8 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
   public:   // types
 
     typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
-public:   // functions
+  public:   // functions
 
     Set() {};
 
@@ -94,8 +89,7 @@ public:   // functions
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -121,8 +115,6 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
   public:   // types
 
     typedef ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
 
   public:   // functions
 
@@ -135,8 +127,7 @@ class Set : public ETL_NAMESPACE::Set<E, ETL_NAMESPACE::PoolHelper<N>::template 
         Base(other) {};
 
     Set& operator=(const Base& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 

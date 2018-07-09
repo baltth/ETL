@@ -34,7 +34,7 @@ class FifoIndexing {
 
   private:  // variables
 
-    uint32_t capacity;
+    uint32_t capacityVal;
     uint32_t length;
 
     uint32_t writeIx;
@@ -42,12 +42,12 @@ class FifoIndexing {
 
   public:   // functions
 
-    bool isEmpty() const {
+    bool empty() const {
         return (length == 0);
     }
 
     bool isFull() const {
-        return (length == capacity);
+        return (length == capacityVal);
     }
 
     uint32_t getLength() const {
@@ -60,14 +60,14 @@ class FifoIndexing {
 
     void setLength(uint32_t len);
 
-    uint32_t getCapacity() const {
-        return capacity;
+    uint32_t capacity() const {
+        return capacityVal;
     }
 
   protected:
 
     explicit FifoIndexing(uint32_t fifoSize) :
-        capacity(fifoSize) {
+        capacityVal(fifoSize) {
 
         resetIndexes();
     };
@@ -81,7 +81,7 @@ class FifoIndexing {
     void resetIndexes();
 
     void setCapacity(uint32_t fifoSize) {
-        capacity = fifoSize;
+        capacityVal = fifoSize;
     }
 
     void push();

@@ -197,8 +197,8 @@ class BufStr {
     }
 
     BufStr& operator <<(const BufStr& other) {
-        if (!other.isEmpty()) {
-            write(other.cStr(), other.getSize());
+        if (!other.empty()) {
+            write(other.cStr(), other.size());
         }
         return *this;
     }
@@ -211,12 +211,12 @@ class BufStr {
         return data.begin();
     }
 
-    uint32_t getSize() const {
-        return data.getSize() ? (data.getSize() - 1) : 0;
+    uint32_t size() const {
+        return data.size() ? (data.size() - 1) : 0;
     }
 
-    bool isEmpty() const {
-        return (getSize() == 0);
+    bool empty() const {
+        return (size() == 0);
     }
 
     void clear() {
@@ -367,15 +367,15 @@ class BufStr {
     void writeWithPadding(const char* str, uint32_t len, uint8_t padding);
 
     void putChar(char c) {
-        data.pushBack(c);
+        data.push_back(c);
     }
 
     void closeStr() {
-        data.pushBack('\0');
+        data.push_back('\0');
     }
 
     void openStr() {
-        data.popBack();
+        data.pop_back();
     }
 
     static char tetradeToChar(uint8_t val);

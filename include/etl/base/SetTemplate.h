@@ -36,31 +36,30 @@ class Set : public Sorted<List<E, A> > {
 
   public:   // types
 
-    typedef E KeyType;
-    typedef E ValueType;
-    typedef ValueType& Reference;
-    typedef const ValueType& ConstReference;
-    typedef ValueType* Pointer;
-    typedef const ValueType* ConstPointer;
+    typedef E key_type;
+    typedef E value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
 
     typedef List<E, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef Sorted<ContainerType> Base;
 
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
   public:   // functions
 
     Set() {};
 
     Set(const Set& other) {
-        copyElementsFrom(other);
+        assign(other);
     }
 
     Set& operator=(const Set& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -73,19 +72,36 @@ class Set : public Sorted<List<E, A> > {
     using Base::find;
     using Base::erase;
 
-    std::pair<Iterator, bool> insert(const E& e) {
+    std::pair<iterator, bool> insert(const E& e) {
         return Base::insertUnique(e);
+    }
+
+    template<class InputIt>
+    typename std::enable_if<!std::is_integral<InputIt>::value>::type    // *NOPAD*
+    insert(InputIt first, InputIt last) {
+        while (first != last) {
+            insert(*first);
+            ++first;
+        }
     }
 
     void erase(const E& e);
 
-    ConstIterator find(const E& e) const;
+    iterator find(const E& e);
+    const_iterator find(const E& e) const;
 
-    Iterator find(const E& e) {
-        return Iterator(static_cast<const Set*>(this)->find(e));
+  protected:
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(first, last);
     }
 
-    void copyElementsFrom(const Set<E, A>& other);
+    template<class Cont>
+    void assign(const Cont& other) {
+        assign(other.begin(), other.end());
+    }
 
 };
 
@@ -106,7 +122,7 @@ Set<E, A>::Set(std::initializer_list<E> initList) {
 template<class E, template<class> class A>
 void Set<E, A>::erase(const E& e) {
 
-    std::pair<Iterator, bool> found = Base::findSortedPosition(e);
+    std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -115,9 +131,9 @@ void Set<E, A>::erase(const E& e) {
 
 
 template<class E, template<class> class A>
-typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
+typename Set<E, A>::iterator  Set<E, A>::find(const E& e) {
 
-    std::pair<ConstIterator, bool> found = Base::findSortedPosition(e);
+    std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
@@ -128,11 +144,14 @@ typename Set<E, A>::ConstIterator  Set<E, A>::find(const E& e) const {
 
 
 template<class E, template<class> class A>
-void Set<E, A>::copyElementsFrom(const Set<E, A>& other) {
+typename Set<E, A>::const_iterator  Set<E, A>::find(const E& e) const {
 
-    ConstIterator endIt = other.end();
-    for (ConstIterator it = other.begin(); it != endIt; ++it) {
-        insert(*it);
+    std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
     }
 }
 

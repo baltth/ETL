@@ -26,7 +26,7 @@ using ETL_NAMESPACE::FifoIndexing;
 
 void FifoIndexing::resetIndexes() {
 
-    writeIx = getCapacity() - 1;
+    writeIx = capacity() - 1;
     readIx = writeIx;
     length = 0;
 }
@@ -36,8 +36,8 @@ uint32_t FifoIndexing::getIndexFromFront(uint32_t ix) const {
 
     uint32_t bufferIx = nextIndex(readIx) + limitIndexForLength(ix);
 
-    if (bufferIx >= getCapacity()) {
-        bufferIx -= getCapacity();
+    if (bufferIx >= capacity()) {
+        bufferIx -= capacity();
     }
 
     return bufferIx;
@@ -49,7 +49,7 @@ uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
     int32_t bufferIx = writeIx - limitIndexForLength(ix);
 
     if (bufferIx < 0) {
-        bufferIx += getCapacity();
+        bufferIx += capacity();
     }
 
     return bufferIx;
@@ -74,7 +74,7 @@ uint32_t FifoIndexing::nextIndex(uint32_t ix) const {
 
     ++ix;
 
-    if (ix >= getCapacity()) {
+    if (ix >= capacity()) {
         ix = 0;
     }
 
@@ -84,8 +84,8 @@ uint32_t FifoIndexing::nextIndex(uint32_t ix) const {
 
 uint32_t FifoIndexing::previousIndex(uint32_t ix) const {
 
-    if ((ix == 0) && (getCapacity() > 0)) {
-        ix = getCapacity() - 1;
+    if ((ix == 0) && (capacity() > 0)) {
+        ix = capacity() - 1;
     } else {
         --ix;
     }
@@ -101,7 +101,7 @@ void FifoIndexing::push() {
 
     if ((prevWriteIx == readIx) && (length > 0)) {
         readIx = writeIx;
-        length = capacity;
+        length = capacityVal;
     } else {
         ++length;
     }
@@ -119,12 +119,12 @@ void FifoIndexing::pop() {
 
 void FifoIndexing::setLength(uint32_t len) {
 
-    if (len >= capacity) {
-        len = capacity - 1;
+    if (len >= capacityVal) {
+        len = capacityVal - 1;
     }
 
     if (len > writeIx) {
-        readIx = writeIx + capacity;
+        readIx = writeIx + capacityVal;
     } else {
         readIx = writeIx;
     }

@@ -35,6 +35,7 @@ limitations under the License.
 
 #include <new>
 #include <utility>
+#include <iterator>
 
 #if ETL_USE_CPP11
 #include <functional>
@@ -55,14 +56,16 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // types
 
-    typedef T ValueType;
-    typedef T& Reference;
-    typedef const T& ConstReference;
-    typedef T* Pointer;
-    typedef const T* ConstPointer;
+    typedef T value_type;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* pointer;
+    typedef const T* const_pointer;
 
-    typedef Pointer Iterator;
-    typedef ConstPointer ConstIterator;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   protected:
 
@@ -135,86 +138,118 @@ class TypedVectorBase : public AVectorBase {
 
   public:   // functions
 
-    Reference operator[](uint32_t ix) {
+    /// \name Element access
+    /// \{
+    reference operator[](uint32_t ix) {
         return *(static_cast<T*>(getItemPointer(ix)));
     }
 
-    ConstReference operator[](uint32_t ix) const {
+    const_reference operator[](uint32_t ix) const {
         return *(static_cast<const T*>(getItemPointer(ix)));
     }
 
 #if ETL_USE_EXCEPTIONS
 
-    Reference at(uint32_t ix);
-    ConstReference at(uint32_t ix) const;
+    reference at(uint32_t ix);
+    const_reference at(uint32_t ix) const;
 
 #endif
 
-    Iterator begin() {
-        return static_cast<Iterator>(getItemPointer(0));
-    }
-
-    ConstIterator begin() const {
-        return static_cast<ConstIterator>(getItemPointer(0));
-    }
-
-    ConstIterator cbegin() const {
-        return this->begin();
-    }
-
-    Iterator end() {
-        return static_cast<Iterator>(getItemPointer(getSize()));
-    }
-
-    ConstIterator end() const {
-        return static_cast<ConstIterator>(getItemPointer(getSize()));
-    }
-
-    ConstIterator cend() const {
-        return this->end();
-    }
-
-    Reference front() {
+    reference front() {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    ConstReference front() const {
+    const_reference front() const {
         return *(static_cast<T*>(getItemPointer(0)));
     }
 
-    Reference back() {
-        return *(static_cast<T*>(getItemPointer(getSize() - 1)));
+    reference back() {
+        return *(static_cast<T*>(getItemPointer(size() - 1)));
     }
 
-    ConstReference back() const {
-        return *(static_cast<const T*>(getItemPointer(getSize() - 1)));
+    const_reference back() const {
+        return *(static_cast<const T*>(getItemPointer(size() - 1)));
     }
 
-    T* getData() {
+    T* data() {
         return static_cast<T*>(getItemPointer(0));
     }
 
-    const T* getData() const {
+    const T* data() const {
         return static_cast<const T*>(getItemPointer(0));
     }
+    /// \}
 
-    void popFront() {
-        erase(begin());
+    /// \name Iterators
+    /// \{
+    iterator begin() {
+        return static_cast<iterator>(getItemPointer(0));
     }
 
-    void popBack() {
-        erase(end() - 1);
+    const_iterator begin() const {
+        return static_cast<const_iterator>(getItemPointer(0));
     }
 
-    Iterator erase(Iterator pos) {
-        Iterator next = pos;
+    const_iterator cbegin() const {
+        return this->begin();
+    }
+
+    iterator end() {
+        return static_cast<iterator>(getItemPointer(size()));
+    }
+
+    const_iterator end() const {
+        return static_cast<const_iterator>(getItemPointer(size()));
+    }
+
+    const_iterator cend() const {
+        return this->end();
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(this->end());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(this->cend());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(this->begin());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(this->cbegin());
+    }
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    void clear();
+    iterator erase(iterator first, iterator last);
+
+    iterator erase(iterator pos) {
+        iterator next = pos;
         ++next;
         return erase(pos, next);
     }
 
-    Iterator erase(Iterator first, Iterator last);
+    void pop_front() {
+        erase(begin());
+    }
 
-    void clear();
+    void pop_back() {
+        erase(end() - 1);
+    }
+    /// \}
 
   protected:
 
@@ -291,13 +326,13 @@ class TypedVectorBase : public AVectorBase {
     static void initializedCopyUp(T* src, T* dst, uint32_t num);
     static void initializedCopyDown(T* src, T* dst, uint32_t num);
 
-    static void destruct(Iterator startPos, Iterator endPos);
+    static void destruct(iterator startPos, iterator endPos);
 
-    Iterator insertOperation(ConstIterator position, uint32_t num, const Creator& creatorCall);
+    iterator insertOperation(const_iterator position, uint32_t num, const Creator& creatorCall);
 
 #if ETL_USE_CPP11
 
-    Iterator insertOperation(ConstIterator position, uint32_t num, CreateFunc&& creatorCall);
+    iterator insertOperation(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
 
 #endif
 
@@ -307,10 +342,10 @@ class TypedVectorBase : public AVectorBase {
 
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, Iterator last) {
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, iterator last) {
 
     int numToErase = last - first;
-    Iterator itAfterDeleted = first;
+    iterator itAfterDeleted = first;
 
     if (numToErase > 0) {
 
@@ -320,7 +355,7 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, 
         first += numToMove;
         destruct(first, end());
 
-        proxy.setSize(getSize() - numToErase);
+        proxy.setSize(size() - numToErase);
     }
 
     return itAfterDeleted;
@@ -330,14 +365,14 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::erase(Iterator first, 
 template<class T>
 void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
-    T* dataAlias = getData();
+    T* dataAlias = data();
 
     if (dst >= dataAlias) {
 
         uint32_t totalNum = dst - dataAlias + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            copyValue(dst, src[i], ((dst - dataAlias) >= this->getSize()));
+            copyValue(dst, src[i], ((dst - dataAlias) >= this->size()));
             ++dst;
         }
 
@@ -348,7 +383,7 @@ void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
                                                                           uint32_t numToInsert,
                                                                           const Creator& creatorCall) {
 
@@ -386,17 +421,17 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
             creatorCall.call(uninitedInsertPos, false);
         }
 
-        proxy.setSize(getSize() + numToInsert);
+        proxy.setSize(size() + numToInsert);
     }
 
-    return Iterator(position);
+    return iterator(position);
 }
 
 
 #if ETL_USE_CPP11
 
 template<class T>
-typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstIterator position,
+typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
                                                                           uint32_t numToInsert,
                                                                           CreateFunc&& creatorCall) {
 
@@ -434,24 +469,24 @@ typename TypedVectorBase<T>::Iterator TypedVectorBase<T>::insertOperation(ConstI
             creatorCall(uninitedInsertPos, false);
         }
 
-        proxy.setSize(getSize() + numToInsert);
+        proxy.setSize(size() + numToInsert);
     }
 
-    return Iterator(position);
+    return iterator(position);
 }
 
 
 template<class T>
 void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
 
-    T* dataAlias = getData();
+    T* dataAlias = data();
 
     if (dst >= dataAlias) {
 
         uint32_t totalNum = dst - dataAlias + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->getSize()));
+            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->size()));
             ++dst;
         }
 
@@ -517,7 +552,7 @@ void TypedVectorBase<T>::clear() {
 
 
 template<class T>
-void TypedVectorBase<T>::destruct(Iterator startPos, Iterator endPos) {
+void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos) {
 
     while (startPos < endPos) {         // operator<() instead of !=() : protection for startPos > endPos cases
         startPos->~T();
@@ -563,7 +598,7 @@ void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
 template<typename T>
 T& TypedVectorBase<T>::at(uint32_t ix) {
 
-    if (ix >= getSize()) {
+    if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 
@@ -572,9 +607,9 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 
 
 template<typename T>
-ConstReference TypedVectorBase<T>::at(uint32_t ix) const {
+const_reference TypedVectorBase<T>::at(uint32_t ix) const {
 
-    if (ix >= getSize()) {
+    if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();
     }
 

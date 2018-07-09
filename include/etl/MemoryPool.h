@@ -70,12 +70,12 @@ class MemoryPool {
         return base.getFreeCount();
     }
 
-    inline uint32_t getCapacity() const {
+    inline uint32_t capacity() const {
         return N;
     }
 
     inline uint32_t getCount() const {
-        return getCapacity() - getFreeCount();
+        return capacity() - getFreeCount();
     }
 
   private:

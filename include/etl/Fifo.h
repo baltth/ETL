@@ -59,7 +59,7 @@ template<class C>
 void Fifo<C>::setupFifo(uint32_t len) {
 
     C::resize(len);
-    FifoIndexing::setCapacity(C::getSize());
+    FifoIndexing::setCapacity(C::size());
     FifoIndexing::resetIndexes();
 }
 

@@ -25,6 +25,8 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "sequenceTests.h"
+#include "compatibilityTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -35,19 +37,19 @@ void testListBasic() {
 
     ListT list;
 
-    REQUIRE(list.getSize() == 0);
-    REQUIRE(list.isEmpty());
+    REQUIRE(list.size() == 0);
+    REQUIRE(list.empty());
 
-    list.pushBack(2);
+    list.push_back(2);
 
-    REQUIRE_FALSE(list.isEmpty());
+    REQUIRE_FALSE(list.empty());
 
-    list.pushFront(1);
+    list.push_front(1);
 
-    REQUIRE(list.getSize() == 2);
-    REQUIRE_FALSE(list.isEmpty());
+    REQUIRE(list.size() == 2);
+    REQUIRE_FALSE(list.empty());
 
-    typename ListT::Iterator it = list.begin();
+    typename ListT::iterator it = list.begin();
     REQUIRE(*it == 1);
     ++it;
     REQUIRE(*it == 2);
@@ -55,15 +57,15 @@ void testListBasic() {
     REQUIRE(it == list.end());
 
     it = list.insert(list.begin(), 3);
-    REQUIRE(list.getSize() == 3);
+    REQUIRE(list.size() == 3);
     REQUIRE(*it == 3);
 
-    list.popFront();
+    list.pop_front();
     list.erase(list.begin());
-    list.popBack();
+    list.pop_back();
 
-    REQUIRE(list.getSize() == 0);
-    REQUIRE(list.isEmpty());
+    REQUIRE(list.size() == 0);
+    REQUIRE(list.empty());
 }
 
 TEST_CASE("Etl::Dynamic::List<> basic test", "[list][etl][basic]") {
@@ -91,34 +93,110 @@ TEST_CASE("Etl::Pooled::List<> basic test", "[list][etl][basic]") {
 }
 
 
+TEST_CASE("Etl::Dynamic::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Dynamic::List<ItemType> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+TEST_CASE("Etl::Static::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Static::List<ItemType, 16> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+TEST_CASE("Etl::Pooled::List<> push/pop test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Pooled::List<ItemType, 16> ListT;
+
+    testBackAccess<ListT>();
+    testFrontAccess<ListT>();
+}
+
+
+TEST_CASE("Etl::Dynamic::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Dynamic::List<ItemType> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
+}
+
+TEST_CASE("Etl::Static::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Static::List<ItemType, 16> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
+}
+
+TEST_CASE("Etl::Pooled::List<> iteration test", "[list][etl][basic]") {
+
+    typedef int ItemType;
+    typedef Etl::Pooled::List<ItemType, 16> ListT;
+
+    SECTION("iterator") {
+        testIterationForward<ListT>();
+        testIterationBackward<ListT>();
+    }
+
+    SECTION("reverse_iterator") {
+        testReverseIterationForward<ListT>();
+        testReverseIterationBackward<ListT>();
+    }
+}
+
+
 template<class ListT>
 void testListLeak() {
 
-    typedef typename ListT::ValueType ItemType;
+    typedef typename ListT::value_type ItemType;
     static const int PATTERN = 123;
-
 
     CHECK(ItemType::getObjectCount() == 0);
 
     {
         ListT list;
 
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
-        list.pushBack(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
+        list.push_back(ContainerTester(PATTERN));
 
-        CHECK(list.getSize() == ItemType::getObjectCount());
+        CHECK(list.size() == ItemType::getObjectCount());
 
-        list.popBack();
-        REQUIRE(list.getSize() == ItemType::getObjectCount());
+        list.pop_back();
+        REQUIRE(list.size() == ItemType::getObjectCount());
 
         list.erase(list.begin());
-        REQUIRE(list.getSize() == ItemType::getObjectCount());
+        REQUIRE(list.size() == ItemType::getObjectCount());
     }
 
     REQUIRE(ItemType::getObjectCount() == 0);
@@ -154,26 +232,26 @@ void testListCopy() {
 
     ListT list;
 
-    list.pushBack(1);
-    list.pushBack(2);
-    list.pushBack(3);
-    list.pushBack(4);
+    list.push_back(1);
+    list.push_back(2);
+    list.push_back(3);
+    list.push_back(4);
 
     ListT list2;
 
-    list2.pushBack(1);
-    list2.pushBack(5);
+    list2.push_back(1);
+    list2.push_back(5);
 
-    CHECK(list.getSize() == 4);
-    CHECK(list2.getSize() == 2);
+    CHECK(list.size() == 4);
+    CHECK(list2.size() == 2);
 
     SECTION("copy assignment") {
 
         list2 = list;
 
-        REQUIRE(list2.getSize() == 4);
+        REQUIRE(list2.size() == 4);
 
-        typename ListT::ConstIterator it = list2.begin();
+        typename ListT::const_iterator it = list2.begin();
 
         REQUIRE(*it == 1);
         ++it;
@@ -188,9 +266,9 @@ void testListCopy() {
 
         ListT list3 = list;
 
-        REQUIRE(list3.getSize() == 4);
+        REQUIRE(list3.size() == 4);
 
-        typename ListT::ConstIterator it = list3.begin();
+        typename ListT::const_iterator it = list3.begin();
 
         REQUIRE(*it == 1);
         ++it;
@@ -199,29 +277,6 @@ void testListCopy() {
         it = list3.end();
         --it;
         REQUIRE(*it == 4);
-    }
-
-    SECTION("copyElements()") {
-
-        list2.copyElements(list);
-
-        REQUIRE(list2.getSize() == 6);
-
-        typename ListT::ConstIterator it = list2.begin();
-
-        REQUIRE(*it == 1);
-        ++it;
-        REQUIRE(*it == 5);
-        ++it;
-        REQUIRE(*it == 1);
-        ++it;
-        REQUIRE(*it == 2);
-        ++it;
-        REQUIRE(*it == 3);
-        ++it;
-        REQUIRE(*it == 4);
-        ++it;
-        REQUIRE(it == list2.end());
     }
 }
 
@@ -251,31 +306,31 @@ template<class ListT1, class ListT2>
 void testListSwap() {
 
     ListT1 list1;
-    list1.pushBack(1);
-    list1.pushBack(2);
+    list1.push_back(1);
+    list1.push_back(2);
 
     ListT2 list2;
-    list2.pushBack(-1);
-    list2.pushBack(-2);
+    list2.push_back(-1);
+    list2.push_back(-2);
 
-    CHECK(list1.getSize() == 2);
-    CHECK(list2.getSize() == 2);
+    CHECK(list1.size() == 2);
+    CHECK(list2.size() == 2);
 
     SECTION("Swap equal length") {
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 2);
-        REQUIRE(list2.getSize() == 2);
+        REQUIRE(list1.size() == 2);
+        REQUIRE(list2.size() == 2);
 
-        typename ListT1::ConstIterator it1 = list1.begin();
+        typename ListT1::const_iterator it1 = list1.begin();
         REQUIRE(*it1 == -1);
         ++it1;
         REQUIRE(*it1 == -2);
         ++it1;
         REQUIRE(it1 == list1.end());
 
-        typename ListT2::ConstIterator it2 = list2.begin();
+        typename ListT2::const_iterator it2 = list2.begin();
         REQUIRE(*it2 == 1);
         ++it2;
         REQUIRE(*it2 == 2);
@@ -284,8 +339,8 @@ void testListSwap() {
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 2);
-        REQUIRE(list2.getSize() == 2);
+        REQUIRE(list1.size() == 2);
+        REQUIRE(list2.size() == 2);
 
         REQUIRE(*list1.begin() == 1);
         REQUIRE(*list2.begin() == -1);
@@ -293,17 +348,17 @@ void testListSwap() {
 
     SECTION("Swap different length") {
 
-        list2.pushBack(-3);
-        list2.pushBack(-4);
+        list2.push_back(-3);
+        list2.push_back(-4);
 
-        CHECK(list2.getSize() == 4);
+        CHECK(list2.size() == 4);
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 4);
-        REQUIRE(list2.getSize() == 2);
+        REQUIRE(list1.size() == 4);
+        REQUIRE(list2.size() == 2);
 
-        typename ListT1::ConstIterator it1 = list1.begin();
+        typename ListT1::const_iterator it1 = list1.begin();
         REQUIRE(*it1 == -1);
         ++it1;
         REQUIRE(*it1 == -2);
@@ -314,7 +369,7 @@ void testListSwap() {
         ++it1;
         REQUIRE(it1 == list1.end());
 
-        typename ListT2::ConstIterator it2 = list2.begin();
+        typename ListT2::const_iterator it2 = list2.begin();
         REQUIRE(*it2 == 1);
         ++it2;
         REQUIRE(*it2 == 2);
@@ -323,8 +378,8 @@ void testListSwap() {
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 2);
-        REQUIRE(list2.getSize() == 4);
+        REQUIRE(list1.size() == 2);
+        REQUIRE(list2.size() == 4);
 
         REQUIRE(*list1.begin() == 1);
         REQUIRE(*list2.begin() == -1);
@@ -334,17 +389,17 @@ void testListSwap() {
 
         list2.clear();
 
-        CHECK(list2.isEmpty());
+        CHECK(list2.empty());
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 0);
-        REQUIRE(list2.getSize() == 2);
+        REQUIRE(list1.size() == 0);
+        REQUIRE(list2.size() == 2);
 
-        typename ListT1::ConstIterator it1 = list1.begin();
+        typename ListT1::const_iterator it1 = list1.begin();
         REQUIRE(it1 == list1.end());
 
-        typename ListT2::ConstIterator it2 = list2.begin();
+        typename ListT2::const_iterator it2 = list2.begin();
         REQUIRE(*it2 == 1);
         ++it2;
         REQUIRE(*it2 == 2);
@@ -353,8 +408,8 @@ void testListSwap() {
 
         list1.swap(list2);
 
-        REQUIRE(list1.getSize() == 2);
-        REQUIRE(list2.getSize() == 0);
+        REQUIRE(list1.size() == 2);
+        REQUIRE(list2.size() == 0);
 
         REQUIRE(*list1.begin() == 1);
     }
@@ -367,12 +422,12 @@ void testListSwapIsNoCopy() {
 
         ListT list1;
 
-        list1.pushBack(ContainerTester(1));
-        list1.pushBack(ContainerTester(2));
+        list1.push_back(ContainerTester(1));
+        list1.push_back(ContainerTester(2));
 
         ListT list2;
 
-        list2.pushBack(ContainerTester(-1));
+        list2.push_back(ContainerTester(-1));
 
         const uint32_t copyCnt = ContainerTester::getCopyCount();
 
@@ -443,17 +498,17 @@ TEST_CASE("Etl::Pooled::List<> swap", "[list][etl]") {
 template<class ListT1, class ListT2>
 void testListSplice() {
 
-    typedef typename ListT1::ValueType ItemType;
+    typedef typename ListT1::value_type ItemType;
 
     ListT1 list1;
     ListT2 list2;
 
     for (uint32_t i = 0; i < 8; ++i) {
-        list2.pushBack(ItemType(i));
+        list2.push_back(ItemType(i));
     }
 
-    CHECK(list1.getSize() == 0);
-    CHECK(list2.getSize() == 8);
+    CHECK(list1.size() == 0);
+    CHECK(list2.size() == 8);
 
     SECTION("Splice to empty") {
 
@@ -461,8 +516,8 @@ void testListSplice() {
 
             list1.splice(list1.end(), list2, list2.begin());
 
-            REQUIRE(list1.getSize() == 1);
-            REQUIRE(list2.getSize() == 7);
+            REQUIRE(list1.size() == 1);
+            REQUIRE(list2.size() == 7);
 
             REQUIRE(ContainerTester::getObjectCount() == 8);
 
@@ -472,28 +527,28 @@ void testListSplice() {
 
         SECTION("Splice range") {
 
-            typename ListT2::ConstIterator first = list2.begin();
+            typename ListT2::const_iterator first = list2.begin();
             ++first;
             ++first;
-            typename ListT2::ConstIterator last = first;
+            typename ListT2::const_iterator last = first;
             ++last;
             ++last;
 
             list1.splice(list1.end(), list2, first, last);
 
-            REQUIRE(list1.getSize() == 2);
-            REQUIRE(list2.getSize() == 6);
+            REQUIRE(list1.size() == 2);
+            REQUIRE(list2.size() == 6);
 
             REQUIRE(ContainerTester::getObjectCount() == 8);
 
-            typename ListT1::ConstIterator it1 = list1.begin();
+            typename ListT1::const_iterator it1 = list1.begin();
             REQUIRE(*it1 == ItemType(2));
             ++it1;
             REQUIRE(*it1 == ItemType(3));
             ++it1;
             REQUIRE(it1 == list1.end());
 
-            typename ListT2::ConstIterator it2 = list2.begin();
+            typename ListT2::const_iterator it2 = list2.begin();
             REQUIRE(*it2 == ItemType(0));
             ++it2;
             REQUIRE(*it2 == ItemType(1));
@@ -513,12 +568,12 @@ void testListSplice() {
 
             list1.splice(list1.end(), list2);
 
-            REQUIRE(list1.getSize() == 8);
-            REQUIRE(list2.getSize() == 0);
+            REQUIRE(list1.size() == 8);
+            REQUIRE(list2.size() == 0);
 
             REQUIRE(ContainerTester::getObjectCount() == 8);
 
-            typename ListT1::ConstIterator it = list1.begin();
+            typename ListT1::const_iterator it = list1.begin();
 
             for (uint32_t i = 0; i < 8; ++i) {
                 CAPTURE(i);
@@ -531,12 +586,12 @@ void testListSplice() {
 
     SECTION("Splice to existing") {
 
-        list1.pushBack(ItemType(8));
-        CHECK(list1.getSize() == 1);
+        list1.push_back(ItemType(8));
+        CHECK(list1.size() == 1);
 
-        typename ListT1::ConstIterator pos = list1.end();
+        typename ListT1::const_iterator pos = list1.end();
 
-        typename ListT2::ConstIterator it = list2.begin();
+        typename ListT2::const_iterator it = list2.begin();
         ++it;
         ++it;
         ++it;
@@ -545,8 +600,8 @@ void testListSplice() {
 
         list1.splice(pos, list2, list2.begin(), it);
 
-        REQUIRE(list1.getSize() == 4);
-        REQUIRE(list2.getSize() == 5);
+        REQUIRE(list1.size() == 4);
+        REQUIRE(list2.size() == 5);
 
         --pos;
 
@@ -554,8 +609,8 @@ void testListSplice() {
 
         list1.splice(pos, list2);
 
-        REQUIRE(list1.getSize() == 9);
-        REQUIRE(list2.getSize() == 0);
+        REQUIRE(list1.size() == 9);
+        REQUIRE(list2.size() == 0);
 
         REQUIRE(ContainerTester::getObjectCount() == 9);
 
@@ -658,16 +713,16 @@ TEST_CASE("Etl::Dynamic::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
     CAPTURE(REF_VALUE);
 
     ListT list;
-    list.pushBack(1);
-    list.pushBack(2);
-    list.pushBack(REF_VALUE);
-    ListT::Iterator it1 = --list.end();
-    list.pushBack(4);
-    list.pushBack(REF_VALUE);
-    ListT::Iterator it2 = --list.end();
-    list.pushBack(6);
+    list.push_back(1);
+    list.push_back(2);
+    list.push_back(REF_VALUE);
+    ListT::iterator it1 = --list.end();
+    list.push_back(4);
+    list.push_back(REF_VALUE);
+    ListT::iterator it2 = --list.end();
+    list.push_back(6);
 
-    ListT::Iterator found = list.find(IntMatcher(REF_VALUE));
+    ListT::iterator found = list.find(IntMatcher(REF_VALUE));
     REQUIRE(found == it1);
     found = list.find((++found), list.end(), IntMatcher(REF_VALUE));
     REQUIRE(found == it2);
@@ -687,20 +742,22 @@ TEST_CASE("Etl::Dynamic::List<>::find<F, V>() test", "[list][etl]") {
     CAPTURE(REF_ITEM.getValue());
 
     ListT list;
-    list.pushBack(ItemType(1));
-    list.pushBack(ItemType(2));
-    list.pushBack(REF_ITEM);
-    ListT::Iterator it1 = --list.end();
-    list.pushBack(ItemType(4));
-    list.pushBack(REF_ITEM);
-    ListT::Iterator it2 = --list.end();
-    list.pushBack(ItemType(6));
+    list.push_back(ItemType(1));
+    list.push_back(ItemType(2));
+    list.push_back(REF_ITEM);
+    ListT::iterator it1 = --list.end();
+    list.push_back(ItemType(4));
+    list.push_back(REF_ITEM);
+    ListT::iterator it2 = --list.end();
+    list.push_back(ItemType(6));
 
-    ListT::Iterator found = list.find(&ItemType::getValue, REF_VALUE);
+    Etl::MethodMatcher<ItemType, int> mm(&ItemType::getValue, REF_VALUE);
+
+    ListT::iterator found = list.find(mm);
     REQUIRE(found == it1);
-    found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
+    found = list.find((++found), list.end(), mm);
     REQUIRE(found == it2);
-    found = list.find((++found), list.end(), &ItemType::getValue, REF_VALUE);
+    found = list.find((++found), list.end(), mm);
     REQUIRE(found == list.end());
 }
 
@@ -716,18 +773,18 @@ TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
     CHECK(AllocatorType::getDeleteCount() == 0);
 
     ListT list;
-    list.pushBack(ContainerTester(1));
+    list.push_back(ContainerTester(1));
 
-    ListT::Iterator it = list.begin();
+    ListT::iterator it = list.begin();
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
 
-    list.pushBack(ContainerTester(2));
+    list.push_back(ContainerTester(2));
     ++it;
     REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
 
     CHECK(AllocatorType::getDeleteCount() == 0);
 
-    list.popFront();
+    list.pop_front();
     REQUIRE(AllocatorType::getDeleteCount() == 1);
 }
 
@@ -737,41 +794,41 @@ void testSizedListAllocation() {
 
     ListT list;
 
-    CHECK(list.getAllocator().getCapacity() == NUM);
-    CHECK(list.getAllocator().isEmpty());
+    CHECK(list.getAllocator().capacity() == NUM);
+    CHECK(list.getAllocator().empty());
 
     SECTION("Basic allocation") {
 
-        list.pushBack(ContainerTester(1));
+        list.push_back(ContainerTester(1));
 
-        typename ListT::Iterator it = list.begin();
+        typename ListT::iterator it = list.begin();
         REQUIRE(it.operator->() != NULL);
 
-        list.pushBack(ContainerTester(1));
-        typename ListT::Iterator it2 = it;
+        list.push_back(ContainerTester(1));
+        typename ListT::iterator it2 = it;
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
 
-        REQUIRE_FALSE(list.getAllocator().isEmpty());
-        REQUIRE(list.getAllocator().getSize() == 2);
+        REQUIRE_FALSE(list.getAllocator().empty());
+        REQUIRE(list.getAllocator().size() == 2);
     }
 
     SECTION("Allocate all") {
 
         for (uint32_t i = 0; i < NUM; ++i) {
-            list.pushBack(ContainerTester(i));
+            list.push_back(ContainerTester(i));
         }
 
-        CHECK(list.getSize() == NUM);
+        CHECK(list.size() == NUM);
 
-        typename ListT::Iterator it = list.insert(list.begin(), ContainerTester(NUM));
-        REQUIRE(list.getSize() == NUM);
+        typename ListT::iterator it = list.insert(list.begin(), ContainerTester(NUM));
+        REQUIRE(list.size() == NUM);
         REQUIRE(it == list.end());
     }
 
     list.clear();
-    REQUIRE(list.getAllocator().isEmpty());
+    REQUIRE(list.getAllocator().empty());
 }
 
 TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
@@ -785,26 +842,26 @@ TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
     SECTION("Unique pool checks") {
 
         ListT list;
-        CHECK(list.getAllocator().getCapacity() == NUM);
-        CHECK(list.getAllocator().isEmpty());
+        CHECK(list.getAllocator().capacity() == NUM);
+        CHECK(list.getAllocator().empty());
 
-        list.pushBack(ContainerTester(1));
-        list.pushBack(ContainerTester(2));
+        list.push_back(ContainerTester(1));
+        list.push_back(ContainerTester(2));
 
-        CHECK(list.getSize() == list.getAllocator().getSize());
+        CHECK(list.size() == list.getAllocator().size());
 
         ListT list2;
-        list2.pushBack(ContainerTester(3));
-        list2.pushBack(ContainerTester(4));
+        list2.push_back(ContainerTester(3));
+        list2.push_back(ContainerTester(4));
 
-        REQUIRE(list.getSize() == list.getAllocator().getSize());
-        REQUIRE(list2.getSize() == list2.getAllocator().getSize());
+        REQUIRE(list.size() == list.getAllocator().size());
+        REQUIRE(list2.size() == list2.getAllocator().size());
 
         list2.splice(list2.begin(), list);
 
-        CHECK(list.isEmpty());
-        REQUIRE(list.getAllocator().getSize() == 0);
-        REQUIRE(list2.getSize() == list2.getAllocator().getSize());
+        CHECK(list.empty());
+        REQUIRE(list.getAllocator().size() == 0);
+        REQUIRE(list2.size() == list2.getAllocator().size());
     }
 }
 
@@ -821,24 +878,24 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
         ListT list;
 
-        CHECK(list.getAllocator().getCapacity() == NUM);
-        CHECK(list.getAllocator().isEmpty());
+        CHECK(list.getAllocator().capacity() == NUM);
+        CHECK(list.getAllocator().empty());
 
-        list.pushBack(ContainerTester(1));
-        list.pushBack(ContainerTester(2));
+        list.push_back(ContainerTester(1));
+        list.push_back(ContainerTester(2));
 
-        CHECK(list.getSize() == list.getAllocator().getSize());
+        CHECK(list.size() == list.getAllocator().size());
 
         ListT list2;
-        list2.pushBack(ContainerTester(3));
-        list2.pushBack(ContainerTester(4));
+        list2.push_back(ContainerTester(3));
+        list2.push_back(ContainerTester(4));
 
-        REQUIRE((list.getSize() + list2.getSize()) == list.getAllocator().getSize());
+        REQUIRE((list.size() + list2.size()) == list.getAllocator().size());
 
         list2.splice(list2.begin(), list);
 
-        CHECK(list.isEmpty());
-        REQUIRE(list2.getSize() == list.getAllocator().getSize());
+        CHECK(list.empty());
+        REQUIRE(list2.size() == list.getAllocator().size());
     }
 }
 
@@ -851,4 +908,31 @@ TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
     CHECK(ListT::Allocator::getDeleteCount() == ListT::Allocator::getAllocCount());
 }
 
+
+// Etl::List compatibility tests ---------------------------------------------
+
+
+TEST_CASE("Etl::List<> with std::accumulate()", "[list][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::List<ItemT> ListT;
+
+    testAccumulate<ListT>();
+}
+
+TEST_CASE("Etl::List<> with std::partial_sum()", "[list][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::List<ItemT> ListT;
+
+    testPartialSum<ListT>();
+}
+
+TEST_CASE("Etl::List<> with std::inner_product()", "[list][comp][etl]") {
+
+    typedef int ItemT;
+    typedef Etl::Dynamic::List<ItemT> ListT;
+
+    testInnerProduct<ListT, ListT>();
+}
 

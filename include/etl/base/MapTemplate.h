@@ -37,36 +37,35 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types
 
-    typedef K KeyType;
-    typedef E MappedType;
-    typedef std::pair<const K, E> ValueType;
+    typedef K key_type;
+    typedef E mapped_type;
+    typedef std::pair<const K, E> value_type;
 
-    typedef ValueType& Reference;
-    typedef const ValueType& ConstReference;
-    typedef ValueType* Pointer;
-    typedef const ValueType* ConstPointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
 
-    typedef List<ValueType, A> ContainerType;
+    typedef List<value_type, A> ContainerType;
     typedef typename ContainerType::Allocator Allocator;
     typedef KeyCompare<K, E> Compare;
     typedef Sorted<ContainerType, Compare> Base;
 
-    typedef typename Base::Iterator Iterator;
-    typedef typename Base::ConstIterator ConstIterator;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
 
-    typedef Matcher<ValueType> ItemMatcher;
+    typedef Matcher<value_type> ItemMatcher;
 
   public:   // functions
 
     Map() {};
 
     Map(const Map& other) {
-        copyElementsFrom(other);
+        assign(other);
     }
 
     Map& operator=(const Map& other) {
-        Base::clear();
-        copyElementsFrom(other);
+        assign(other);
         return *this;
     }
 
@@ -79,60 +78,77 @@ class Map : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
     using Base::find;
     using Base::erase;
 
-    inline std::pair<Iterator, bool> insert(const K& k, const E& e) {
-        return Base::insertUnique(ValueType(k, e));
+    std::pair<iterator, bool> insert(const value_type& item) {
+        return Base::insertUnique(item);
     }
 
-    std::pair<Iterator, bool> insertOrAssign(const K& k, const E& e);
+    template<class InputIt>
+    typename std::enable_if<!std::is_integral<InputIt>::value>::type    // *NOPAD*
+    insert(InputIt first, InputIt last) {
+        while (first != last) {
+            insert(*first);
+            ++first;
+        }
+    }
+
+    std::pair<iterator, bool> insert(const K& k, const E& e) {
+        return insert(value_type(k, e));
+    }
+
+    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
 
     void erase(const K& k);
 
-    ConstIterator find(const K& k) const;
+    iterator find(const K& k);
+    const_iterator find(const K& k) const;
 
-    Iterator find(const K& k) {
-        return Iterator(static_cast<const Map*>(this)->find(k));
-    }
-
-    Iterator getItem(const K& k) const;
-
-    E& getElement(const K& k) const {
-        return getItem(k)->second;
-    }
-
-    void copyElementsFrom(const Map<K, E, A>& other);
+    iterator getItem(const K& k);
 
     E& operator[](const K& k) {
-        return Map<K, E, A>::getElement(k);
-    }
-
-    const E& operator[](const K& k) const {
-        return Map<K, E, A>::getElement(k);
+        return getItem(k)->second;
     }
 
 #if ETL_USE_CPP11
 
+    void insert(std::initializer_list<value_type> initList) {
+        insert(initList.begin(), initList.end());
+    }
+
     template<typename... Args>
-    inline std::pair<Iterator, bool> emplace(const K& k, Args&& ... args);
+    inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
 
 #endif
 
-    static K getKey(ConstReference item) {
+    static K getKey(const_reference item) {
         return item.first;
+    }
+
+  protected:
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(first, last);
+    }
+
+    template<class Cont>
+    void assign(const Cont& other) {
+        assign(other.begin(), other.end());
     }
 
 };
 
 
 template<typename K, class E, template<class> class A>
-std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::insertOrAssign(const K& k, const E& e) {
+std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::insert_or_assign(const K& k, const E& e) {
 
-    std::pair<Iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
 #if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, k, e);
 #else
-        found.first = Base::insertTo(found.first, ValueType(k, e));
+        found.first = Base::insertTo(found.first, value_type(k, e));
 #endif
     } else {
         --found.first;
@@ -147,7 +163,7 @@ std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::insertOrAssign(co
 template<typename K, class E, template<class> class A>
 void Map<K, E, A>::erase(const K& k) {
 
-    std::pair<Iterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -156,9 +172,9 @@ void Map<K, E, A>::erase(const K& k) {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::ConstIterator  Map<K, E, A>::find(const K& k) const {
+typename Map<K, E, A>::iterator  Map<K, E, A>::find(const K& k) {
 
-    std::pair<ConstIterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -169,32 +185,36 @@ typename Map<K, E, A>::ConstIterator  Map<K, E, A>::find(const K& k) const {
 
 
 template<typename K, class E, template<class> class A>
-typename Map<K, E, A>::Iterator Map<K, E, A>::getItem(const K& k) const {
+typename Map<K, E, A>::const_iterator  Map<K, E, A>::find(const K& k) const {
 
-    std::pair<ConstIterator, bool> found = Base::findSortedPosition(getKey, k);
+    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
+    }
+}
+
+
+template<typename K, class E, template<class> class A>
+typename Map<K, E, A>::iterator Map<K, E, A>::getItem(const K& k) {
+
+    std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
 #if ETL_USE_CPP11
-        found.first = Base::emplaceTo(found.first, std::move(ValueType(k, E())));
+        found.first = Base::emplaceTo(found.first, std::move(value_type(k, E())));
 #else
-        found.first = Base::insertTo(found.first, ValueType(k, E()));
+        found.first = Base::insertTo(found.first, value_type(k, E()));
 #endif
     } else {
         --found.first;
     }
 
-    return Iterator(found.first);
+    return found.first;
 }
 
-
-template<typename K, class E, template<class> class A>
-void Map<K, E, A>::copyElementsFrom(const Map<K, E, A>& other) {
-
-    ConstIterator endIt = other.end();
-    for (ConstIterator it = other.begin(); it != endIt; ++it) {
-        insertOrAssign(it->first, it->second);
-    }
-}
 
 #if ETL_USE_CPP11
 
@@ -209,9 +229,9 @@ Map<K, E, A>::Map(std::initializer_list<std::pair<K, E>> initList) {
 
 template<typename K, class E, template<class> class A>
 template<typename... Args>
-std::pair<typename Map<K, E, A>::Iterator, bool> Map<K, E, A>::emplace(const K& k, Args&& ... args) {
+std::pair<typename Map<K, E, A>::iterator, bool> Map<K, E, A>::emplace(const K& k, Args&& ... args) {
 
-    auto found = Base::findSortedPosition(getKey, k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);

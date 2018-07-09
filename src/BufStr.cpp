@@ -53,11 +53,11 @@ const uint64_t BufStr::DECADES[] = {   /// \todo do something more elegant
 BufStr& BufStr::write(const char* str, size_t len) {
 
     if (str) {
-        data.reserveAtLeast(data.getSize() + len);
-        uint32_t freeSpace = data.getCapacity() - data.getSize();
+        data.reserve(data.size() + len);
+        uint32_t freeSpace = data.capacity() - data.size();
         uint32_t lenToCopy = (len <= freeSpace) ? len : freeSpace;
         if (lenToCopy > 0) {
-            Etl::Vector<char>::Iterator it = data.end();
+            Etl::Vector<char>::iterator it = data.end();
             data.insert(--it, str, &str[lenToCopy]);
         }
     }

@@ -36,7 +36,7 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
 
     FifoType fifo;
 
-    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.capacity() == SIZE);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);
@@ -61,7 +61,7 @@ TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynam
 
     FifoType fifo(SIZE);
 
-    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.capacity() == SIZE);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);
@@ -86,7 +86,7 @@ TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static
 
     FifoType fifo(SIZE);
 
-    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.capacity() == SIZE);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);
@@ -148,7 +148,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     CHECK(fifo.getLength() == 3);
 
     int i = 0;
-    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
@@ -158,13 +158,13 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     fifo.push(6);
 
     i = 0;
-    for (FifoType::Iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }
 
     i = 0;
-    FifoType::Iterator it = fifo.end();
+    FifoType::iterator it = fifo.end();
     while (it != fifo.begin()) {
         --i;
         --it;
@@ -218,12 +218,12 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
 
     FifoType fifo;
 
-    REQUIRE(fifo.getCapacity() == 0);
+    REQUIRE(fifo.capacity() == 0);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.setupFifo(SIZE1);
 
-    REQUIRE(fifo.getCapacity() == SIZE1);
+    REQUIRE(fifo.capacity() == SIZE1);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);
@@ -232,7 +232,7 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
 
     fifo.setupFifo(SIZE2);
 
-    REQUIRE(fifo.getCapacity() == SIZE2);
+    REQUIRE(fifo.capacity() == SIZE2);
     REQUIRE(fifo.getLength() == 0);
 }
 
@@ -245,7 +245,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 
     FifoType fifo;
 
-    CHECK(fifo.getCapacity() == SIZE);
+    CHECK(fifo.capacity() == SIZE);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);
@@ -256,7 +256,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     fifo.setEmpty();
 
     REQUIRE(fifo.getLength() == 0);
-    REQUIRE(fifo.isEmpty());
+    REQUIRE(fifo.empty());
 
     fifo.push(3);
     fifo.push(4);
@@ -288,7 +288,7 @@ TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic
     ArrayType array;
     Etl::FifoAccess<ItemType> fifo(array);
 
-    REQUIRE(fifo.getCapacity() == SIZE);
+    REQUIRE(fifo.capacity() == SIZE);
     REQUIRE(fifo.getLength() == 0);
 
     fifo.push(1);

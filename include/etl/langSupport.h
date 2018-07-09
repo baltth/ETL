@@ -22,24 +22,31 @@ limitations under the License.
 #ifndef __ETL_LANGSUPPORT_H__
 #define __ETL_LANGSUPPORT_H__
 
+#if (__cplusplus < 201103L)
+#define ETL_HAS_CPP11   0
+#else
+#define ETL_HAS_CPP11   1
+#endif
+
 
 #ifdef ETL_USE_CPP11
 
-#if ((ETL_USE_CPP11 > 0) && (__cplusplus < 201103L))
+#if ((ETL_USE_CPP11 > 0) && (ETL_HAS_CPP11 == 0))
 #undef ETL_USE_CPP11
 #define ETL_USE_CPP11   0
-#warning "Incorrect compiler version for c++11"
+#warning "C++11 features can not be used with the actual compiler settings"
 #endif
 
 #else
 
-#if __cplusplus >= 201103L
+#if (ETL_HAS_CPP11)
 #define ETL_USE_CPP11   1
 #endif
 
 #endif
 
-#if (ETL_USE_CPP11 == 0)
+
+#if (ETL_HAS_CPP11 == 0)
 
 // nullptr idiom from https://en.wikibooks.org/wiki/More_C++_Idioms/nullptr
 
@@ -69,15 +76,109 @@ class NullptrT {
 #define FINAL
 #define CONSTEXPR
 
-namespace ETL_NAMESPACE {
+
+// Type trait implementations mainly from https://en.cppreference.com
+
+namespace std {
 
 template<class T>
-struct RemoveReference {
+struct remove_const {
     typedef T type;
 };
 
 template<class T>
-struct RemoveReference<T&> {
+struct remove_const<const T> {
+    typedef T type;
+};
+
+template<class T>
+struct remove_volatile {
+    typedef T type;
+};
+
+template<class T>
+struct remove_volatile<volatile T> {
+    typedef T type;
+};
+
+template<class T>
+struct remove_cv {
+    typedef typename remove_volatile<typename remove_const<T>::type>::type type;
+};
+
+template<class T>
+struct remove_reference {
+    typedef T type;
+};
+
+template<class T>
+struct remove_reference<T&> {
+    typedef T type;
+};
+
+
+template<class T, T v>
+struct integral_constant {
+    static const T value = v;
+    typedef T value_type;
+    typedef integral_constant type;
+    operator value_type() const throw() {
+        return value;
+    }
+};
+
+struct true_type : integral_constant<bool, true> {};
+struct false_type : integral_constant<bool, false> {};
+
+
+template<class T, class U>
+struct is_same : false_type {};
+
+template<class T>
+struct is_same<T, T> : true_type {};
+
+
+template<typename T>
+struct is_integral_root : false_type {};
+
+template<>
+struct is_integral_root<bool> : true_type {};
+template<>
+struct is_integral_root<signed char> : true_type {};
+template<>
+struct is_integral_root<unsigned char> : true_type {};
+template<>
+struct is_integral_root<wchar_t> : true_type {};
+template<>
+struct is_integral_root<short> : true_type {};
+template<>
+struct is_integral_root<unsigned short> : true_type {};
+template<>
+struct is_integral_root<int> : true_type {};
+template<>
+struct is_integral_root<unsigned int> : true_type {};
+template<>
+struct is_integral_root<long int> : true_type {};
+template<>
+struct is_integral_root<unsigned long int> : true_type {};
+
+template<typename T>
+struct is_integral : integral_constant < bool, (is_integral_root<typename remove_cv<T>::type>::value)> {};
+
+template< class T >
+struct is_floating_point : integral_constant <
+    bool,
+    is_same<float, typename remove_cv<T>::type>::value  ||
+    is_same<double, typename remove_cv<T>::type>::value  ||
+    is_same<long double, typename remove_cv<T>::type>::value
+    > {};
+
+
+template<bool B, class T = void>
+struct enable_if {};
+
+template<class T>
+struct enable_if<true, T> {
     typedef T type;
 };
 
@@ -95,13 +196,6 @@ struct RemoveReference<T&> {
 
 #define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
-
-namespace ETL_NAMESPACE {
-
-template<class T>
-using RemoveReference = std::remove_reference<T>;
-
-}
 
 #endif
 

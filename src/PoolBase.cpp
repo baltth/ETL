@@ -35,7 +35,7 @@ void* PoolBase::pop() {
         freeList.next = freeList.next->next;
         --freeCnt;
 
-    } else if ((nextFreeIx < data.getCapacity()) && (getFreeCount() > 0)) {
+    } else if ((nextFreeIx < data.capacity()) && (getFreeCount() > 0)) {
 
         result = data.getItemPointer(nextFreeIx);
         ++nextFreeIx;
@@ -50,7 +50,7 @@ bool PoolBase::push(void* item) {
 
     const uint8_t* const itemEnd = static_cast<uint8_t*>(item) + data.getItemSize();
     const uint8_t* const regionStart = static_cast<uint8_t*>(data.getItemPointer(0));
-    const uint8_t* const regionEnd = static_cast<uint8_t*>(data.getItemPointer(data.getCapacity()));
+    const uint8_t* const regionEnd = static_cast<uint8_t*>(data.getItemPointer(data.capacity()));
 
     if ((item < regionStart) || (itemEnd > regionEnd)) {
         return false;
