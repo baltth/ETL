@@ -48,13 +48,13 @@ class LinkedList {
   private:  // variables
 
     Node frontNode;
-    uint32_t size;
+    uint32_t size_;
 
   public:   // functions
 
     LinkedList() :
         frontNode(),
-        size(0) {};
+        size_(0) {};
 
 #if ETL_USE_CPP11
 
@@ -63,12 +63,12 @@ class LinkedList {
 
 #endif
 
-    bool isEmpty() const {
-        return size == 0;
+    bool empty() const {
+        return size_ == 0;
     }
 
-    uint32_t getSize() const {
-        return size;
+    uint32_t size() const {
+        return size_;
     }
 
     Node* getFirst() const {

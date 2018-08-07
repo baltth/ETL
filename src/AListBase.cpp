@@ -26,7 +26,7 @@ using ETL_NAMESPACE::AListBase;
 
 AListBase::Node* AListBase::popFront() {
 
-    if (list.getSize() > 0) {
+    if (list.size() > 0) {
         return static_cast<Node*>(list.remove(list.getFirst()));
     } else {
         return NULLPTR;
@@ -35,7 +35,7 @@ AListBase::Node* AListBase::popFront() {
 
 AListBase::Node* AListBase::popBack() {
 
-    if (list.getSize() > 0) {
+    if (list.size() > 0) {
         return static_cast<Node*>(list.remove(list.getLast()));
     } else {
         return NULLPTR;

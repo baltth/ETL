@@ -173,7 +173,7 @@ class Vector : public TypedVectorBase<T> {
 
   protected:
 
-    Vector(AMemStrategy<StrategyBase>& s) :
+    explicit Vector(AMemStrategy<StrategyBase>& s) :
         strategy(s) {};
 
     Vector& operator=(const Vector& other) {

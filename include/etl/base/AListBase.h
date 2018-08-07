@@ -101,11 +101,11 @@ class AListBase {
 #endif
 
     uint32_t size() const {
-        return list.getSize();
+        return list.size();
     }
 
     bool empty() const {
-        return list.isEmpty();
+        return list.empty();
     }
 
   protected:

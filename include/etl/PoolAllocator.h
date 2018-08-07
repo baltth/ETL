@@ -24,19 +24,18 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/MemoryPool.h>
-
-#include <new>
+#include <etl/base/AAllocator.h>
 
 namespace ETL_NAMESPACE {
 
 /**
 Allocator template class.
-Forwards the `std::allocator` interface to a MemoryPool.
+Implements AAllocator based on MemoryPool.
 \tparam T Item type
 \tparam N Size of pool
 */
 template<class T, uint32_t N>
-class PoolAllocator {
+class PoolAllocator : public AAllocator<T> {
 
     STATIC_ASSERT(N > 0);
 
@@ -51,19 +50,15 @@ class PoolAllocator {
 
   public:   // functions
 
-    uint32_t size() const {
+    virtual uint32_t size() const OVERRIDE {
         return pool.getCount();
     }
 
-    uint32_t capacity() const {
+    virtual uint32_t capacity() const OVERRIDE {
         return pool.capacity();
     }
 
-    bool empty() const {
-        return (size() == 0);
-    }
-
-    PtrType allocate(uint32_t n) {
+    virtual PtrType allocate(uint32_t n) OVERRIDE {
         if (n == 1) {
             return static_cast<PtrType>(pool.pop());
         } else {
@@ -71,47 +66,9 @@ class PoolAllocator {
         }
     }
 
-    void deallocate(PtrType ptr, uint32_t n) {
+    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
         (void)n;
         pool.push(ptr);
-    }
-
-    static void construct(PtrType ptr) {
-        new (ptr) ItemType;
-    }
-
-    static void construct(PtrType ptr, const ItemType& other) {
-        new (ptr) ItemType(other);
-    }
-
-#if ETL_USE_CPP11
-
-    template<typename... Args >
-    static void construct(PtrType ptr, Args&& ... args) {
-        new (ptr) ItemType(std::forward<Args>(args)...);
-    }
-
-#else
-
-    template<typename A>
-    static void construct(PtrType ptr, A a) {
-        new (ptr) ItemType(a);
-    }
-
-    template<typename A, typename B>
-    static void construct(PtrType ptr, A a, B b) {
-        new (ptr) ItemType(a, b);
-    }
-
-    template<typename A, typename B, typename C>
-    static void construct(PtrType ptr, A a, B b, C c) {
-        new (ptr) ItemType(a, b, c);
-    }
-
-#endif
-
-    static void destroy(PtrType ptr) {
-        ptr->~ItemType();
     }
 
 };
@@ -124,7 +81,7 @@ Forwards the `std::allocator` interface to a static MemoryPool.
 \tparam N Size of pool
 */
 template<class T, uint32_t N>
-class CommonPoolAllocator {
+class CommonPoolAllocator : public AAllocator<T> {
 
     STATIC_ASSERT(N > 0);
 
@@ -136,62 +93,20 @@ class CommonPoolAllocator {
 
   public:   // functions
 
-    uint32_t size() const {
+    virtual uint32_t size() const OVERRIDE {
         return allocator().size();
     }
 
-    uint32_t capacity() const {
+    virtual uint32_t capacity() const OVERRIDE {
         return allocator().capacity();
     }
 
-    bool empty() const {
-        return allocator().empty();
-    }
-
-    PtrType allocate(uint32_t n) {
+    virtual PtrType allocate(uint32_t n) OVERRIDE {
         return allocator().allocate(n);
     }
 
-    void deallocate(PtrType ptr, uint32_t n) {
+    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
         allocator().deallocate(ptr, n);
-    }
-
-    void construct(PtrType ptr) {
-        Allocator::construct(ptr);
-    }
-
-    void construct(PtrType ptr, const ItemType& other) {
-        Allocator::construct(ptr, other);
-    }
-
-#if ETL_USE_CPP11
-
-    template<typename... Args >
-    void construct(PtrType ptr, Args&& ... args) {
-        Allocator::construct(ptr, std::forward<Args>(args)...);
-    }
-
-#else
-
-    template<typename A>
-    void construct(PtrType ptr, A a) {
-        Allocator::construct(ptr, a);
-    }
-
-    template<typename A, typename B>
-    void construct(PtrType ptr, A a, B b) {
-        Allocator::construct(ptr, a, b);
-    }
-
-    template<typename A, typename B, typename C>
-    void construct(PtrType ptr, A a, B b, C c) {
-        Allocator::construct(ptr, a, b, c);
-    }
-
-#endif
-
-    void destroy(PtrType ptr) {
-        Allocator::destroy(ptr);
     }
 
   private:

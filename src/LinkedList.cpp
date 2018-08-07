@@ -48,7 +48,7 @@ void LinkedList::insertAfter(Node* pos, Node* node) {
         Node* next = pos->next;
         linkNodes(pos, node);
         linkNodes(node, next);
-        ++size;
+        ++size_;
     }
 }
 
@@ -57,13 +57,13 @@ LinkedList::Node* LinkedList::removeAfter(Node* pos) {
 
     Node* removed = NULLPTR;
 
-    if (size > 0) {
+    if (size_ > 0) {
 
         if ((pos != NULLPTR) && (pos->next != NULLPTR)) {
             removed = pos->next;
             removed->next = NULLPTR;
             linkNodes(pos, pos->next->next);
-            --size;
+            --size_;
         }
     }
 
@@ -75,7 +75,7 @@ void LinkedList::getListOf(LinkedList& other) {
 
     if (&other != this) {
         linkNodes(&frontNode, other.getFirst());
-        size = other.getSize();
+        size_ = other.size();
         other.setEmpty();
     }
 }
@@ -85,7 +85,7 @@ void LinkedList::swap(LinkedList& other) {
 
     if (&other != this) {
 
-        if ((getSize() > 0) && (other.getSize() > 0)) {
+        if ((size() > 0) && (other.size() > 0)) {
 
             LinkedList tmp;
             tmp.getListOf(*this);
@@ -93,12 +93,12 @@ void LinkedList::swap(LinkedList& other) {
             getListOf(other);
             other.getListOf(tmp);
 
-        } else if (getSize() > 0) {
+        } else if (size() > 0) {
 
             other.getListOf(*this);
             setEmpty();
 
-        } else if (other.getSize() > 0) {
+        } else if (other.size() > 0) {
 
             getListOf(other);
             other.setEmpty();
@@ -110,6 +110,6 @@ void LinkedList::swap(LinkedList& other) {
 void LinkedList::setEmpty() {
 
     frontNode.next = NULLPTR;
-    size = 0;
+    size_ = 0;
 }
 

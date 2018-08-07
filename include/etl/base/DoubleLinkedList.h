@@ -52,14 +52,14 @@ class DoubleLinkedList {
 
     Node frontNode;
     Node backNode;
-    uint32_t size;
+    uint32_t size_;
 
   public:   // functions
 
     DoubleLinkedList() :
         frontNode(NULLPTR, &backNode),
         backNode(&frontNode, NULLPTR),
-        size(0) {};
+        size_(0) {};
 
 #if ETL_USE_CPP11
 
@@ -68,12 +68,12 @@ class DoubleLinkedList {
 
 #endif
 
-    bool isEmpty() const {
-        return size == 0;
+    bool empty() const {
+        return size_ == 0;
     }
 
-    uint32_t getSize() const {
-        return size;
+    uint32_t size() const {
+        return size_;
     }
 
     Node* getFirst() const {

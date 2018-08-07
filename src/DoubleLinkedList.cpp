@@ -48,7 +48,7 @@ void DoubleLinkedList::insertAfter(Node* pos, Node* node) {
             Node* next = pos->next;
             linkNodes(pos, node);
             linkNodes(node, next);
-            ++size;
+            ++size_;
         }
     }
 }
@@ -61,7 +61,7 @@ void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
             Node* prev = pos->prev;
             linkNodes(node, pos);
             linkNodes(prev, node);
-            ++size;
+            ++size_;
         }
     }
 }
@@ -69,11 +69,11 @@ void DoubleLinkedList::insertBefore(Node* pos, Node* node) {
 
 DoubleLinkedList::Node* DoubleLinkedList::remove(Node* node) {
 
-    if ((size > 0) && (node != NULLPTR)) {
+    if ((size_ > 0) && (node != NULLPTR)) {
         if ((node != &frontNode) && (node != &backNode)) {
 
             linkNodes(node->prev, node->next);
-            --size;
+            --size_;
             node->prev = NULLPTR;
             node->next = NULLPTR;
         }
@@ -102,7 +102,7 @@ void DoubleLinkedList::setEmpty() {
 
     frontNode.next = &backNode;
     backNode.prev = &frontNode;
-    size = 0;
+    size_ = 0;
 }
 
 
@@ -111,7 +111,7 @@ void DoubleLinkedList::getListOf(DoubleLinkedList& other) {
     if (&other != this) {
         linkNodes(&frontNode, other.getFirst());
         linkNodes(other.getLast(), &backNode);
-        size = other.getSize();
+        size_ = other.size();
         other.setEmpty();
     }
 }
@@ -121,18 +121,18 @@ void DoubleLinkedList::swap(DoubleLinkedList& other) {
 
     if (&other != this) {
 
-        if ((getSize() > 0) && (other.getSize() > 0)) {
+        if ((size() > 0) && (other.size() > 0)) {
 
             DoubleLinkedList tmp;
             tmp.getListOf(*this);
             getListOf(other);
             other.getListOf(tmp);
 
-        } else if (getSize() > 0) {
+        } else if (size() > 0) {
 
             other.getListOf(*this);
 
-        } else if (other.getSize() > 0) {
+        } else if (other.size() > 0) {
 
             getListOf(other);
         }

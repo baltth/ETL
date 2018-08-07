@@ -369,10 +369,10 @@ void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
     if (dst >= dataAlias) {
 
-        uint32_t totalNum = dst - dataAlias + num;
+        uint32_t totalNum = static_cast<uint32_t>(dst - dataAlias) + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            copyValue(dst, src[i], ((dst - dataAlias) >= this->size()));
+            copyValue(dst, src[i], (static_cast<uint32_t>(dst - dataAlias) >= this->size()));
             ++dst;
         }
 
