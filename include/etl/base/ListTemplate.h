@@ -33,7 +33,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T, template<class> class A>
+template<class T, template<class> class A = std::allocator>
 class List : public TypedListBase<T> {
 
   public:   // types

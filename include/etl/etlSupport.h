@@ -131,8 +131,6 @@ struct IsIterator {
     template<typename U>
     static No test(...);
 
-
-
     static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
 };
 

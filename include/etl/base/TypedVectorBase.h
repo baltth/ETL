@@ -160,7 +160,7 @@ class TypedVectorBase : public AVectorBase {
     }
 
     const_reference front() const {
-        return *(static_cast<T*>(getItemPointer(0)));
+        return *(static_cast<const T*>(getItemPointer(0)));
     }
 
     reference back() {

@@ -32,7 +32,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E, template<class> class A>
+template<typename K, class E, template<class> class A = std::allocator>
 class MultiMap : public Sorted<List<std::pair<const K, E>, A>, KeyCompare<K, E> > {
 
   public:   // types

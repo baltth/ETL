@@ -43,14 +43,14 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   private:  // variables
 
-    uint8_t data[N * sizeof(T)];
+    uint8_t data_[N * sizeof(T)];
     StaticSized<StrategyBase> strategy;
 
   public:   // functions
 
     Vector() :
         Base(strategy),
-        strategy(data, N) {
+        strategy(data_, N) {
         this->reserve(N);
     }
 
@@ -59,13 +59,13 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     Vector(const Vector& other) :
         Base(strategy),
-        strategy(data, N) {
+        strategy(data_, N) {
         operator=(other);
     }
 
     explicit Vector(const Base& other) :
         Base(strategy),
-        strategy(data, N) {
+        strategy(data_, N) {
         operator=(other);
     }
 
@@ -83,13 +83,13 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     Vector(Vector&& other) :
         Base(strategy),
-        strategy(data, N) {
+        strategy(data_, N) {
         operator=(std::move(other));
     }
 
     Vector(std::initializer_list<T> initList) :
         Base(strategy),
-        strategy(data, N) {
+        strategy(data_, N) {
         operator=(initList);
     }
 
@@ -114,7 +114,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 template<class T, size_t N>
 Vector<T, N>::Vector(uint32_t len) :
     Base(strategy),
-    strategy(data, N) {
+    strategy(data_, N) {
 
     typename TypedVectorBase<T>::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
@@ -124,7 +124,7 @@ Vector<T, N>::Vector(uint32_t len) :
 template<class T, size_t N>
 Vector<T, N>::Vector(uint32_t len, const T& item) :
     Base(strategy),
-    strategy(data, N) {
+    strategy(data_, N) {
 
     this->insert(this->begin(), len, item);
 }

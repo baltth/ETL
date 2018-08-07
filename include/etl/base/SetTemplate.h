@@ -31,7 +31,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class E, template<class> class A>
+template<class E, template<class> class A = std::allocator>
 class Set : public Sorted<List<E, A> > {
 
   public:   // types
