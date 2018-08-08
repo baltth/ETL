@@ -49,18 +49,12 @@ class Sorted {
 
     static Comp comp;
 
-    mutable C container;
+    C container;
 
   public:   // functions
 
-    Sorted() {};
-
-#if ETL_USE_CPP11
-
-    Sorted(std::initializer_list<value_type> initList) :
-        container(initList) {};
-
-#endif
+    Sorted(typename C::AllocatorBase& a) :
+        container(a) {};
 
     ///\name Container<> forward
     /// \{
@@ -185,14 +179,14 @@ class Sorted {
     iterator insert(const_reference item);
     std::pair<iterator, bool> insertUnique(const_reference item);
 
-    iterator insertTo(const_iterator pos, const_reference item) const {
+    iterator insertTo(const_iterator pos, const_reference item) {
         return container.insert(pos, item);
     }
 
 #if ETL_USE_CPP11
 
     template<typename... Args>
-    iterator emplaceTo(const_iterator pos, Args&& ... args) const {
+    iterator emplaceTo(const_iterator pos, Args&& ... args) {
         return container.emplace(pos, std::forward<Args>(args)...);
     }
 

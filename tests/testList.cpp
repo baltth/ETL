@@ -765,8 +765,8 @@ TEST_CASE("Etl::Dynamic::List<>::find<F, V>() test", "[list][etl]") {
 TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::List<ItemType, DummyAllocator> ListT;
-    typedef ListT::Allocator AllocatorType;
+    typedef Etl::Dynamic::List<ItemType, DummyAllocator> ListT;
+    typedef ListT::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
@@ -794,8 +794,8 @@ void testSizedListAllocation() {
 
     ListT list;
 
-    CHECK(list.getAllocator().capacity() == NUM);
-    CHECK(list.getAllocator().empty());
+    CHECK(list.getAllocator().max_size() == NUM);
+    CHECK(list.getAllocator().size() == 0);
 
     SECTION("Basic allocation") {
 
@@ -810,7 +810,7 @@ void testSizedListAllocation() {
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
 
-        REQUIRE_FALSE(list.getAllocator().empty());
+        REQUIRE_FALSE(list.getAllocator().size() == 0);
         REQUIRE(list.getAllocator().size() == 2);
     }
 
@@ -828,7 +828,7 @@ void testSizedListAllocation() {
     }
 
     list.clear();
-    REQUIRE(list.getAllocator().empty());
+    REQUIRE(list.getAllocator().size() == 0);
 }
 
 TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
@@ -842,8 +842,8 @@ TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
     SECTION("Unique pool checks") {
 
         ListT list;
-        CHECK(list.getAllocator().capacity() == NUM);
-        CHECK(list.getAllocator().empty());
+        CHECK(list.getAllocator().max_size() == NUM);
+        CHECK(list.getAllocator().size() == 0);
 
         list.push_back(ContainerTester(1));
         list.push_back(ContainerTester(2));
@@ -878,8 +878,8 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
         ListT list;
 
-        CHECK(list.getAllocator().capacity() == NUM);
-        CHECK(list.getAllocator().empty());
+        CHECK(list.getAllocator().max_size() == NUM);
+        CHECK(list.getAllocator().size() == 0);
 
         list.push_back(ContainerTester(1));
         list.push_back(ContainerTester(2));
@@ -902,10 +902,10 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
-    typedef Etl::List<ContainerTester, DummyAllocator> ListT;
+    typedef Etl::Dynamic::List<ContainerTester, DummyAllocator> ListT;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(ListT::Allocator::getDeleteCount() == ListT::Allocator::getAllocCount());
+    CHECK(ListT::Allocator::Allocator::getDeleteCount() == ListT::Allocator::Allocator::getAllocCount());
 }
 
 

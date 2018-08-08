@@ -390,8 +390,8 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
-    typedef MapType::Allocator AllocatorType;
+    typedef Etl::Dynamic::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
@@ -453,9 +453,9 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
 TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
-    typedef Etl::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Dynamic::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
+    CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
 }
 

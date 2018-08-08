@@ -50,12 +50,12 @@ class PoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    virtual uint32_t size() const OVERRIDE {
-        return pool.getCount();
+    virtual size_t max_size() const OVERRIDE {
+        return pool.capacity();
     }
 
-    virtual uint32_t capacity() const OVERRIDE {
-        return pool.capacity();
+    virtual size_t size() const OVERRIDE {
+        return pool.getCount();
     }
 
     virtual PtrType allocate(uint32_t n) OVERRIDE {
@@ -69,6 +69,10 @@ class PoolAllocator : public AAllocator<T> {
     virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
         (void)n;
         pool.push(ptr);
+    }
+
+    virtual const void* handle() const OVERRIDE {
+        return &pool;
     }
 
 };
@@ -93,12 +97,12 @@ class CommonPoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    virtual uint32_t size() const OVERRIDE {
-        return allocator().size();
+    virtual size_t max_size() const OVERRIDE {
+        return allocator().max_size();
     }
 
-    virtual uint32_t capacity() const OVERRIDE {
-        return allocator().capacity();
+    virtual size_t size() const OVERRIDE {
+        return allocator().size();
     }
 
     virtual PtrType allocate(uint32_t n) OVERRIDE {
@@ -107,6 +111,10 @@ class CommonPoolAllocator : public AAllocator<T> {
 
     virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
         allocator().deallocate(ptr, n);
+    }
+
+    virtual const void* handle() const OVERRIDE {
+        return allocator().handle();
     }
 
   private:
