@@ -31,6 +31,78 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
+namespace Custom {
+
+/// MultiMap with custom allocator.
+template<class K, class E, template<class> class A>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef A<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
+
+  public:   // functions
+
+    MultiMap() :
+        Base(allocator) {};
+
+    MultiMap(const MultiMap& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    explicit MultiMap(const Base& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    MultiMap& operator=(const MultiMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    MultiMap& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    MultiMap(MultiMap&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    MultiMap& operator=(MultiMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
+
+#endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
+
+};
+
+}
+
 namespace Dynamic {
 
 /// MultiMap dynamic memory allocation, defaults to std::allocator.
@@ -40,7 +112,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
   public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E> Base;
-    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 

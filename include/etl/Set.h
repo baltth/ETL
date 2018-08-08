@@ -30,6 +30,79 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+
+namespace Custom {
+
+/// Set with custom allocator.
+template<class E, template<class> class A>
+class Set : public ETL_NAMESPACE::Set<E> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef A<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
+
+  public:   // functions
+
+    Set() :
+        Base(allocator) {};
+
+    Set(const Set& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    explicit Set(const Base& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    Set& operator=(const Set& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    Set& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Set(Set&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
+    Set(std::initializer_list<E> initList) :
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    Set& operator=(Set&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    Set& operator=(std::initializer_list<E> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
+
+#endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
+
+};
+
+}
+
 namespace Dynamic {
 
 /// Set with dynamic memory allocation, defaults to std::allocator.
@@ -39,7 +112,7 @@ class Set : public ETL_NAMESPACE::Set<E> {
   public:   // types
 
     typedef ETL_NAMESPACE::Set<E> Base;
-    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 

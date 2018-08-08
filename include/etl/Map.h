@@ -30,6 +30,78 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Custom {
+
+/// Map with custom allocator.
+template<class K, class E, template<class> class A>
+class Map : public ETL_NAMESPACE::Map<K, E> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef A<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
+
+  public:   // functions
+
+    Map() :
+        Base(allocator) {};
+
+    Map(const Map& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    explicit Map(const Base& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    Map& operator=(const Map& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    Map& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    Map(Map&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
+    Map(std::initializer_list<std::pair<K, E>> initList) :
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    Map& operator=(Map&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
+
+#endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
+
+};
+
+}
+
 namespace Dynamic {
 
 /// Map with dynamic memory allocation, defaults to std::allocator.
@@ -39,7 +111,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
   public:   // types
 
     typedef ETL_NAMESPACE::Map<K, E> Base;
-    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 

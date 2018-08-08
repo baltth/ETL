@@ -94,13 +94,12 @@ class AAllocator {
 
 
 /**
-Allocator template class with dynamic memory.
-Implements AAllocator based on dynamic memory handling.
+Allocator template class for forwarding std concept allocators.
 \tparam T Item type
 \tparam A allocator type to forward, defaults to std::allocator
 */
 template<class T, template<class> class A = std::allocator>
-class DynamicAllocator : public AAllocator<T> {
+class AllocatorWrapper : public AAllocator<T> {
 
   public:   // types
 

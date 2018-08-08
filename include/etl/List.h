@@ -30,6 +30,82 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Custom {
+
+/// List with custom allocator.
+template<class T, template<class> class A>
+class List : public ETL_NAMESPACE::List<T> {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::List<T> Base;
+    typedef typename Base::iterator iterator;
+    typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::Node Node;
+
+    typedef A<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
+
+  public:   // functions
+
+    List() :
+        Base(allocator) {};
+
+    List(const List& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    explicit List(const Base& other) :
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    List& operator=(const List& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    List& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+#if ETL_USE_CPP11
+
+    List(List&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
+    List(std::initializer_list<T> initList) :
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    List& operator=(List&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    List& operator=(std::initializer_list<T> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
+
+#endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
+
+};
+
+}
+
 namespace Dynamic {
 
 /// List with dynamic memory allocation, defaults to std::allocator.
@@ -43,7 +119,7 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
     typedef typename Base::Node Node;
 
-    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
