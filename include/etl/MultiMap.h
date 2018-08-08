@@ -33,35 +33,71 @@ namespace ETL_NAMESPACE {
 
 namespace Dynamic {
 
-/// MultiMap with std::allocator.
-template<class K, class E>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, std::allocator> {
+/// MultiMap dynamic memory allocation, defaults to std::allocator.
+template<class K, class E, template<class> class A = std::allocator>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, std::allocator> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    MultiMap() {};
+    MultiMap() :
+        Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit MultiMap(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    MultiMap& operator=(const MultiMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     MultiMap& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    MultiMap(MultiMap&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    MultiMap& operator=(MultiMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 
@@ -71,35 +107,71 @@ namespace Static {
 
 /// MultiMap with unique pool allocator.
 template<class K, class E, uint32_t N>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    MultiMap() {};
+    MultiMap() :
+        Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit MultiMap(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    MultiMap& operator=(const MultiMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     MultiMap& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    MultiMap(MultiMap&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    MultiMap& operator=(MultiMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 
@@ -109,35 +181,71 @@ namespace Pooled {
 
 /// MultiMap with common pool allocator.
 template<class K, class E, uint32_t N>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    MultiMap() {};
+    MultiMap() :
+        Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit MultiMap(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    MultiMap& operator=(const MultiMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     MultiMap& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    MultiMap(MultiMap&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    MultiMap& operator=(MultiMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 

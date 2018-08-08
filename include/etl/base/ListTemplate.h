@@ -50,28 +50,35 @@ class List : public TypedListBase<T> {
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
 
+    typedef AAllocator<Node> AllocatorBase;
+
     friend Node;
 
   private:  // variables
 
-    AAllocator<Node>& allocator;
+    AllocatorBase& allocator;
 
   public:   // functions
 
-    List& operator=(const List& other);
-    List& operator=(const Base& other);
+    explicit List(AllocatorBase& a) :
+        allocator(a) {};
 
-#if ETL_USE_CPP11
-
-    List(List&& other) :
-        Base(std::move(other)) {};
-
-    List& operator=(List&& other) {
-        Base::operator=(other);
+    List& operator=(const List& other) {
+        assign(other.begin(), other.end());
         return *this;
     }
 
-    List(std::initializer_list<T> initList);
+#if ETL_USE_CPP11
+
+    List& operator=(List&& other) {
+        swap(other);
+        return *this;
+    }
+
+    List& operator=(std::initializer_list<T> initList) {
+        assign(initList);
+        return *this;
+    }
 
 #endif
 
@@ -157,23 +164,16 @@ class List : public TypedListBase<T> {
                 const_iterator last);
 
     void swap(List<T>& other) {
-        swapElements(other);
+        if (this != &other) {
+            if (allocator.handle() == other.allocator.handle()) {
+                AListBase::swapNodeList(other);
+            } else {
+                swapElements(other);
+            }
+        }
     }
     /// \}
 
-  protected:
-
-    explicit List(AAllocator<Node>& a) :
-        allocator(a) {};
-    /*
-        List(const List& other) {
-            assign(other.begin(), other.end());
-        }
-
-        explicit List(const Base& other) {
-            assign(other.begin(), other.end());
-        }
-    */
   private:
 
     Node* createNode(const T& item) {
@@ -196,41 +196,6 @@ class List : public TypedListBase<T> {
     void swapElements(List<T>& other);
 
 };
-
-
-template<class T>
-List<T>& List<T>::operator=(const List<T>& other) {
-
-    if (&other != this) {
-        assign(other.begin(), other.end());
-    }
-
-    return *this;
-}
-
-
-template<class T>
-List<T>& List<T>::operator=(const TypedListBase<T>& other) {
-
-    if (&other != static_cast<TypedListBase<T>*>(this)) {
-        assign(other.begin(), other.end());
-    }
-
-    return *this;
-}
-
-
-#if ETL_USE_CPP11
-
-template<class T>
-List<T>::List(std::initializer_list<T> initList) {
-
-    for (auto& it : initList) {
-        push_back(it);
-    }
-}
-
-#endif
 
 
 template<class T>

@@ -375,8 +375,8 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Map<uint32_t, ItemType, DummyAllocator> MapType;
-    typedef MapType::Allocator AllocatorType;
+    typedef Etl::Dynamic::Map<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
@@ -439,9 +439,9 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
-    typedef Etl::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Dynamic::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::getDeleteCount() == MapType::Allocator::getAllocCount());
+    CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
 }
 

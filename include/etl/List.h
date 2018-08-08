@@ -98,14 +98,6 @@ class List : public ETL_NAMESPACE::List<T> {
 
 #endif
 
-    void swap(List& other) {
-        AListBase::swapNodeList(other);
-    }
-
-    void swap(Base& other) {
-        Base::swap(other);
-    }
-
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -184,10 +176,6 @@ class List : public ETL_NAMESPACE::List<T> {
 
 #endif
 
-    void swap(Base& other) {
-        Base::swap(other);
-    }
-
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -265,14 +253,6 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
 #endif
-
-    void swap(List& other) {
-        AListBase::swapNodeList(other);
-    }
-
-    void swap(Base& other) {
-        Base::swap(other);
-    }
 
     Allocator& getAllocator() const {
         return allocator;

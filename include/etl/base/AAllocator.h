@@ -42,12 +42,15 @@ class AAllocator {
 
   public:   // functions
 
+    virtual ~AAllocator() {};
+
     virtual size_t max_size() const = 0;
+    virtual size_t size() const = 0;
 
     virtual PtrType allocate(uint32_t n) = 0;
     virtual void deallocate(PtrType ptr, uint32_t n) = 0;
 
-    virtual size_t size() const = 0;
+    virtual const void* handle() const = 0;
 
     static void construct(PtrType ptr) {
         new (ptr) ItemType;
@@ -106,26 +109,33 @@ class DynamicAllocator : public AAllocator<T> {
 
     typedef A<T> Allocator;
 
-  private:  // variables
-
-    Allocator allocator;
-
   public:   // functions
 
     virtual size_t max_size() const OVERRIDE {
-        return allocator.max_size();
+        return allocator().max_size();
     }
 
     virtual size_t size() const OVERRIDE {
-        return allocator.max_size();
+        return allocator().max_size();
     }
-    
+
     virtual PtrType allocate(uint32_t n) OVERRIDE {
-        return allocator.allocate(n);
+        return allocator().allocate(n);
     }
 
     virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
-        allocator.deallocate(ptr, n);
+        allocator().deallocate(ptr, n);
+    }
+
+    virtual const void* handle() const OVERRIDE {
+        return &allocator();
+    }
+
+  private:
+
+    static Allocator& allocator() {
+        static Allocator alloc;
+        return alloc;
     }
 
 };

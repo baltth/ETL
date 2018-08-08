@@ -71,6 +71,10 @@ class PoolAllocator : public AAllocator<T> {
         pool.push(ptr);
     }
 
+    virtual const void* handle() const OVERRIDE {
+        return &pool;
+    }
+
 };
 
 
@@ -107,6 +111,10 @@ class CommonPoolAllocator : public AAllocator<T> {
 
     virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
         allocator().deallocate(ptr, n);
+    }
+
+    virtual const void* handle() const OVERRIDE {
+        return allocator().handle();
     }
 
   private:

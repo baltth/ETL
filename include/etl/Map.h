@@ -32,35 +32,71 @@ namespace ETL_NAMESPACE {
 
 namespace Dynamic {
 
-/// Map with std::allocator.
-template<class K, class E>
-class Map : public ETL_NAMESPACE::Map<K, E, std::allocator> {
+/// Map with dynamic memory allocation, defaults to std::allocator.
+template<class K, class E, template<class> class A = std::allocator>
+class Map : public ETL_NAMESPACE::Map<K, E> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E, std::allocator> Base;
+    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef ETL_NAMESPACE::DynamicAllocator<typename Base::Node, A> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    Map() {};
+    Map() :
+        Base(allocator) {};
 
     Map(const Map& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit Map(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    Map& operator=(const Map& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     Map& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    Map(Map&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    Map& operator=(Map&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 
@@ -71,35 +107,71 @@ namespace Static {
 
 /// Map with unique pool allocator.
 template<class K, class E, uint32_t N>
-class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> {
+class Map : public ETL_NAMESPACE::Map<K, E> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template Allocator> Base;
+    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    Map() {};
+    Map() :
+        Base(allocator) {};
 
     Map(const Map& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit Map(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    Map& operator=(const Map& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     Map& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    Map(Map&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    Map& operator=(Map&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 
@@ -110,35 +182,71 @@ namespace Pooled {
 
 /// Map with common pool allocator.
 template<class K, class E, uint32_t N>
-class Map : public ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> {
+class Map : public ETL_NAMESPACE::Map<K, E> {
 
     STATIC_ASSERT(N > 0);
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E, ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator> Base;
+    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
+
+  private:  // variables
+
+    mutable Allocator allocator;
 
   public:   // functions
 
-    Map() {};
+    Map() :
+        Base(allocator) {};
 
     Map(const Map& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
 
     explicit Map(const Base& other) :
-        Base(other) {};
+        Base(allocator) {
+        Base::operator=(other);
+    }
+
+    Map& operator=(const Map& other) {
+        Base::operator=(other);
+        return *this;
+    }
 
     Map& operator=(const Base& other) {
-        assign(other);
+        Base::operator=(other);
         return *this;
     }
 
 #if ETL_USE_CPP11
 
+    Map(Map&& other) :
+        Base(allocator) {
+        operator=(std::move(other));
+    }
+
     Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(initList) {};
+        Base(allocator) {
+        operator=(initList);
+    }
+
+    Map& operator=(Map&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
 
 #endif
+
+    Allocator& getAllocator() const {
+        return allocator;
+    }
 
 };
 

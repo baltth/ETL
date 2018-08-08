@@ -292,8 +292,8 @@ TEST_CASE("Etl::Dynamic::Set<> search tests", "[set][etl]") {
 TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Set<ItemType, DummyAllocator> SetType;
-    typedef SetType::Allocator AllocatorType;
+    typedef Etl::Dynamic::Set<ItemType, DummyAllocator> SetType;
+    typedef SetType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
@@ -356,9 +356,9 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 
-    typedef Etl::Set<ContainerTester, DummyAllocator> SetType;
+    typedef Etl::Dynamic::Set<ContainerTester, DummyAllocator> SetType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(SetType::Allocator::getDeleteCount() == SetType::Allocator::getAllocCount());
+    CHECK(SetType::Allocator::Allocator::getDeleteCount() == SetType::Allocator::Allocator::getAllocCount());
 }
 
