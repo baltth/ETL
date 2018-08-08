@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_LISTTEMPLATE_H__
 
 #include <etl/etlSupport.h>
+#include <etl/base/AAllocator.h>
 #include <etl/base/TypedListBase.h>
 #include <etl/base/tools.h>
 
@@ -33,7 +34,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-template<class T, template<class> class A = std::allocator>
+template<class T>
 class List : public TypedListBase<T> {
 
   public:   // types
@@ -49,31 +50,13 @@ class List : public TypedListBase<T> {
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
 
-    typedef A<Node> Allocator;
-
     friend Node;
-
-    template<class T2, template<class> class B>
-    friend class List;
 
   private:  // variables
 
-    mutable Allocator allocator;
+    AAllocator<Node>& allocator;
 
   public:   // functions
-
-    List() {};
-
-    explicit List(const Allocator& a) :
-        allocator(a) {};
-
-    List(const List& other) {
-        assign(other.begin(), other.end());
-    }
-
-    explicit List(const Base& other) {
-        assign(other.begin(), other.end());
-    }
 
     List& operator=(const List& other);
     List& operator=(const Base& other);
@@ -158,61 +141,65 @@ class List : public TypedListBase<T> {
 
 #endif
 
-    template<template<class> class B>
-    void splice(const_iterator pos, List<T, B>& other) {
+    void splice(const_iterator pos, List<T>& other) {
         splice(pos, other, other.begin(), other.end());
     }
 
-    template<template<class> class B>
-    void splice(const_iterator pos, List<T, B>& other, const_iterator it) {
+    void splice(const_iterator pos, List<T>& other, const_iterator it) {
         const_iterator it2 = it;
         ++it2;
         splice(pos, other, it, it2);
     }
 
-    template<template<class> class B>
     void splice(const_iterator pos,
-                List<T, B>& other,
+                List<T>& other,
                 const_iterator first,
                 const_iterator last);
 
-    template<template<class> class B>
-    void swap(List<T, B>& other) {
+    void swap(List<T>& other) {
         swapElements(other);
     }
     /// \}
 
-    Allocator& getAllocator() const {
-        return allocator;
-    }
+  protected:
 
+    explicit List(AAllocator<Node>& a) :
+        allocator(a) {};
+    /*
+        List(const List& other) {
+            assign(other.begin(), other.end());
+        }
+
+        explicit List(const Base& other) {
+            assign(other.begin(), other.end());
+        }
+    */
   private:
 
     Node* createNode(const T& item) {
         Node* p = allocator.allocate(1);
         if (p != NULLPTR) {
-            new (p) Node(item);
+            allocator.construct(p, item);
         }
         return p;
     }
 
     void deleteNode(Node* ptr) {
         if (ptr) {
-            ptr->~Node();
+            allocator.destroy(ptr);
             allocator.deallocate(ptr, 1);
         }
     }
 
     Node* copyAndReplace(iterator& item, const T& value);
 
-    template<template<class> class B>
-    void swapElements(List<T, B>& other);
+    void swapElements(List<T>& other);
 
 };
 
 
-template<class T, template<class> class A>
-List<T, A>& List<T, A>::operator=(const List<T, A>& other) {
+template<class T>
+List<T>& List<T>::operator=(const List<T>& other) {
 
     if (&other != this) {
         assign(other.begin(), other.end());
@@ -222,8 +209,8 @@ List<T, A>& List<T, A>::operator=(const List<T, A>& other) {
 }
 
 
-template<class T, template<class> class A>
-List<T, A>& List<T, A>::operator=(const TypedListBase<T>& other) {
+template<class T>
+List<T>& List<T>::operator=(const TypedListBase<T>& other) {
 
     if (&other != static_cast<TypedListBase<T>*>(this)) {
         assign(other.begin(), other.end());
@@ -235,8 +222,8 @@ List<T, A>& List<T, A>::operator=(const TypedListBase<T>& other) {
 
 #if ETL_USE_CPP11
 
-template<class T, template<class> class A>
-List<T, A>::List(std::initializer_list<T> initList) {
+template<class T>
+List<T>::List(std::initializer_list<T> initList) {
 
     for (auto& it : initList) {
         push_back(it);
@@ -246,8 +233,8 @@ List<T, A>::List(std::initializer_list<T> initList) {
 #endif
 
 
-template<class T, template<class> class A>
-void List<T, A>::clear() {
+template<class T>
+void List<T>::clear() {
 
     while (Base::size() > 0) {
         pop_back();
@@ -255,8 +242,8 @@ void List<T, A>::clear() {
 }
 
 
-template<class T, template<class> class A>
-void List<T, A>::push_front(const T& item) {
+template<class T>
+void List<T>::push_front(const T& item) {
 
     Node* p = createNode(item);
     if (p != NULLPTR) {
@@ -265,8 +252,8 @@ void List<T, A>::push_front(const T& item) {
 }
 
 
-template<class T, template<class> class A>
-void List<T, A>::push_back(const T& item) {
+template<class T>
+void List<T>::push_back(const T& item) {
 
     Node* p = createNode(item);
     if (p != NULLPTR) {
@@ -278,15 +265,15 @@ void List<T, A>::push_back(const T& item) {
 #if ETL_USE_CPP11
 
 
-template<class T, template<class> class A>
-typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& item) {
+template<class T>
+typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
     return emplace(pos, item);
 }
 
 
-template<class T, template<class> class A>
+template<class T>
 template<typename... Args >
-typename List<T, A>::iterator List<T, A>::emplace(const_iterator pos, Args&& ... args) {
+typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args) {
 
     iterator it = this->end();
     Node* inserted = allocator.allocate(1);
@@ -302,8 +289,8 @@ typename List<T, A>::iterator List<T, A>::emplace(const_iterator pos, Args&& ...
 #else
 
 
-template<class T, template<class> class A>
-typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& item) {
+template<class T>
+typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
 
     iterator it = this->end();
     Node* inserted = createNode(item);
@@ -318,10 +305,10 @@ typename List<T, A>::iterator List<T, A>::insert(const_iterator pos, const T& it
 #endif
 
 
-template<class T, template<class> class A>
+template<class T>
 template<typename InputIt>
-typename std::enable_if < !std::is_integral<InputIt>::value, typename List<T, A>::iterator >::type
-List<T, A>::insert(const_iterator position, InputIt first, InputIt last) {
+typename std::enable_if < !std::is_integral<InputIt>::value, typename List<T>::iterator >::type
+List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);
 
@@ -338,8 +325,8 @@ List<T, A>::insert(const_iterator position, InputIt first, InputIt last) {
 }
 
 
-template<class T, template<class> class A>
-typename List<T, A>::Node* List<T, A>::copyAndReplace(iterator& item, const T& value) {
+template<class T>
+typename List<T>::Node* List<T>::copyAndReplace(iterator& item, const T& value) {
 
     Node* removed = NULLPTR;
     Node* newItem = createNode(value);
@@ -351,12 +338,11 @@ typename List<T, A>::Node* List<T, A>::copyAndReplace(iterator& item, const T& v
 }
 
 
-template<class T, template<class> class A>
-template<template<class> class B>
-void List<T, A>::splice(const_iterator pos,
-                        List<T, B>& other,
-                        const_iterator first,
-                        const_iterator last) {
+template<class T>
+void List<T>::splice(const_iterator pos,
+                     List<T>& other,
+                     const_iterator first,
+                     const_iterator last) {
 
     if (static_cast<Base*>(&other) != static_cast<Base*>(this)) {
         iterator item = Base::convert(first);
@@ -368,9 +354,8 @@ void List<T, A>::splice(const_iterator pos,
 }
 
 
-template<class T, template<class> class A>
-template<template<class> class B>
-void List<T, A>::swapElements(List<T, B>& other) {
+template<class T>
+void List<T>::swapElements(List<T>& other) {
 
     const SizeDiff diff(*this, other);
 

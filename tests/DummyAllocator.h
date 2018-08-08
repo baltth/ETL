@@ -76,6 +76,10 @@ class DummyAllocator {
         deleteCnt = 0;
     }
 
+    static size_t max_size() {
+        return SIZE;
+    }
+
 };
 
 

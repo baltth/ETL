@@ -49,18 +49,12 @@ class Sorted {
 
     static Comp comp;
 
-    mutable C container;
+    C& container;
 
   public:   // functions
 
-    Sorted() {};
-
-#if ETL_USE_CPP11
-
-    Sorted(std::initializer_list<value_type> initList) :
-        container(initList) {};
-
-#endif
+    Sorted(C& c) :
+        container(c) {};
 
     ///\name Container<> forward
     /// \{
