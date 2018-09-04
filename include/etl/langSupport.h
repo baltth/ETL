@@ -163,7 +163,7 @@ template<>
 struct is_integral_root<unsigned long int> : true_type {};
 
 template<typename T>
-struct is_integral : integral_constant < bool, (is_integral_root<typename remove_cv<T>::type>::value)> {};
+struct is_integral : integral_constant<bool, (is_integral_root<typename remove_cv<T>::type>::value)> {};
 
 template< class T >
 struct is_floating_point : integral_constant <
@@ -198,6 +198,12 @@ struct enable_if<true, T> {
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
 
 #endif
+
+
+#ifndef M_PI
+#define M_PI    (3.141592653589793238462643383279502884197169399375105820974)
+#endif
+
 
 #endif /* __ETL_LANGSUPPORT_H__ */
 

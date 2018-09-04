@@ -161,7 +161,7 @@ uint32_t MultiMap<K, E>::erase(const K& k) {
 
 
 template<typename K, class E>
-typename MultiMap<K, E>::iterator  MultiMap<K, E>::find(const K& k) {
+typename MultiMap<K, E>::iterator MultiMap<K, E>::find(const K& k) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -174,7 +174,7 @@ typename MultiMap<K, E>::iterator  MultiMap<K, E>::find(const K& k) {
 
 
 template<typename K, class E>
-typename MultiMap<K, E>::const_iterator  MultiMap<K, E>::find(const K& k) const {
+typename MultiMap<K, E>::const_iterator MultiMap<K, E>::find(const K& k) const {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
 
