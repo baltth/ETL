@@ -33,7 +33,7 @@ class AVectorBase {
   protected: // types
 
     class Proxy : public GenericProxy {
-        friend AVectorBase;
+        friend class AVectorBase;
 
       public:   // functions
 

@@ -52,7 +52,7 @@ class List : public TypedListBase<T> {
 
     typedef AAllocator<Node> AllocatorBase;
 
-    friend Node;
+    friend class Base::Node;
 
   private:  // variables
 

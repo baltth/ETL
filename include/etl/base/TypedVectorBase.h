@@ -51,7 +51,7 @@ template<class, class> class DynamicSized;
 template<class T>
 class TypedVectorBase : public AVectorBase {
 
-    friend StaticSized<TypedVectorBase>;
+    friend class StaticSized<TypedVectorBase>;
     template<class C, class A> friend class DynamicSized;
 
   public:   // types

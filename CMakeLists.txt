@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 project(etl_test)
 set(CMAKE_BUILD_TYPE Release)
 
+#set (CMAKE_C_COMPILER "/usr/bin/clang")
+#set (CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
 set(ETL_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(ETL_INCLUDE_DIR ${ETL_SOURCE_DIR}/include)

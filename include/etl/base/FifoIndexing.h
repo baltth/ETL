@@ -30,7 +30,7 @@ class AFifoIterator;
 
 
 class FifoIndexing {
-    friend AFifoIterator;
+    friend class AFifoIterator;
 
   private:  // variables
 

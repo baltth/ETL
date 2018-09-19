@@ -79,7 +79,7 @@ class StaticSized : public AMemStrategy<C> {
         setupData(cont, capacity);
     }
 
-    virtual void cleanup(C& cont) {
+    virtual void cleanup(C& cont) FINAL OVERRIDE {
         cont.clear();
     }
 
@@ -159,7 +159,7 @@ class DynamicSized : public AMemStrategy<C> {
     virtual void shrinkToFit(C& cont) FINAL OVERRIDE;
     virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE;
 
-    virtual void cleanup(C& cont) {
+    virtual void cleanup(C& cont) FINAL OVERRIDE {
         cont.clear();
         deallocate(cont);
     }

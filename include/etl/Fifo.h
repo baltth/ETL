@@ -64,7 +64,6 @@ void Fifo<C>::setupFifo(uint32_t len) {
 }
 
 
-template<>
 template<typename T, uint32_t N>
 class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
 
