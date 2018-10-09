@@ -132,7 +132,7 @@ class List : public TypedListBase<T> {
     }
 
     template<typename InputIt>
-    typename std::enable_if < !std::is_integral<InputIt>::value, iterator >::type
+    typename enable_if < !is_integral<InputIt>::value, iterator >::type
     insert(const_iterator position, InputIt first, InputIt last);
 
     iterator erase(iterator pos) {
@@ -273,7 +273,7 @@ typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
 
 template<class T>
 template<typename InputIt>
-typename std::enable_if < !std::is_integral<InputIt>::value, typename List<T>::iterator >::type
+typename enable_if < !is_integral<InputIt>::value, typename List<T>::iterator >::type
 List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);

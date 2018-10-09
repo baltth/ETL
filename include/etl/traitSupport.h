@@ -30,7 +30,7 @@ limitations under the License.
 
 // Type trait implementations mainly from https://en.cppreference.com
 
-namespace std {
+namespace ETL_NAMESPACE {
 
 
 template<bool B, class T = void>
@@ -99,37 +99,37 @@ template<class T>
 struct is_same<T, T> : true_type {};
 
 
-namespace etl_detail {
+namespace Internal {
 
 template<typename T>
-struct is_integral_root : std::false_type {};
+struct is_integral_root : ETL_NAMESPACE::false_type {};
 
 template<>
-struct is_integral_root<bool> : std::true_type {};
+struct is_integral_root<bool> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<signed char> : std::true_type {};
+struct is_integral_root<signed char> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<unsigned char> : std::true_type {};
+struct is_integral_root<unsigned char> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<wchar_t> : std::true_type {};
+struct is_integral_root<wchar_t> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<short> : std::true_type {};
+struct is_integral_root<short> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<unsigned short> : std::true_type {};
+struct is_integral_root<unsigned short> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<int> : std::true_type {};
+struct is_integral_root<int> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<unsigned int> : std::true_type {};
+struct is_integral_root<unsigned int> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<long int> : std::true_type {};
+struct is_integral_root<long int> : ETL_NAMESPACE::true_type {};
 template<>
-struct is_integral_root<unsigned long int> : std::true_type {};
+struct is_integral_root<unsigned long int> : ETL_NAMESPACE::true_type {};
 
 }
 
 
 template<typename T>
-struct is_integral : integral_constant<bool, etl_detail::is_integral_root<typename remove_cv<T>::type>::value> {};
+struct is_integral : integral_constant<bool, Internal::is_integral_root<typename remove_cv<T>::type>::value> {};
 
 template< class T >
 struct is_floating_point : integral_constant <
@@ -146,29 +146,29 @@ struct is_arithmetic : integral_constant < bool,
     > {};
 
 
-namespace etl_detail {
+namespace Internal {
 
-template<typename T, bool = std::is_integral<T>::value>
-struct is_unsigned : std::integral_constant<bool, (T(0) < T(-1))> {};   // *NOPAD*
-
-template<typename T>
-struct is_unsigned<T, false> : std::false_type {};
-
-
-template<typename T, bool = std::is_floating_point<T>::value ||         // *NOPAD*
-         (std::is_integral<T>::value && (!is_unsigned<T>::value)) >
-struct is_signed : std::true_type {};
+template<typename T, bool = ETL_NAMESPACE::is_integral<T>::value>
+struct is_unsigned : ETL_NAMESPACE::integral_constant<bool, (T(0) < T(-1))> {};     // *NOPAD*
 
 template<typename T>
-struct is_signed<T, false> : std::false_type {};
+struct is_unsigned<T, false> : ETL_NAMESPACE::false_type {};
+
+
+template<typename T, bool = ETL_NAMESPACE::is_floating_point<T>::value ||           // *NOPAD*
+         (ETL_NAMESPACE::is_integral<T>::value && (!is_unsigned<T>::value)) >
+struct is_signed : ETL_NAMESPACE::true_type {};
+
+template<typename T>
+struct is_signed<T, false> : ETL_NAMESPACE::false_type {};
 
 }
 
 template<typename T>
-struct is_unsigned : etl_detail::is_unsigned<T>::type {};
+struct is_unsigned : Internal::is_unsigned<T>::type {};
 
 template<typename T>
-struct is_signed : etl_detail::is_signed<T>::type {};
+struct is_signed : Internal::is_signed<T>::type {};
 
 }
 
@@ -176,6 +176,29 @@ struct is_signed : etl_detail::is_signed<T>::type {};
 #else /* ETL_USE_CPP11 == 1 */
 
 #include <type_traits>
+
+namespace ETL_NAMESPACE {
+
+using std::enable_if;
+
+using std::remove_const;
+using std::remove_volatile;
+using std::remove_cv;
+using std::remove_reference;
+
+using std::integral_constant;
+
+using std::true_type;
+using std::false_type;
+
+using std::is_same;
+
+using std::is_integral;
+using std::is_floating_point;
+using std::is_unsigned;
+using std::is_signed;
+
+}
 
 #endif
 

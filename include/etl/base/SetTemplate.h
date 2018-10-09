@@ -83,7 +83,7 @@ class Set : public Sorted<List<E> > {
     }
 
     template<class InputIt>
-    typename std::enable_if<!std::is_integral<InputIt>::value>::type    // *NOPAD*
+    typename enable_if<!is_integral<InputIt>::value>::type      // *NOPAD*
     insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);

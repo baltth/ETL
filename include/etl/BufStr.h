@@ -154,19 +154,19 @@ class BufStr {
     }
 
     template<typename T>
-    typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, BufStr&>::type    // *NOPAD*
+    typename enable_if<is_integral<T>::value && is_unsigned<T>::value, BufStr&>::type   // *NOPAD*
     operator <<(T data) {
         return putUNumber(data);
     }
 
     template<typename T>
-    typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, BufStr&>::type      // *NOPAD*
+    typename enable_if<is_integral<T>::value && is_signed<T>::value, BufStr&>::type     // *NOPAD*
     operator <<(T data) {
         return putSNumber(data);
     }
 
     template<typename T>
-    typename std::enable_if<std::is_floating_point<T>::value, BufStr&>::type    // *NOPAD*
+    typename enable_if<is_floating_point<T>::value, BufStr&>::type                      // *NOPAD*
     operator <<(T data) {
         return putFloat(data);
     }

@@ -118,7 +118,7 @@ class Vector : public TypedVectorBase<T> {
     iterator insert(const_iterator position, uint32_t num, const_reference value);
 
     template<typename InputIt>
-    typename std::enable_if<!std::is_integral<InputIt>::value, iterator>::type      // *NOPAD*
+    typename enable_if<!is_integral<InputIt>::value, iterator>::type        // *NOPAD*
     insert(const_iterator position, InputIt first, InputIt last) {
         typename Base::template ContCreator<InputIt> cc(first, last);
         return insertWithCreator(position, cc.getLength(), cc);

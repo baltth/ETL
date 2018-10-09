@@ -29,6 +29,9 @@ limitations under the License.
 
 #if (ETL_HAS_CPP11 == 0)
 
+#include <etl/traitSupport.h>
+
+
 #ifndef NAN
 STATIC_ASSERT_(std::numeric_limits<float>::has_quiet_NaN, etl_math_NAN);
 #define NAN         (std::numeric_limits<float>::quiet_NaN())
@@ -46,14 +49,48 @@ STATIC_ASSERT_(std::numeric_limits<float>::has_infinity, etl_math_INF);
 namespace ETL_NAMESPACE {
 
 template<typename T>
-bool isnan(T val) {
+typename enable_if<is_floating_point<T>::value, bool>::type
+isnan(T val) {
+    STATIC_ASSERT(std::numeric_limits<T>::is_iec559);
     return (val != val);
 }
 
 template<typename T>
-bool isinf(T val) {
+typename enable_if<is_integral<T>::value, bool>::type
+isnan(T val) {
+    return isnan(static_cast<double>(val));
+}
+
+template<typename T>
+typename enable_if<is_floating_point<T>::value, bool>::type
+isinf(T val) {
+    STATIC_ASSERT(std::numeric_limits<T>::is_iec559);
     return (val > std::numeric_limits<T>::max()) ||
-           (val < std::numeric_limits<T>::min());
+           (val < -std::numeric_limits<T>::max());
+}
+
+template<typename T>
+typename enable_if<is_integral<T>::value, bool>::type
+isinf(T val) {
+    return isinf(static_cast<double>(val));
+}
+
+template<typename T>
+bool isfinite(T val) {
+    return (!isnan(val)) && (!isinf(val));
+}
+
+template<typename T>
+typename enable_if<is_floating_point<T>::value, bool>::type
+isnormal(T val) {
+    return isfinite(val) &&
+           ((val >= std::numeric_limits<T>::min()) || (val <= -std::numeric_limits<T>::min()));
+}
+
+template<typename T>
+typename enable_if<is_integral<T>::value, bool>::type
+isnormal(T val) {
+    return isnormal(static_cast<double>(val));
 }
 
 }
@@ -64,6 +101,8 @@ namespace ETL_NAMESPACE {
 
 using std::isnan;
 using std::isinf;
+using std::isfinite;
+using std::isnormal;
 
 }
 

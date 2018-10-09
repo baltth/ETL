@@ -24,7 +24,7 @@ limitations under the License.
 #include <etl/mathSupport.h>
 
 
-TEST_CASE("Math support tests", "[math][etl][basic]") {
+TEST_CASE("Etl::isnan() tests", "[math][etl][basic]") {
 
     REQUIRE(NAN != NAN);
     REQUIRE(INFINITY == INFINITY);
@@ -36,22 +36,73 @@ TEST_CASE("Math support tests", "[math][etl][basic]") {
 
     REQUIRE_FALSE(Etl::isnan(0));
     REQUIRE_FALSE(Etl::isnan(0.0));
+    REQUIRE_FALSE(Etl::isnan(-0.0));
     REQUIRE_FALSE(Etl::isnan(1.0));
     REQUIRE_FALSE(Etl::isnan(-1.0));
+    REQUIRE_FALSE(Etl::isnan(std::exp(800)));
 
     REQUIRE_FALSE(Etl::isnan(INFINITY));
     REQUIRE_FALSE(Etl::isnan(-INFINITY));
+}
+
+
+TEST_CASE("Etl::isinf() tests", "[math][etl][basic]") {
 
     REQUIRE(Etl::isinf(INFINITY));
     REQUIRE(Etl::isinf(-INFINITY));
     REQUIRE(Etl::isinf(1.0 / 0.0));
     REQUIRE(Etl::isinf(-1.0 / 0.0));
+    REQUIRE(Etl::isinf(std::exp(800)));
 
+    REQUIRE_FALSE(Etl::isinf(0));
     REQUIRE_FALSE(Etl::isinf(0.0));
-    REQUIRE_FALSE(Etl::isinf(0.0));
+    REQUIRE_FALSE(Etl::isinf(-0.0));
     REQUIRE_FALSE(Etl::isinf(1.0));
     REQUIRE_FALSE(Etl::isinf(-1.0));
 
     REQUIRE_FALSE(Etl::isinf(NAN));
 }
 
+
+TEST_CASE("Etl::isfinite() tests", "[math][etl][basic]") {
+
+    REQUIRE(Etl::isfinite(0));
+    REQUIRE(Etl::isfinite(0.0));
+    REQUIRE(Etl::isfinite(-0.0));
+    REQUIRE(Etl::isfinite(1.0));
+    REQUIRE(Etl::isfinite(-1.0));
+    REQUIRE(Etl::isfinite(std::numeric_limits<double>::max()));
+    REQUIRE(Etl::isfinite(std::numeric_limits<double>::min()));
+    REQUIRE(Etl::isfinite(-std::numeric_limits<double>::max()));
+    REQUIRE(Etl::isfinite(-std::numeric_limits<double>::min()));
+    REQUIRE(Etl::isfinite(std::numeric_limits<double>::min() / 2.0));
+
+    REQUIRE_FALSE(Etl::isfinite(INFINITY));
+    REQUIRE_FALSE(Etl::isfinite(-INFINITY));
+    REQUIRE_FALSE(Etl::isfinite(1.0 / 0.0));
+    REQUIRE_FALSE(Etl::isfinite(-1.0 / 0.0));
+    REQUIRE_FALSE(Etl::isfinite(NAN));
+    REQUIRE_FALSE(Etl::isfinite(0.0 / 0.0));
+}
+
+
+TEST_CASE("Etl::isnormal() tests", "[math][etl][basic]") {
+
+    REQUIRE(Etl::isnormal(1.0));
+    REQUIRE(Etl::isnormal(-1.0));
+    REQUIRE(Etl::isnormal(std::numeric_limits<double>::max()));
+    REQUIRE(Etl::isnormal(std::numeric_limits<double>::min()));
+    REQUIRE(Etl::isnormal(-std::numeric_limits<double>::max()));
+    REQUIRE(Etl::isnormal(-std::numeric_limits<double>::min()));
+
+    REQUIRE_FALSE(Etl::isnormal(0));
+    REQUIRE_FALSE(Etl::isnormal(0.0));
+    REQUIRE_FALSE(Etl::isnormal(-0.0));
+    REQUIRE_FALSE(Etl::isnormal(INFINITY));
+    REQUIRE_FALSE(Etl::isnormal(-INFINITY));
+    REQUIRE_FALSE(Etl::isnormal(1.0 / 0.0));
+    REQUIRE_FALSE(Etl::isnormal(-1.0 / 0.0));
+    REQUIRE_FALSE(Etl::isnormal(NAN));
+    REQUIRE_FALSE(Etl::isnormal(0.0 / 0.0));
+    REQUIRE_FALSE(Etl::isnormal(std::numeric_limits<double>::min() / 2.0));
+}
