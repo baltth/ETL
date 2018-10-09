@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_BUFSTR_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 #include <etl/Vector.h>
 
 namespace ETL_NAMESPACE {
@@ -152,43 +153,21 @@ class BufStr {
         return put(data.ch);
     }
 
-    BufStr& operator <<(uint8_t data) {
+    template<typename T>
+    typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, BufStr&>::type    // *NOPAD*
+    operator <<(T data) {
         return putUNumber(data);
     }
 
-    BufStr& operator <<(int8_t data) {
+    template<typename T>
+    typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, BufStr&>::type      // *NOPAD*
+    operator <<(T data) {
         return putSNumber(data);
     }
 
-    BufStr& operator <<(uint16_t data) {
-        return putUNumber(data);
-    }
-
-    BufStr& operator <<(int16_t data) {
-        return putSNumber(data);
-    }
-
-    BufStr& operator <<(uint32_t data) {
-        return putUNumber(data);
-    }
-
-    BufStr& operator <<(int32_t data) {
-        return putSNumber(data);
-    }
-
-    BufStr& operator <<(uint64_t data) {
-        return putUNumber(data);
-    }
-
-    BufStr& operator <<(int64_t data) {
-        return putSNumber(data);
-    }
-
-    BufStr& operator <<(float data) {
-        return putFloat(data);
-    }
-
-    BufStr& operator <<(double data) {
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value, BufStr&>::type    // *NOPAD*
+    operator <<(T data) {
         return putFloat(data);
     }
 

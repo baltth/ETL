@@ -77,133 +77,18 @@ class NullptrT {
 #define CONSTEXPR
 
 
-// Type trait implementations mainly from https://en.cppreference.com
-
-namespace std {
-
-template<class T>
-struct remove_const {
-    typedef T type;
-};
-
-template<class T>
-struct remove_const<const T> {
-    typedef T type;
-};
-
-template<class T>
-struct remove_volatile {
-    typedef T type;
-};
-
-template<class T>
-struct remove_volatile<volatile T> {
-    typedef T type;
-};
-
-template<class T>
-struct remove_cv {
-    typedef typename remove_volatile<typename remove_const<T>::type>::type type;
-};
-
-template<class T>
-struct remove_reference {
-    typedef T type;
-};
-
-template<class T>
-struct remove_reference<T&> {
-    typedef T type;
-};
-
-
-template<class T, T v>
-struct integral_constant {
-    static const T value = v;
-    typedef T value_type;
-    typedef integral_constant type;
-    operator value_type() const throw() {
-        return value;
-    }
-};
-
-struct true_type : integral_constant<bool, true> {};
-struct false_type : integral_constant<bool, false> {};
-
-
-template<class T, class U>
-struct is_same : false_type {};
-
-template<class T>
-struct is_same<T, T> : true_type {};
-
-
-template<typename T>
-struct is_integral_root : false_type {};
-
-template<>
-struct is_integral_root<bool> : true_type {};
-template<>
-struct is_integral_root<signed char> : true_type {};
-template<>
-struct is_integral_root<unsigned char> : true_type {};
-template<>
-struct is_integral_root<wchar_t> : true_type {};
-template<>
-struct is_integral_root<short> : true_type {};
-template<>
-struct is_integral_root<unsigned short> : true_type {};
-template<>
-struct is_integral_root<int> : true_type {};
-template<>
-struct is_integral_root<unsigned int> : true_type {};
-template<>
-struct is_integral_root<long int> : true_type {};
-template<>
-struct is_integral_root<unsigned long int> : true_type {};
-
-template<typename T>
-struct is_integral : integral_constant<bool, (is_integral_root<typename remove_cv<T>::type>::value)> {};
-
-template< class T >
-struct is_floating_point : integral_constant <
-    bool,
-    is_same<float, typename remove_cv<T>::type>::value  ||
-    is_same<double, typename remove_cv<T>::type>::value  ||
-    is_same<long double, typename remove_cv<T>::type>::value
-    > {};
-
-
-template<bool B, class T = void>
-struct enable_if {};
-
-template<class T>
-struct enable_if<true, T> {
-    typedef T type;
-};
-
-}
-
-
 #else /* ETL_USE_CPP11 == 1 */
 
-#include <type_traits>
-
 #define NULLPTR         nullptr
-#define OVERRIDE        override
-#define FINAL           final
-#define CONSTEXPR       constexpr
 
 #define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
 #define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
 
+#define OVERRIDE        override
+#define FINAL           final
+#define CONSTEXPR       constexpr
+
 #endif
-
-
-#ifndef M_PI
-#define M_PI    (3.141592653589793238462643383279502884197169399375105820974)
-#endif
-
 
 #endif /* __ETL_LANGSUPPORT_H__ */
 

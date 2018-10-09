@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_LISTTEMPLATE_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 #include <etl/base/AAllocator.h>
 #include <etl/base/TypedListBase.h>
 #include <etl/base/tools.h>

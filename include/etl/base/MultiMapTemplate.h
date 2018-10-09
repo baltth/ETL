@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_MULTIMAPTEMPLATE_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 #include <etl/base/Sorted.h>
 #include <etl/base/KeyCompare.h>
 #include <etl/base/ListTemplate.h>

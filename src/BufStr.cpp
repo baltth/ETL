@@ -20,16 +20,9 @@ limitations under the License.
 */
 
 #include <etl/BufStr.h>
+#include <etl/mathSupport.h>
 
 #include <cstring>
-
-#if ETL_USE_CPP11
-#include <cmath>
-using std::isnan;
-using std::isinf;
-#else
-#include <math.h>
-#endif
 
 using ETL_NAMESPACE::BufStr;
 
@@ -216,9 +209,9 @@ bool BufStr::handleFloatSpecials(double val) {
 
     bool special = true;
 
-    if (isnan(val)) {
-        writeWithPadding("NaN", (sizeof("Nan") - 1), getPadding());
-    } else if (isinf(val)) {
+    if (std::isnan(val)) {
+        writeWithPadding("NaN", (sizeof("NaN") - 1), getPadding());
+    } else if (std::isinf(val)) {
         if (val > 0) {
             writeWithPadding("inf", (sizeof("inf") - 1), getPadding());
         } else {

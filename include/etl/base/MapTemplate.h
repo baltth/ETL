@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_MAPTEMPLATE_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 #include <etl/base/Sorted.h>
 #include <etl/base/KeyCompare.h>
 #include <etl/base/ListTemplate.h>
@@ -145,7 +146,7 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
 
 
 template<typename K, class E>
-std::pair<typename Map<K,E>::iterator, bool> Map<K,E>::insert_or_assign(const K& k, const E& e) {
+std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::insert_or_assign(const K& k, const E& e) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -166,7 +167,7 @@ std::pair<typename Map<K,E>::iterator, bool> Map<K,E>::insert_or_assign(const K&
 
 
 template<typename K, class E>
-void Map<K,E>::erase(const K& k) {
+void Map<K, E>::erase(const K& k) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -177,7 +178,7 @@ void Map<K,E>::erase(const K& k) {
 
 
 template<typename K, class E>
-typename Map<K,E>::iterator Map<K,E>::find(const K& k) {
+typename Map<K, E>::iterator Map<K, E>::find(const K& k) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -190,7 +191,7 @@ typename Map<K,E>::iterator Map<K,E>::find(const K& k) {
 
 
 template<typename K, class E>
-typename Map<K,E>::const_iterator Map<K,E>::find(const K& k) const {
+typename Map<K, E>::const_iterator Map<K, E>::find(const K& k) const {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
 
@@ -203,7 +204,7 @@ typename Map<K,E>::const_iterator Map<K,E>::find(const K& k) const {
 
 
 template<typename K, class E>
-typename Map<K,E>::iterator Map<K,E>::getItem(const K& k) {
+typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -225,7 +226,7 @@ typename Map<K,E>::iterator Map<K,E>::getItem(const K& k) {
 
 template<typename K, class E>
 template<typename... Args>
-std::pair<typename Map<K,E>::iterator, bool> Map<K,E>::emplace(const K& k, Args&& ... args) {
+std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::emplace(const K& k, Args&& ... args) {
 
     auto found = Base::findSortedPosition(k);
 
