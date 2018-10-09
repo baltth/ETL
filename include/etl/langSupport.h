@@ -77,7 +77,7 @@ class NullptrT {
 #define CONSTEXPR
 
 
-#else /* ETL_USE_CPP11 == 1 */
+#else /* ETL_HAS_CPP11 == 1 */
 
 #define NULLPTR         nullptr
 

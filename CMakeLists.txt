@@ -30,6 +30,7 @@ list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testMultiMap.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testFifo.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testPool.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testBufStr.cpp)
+list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testSupport.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testMain.cpp)
 
 # C++03

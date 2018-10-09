@@ -22,22 +22,52 @@ limitations under the License.
 #ifndef __ETL_MATHSUPPORT_H_
 #define __ETL_MATHSUPPORT_H_
 
-#include <etl/langSupport.h>
+#include <etl/etlSupport.h>
 
 #include <cmath>
 #include <limits>
 
+#if (ETL_HAS_CPP11 == 0)
 
 #ifndef NAN
 STATIC_ASSERT_(std::numeric_limits<float>::has_quiet_NaN, etl_math_NAN);
-#define NAN     (std::numeric_limits<float>::quiet_NaN())
+#define NAN         (std::numeric_limits<float>::quiet_NaN())
 #endif
 
+#ifndef INFINITY
+STATIC_ASSERT_(std::numeric_limits<float>::has_infinity, etl_math_INF);
+#define INFINITY    (std::numeric_limits<float>::infinity())
+#endif
 
 #ifndef M_PI
 #define M_PI    (3.141592653589793238462643383279502884197169399375105820974)
 #endif
 
+namespace ETL_NAMESPACE {
+
+template<typename T>
+bool isnan(T val) {
+    return (val != val);
+}
+
+template<typename T>
+bool isinf(T val) {
+    return (val > std::numeric_limits<T>::max()) ||
+           (val < std::numeric_limits<T>::min());
+}
+
+}
+
+#else
+
+namespace ETL_NAMESPACE {
+
+using std::isnan;
+using std::isinf;
+
+}
+
+#endif
 
 #endif /* __ETL_MATHSUPPORT_H_ */
 
