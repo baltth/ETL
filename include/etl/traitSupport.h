@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_TRAITSUPPORT_H__
 #define __ETL_TRAITSUPPORT_H__
 
-#include <etl/langSupport.h>
+#include <etl/etlSupport.h>
 
 
 #if (ETL_HAS_CPP11 == 0)

@@ -209,9 +209,9 @@ bool BufStr::handleFloatSpecials(double val) {
 
     bool special = true;
 
-    if (std::isnan(val)) {
+    if (isnan(val)) {
         writeWithPadding("NaN", (sizeof("NaN") - 1), getPadding());
-    } else if (std::isinf(val)) {
+    } else if (isinf(val)) {
         if (val > 0) {
             writeWithPadding("inf", (sizeof("inf") - 1), getPadding());
         } else {
