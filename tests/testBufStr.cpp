@@ -241,6 +241,7 @@ TEST_CASE("Etl::BufStr() - Formats", "[bufstr][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
 
     using Etl::BufStr;
@@ -334,6 +335,7 @@ TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::BufStr() - copy/assignment", "[bufstr][etl]") {
 
     using Etl::BufStr;
@@ -344,6 +346,7 @@ TEST_CASE("Etl::BufStr() - copy/assignment", "[bufstr][etl]") {
     Etl::Static::BufStr<45> bs4("2nd testString");
     Etl::Static::BufStr<45> bs5 = bs4;
     Etl::Static::BufStr<46> bs6;
+    Etl::Dynamic::BufStr bs7;
 
     REQUIRE(bs2.cStr() != bs1.cStr());
     CAPTURE(bs2.cStr())
@@ -374,7 +377,14 @@ TEST_CASE("Etl::BufStr() - copy/assignment", "[bufstr][etl]") {
     CAPTURE(bs4.cStr())
     REQUIRE(strcmp(bs6.cStr(), bs4.cStr()) == 0);
 
+    bs7 = bs4;
+
+    REQUIRE(bs7.cStr() != bs4.cStr());
+    CAPTURE(bs7.cStr())
+    CAPTURE(bs4.cStr())
+    REQUIRE(strcmp(bs7.cStr(), bs4.cStr()) == 0);
 }
+
 
 TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
 

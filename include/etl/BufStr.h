@@ -415,6 +415,58 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 }
 
 
+namespace Dynamic {
+
+class BufStr : public ETL_NAMESPACE::BufStr {
+
+  public:   // types
+
+    typedef ETL_NAMESPACE::BufStr Base;
+
+  private:  // variables
+
+    Etl::Dynamic::Vector<char> data;
+
+  public:   // functions
+
+    BufStr() :
+        Base(data) {
+        closeStr();
+    }
+
+    BufStr(const BufStr& other) :
+        Base(data) {
+        closeStr();
+        operator <<(other);
+    };
+
+    explicit BufStr(const Etl::BufStr& other) :
+        Base(data) {
+        closeStr();
+        operator <<(other);
+    };
+
+    BufStr& operator=(const BufStr& other) {
+        Etl::BufStr::operator=(other);
+        return* this;
+    }
+
+    BufStr& operator=(const Etl::BufStr& other) {
+        Etl::BufStr::operator=(other);
+        return *this;
+    }
+
+    explicit BufStr(const char* str) :
+        Base(data) {
+        closeStr();
+        write(str);
+    }
+
+};
+
+}
+
+
 template<>
 struct BufStr::SizeTypeTrait<sizeof(uint8_t)> {
     static const uint8_t VALUE = 0;
