@@ -22,6 +22,7 @@ limitations under the License.
 #include "catch.hpp"
 
 #include <etl/List.h>
+#include <etl/funcSupport.h>
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
@@ -936,3 +937,47 @@ TEST_CASE("Etl::List<> with std::inner_product()", "[list][comp][etl]") {
     testInnerProduct<ListT, ListT>();
 }
 
+
+TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
+
+    typedef Etl::reference_wrapper<int> ItemT;
+    typedef Etl::Dynamic::List<ItemT> ListT;
+
+    int i0 = 0;
+    int i1 = 1;
+    int i2 = 2;
+    int i3 = 3;
+
+    ListT list;
+    list.push_back(Etl::ref(i0));
+    list.push_back(Etl::ref(i1));
+    list.push_back(Etl::ref(i2));
+    list.push_back(Etl::ref(i3));
+
+    REQUIRE(list.size() == 4);
+
+    ListT::iterator it = list.begin();
+
+    for (uint8_t i = 0; i < list.size(); ++i) {
+        REQUIRE(it->get() == i);
+        ++it;
+    }
+
+    it = list.begin();
+    *it = Etl::ref(i3);
+    ++it;
+    *it = Etl::ref(i2);
+    ++it;
+    *it = Etl::ref(i1);
+    ++it;
+    *it = Etl::ref(i0);
+
+    it = list.begin();
+    for (uint8_t i = 0; i < list.size(); ++i) {
+        REQUIRE(it->get() == (list.size() - i - 1));
+        ++it;
+    }
+
+    list.back().get() = -1;
+    REQUIRE(i0 == -1);
+}

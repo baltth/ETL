@@ -410,7 +410,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     }
 
     const value_type& operator[](int32_t ix) const {
-        return *(static_cast<value_type*>(Base::getItemPointer(ix)));
+        return *(static_cast<const value_type*>(Base::getItemPointer(ix)));
     }
 
     iterator begin() {
