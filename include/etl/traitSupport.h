@@ -124,6 +124,10 @@ template<>
 struct is_integral_root<long int> : ETL_NAMESPACE::true_type {};
 template<>
 struct is_integral_root<unsigned long int> : ETL_NAMESPACE::true_type {};
+template<>
+struct is_integral_root<long long int> : ETL_NAMESPACE::true_type {};
+template<>
+struct is_integral_root<unsigned long long int> : ETL_NAMESPACE::true_type {};
 
 }
 
