@@ -384,6 +384,30 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == map.end());
     }
+
+    SECTION("lower_bound(Key) for one") {
+        REQUIRE(map.lower_bound(2) == map.equal_range(2).first);
+    }
+
+    SECTION("lower_bound(Key) for more") {
+        REQUIRE(map.lower_bound(3) == map.equal_range(3).first);
+    }
+
+    SECTION("lower_bound(Key) non-existing") {
+        REQUIRE(map.lower_bound(12) == map.end());
+    }
+
+    SECTION("upper_bound(Key) for one") {
+        REQUIRE(map.upper_bound(2) == map.equal_range(2).second);
+    }
+
+    SECTION("upper_bound(Key) for more") {
+        REQUIRE(map.upper_bound(3) == map.equal_range(3).second);
+    }
+
+    SECTION("upper_bound(Key) non-existing") {
+        REQUIRE(map.upper_bound(12) == map.end());
+    }
 }
 
 

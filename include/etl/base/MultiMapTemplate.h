@@ -118,6 +118,22 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
         return Base::findSortedRange(k);
     }
 
+    iterator lower_bound(const K& k) {
+        return equal_range(k).first;
+    }
+
+    const_iterator lower_bound(const K& k) const {
+        return equal_range(k).first;
+    }
+
+    iterator upper_bound(const K& k) {
+        return equal_range(k).second;
+    }
+
+    const_iterator upper_bound(const K& k) const {
+        return equal_range(k).second;
+    }
+
 #if ETL_USE_CPP11
 
     template<typename... Args>
