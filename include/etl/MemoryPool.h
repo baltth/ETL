@@ -41,11 +41,15 @@ class MemoryPool {
 
   private:  // types
 
-    static const size_t ITEMSIZE = (S > sizeof(PoolBase::FreeItem)) ? S : sizeof(PoolBase::FreeItem);
+    typedef uint64_t MinItemType;
 
-    typedef struct {
-        uint8_t dummy[ITEMSIZE];
-    } ItemAlias;
+    union ItemAlias {
+        MinItemType minItem;                            // for aliasing alignment and size of Minimal Item
+        uint8_t item[S];                                // for aliasing size of S
+        uint8_t freeItem[sizeof(PoolBase::FreeItem)];   // for aliasing size of PoolBase::FreeItem
+    };
+
+    static const size_t ITEMSIZE = sizeof(ItemAlias);
 
   private:  // variables
 

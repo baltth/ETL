@@ -181,5 +181,29 @@ inline void operator delete[](void* ptr) {
 
 #endif
 
+
+namespace ETL_NAMESPACE {
+namespace Internal {
+
+template<typename T>
+struct AlignmentOf {
+
+    struct Aligned {
+        char c;
+        T i;
+    };
+    struct Basic {
+        T i;
+    };
+
+    static const size_t value = sizeof(Aligned) - sizeof(Basic);
+
+    STATIC_ASSERT(value > 0);
+
+};
+
+}
+}
+
 #endif /* __ETL_ETLSUPPORT_H__ */
 
