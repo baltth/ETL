@@ -55,8 +55,6 @@ class Vector : public TypedVectorBase<T> {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    typedef typename Base::Creator Creator;
-
 #if ETL_USE_CPP11
     typedef typename Base::CreateFunc CreateFunc;
 #endif
@@ -184,7 +182,8 @@ class Vector : public TypedVectorBase<T> {
         return *this;
     }
 
-    iterator insertWithCreator(const_iterator position, uint32_t num, const Creator& creatorCall);
+    template<class CR>
+    iterator insertWithCreator(const_iterator position, uint32_t num, const CR& creatorCall);
 
 #if ETL_USE_CPP11
 
@@ -203,9 +202,10 @@ class Vector : public TypedVectorBase<T> {
 
 
 template<class T>
+template<class CR>
 typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator position,
                                                           uint32_t numToInsert,
-                                                          const Creator& creatorCall) {
+                                                          const CR& creatorCall) {
 
     if (numToInsert > 0) {
 
@@ -335,7 +335,7 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
         }
 
         if (requestedCapacity <= this->capacity()) {
-            position = Base::insertOperation(position, numToInsert, std::move(creatorCall));
+            position = Base::insertOperation(position, numToInsert, creatorCall);
         }
     }
 
@@ -396,8 +396,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef const value_type* const_iterator;
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-
-    typedef typename Base::Creator Creator;
 
 #if ETL_USE_CPP11
     typedef typename Base::CreateFunc CreateFunc;

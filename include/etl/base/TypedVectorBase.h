@@ -75,14 +75,9 @@ class TypedVectorBase : public AVectorBase {
 
 #endif
 
-    class Creator {
+    class DefaultCreator {
       public:
-        virtual void call(T* pos, bool place) const = 0;
-    };
-
-    class DefaultCreator : public Creator {
-      public:
-        virtual void call(T* pos, bool place) const {
+        void operator()(T* pos, bool place) const {
             if (place) {
                 placeDefaultTo(pos);
             } else {
@@ -91,40 +86,34 @@ class TypedVectorBase : public AVectorBase {
         }
     };
 
-    class CopyCreator : public Creator {
+    class CopyCreator {
       private:
         const T& ref;
 
       public:
         explicit CopyCreator(const T& refValue) :
             ref(refValue) {};
-
-        virtual void call(T* pos, bool place) const {
+        void operator()(T* pos, bool place) const {
             copyValue(pos, ref, place);
         }
     };
 
     template<class InputIt>
-    class ContCreator : public Creator {
+    class ContCreator {
       private:
-
         const InputIt first;
         mutable InputIt last;
         const uint32_t len;
-
       public:
-
         ContCreator(InputIt fst,
                     InputIt lst) :
             first(fst),
             last(lst),
             len((first < last) ? (last - first) : 0) {};
-
         uint32_t getLength() const {
             return len;
         }
-
-        virtual void call(T* pos, bool place) const {
+        void operator()(T* pos, bool place) const {
             if (first < last) {
                 --last;
                 if (place) {
@@ -328,13 +317,8 @@ class TypedVectorBase : public AVectorBase {
 
     static void destruct(iterator startPos, iterator endPos);
 
-    iterator insertOperation(const_iterator position, uint32_t num, const Creator& creatorCall);
-
-#if ETL_USE_CPP11
-
-    iterator insertOperation(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
-
-#endif
+    template<class CR>
+    iterator insertOperation(const_iterator position, uint32_t num, const CR& creatorCall);
 
     void swapElements(TypedVectorBase& other);
 
@@ -383,57 +367,10 @@ void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
 
 
 template<class T>
+template<class CR>
 typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
                                                                           uint32_t numToInsert,
-                                                                          const Creator& creatorCall) {
-
-    if (numToInsert > 0) {
-
-        uint32_t distanceFromEnd = end() - position;
-
-        uint32_t uninitedCopyCnt = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
-        uint32_t initedCopyCnt = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
-        uint32_t uninitedInsertCnt = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
-        uint32_t initedInsertCnt = uninitedCopyCnt;
-
-        T* src = end() - uninitedCopyCnt;
-        T* dst = end() + numToInsert - uninitedCopyCnt;
-
-        uninitializedCopy(src, dst, uninitedCopyCnt);
-
-        src -= initedCopyCnt;
-        dst -= initedCopyCnt;
-
-        initializedCopyUp(src, dst, initedCopyCnt);
-
-        T* uninitedInsertPos = dst;
-        dst -= uninitedInsertCnt;
-
-        while (uninitedInsertPos > dst) {
-            --uninitedInsertPos;
-            creatorCall.call(uninitedInsertPos, true);
-        }
-
-        dst -= initedInsertCnt;
-
-        while (uninitedInsertPos > dst) {
-            --uninitedInsertPos;
-            creatorCall.call(uninitedInsertPos, false);
-        }
-
-        proxy.setSize(size() + numToInsert);
-    }
-
-    return iterator(position);
-}
-
-
-#if ETL_USE_CPP11
-
-template<class T>
-typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
-                                                                          uint32_t numToInsert,
-                                                                          CreateFunc&& creatorCall) {
+                                                                          const CR& creatorCall) {
 
     if (numToInsert > 0) {
 
@@ -476,6 +413,8 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 }
 
 
+#if ETL_USE_CPP11
+
 template<class T>
 void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
 
@@ -504,9 +443,9 @@ void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {              // uninitializedCopy() always copies upwards
 #if ETL_USE_CPP11
-            placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constuctor
+            placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constructor
 #else
-            placeValueTo((dst + i), src[i]);                // Placement new, copy constuctor
+            placeValueTo((dst + i), src[i]);                // Placement new, copy constructor
 #endif
         }
     }
