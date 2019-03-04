@@ -28,6 +28,8 @@ limitations under the License.
 #include "sequenceTests.h"
 #include "compatibilityTests.h"
 
+#include <ctime>
+
 using ETL_NAMESPACE::Test::UnalignedTester;
 using ETL_NAMESPACE::Test::ContainerTester;
 
@@ -1228,3 +1230,66 @@ TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
 
     testInnerProduct<VecT, VecT>();
 }
+
+
+// Etl::Vector performance tests ---------------------------------------------
+
+
+TEST_CASE("Etl::Vector<> insert performance", "[vec][perf][etl]") {
+
+    static const uint32_t CYCLES = 100000UL;
+
+    SECTION("with int32_t") {
+
+        typedef Etl::Static::Vector<int32_t, 128> VecT;
+
+        VecT vec;
+        vec.push_back(-2);
+        vec.push_back(-1);
+
+        std::clock_t start = std::clock();
+
+        for (uint32_t i = 0; i < CYCLES; ++i) {
+
+            vec.push_back(i);
+            VecT::iterator pos = vec.begin();
+            vec.insert(++pos, 40U, i + 1);
+            vec.push_front(i);
+            vec.erase(vec.end() - 42, vec.end());
+        }
+
+        std::clock_t end = std::clock();
+
+        CHECK(vec.size() == 2);
+
+        std::cout << "Etl::Static::Vector<int32_t> insertion: "
+                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+    }
+    SECTION("with ContainerTester") {
+
+        typedef Etl::Static::Vector<ContainerTester, 128> VecT;
+
+        VecT vec;
+        vec.push_back(ContainerTester(-2));
+        vec.push_back(ContainerTester(-1));
+
+        std::clock_t start = std::clock();
+
+        for (uint32_t i = 0; i < CYCLES; ++i) {
+
+            vec.push_back(ContainerTester(i));
+            VecT::iterator pos = vec.begin();
+            vec.insert(++pos, 40U, ContainerTester(i + 1));
+            vec.push_front(ContainerTester(i));
+            vec.erase(vec.end() - 42, vec.end());
+        }
+
+        std::clock_t end = std::clock();
+
+        CHECK(vec.size() == 2);
+
+        std::cout << "Etl::Static::Vector<ContainerTester> insertion: "
+                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+    }
+}
+
