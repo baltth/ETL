@@ -25,6 +25,8 @@ limitations under the License.
 
 #include <iostream>
 #include <cstring>
+#include <ctime>
+#include <cstdlib>
 
 #if 0
 #define PRINT_DATA      { std::cout << std::string(data.begin()); }
@@ -394,4 +396,62 @@ TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
 
     REQUIRE(bs.size() == 16);
     REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
+}
+
+
+// Etl::BufStr performance tests ---------------------------------------------
+
+
+TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
+
+    static const uint32_t CYCLES = 100000UL;
+
+    typedef Etl::Static::BufStr<128> BufT;
+
+    SECTION("with double") {
+
+        std::clock_t sum = 0;
+
+        for (uint32_t i = 0; i < CYCLES; ++i) {
+
+            BufT bs;
+            bs << i;
+
+            double val = (std::rand() * 100.0 / RAND_MAX) - 50.0;
+
+            std::clock_t start = std::clock();
+            bs << val;
+            std::clock_t end = std::clock();
+
+            sum += (end - start);
+        }
+
+        CHECK(sum > 0);
+
+        std::cout << "Etl::BufStr << double: "
+                  << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+    }
+
+    SECTION("with hex") {
+
+        std::clock_t sum = 0;
+
+        for (uint32_t i = 0; i < CYCLES; ++i) {
+
+            BufT bs;
+            bs << "0x";
+
+            std::clock_t start = std::clock();
+            bs << Etl::BufStr::Hex(i, 10);
+            std::clock_t end = std::clock();
+
+            sum += (end - start);
+        }
+
+        CHECK(sum > 0);
+
+        std::cout << "Etl::BufStr << hex: "
+                  << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+    }
+
 }

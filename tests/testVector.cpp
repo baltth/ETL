@@ -1265,6 +1265,7 @@ TEST_CASE("Etl::Vector<> insert performance", "[vec][perf][etl]") {
         std::cout << "Etl::Static::Vector<int32_t> insertion: "
                   << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
     }
+
     SECTION("with ContainerTester") {
 
         typedef Etl::Static::Vector<ContainerTester, 128> VecT;

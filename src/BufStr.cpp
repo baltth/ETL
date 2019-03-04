@@ -227,9 +227,6 @@ bool BufStr::handleFloatSpecials(double val) {
 
 void BufStr::toString(double val) {
 
-    int64_t upscaled;
-    double rounded;
-    int64_t integerPart;
     char intPrefix = 0;
     uint32_t fractScaling = 1;
     for (int i = 0; i < getPrecision(); ++i) {
@@ -241,9 +238,9 @@ void BufStr::toString(double val) {
         intPrefix = '-';
     }
 
-    upscaled = round(val * static_cast<double>(fractScaling));
-    rounded = static_cast<double>(upscaled) / fractScaling;
-    integerPart = static_cast<int64_t>(rounded);
+    int64_t upscaled = round(val * static_cast<double>(fractScaling));
+    double rounded = static_cast<double>(upscaled) / fractScaling;
+    int64_t integerPart = static_cast<int64_t>(rounded);
     toString(integerPart, LengthTrait<int64_t>::VALUE, intPrefix);
 
     openStr();
