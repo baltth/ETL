@@ -94,6 +94,10 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
 #endif
 
+    ~Map() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -165,6 +169,10 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
     }
 
 #endif
+
+    ~Map() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;
@@ -241,6 +249,10 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
 #endif
 
+    ~Map() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -315,6 +327,10 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
     }
 
 #endif
+
+    ~Map() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;

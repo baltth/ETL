@@ -98,6 +98,10 @@ class List : public ETL_NAMESPACE::List<T> {
 
 #endif
 
+    ~List() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -173,6 +177,10 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
 #endif
+
+    ~List() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;
@@ -252,6 +260,10 @@ class List : public ETL_NAMESPACE::List<T> {
 
 #endif
 
+    ~List() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -329,6 +341,10 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
 #endif
+
+    ~List() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;

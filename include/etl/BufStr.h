@@ -84,9 +84,6 @@ class BufStr {
 
     static const struct DefaultModT {} Default;
 
-    static const uint8_t DIGITS[];
-    static const uint64_t DECADES[];
-
     template<uint32_t S>
     struct SizeTypeTrait {};
 
@@ -355,6 +352,10 @@ class BufStr {
 
     void openStr() {
         data.pop_back();
+    }
+
+    void insertOp(const char* str, uint32_t len) {
+        data.insert(data.end(), str, (str + len));
     }
 
     static char tetradeToChar(uint8_t val);

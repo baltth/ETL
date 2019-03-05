@@ -71,30 +71,29 @@ class TypedVectorBase : public AVectorBase {
 
 #if ETL_USE_CPP11
 
-    using CreateFunc = std::function<void(T*, bool)>;
+    using CreateFunc = std::function<void(pointer, uint32_t, bool)>;
 
 #endif
 
     class DefaultCreator {
       public:
-        void operator()(T* pos, bool place) const {
-            if (place) {
-                placeDefaultTo(pos);
-            } else {
-                assignDefaultTo(pos);
+        void operator()(pointer pos, uint32_t cnt, bool place) const {
+            for (uint32_t i = 0; i < cnt; ++i) {
+                defaultValue(pos + i, place);
             }
         }
     };
 
     class CopyCreator {
       private:
-        const T& ref;
-
+        const_reference ref;
       public:
-        explicit CopyCreator(const T& refValue) :
+        explicit CopyCreator(const_reference refValue) :
             ref(refValue) {};
-        void operator()(T* pos, bool place) const {
-            copyValue(pos, ref, place);
+        void operator()(pointer pos, uint32_t cnt, bool place) const {
+            for (uint32_t i = 0; i < cnt; ++i) {
+                copyValue(pos + i, ref, place);
+            }
         }
     };
 
@@ -113,13 +112,11 @@ class TypedVectorBase : public AVectorBase {
         uint32_t getLength() const {
             return len;
         }
-        void operator()(T* pos, bool place) const {
-            if (first < last) {
-                --last;
-                if (place) {
-                    placeValueTo(pos, *last);
-                } else {
-                    assignValueTo(pos, *last);
+        void operator()(pointer pos, uint32_t cnt, bool place) const {
+            for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
+                if (first < last) {
+                    --last;
+                    copyValue(pos + i, *last, place);
                 }
             }
         }
@@ -130,11 +127,11 @@ class TypedVectorBase : public AVectorBase {
     /// \name Element access
     /// \{
     reference operator[](uint32_t ix) {
-        return *(static_cast<T*>(getItemPointer(ix)));
+        return *(static_cast<pointer>(getItemPointer(ix)));
     }
 
     const_reference operator[](uint32_t ix) const {
-        return *(static_cast<const T*>(getItemPointer(ix)));
+        return *(static_cast<const_pointer>(getItemPointer(ix)));
     }
 
 #if ETL_USE_EXCEPTIONS
@@ -145,27 +142,27 @@ class TypedVectorBase : public AVectorBase {
 #endif
 
     reference front() {
-        return *(static_cast<T*>(getItemPointer(0)));
+        return *(static_cast<pointer>(getItemPointer(0)));
     }
 
     const_reference front() const {
-        return *(static_cast<const T*>(getItemPointer(0)));
+        return *(static_cast<const_pointer>(getItemPointer(0)));
     }
 
     reference back() {
-        return *(static_cast<T*>(getItemPointer(size() - 1)));
+        return *(static_cast<pointer>(getItemPointer(size() - 1)));
     }
 
     const_reference back() const {
-        return *(static_cast<const T*>(getItemPointer(size() - 1)));
+        return *(static_cast<const_pointer>(getItemPointer(size() - 1)));
     }
 
-    T* data() {
-        return static_cast<T*>(getItemPointer(0));
+    pointer data() {
+        return static_cast<pointer>(getItemPointer(0));
     }
 
-    const T* data() const {
-        return static_cast<const T*>(getItemPointer(0));
+    const_pointer data() const {
+        return static_cast<const_pointer>(getItemPointer(0));
     }
     /// \}
 
@@ -249,23 +246,31 @@ class TypedVectorBase : public AVectorBase {
         clear();
     }
 
-    static void assignDefaultTo(T* ptr) {
+    static void assignDefaultTo(pointer ptr) {
         *ptr = T();
     }
 
-    static void placeDefaultTo(T* ptr) {
+    static void placeDefaultTo(pointer ptr) {
         new (ptr) T();
     }
 
-    static void assignValueTo(T* ptr, const T& value) {
+    static void defaultValue(pointer ptr, bool place) {
+        if (place) {
+            placeDefaultTo(ptr);
+        } else {
+            assignDefaultTo(ptr);
+        }
+    }
+
+    static void assignValueTo(pointer ptr, const_reference value) {
         *ptr = value;
     }
 
-    static void placeValueTo(T* ptr, const T& value) {
+    static void placeValueTo(pointer ptr, const_reference value) {
         new (ptr) T(value);
     }
 
-    static void copyValue(T* ptr, const T& value, bool place) {
+    static void copyValue(pointer ptr, const_reference value, bool place) {
         if (place) {
             placeValueTo(ptr, value);
         } else {
@@ -273,19 +278,19 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    void copyOperation(T* dst, const T* src, uint32_t num);
+    void copyOperation(pointer dst, const_pointer src, uint32_t num);
 
 #if ETL_USE_CPP11
 
-    static void assignValueTo(T* ptr, T&& value) {
+    static void assignValueTo(pointer ptr, T&& value) {
         *ptr = std::move(value);
     }
 
-    static void placeValueTo(T* ptr, T&& value) {
+    static void placeValueTo(pointer ptr, T&& value) {
         new (ptr) T(std::move(value));
     }
 
-    static void moveValue(T* ptr, T&& value, bool place) {
+    static void moveValue(pointer ptr, T&& value, bool place) {
         if (place) {
             placeValueTo(ptr, std::move(value));
         } else {
@@ -299,7 +304,7 @@ class TypedVectorBase : public AVectorBase {
         rhs = std::move(tmp);
     }
 
-    void moveOperation(T* dst, T* src, uint32_t num);
+    void moveOperation(pointer dst, pointer src, uint32_t num);
 
 #else
 
@@ -311,9 +316,9 @@ class TypedVectorBase : public AVectorBase {
 
 #endif
 
-    static void uninitializedCopy(T* src, T* dst, uint32_t num);
-    static void initializedCopyUp(T* src, T* dst, uint32_t num);
-    static void initializedCopyDown(T* src, T* dst, uint32_t num);
+    static void uninitializedCopy(pointer src, pointer dst, uint32_t num);
+    static void initializedCopyUp(pointer src, pointer dst, uint32_t num);
+    static void initializedCopyDown(pointer src, pointer dst, uint32_t num);
 
     static void destruct(iterator startPos, iterator endPos);
 
@@ -347,9 +352,9 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, 
 
 
 template<class T>
-void TypedVectorBase<T>::copyOperation(T* dst, const T* src, uint32_t num) {
+void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, uint32_t num) {
 
-    T* dataAlias = data();
+    pointer dataAlias = data();
 
     if (dst >= dataAlias) {
 
@@ -381,8 +386,8 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
         uint32_t uninitedInsertCnt = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
         uint32_t initedInsertCnt = uninitedCopyCnt;
 
-        T* src = end() - uninitedCopyCnt;
-        T* dst = end() + numToInsert - uninitedCopyCnt;
+        pointer src = end() - uninitedCopyCnt;
+        pointer dst = end() + numToInsert - uninitedCopyCnt;
 
         uninitializedCopy(src, dst, uninitedCopyCnt);
 
@@ -391,19 +396,14 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 
         initializedCopyUp(src, dst, initedCopyCnt);
 
-        T* uninitedInsertPos = dst;
-        dst -= uninitedInsertCnt;
-
-        while (uninitedInsertPos > dst) {
-            --uninitedInsertPos;
-            creatorCall(uninitedInsertPos, true);
+        if (uninitedInsertCnt > 0) {
+            dst -= uninitedInsertCnt;
+            creatorCall(dst, uninitedInsertCnt, true);
         }
 
-        dst -= initedInsertCnt;
-
-        while (uninitedInsertPos > dst) {
-            --uninitedInsertPos;
-            creatorCall(uninitedInsertPos, false);
+        if (initedInsertCnt > 0) {
+            dst -= initedInsertCnt;
+            creatorCall(dst, initedInsertCnt, false);
         }
 
         proxy.setSize(size() + numToInsert);
@@ -416,9 +416,9 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 #if ETL_USE_CPP11
 
 template<class T>
-void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
+void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num) {
 
-    T* dataAlias = data();
+    pointer dataAlias = data();
 
     if (dst >= dataAlias) {
 
@@ -438,7 +438,7 @@ void TypedVectorBase<T>::moveOperation(T* dst, T* src, uint32_t num) {
 
 
 template<class T>
-void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
+void TypedVectorBase<T>::uninitializedCopy(pointer src, pointer dst, uint32_t num) {
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {              // uninitializedCopy() always copies upwards
@@ -453,7 +453,7 @@ void TypedVectorBase<T>::uninitializedCopy(T* src, T* dst, uint32_t num) {
 
 
 template<class T>
-void TypedVectorBase<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
+void TypedVectorBase<T>::initializedCopyUp(pointer src, pointer dst, uint32_t num) {
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {
@@ -468,7 +468,7 @@ void TypedVectorBase<T>::initializedCopyUp(T* src, T* dst, uint32_t num) {
 
 
 template<class T>
-void TypedVectorBase<T>::initializedCopyDown(T* src, T* dst, uint32_t num) {
+void TypedVectorBase<T>::initializedCopyDown(pointer src, pointer dst, uint32_t num) {
 
     if (src != dst) {
         for (uint32_t i = 0; i < num; ++i) {
@@ -535,7 +535,7 @@ void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
 #if ETL_USE_EXCEPTIONS
 
 template<typename T>
-T& TypedVectorBase<T>::at(uint32_t ix) {
+typename TypedVectorBase<T>::reference TypedVectorBase<T>::at(uint32_t ix) {
 
     if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();
@@ -546,7 +546,7 @@ T& TypedVectorBase<T>::at(uint32_t ix) {
 
 
 template<typename T>
-const_reference TypedVectorBase<T>::at(uint32_t ix) const {
+typename TypedVectorBase<T>::const_reference TypedVectorBase<T>::at(uint32_t ix) const {
 
     if (ix >= size()) {
         throw ETL_NAMESPACE::OutOfRangeException();

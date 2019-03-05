@@ -1,4 +1,4 @@
-build
+build*
 doxygen
 .vscode
 .refresh_cscope.sh

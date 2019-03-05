@@ -95,6 +95,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
 #endif
 
+    ~MultiMap() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -166,6 +170,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
     }
 
 #endif
+
+    ~MultiMap() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;
@@ -241,6 +249,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
 #endif
 
+    ~MultiMap() {
+        this->clear();
+    }
+
     Allocator& getAllocator() const {
         return allocator;
     }
@@ -314,6 +326,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
     }
 
 #endif
+
+    ~MultiMap() {
+        this->clear();
+    }
 
     Allocator& getAllocator() const {
         return allocator;

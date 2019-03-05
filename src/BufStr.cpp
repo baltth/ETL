@@ -20,27 +20,33 @@ limitations under the License.
 */
 
 #include <etl/BufStr.h>
+#include <etl/Array.h>
 #include <etl/mathSupport.h>
 
 #include <cstring>
 
 using ETL_NAMESPACE::BufStr;
 
-const BufStr::EndlineT BufStr::Endl;
 
-const uint8_t BufStr::DIGITS[] = {     /// \todo do something more elegant
+namespace {
+
+const uint8_t DIGITS[] = {      /// \todo do something more elegant
     3,
     5,
     10,
     20
 };
 
-const uint64_t BufStr::DECADES[] = {   /// \todo do something more elegant
+const uint64_t DECADES[] = {    /// \todo do something more elegant
     UINT64_C(100),
     UINT64_C(10000),
     UINT64_C(1000000000),
     UINT64_C(10000000000000000000)
 };
+
+}
+
+const BufStr::EndlineT BufStr::Endl;
 
 
 BufStr& BufStr::write(const char* str, size_t len) {
@@ -50,8 +56,9 @@ BufStr& BufStr::write(const char* str, size_t len) {
         uint32_t freeSpace = data.capacity() - data.size();
         uint32_t lenToCopy = (len <= freeSpace) ? len : freeSpace;
         if (lenToCopy > 0) {
-            Etl::Vector<char>::iterator it = data.end();
-            data.insert(--it, str, &str[lenToCopy]);
+            openStr();
+            insertOp(str, lenToCopy);
+            closeStr();
         }
     }
 
@@ -283,25 +290,34 @@ void BufStr::pad(uint8_t num) {
 
 void BufStr::putDigits(uint64_t val, uint64_t decades, bool forceAll /* = false */) {
 
+    typedef ETL_NAMESPACE::Array<char, 32> Digits;
+
+    Digits digits;
+    uint32_t ix = 0;
     bool started = forceAll;
 
     while (decades > 1) {
 
         if (val >= decades) {
 
-            putChar((val / decades) + '0');
+            digits[ix] = ((val / decades) + '0');
+            ++ix;
             started = true;
 
         } else if (started) {
 
-            putChar('0');
+            digits[ix] = '0';
+            ++ix;
         }
 
         val %= decades;
         decades /= 10;
     }
 
-    putChar(val + '0');
+    digits[ix] = (val + '0');
+    ++ix;
+
+    insertOp(digits.begin(), ix);
 }
 
 

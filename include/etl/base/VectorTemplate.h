@@ -281,11 +281,13 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 template<class T>
 typename Vector<T>::iterator Vector<T>::insert(const_iterator position, uint32_t num, const_reference value) {
 
-    return insertWithCreator(position, num, [&](T * item, bool place) {
-        if (place) {
-            this->placeValueTo(item, value);
-        } else {
-            this->assignValueTo(item, value);
+    return insertWithCreator(position, num, [this, &value](pointer item, uint32_t cnt, bool place) {
+        for (uint32_t i = 0; i < cnt; ++i) {
+            if (place) {
+                this->placeValueTo(item + i, value);
+            } else {
+                this->assignValueTo(item + i, value);
+            }
         }
     });
 }
@@ -294,7 +296,8 @@ typename Vector<T>::iterator Vector<T>::insert(const_iterator position, uint32_t
 template<class T>
 typename Vector<T>::iterator Vector<T>::insert(const_iterator position, T&& value) {
 
-    return insertWithCreator(position, 1, [&](T * item, bool place) {
+    return insertWithCreator(position, 1, [this, &value](pointer item, uint32_t, bool place) {
+
         if (place) {
             this->placeValueTo(item, std::move(value));
         } else {
@@ -308,7 +311,7 @@ template<class T>
 template<typename... Args >
 typename Vector<T>::iterator Vector<T>::emplace(const_iterator position, Args&& ... args) {
 
-    return insertWithCreator(position, 1, [&](T * item, bool place) {
+    return insertWithCreator(position, 1, [&](pointer item, uint32_t, bool place) {
         if (place) {
             new (item) T(args...);
         } else {
