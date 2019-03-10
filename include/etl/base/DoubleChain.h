@@ -19,15 +19,15 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_DOUBLELINKEDLIST_H__
-#define __ETL_DOUBLELINKEDLIST_H__
+#ifndef __ETL_DOUBLECHAIN_H__
+#define __ETL_DOUBLECHAIN_H__
 
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
 
-class DoubleLinkedList {
+class DoubleChain {
 
   public:   // types
 
@@ -52,28 +52,22 @@ class DoubleLinkedList {
 
     Node frontNode;
     Node backNode;
-    uint32_t size_;
 
   public:   // functions
 
-    DoubleLinkedList() :
+    DoubleChain() :
         frontNode(NULLPTR, &backNode),
-        backNode(&frontNode, NULLPTR),
-        size_(0) {};
+        backNode(&frontNode, NULLPTR) {};
 
 #if ETL_USE_CPP11
 
-    DoubleLinkedList(DoubleLinkedList&& other);
-    DoubleLinkedList& operator=(DoubleLinkedList&& other);
+    DoubleChain(DoubleChain&& other);
+    DoubleChain& operator=(DoubleChain&& other);
 
 #endif
 
-    bool empty() const {
-        return size_ == 0;
-    }
-
-    uint32_t size() const {
-        return size_;
+    bool isEmpty() const {
+        return (frontNode.next == &backNode);
     }
 
     Node* getFirst() const {
@@ -91,14 +85,14 @@ class DoubleLinkedList {
     void replace(Node* n1, Node* n2);
     void setEmpty();
 
-    void swap(DoubleLinkedList& other);
+    void swap(DoubleChain& other);
 
   private:
 
-    DoubleLinkedList(const DoubleLinkedList& other);
-    DoubleLinkedList& operator=(const DoubleLinkedList& other);
+    DoubleChain(const DoubleChain& other);
+    DoubleChain& operator=(const DoubleChain& other);
 
-    void getListOf(DoubleLinkedList& other);
+    void takeListOf(DoubleChain& other);
 
     static void linkNodes(Node* a, Node* b) {
         a->next = b;
@@ -117,5 +111,5 @@ class DoubleLinkedList {
 
 }
 
-#endif /* __ETL_DOUBLELINKEDLIST_H__ */
+#endif /* __ETL_DOUBLECHAIN_H__ */
 

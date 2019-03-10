@@ -32,6 +32,28 @@ limitations under the License.
 #define ETL_DISABLE_HEAP    0
 #endif
 
+#ifndef ETL_DISABLE_ASSERT
+#define ETL_DISABLE_ASSERT  0
+#endif
+
+
+// Assertions
+
+#if ETL_DISABLE_ASSERT
+
+#define ETL_ASSERT(cond)
+
+#else
+
+#include <cassert>
+
+#define ETL_ASSERT(cond)    assert(cond)
+
+#endif
+
+
+// Language features
+
 #if ETL_USE_CPP11
 
 #include <cstdint>
@@ -52,6 +74,9 @@ using std::size_t;
 #include <stdint.h>
 
 #endif
+
+
+// Utilities
 
 #include <stdexcept>    // For new overrides
 #include <iterator>
@@ -134,8 +159,33 @@ struct IsIterator {
     static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
 };
 
+
+
+namespace Internal {
+
+template<typename T>
+struct AlignmentOf {
+
+    struct Aligned {
+        char c;
+        T i;
+    };
+    struct Basic {
+        T i;
+    };
+
+    static const size_t value = sizeof(Aligned) - sizeof(Basic);
+
+    STATIC_ASSERT(value > 0);
+
+};
+
 }
 
+}
+
+
+// Heap usage
 
 #if ETL_DISABLE_HEAP
 
@@ -180,30 +230,6 @@ inline void operator delete[](void* ptr) {
 }
 
 #endif
-
-
-namespace ETL_NAMESPACE {
-namespace Internal {
-
-template<typename T>
-struct AlignmentOf {
-
-    struct Aligned {
-        char c;
-        T i;
-    };
-    struct Basic {
-        T i;
-    };
-
-    static const size_t value = sizeof(Aligned) - sizeof(Basic);
-
-    STATIC_ASSERT(value > 0);
-
-};
-
-}
-}
 
 #endif /* __ETL_ETLSUPPORT_H__ */
 

@@ -23,7 +23,7 @@ limitations under the License.
 #define __ETL_ALISTBASE_H__
 
 #include <etl/etlSupport.h>
-#include <etl/base/DoubleLinkedList.h>
+#include <etl/base/DoubleChain.h>
 
 #include <utility>
 
@@ -34,15 +34,15 @@ class AListBase {
 
   public:   // types
 
-    class Node : public DoubleLinkedList::Node {
+    class Node : public DoubleChain::Node {
 
       protected:
 
         Node() :
-            DoubleLinkedList::Node() {};
+            DoubleChain::Node() {};
 
-        explicit Node(const DoubleLinkedList::Node& other) :
-            DoubleLinkedList::Node(other) {};
+        explicit Node(const DoubleChain::Node& other) :
+            DoubleChain::Node(other) {};
 
     };
 
@@ -82,30 +82,34 @@ class AListBase {
 
   protected: // variables
 
-    DoubleLinkedList list;
+    DoubleChain list;
+    uint32_t size_;
 
   public:   // functions
 
-    AListBase() {};
+    AListBase() :
+        size_(0U) {};
 
 #if ETL_USE_CPP11
 
     AListBase(AListBase&& other) :
-        list(std::move(other.list)) {};
+        list(std::move(other.list)),
+        size_(other.size_) {};
 
     AListBase& operator=(AListBase&& other) {
         list = std::move(other.list);
+        size_ = other.size_;
         return *this;
     }
 
 #endif
 
     uint32_t size() const {
-        return list.size();
+        return size_;
     }
 
     bool empty() const {
-        return list.empty();
+        return (size_ == 0U);
     }
 
   protected:
@@ -121,21 +125,31 @@ class AListBase {
     /// \name Element operations
     /// \{
     void pushFront(Node* item) {
-        list.insertBefore(list.getFirst(), item);
+        if (item != NULLPTR) {
+            list.insertBefore(list.getFirst(), item);
+            ++size_;
+        }
     }
 
     void pushBack(Node* item) {
-        list.insertAfter(list.getLast(), item);
+        if (item != NULLPTR) {
+            list.insertAfter(list.getLast(), item);
+            ++size_;
+        }
     }
 
     Node* popFront();
     Node* popBack();
 
     void insert(Iterator pos, Node* item) {
-        list.insertBefore(pos.node, item);
+        if (item != NULLPTR) {
+            list.insertBefore(pos.node, item);
+            ++size_;
+        }
     }
 
     Node* remove(Iterator pos) {
+        --size_;
         return static_cast<AListBase::Node*>(list.remove(pos.node));
     }
 
@@ -143,10 +157,7 @@ class AListBase {
         list.replace(n1, n2);
     }
 
-    void swapNodeList(AListBase& other) {
-        list.swap(other.list);
-    }
-
+    void swapNodeList(AListBase& other);
     void splice(Iterator pos,
                 AListBase& other,
                 Iterator first,

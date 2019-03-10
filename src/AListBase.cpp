@@ -26,7 +26,8 @@ using ETL_NAMESPACE::AListBase;
 
 AListBase::Node* AListBase::popFront() {
 
-    if (list.size() > 0) {
+    if (size_ > 0) {
+        --size_;
         return static_cast<Node*>(list.remove(list.getFirst()));
     } else {
         return NULLPTR;
@@ -35,11 +36,22 @@ AListBase::Node* AListBase::popFront() {
 
 AListBase::Node* AListBase::popBack() {
 
-    if (list.size() > 0) {
+    if (size_ > 0) {
+        --size_;
         return static_cast<Node*>(list.remove(list.getLast()));
     } else {
         return NULLPTR;
     }
+}
+
+
+void AListBase::swapNodeList(AListBase& other) {
+
+    list.swap(other.list);
+
+    uint32_t tmpSize = size_;
+    size_ = other.size_;
+    other.size_ = tmpSize;
 }
 
 
@@ -51,8 +63,8 @@ void AListBase::splice(Iterator pos,
     if (&other != this) {
 
         Iterator item = first;
-
         while (item != last) {
+
             Iterator next = item;
             ++next;
             insert(pos, other.remove(item));

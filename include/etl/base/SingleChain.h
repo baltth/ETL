@@ -27,7 +27,7 @@ limitations under the License.
 namespace ETL_NAMESPACE {
 
 
-class LinkedList {
+class SingleChain {
 
   public:   // types
 
@@ -48,27 +48,21 @@ class LinkedList {
   private:  // variables
 
     Node frontNode;
-    uint32_t size_;
 
   public:   // functions
 
-    LinkedList() :
-        frontNode(),
-        size_(0) {};
+    SingleChain() :
+        frontNode() {};
 
 #if ETL_USE_CPP11
 
-    LinkedList(LinkedList&& other);
-    LinkedList& operator=(LinkedList&& other);
+    SingleChain(SingleChain&& other);
+    SingleChain& operator=(SingleChain&& other);
 
 #endif
 
-    bool empty() const {
-        return size_ == 0;
-    }
-
-    uint32_t size() const {
-        return size_;
+    bool isEmpty() const {
+        return (frontNode.next == NULLPTR);
     }
 
     Node* getFirst() const {
@@ -77,16 +71,19 @@ class LinkedList {
 
     void insertAfter(Node* pos, Node* node);
     Node* removeAfter(Node* pos);
-    void setEmpty();
 
-    void swap(LinkedList& other);
+    void setEmpty() {
+        frontNode.next = NULLPTR;
+    }
+
+    void swap(SingleChain& other);
 
   private:
 
-    LinkedList(const LinkedList& other);
-    LinkedList& operator=(const LinkedList& other);
+    SingleChain(const SingleChain& other);
+    SingleChain& operator=(const SingleChain& other);
 
-    void getListOf(LinkedList& other);
+    void takeListOf(SingleChain& other);
 
     static void linkNodes(Node* a, Node* b) {
         a->next = b;
