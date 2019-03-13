@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <etl/base/DoubleChain.h>
 
-using ETL_NAMESPACE::DoubleChain;
+using ETL_NAMESPACE::Detail::DoubleChain;
 
 
 #if ETL_USE_CPP11

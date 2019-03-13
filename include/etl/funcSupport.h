@@ -32,7 +32,7 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
-namespace Internal {
+namespace Detail {
 
 template<class T>
 struct addrImplRef {
@@ -67,7 +67,7 @@ struct addressofImpl {
 
 template<class T>
 T* addressof(T& v) {
-    return Internal::addressofImpl<T>::f(Internal::addrImplRef<T>(v), 0);
+    return Detail::addressofImpl<T>::f(Detail::addrImplRef<T>(v), 0);
 }
 
 

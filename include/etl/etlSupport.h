@@ -161,7 +161,7 @@ struct IsIterator {
 
 
 
-namespace Internal {
+namespace Detail {
 
 template<typename T>
 struct AlignmentOf {

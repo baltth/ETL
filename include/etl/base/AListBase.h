@@ -28,6 +28,7 @@ limitations under the License.
 #include <utility>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 class AListBase {
@@ -82,7 +83,7 @@ class AListBase {
 
   protected: // variables
 
-    DoubleChain list;
+    DoubleChain chain;
     uint32_t size_;
 
   public:   // functions
@@ -93,11 +94,11 @@ class AListBase {
 #if ETL_USE_CPP11
 
     AListBase(AListBase&& other) :
-        list(std::move(other.list)),
+        chain(std::move(other.chain)),
         size_(other.size_) {};
 
     AListBase& operator=(AListBase&& other) {
-        list = std::move(other.list);
+        chain = std::move(other.chain);
         size_ = other.size_;
         return *this;
     }
@@ -115,25 +116,25 @@ class AListBase {
   protected:
 
     Iterator begin() const {
-        return Iterator(static_cast<AListBase::Node*>(list.getFirst()));
+        return Iterator(static_cast<AListBase::Node*>(chain.getFirst()));
     }
 
     Iterator end() const {
-        return Iterator(static_cast<AListBase::Node*>(list.getLast()->next));
+        return Iterator(static_cast<AListBase::Node*>(chain.getLast()->next));
     }
 
     /// \name Element operations
     /// \{
     void pushFront(Node* item) {
         if (item != NULLPTR) {
-            list.insertBefore(list.getFirst(), item);
+            chain.insertBefore(chain.getFirst(), item);
             ++size_;
         }
     }
 
     void pushBack(Node* item) {
         if (item != NULLPTR) {
-            list.insertAfter(list.getLast(), item);
+            chain.insertAfter(chain.getLast(), item);
             ++size_;
         }
     }
@@ -143,18 +144,18 @@ class AListBase {
 
     void insert(Iterator pos, Node* item) {
         if (item != NULLPTR) {
-            list.insertBefore(pos.node, item);
+            chain.insertBefore(pos.node, item);
             ++size_;
         }
     }
 
     Node* remove(Iterator pos) {
         --size_;
-        return static_cast<AListBase::Node*>(list.remove(pos.node));
+        return static_cast<AListBase::Node*>(chain.remove(pos.node));
     }
 
     void replace(Node* n1, Node* n2) {
-        list.replace(n1, n2);
+        chain.replace(n1, n2);
     }
 
     void swapNodeList(AListBase& other);
@@ -171,6 +172,7 @@ class AListBase {
 
 };
 
+}
 }
 
 #endif /* __ETL_ALISTBASE_H__ */

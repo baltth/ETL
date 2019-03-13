@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <etl/base/SingleChain.h>
 
-using ETL_NAMESPACE::SingleChain;
+using ETL_NAMESPACE::Detail::SingleChain;
 
 
 #if ETL_USE_CPP11

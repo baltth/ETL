@@ -40,10 +40,10 @@ class GenericProxy {
 
   public:   // functions
 
-    GenericProxy(size_t itemSize, void* dataPointer, uint32_t cap, uint32_t len) :
+    GenericProxy(size_t itemSize, void* dataPointer, uint32_t c, uint32_t s) :
         data_(dataPointer),
-        capacity_(cap),
-        size_(len),
+        capacity_(c),
+        size_(s),
         itemSize(itemSize) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
@@ -99,10 +99,10 @@ class Proxy {
 
   public:   // functions
 
-    Proxy(const value_type* dataPointer, uint32_t cap, uint32_t len) :
+    Proxy(const value_type* dataPointer, uint32_t c, uint32_t s) :
         data_(dataPointer),
-        capacity_(cap),
-        size_(len) {};
+        capacity_(c),
+        size_(s) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
     Proxy(const C& container) :
@@ -142,8 +142,8 @@ class MutableProxy : public GenericProxy {
 
   public:   // functions
 
-    MutableProxy(T* data_, uint32_t cap, uint32_t len) :
-        GenericProxy(sizeof(T), data_, cap, len) {};
+    MutableProxy(T* data_, uint32_t c, uint32_t s) :
+        GenericProxy(sizeof(T), data_, c, s) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
     MutableProxy(C& container) :

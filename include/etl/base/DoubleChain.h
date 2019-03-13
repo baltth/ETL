@@ -25,6 +25,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 class DoubleChain {
@@ -109,6 +110,7 @@ class DoubleChain {
     }
 };
 
+}
 }
 
 #endif /* __ETL_DOUBLECHAIN_H__ */

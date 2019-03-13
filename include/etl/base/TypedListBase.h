@@ -38,6 +38,7 @@ limitations under the License.
 #endif
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 template<class T>
@@ -432,6 +433,7 @@ It TypedListBase<T>::findBase(const_iterator startPos,
 
 #endif
 
+}
 }
 
 #endif /* __ETL_TYPEDLISTBASE_H__ */

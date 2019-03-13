@@ -19,12 +19,13 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LINKEDLIST_H__
-#define __ETL_LINKEDLIST_H__
+#ifndef __ETL_SINGLECHAIN_H__
+#define __ETL_SINGLECHAIN_H__
 
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 class SingleChain {
@@ -69,6 +70,10 @@ class SingleChain {
         return frontNode.next;
     }
 
+    Node& getFrontNode() const {
+        return frontNode;
+    }
+
     void insertAfter(Node* pos, Node* node);
     Node* removeAfter(Node* pos);
 
@@ -92,6 +97,7 @@ class SingleChain {
 };
 
 }
+}
 
-#endif /* __ETL_LINKEDLIST_H__ */
+#endif /* __ETL_SINGLECHAIN_H__ */
 

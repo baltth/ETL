@@ -36,7 +36,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class T>
-class List : public TypedListBase<T> {
+class List : public Detail::TypedListBase<T> {
 
   public:   // types
 
@@ -46,7 +46,7 @@ class List : public TypedListBase<T> {
     typedef T* pointer;
     typedef const T* const_pointer;
 
-    typedef TypedListBase<T> Base;
+    typedef Detail::TypedListBase<T> Base;
     typedef typename Base::Node Node;
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
@@ -114,11 +114,11 @@ class List : public TypedListBase<T> {
     inline void push_back(const T& item);
 
     void pop_front() {
-        deleteNode(static_cast<Node*>(AListBase::popFront()));
+        deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
     }
 
     void pop_back() {
-        deleteNode(static_cast<Node*>(AListBase::popBack()));
+        deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
     inline iterator insert(const_iterator pos, const T& item);
@@ -138,7 +138,7 @@ class List : public TypedListBase<T> {
     iterator erase(iterator pos) {
         iterator next = pos;
         ++next;
-        deleteNode(static_cast<Node*>(AListBase::remove(pos)));
+        deleteNode(static_cast<Node*>(Detail::AListBase::remove(pos)));
         return next;
     }
 
@@ -167,7 +167,7 @@ class List : public TypedListBase<T> {
     void swap(List<T>& other) {
         if (this != &other) {
             if (allocator.handle() == other.allocator.handle()) {
-                AListBase::swapNodeList(other);
+                Detail::AListBase::swapNodeList(other);
             } else {
                 swapElements(other);
             }
@@ -213,7 +213,7 @@ void List<T>::push_front(const T& item) {
 
     Node* p = createNode(item);
     if (p != NULLPTR) {
-        AListBase::pushFront(p);
+        Detail::AListBase::pushFront(p);
     }
 }
 
@@ -223,7 +223,7 @@ void List<T>::push_back(const T& item) {
 
     Node* p = createNode(item);
     if (p != NULLPTR) {
-        AListBase::pushBack(p);
+        Detail::AListBase::pushBack(p);
     }
 }
 

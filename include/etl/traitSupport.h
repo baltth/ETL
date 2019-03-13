@@ -99,7 +99,7 @@ template<class T>
 struct is_same<T, T> : true_type {};
 
 
-namespace Internal {
+namespace Detail {
 
 template<typename T>
 struct is_integral_root : ETL_NAMESPACE::false_type {};
@@ -133,7 +133,7 @@ struct is_integral_root<unsigned long long int> : ETL_NAMESPACE::true_type {};
 
 
 template<typename T>
-struct is_integral : integral_constant<bool, Internal::is_integral_root<typename remove_cv<T>::type>::value> {};
+struct is_integral : integral_constant<bool, Detail::is_integral_root<typename remove_cv<T>::type>::value> {};
 
 template< class T >
 struct is_floating_point : integral_constant <
@@ -150,7 +150,7 @@ struct is_arithmetic : integral_constant < bool,
     > {};
 
 
-namespace Internal {
+namespace Detail {
 
 template<typename T, bool = ETL_NAMESPACE::is_integral<T>::value>
 struct is_unsigned : ETL_NAMESPACE::integral_constant<bool, (T(0) < T(-1))> {};     // *NOPAD*
@@ -169,10 +169,10 @@ struct is_signed<T, false> : ETL_NAMESPACE::false_type {};
 }
 
 template<typename T>
-struct is_unsigned : Internal::is_unsigned<T>::type {};
+struct is_unsigned : Detail::is_unsigned<T>::type {};
 
 template<typename T>
-struct is_signed : Internal::is_signed<T>::type {};
+struct is_signed : Detail::is_signed<T>::type {};
 
 }
 

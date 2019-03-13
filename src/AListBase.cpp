@@ -21,14 +21,14 @@ limitations under the License.
 
 #include <etl/base/AListBase.h>
 
-using ETL_NAMESPACE::AListBase;
+using ETL_NAMESPACE::Detail::AListBase;
 
 
 AListBase::Node* AListBase::popFront() {
 
     if (size_ > 0) {
         --size_;
-        return static_cast<Node*>(list.remove(list.getFirst()));
+        return static_cast<Node*>(chain.remove(chain.getFirst()));
     } else {
         return NULLPTR;
     }
@@ -38,7 +38,7 @@ AListBase::Node* AListBase::popBack() {
 
     if (size_ > 0) {
         --size_;
-        return static_cast<Node*>(list.remove(list.getLast()));
+        return static_cast<Node*>(chain.remove(chain.getLast()));
     } else {
         return NULLPTR;
     }
@@ -47,7 +47,7 @@ AListBase::Node* AListBase::popBack() {
 
 void AListBase::swapNodeList(AListBase& other) {
 
-    list.swap(other.list);
+    chain.swap(other.chain);
 
     uint32_t tmpSize = size_;
     size_ = other.size_;
