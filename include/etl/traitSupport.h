@@ -102,38 +102,29 @@ struct is_same<T, T> : true_type {};
 namespace Detail {
 
 template<typename T>
-struct is_integral_root : ETL_NAMESPACE::false_type {};
+struct isIntegralRoot : ETL_NAMESPACE::false_type {};
 
-template<>
-struct is_integral_root<bool> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<signed char> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<unsigned char> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<wchar_t> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<short> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<unsigned short> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<int> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<unsigned int> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<long int> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<unsigned long int> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<long long int> : ETL_NAMESPACE::true_type {};
-template<>
-struct is_integral_root<unsigned long long int> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<bool> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<char> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<signed char> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<unsigned char> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<wchar_t> : ETL_NAMESPACE::true_type {};
+//template<> struct isIntegralRoot<char16_t> : ETL_NAMESPACE::true_type {};
+//template<> struct isIntegralRoot<char32_t> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<short> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<unsigned short> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<int> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<unsigned> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<long> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<unsigned long> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<long long> : ETL_NAMESPACE::true_type {};
+template<> struct isIntegralRoot<unsigned long long> : ETL_NAMESPACE::true_type {};
 
 }
 
 
 template<typename T>
-struct is_integral : integral_constant<bool, Detail::is_integral_root<typename remove_cv<T>::type>::value> {};
+struct is_integral : integral_constant<bool, Detail::isIntegralRoot<typename remove_cv<T>::type>::value> {};
 
 template< class T >
 struct is_floating_point : integral_constant <

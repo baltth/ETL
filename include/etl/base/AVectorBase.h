@@ -35,24 +35,33 @@ class AVectorBase {
     class Proxy : public GenericProxy {
         friend class AVectorBase;
 
+      protected: // variables
+
+        uint32_t capacity_;
+
       public:   // functions
 
         void setData(void* d) {
             data_ = d;
         }
 
+        void setSize(uint32_t s) {
+            size_ = s;
+        }
+
         void setCapacity(uint32_t c) {
             capacity_ = c;
         }
 
-        void setSize(uint32_t s) {
-            size_ = s;
+        uint32_t capacity() const {
+            return capacity_;
         }
 
       protected:
 
         explicit Proxy(size_t itemSize) :
-            GenericProxy(itemSize, NULLPTR, 0, 0) {};
+            GenericProxy(itemSize, NULLPTR, 0),
+            capacity_(0) {};
 
     };
 

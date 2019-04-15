@@ -373,7 +373,7 @@ class TypedListBase : protected AListBase {
 
   private:
 
-    // Non-copiable
+    // Non-copyable
     TypedListBase(const TypedListBase& other);
     TypedListBase& operator=(const TypedListBase& other);
 

@@ -84,7 +84,7 @@ class MemoryPool {
 
   private:
 
-    // Non-copiable
+    // Non-copyable
     MemoryPool<S, N>(const MemoryPool<S, N>& other);
     MemoryPool<S, N>& operator=(const MemoryPool<S, N>& other);
 

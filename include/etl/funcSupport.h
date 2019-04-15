@@ -125,7 +125,7 @@ reference_wrapper<const T> cref(reference_wrapper<const T> t) {
 
 }
 
-#else /* ETL_USE_CPP11 == 1 */
+#else   // ETL_HAS_CPP11 == 1
 
 #include <memory>
 #include <functional>

@@ -52,7 +52,7 @@ class PoolBase {
 
     explicit PoolBase(const GenericProxy& d) :
         data(d),
-        freeCnt(data.capacity()),
+        freeCnt(data.size()),
         nextFreeIx(0) {};
 
     void* pop();
@@ -64,7 +64,7 @@ class PoolBase {
 
   private:
 
-    // Non-copiable
+    // Non-copyable
     PoolBase(const PoolBase& other);
     PoolBase& operator=(const PoolBase& other);
 

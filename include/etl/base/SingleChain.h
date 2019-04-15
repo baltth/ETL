@@ -70,7 +70,11 @@ class SingleChain {
         return frontNode.next;
     }
 
-    Node& getFrontNode() const {
+    Node& getFrontNode() {
+        return frontNode;
+    }
+
+    const Node& getFrontNode() const {
         return frontNode;
     }
 

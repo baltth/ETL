@@ -34,22 +34,19 @@ class GenericProxy {
   protected: // variables
 
     void* data_;
-    uint32_t capacity_;
     uint32_t size_;
     const size_t itemSize;
 
   public:   // functions
 
-    GenericProxy(size_t itemSize, void* dataPointer, uint32_t c, uint32_t s) :
+    GenericProxy(size_t itemSize, void* dataPointer, uint32_t s) :
         data_(dataPointer),
-        capacity_(c),
         size_(s),
         itemSize(itemSize) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
     GenericProxy(C& container) :
         data_(container.data()),
-        capacity_(container.capacity()),
         size_(container.size()),
         itemSize(sizeof(typename C::value_type)) {};
 
@@ -67,10 +64,6 @@ class GenericProxy {
 
     const void* data() const {
         return data_;
-    }
-
-    uint32_t capacity() const {
-        return capacity_;
     }
 
     uint32_t size() const {
@@ -94,20 +87,17 @@ class Proxy {
   protected: // variables
 
     const value_type* data_;
-    uint32_t capacity_;
     uint32_t size_;
 
   public:   // functions
 
-    Proxy(const value_type* dataPointer, uint32_t c, uint32_t s) :
+    Proxy(const value_type* dataPointer, uint32_t s) :
         data_(dataPointer),
-        capacity_(c),
         size_(s) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
     Proxy(const C& container) :
         data_(container.data()),
-        capacity_(container.capacity()),
         size_(container.size()) {};
 
     const value_type* data() const {
@@ -120,10 +110,6 @@ class Proxy {
 
     inline const value_type& operator[](uint32_t ix) const {
         return data_[ix];
-    }
-
-    uint32_t capacity() const {
-        return capacity_;
     }
 
     uint32_t size() const {
@@ -169,7 +155,7 @@ class MutableProxy : public GenericProxy {
 template<typename T>
 void MutableProxy<T>::fill(const T& value) const {
 
-    for (uint32_t i = 0; i < capacity(); ++i) {
+    for (uint32_t i = 0; i < size(); ++i) {
         operator[](i) = value;
     }
 }

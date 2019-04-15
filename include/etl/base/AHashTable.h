@@ -100,7 +100,7 @@ class AHashTable {
 
     AHashTable(BucketItem* b, uint32_t s) :
         size_(0U),
-        buckets(b, s, s),
+        buckets(b, s),
         lastItem(&chain.getFrontNode()) {
         ETL_ASSERT(b != NULLPTR);
         ETL_ASSERT(s > 0U);
@@ -154,6 +154,7 @@ class AHashTable {
 
   private:
 
+    // Non-copyable
     AHashTable(const AHashTable& other);
     AHashTable& operator=(const AHashTable& other);
 
