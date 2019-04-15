@@ -30,7 +30,7 @@ AListBase::Node* AListBase::popFront() {
         --size_;
         return static_cast<Node*>(chain.remove(chain.getFirst()));
     } else {
-        return NULLPTR;
+        return nullptr;
     }
 }
 
@@ -40,7 +40,7 @@ AListBase::Node* AListBase::popBack() {
         --size_;
         return static_cast<Node*>(chain.remove(chain.getLast()));
     } else {
-        return NULLPTR;
+        return nullptr;
     }
 }
 

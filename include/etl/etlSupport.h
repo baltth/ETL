@@ -101,7 +101,7 @@ struct MethodMatcher : Matcher<T> {
     MethodMatcher(Method m, const V& v) :
         method(m),
         val(v) {};
-    virtual bool call(const T& item) const OVERRIDE {
+    bool call(const T& item) const override {
         return ((item.*method)() == val);
     }
 };
@@ -115,7 +115,7 @@ struct FunctionMatcher : Matcher<T> {
     FunctionMatcher(Func f, const V& v) :
         func(f),
         val(v) {};
-    virtual bool call(const T& item) const OVERRIDE {
+    bool call(const T& item) const override {
         return ((*func)(item) == val);
     }
 };
@@ -156,7 +156,7 @@ struct IsIterator {
     template<typename U>
     static No test(...);
 
-    static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
+    static const bool value = (sizeof(test<T>(nullptr)) == sizeof(Yes));
 };
 
 

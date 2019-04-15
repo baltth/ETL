@@ -179,7 +179,7 @@ class List : public Detail::TypedListBase<T> {
 
     Node* createNode(const T& item) {
         Node* p = allocator.allocate(1);
-        if (p != NULLPTR) {
+        if (p != nullptr) {
             allocator.construct(p, item);
         }
         return p;
@@ -212,7 +212,7 @@ template<class T>
 void List<T>::push_front(const T& item) {
 
     Node* p = createNode(item);
-    if (p != NULLPTR) {
+    if (p != nullptr) {
         Detail::AListBase::pushFront(p);
     }
 }
@@ -222,7 +222,7 @@ template<class T>
 void List<T>::push_back(const T& item) {
 
     Node* p = createNode(item);
-    if (p != NULLPTR) {
+    if (p != nullptr) {
         Detail::AListBase::pushBack(p);
     }
 }
@@ -243,7 +243,7 @@ typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args)
 
     iterator it = this->end();
     Node* inserted = allocator.allocate(1);
-    if (inserted != NULLPTR) {
+    if (inserted != nullptr) {
         new (inserted) Node(std::forward<Args>(args)...);
         it = Base::insert(pos, *inserted);
     }
@@ -260,7 +260,7 @@ typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
 
     iterator it = this->end();
     Node* inserted = createNode(item);
-    if (inserted != NULLPTR) {
+    if (inserted != nullptr) {
         it = Base::insert(pos, *inserted);
     }
 
@@ -294,9 +294,9 @@ List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 template<class T>
 typename List<T>::Node* List<T>::copyAndReplace(iterator& item, const T& value) {
 
-    Node* removed = NULLPTR;
+    Node* removed = nullptr;
     Node* newItem = createNode(value);
-    if (newItem != NULLPTR) {
+    if (newItem != nullptr) {
         removed = Base::replace(item, newItem);
     }
 
@@ -331,7 +331,7 @@ void List<T>::swapElements(List<T>& other) {
     for (uint32_t i = 0; i < diff.common; ++i) {
 
         Node* removed = copyAndReplace(ownIt, *otherIt);
-        if (removed != NULLPTR) {
+        if (removed != nullptr) {
             Node* otherRemoved = other.copyAndReplace(otherIt, removed->item);
             deleteNode(removed);
             other.deleteNode(otherRemoved);

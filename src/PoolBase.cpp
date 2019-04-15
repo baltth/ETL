@@ -29,7 +29,7 @@ void* PoolBase::pop() {
 
     void* result = NULL;
 
-    if (freeList.next != NULLPTR) {
+    if (freeList.next != nullptr) {
 
         result = freeList.next;
         freeList.next = freeList.next->next;

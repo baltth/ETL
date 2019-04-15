@@ -39,7 +39,7 @@ class SingleChain {
         Node* next;
 
         Node() :
-            next(NULLPTR) {};
+            next(nullptr) {};
 
         explicit Node(Node* n) :
             next(n) {};
@@ -63,7 +63,7 @@ class SingleChain {
 #endif
 
     bool isEmpty() const {
-        return (frontNode.next == NULLPTR);
+        return (frontNode.next == nullptr);
     }
 
     Node* getFirst() const {
@@ -82,7 +82,7 @@ class SingleChain {
     Node* removeAfter(Node* pos);
 
     void setEmpty() {
-        frontNode.next = NULLPTR;
+        frontNode.next = nullptr;
     }
 
     void swap(SingleChain& other);

@@ -704,7 +704,7 @@ TEST_CASE("Etl::Dynamic::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
         IntMatcher(ItemType val) :
             value(val) {};
 
-        virtual bool call(const ItemType& ref) const OVERRIDE {
+        bool call(const ItemType& ref) const override {
             return value == ref;
         }
     };

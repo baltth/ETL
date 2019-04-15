@@ -44,9 +44,9 @@ DoubleChain& DoubleChain::operator=(DoubleChain&& other) {
 
 void DoubleChain::insertAfter(Node* pos, Node* node) {
 
-    ETL_ASSERT(pos != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(pos != &backNode);
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
 
     Node* next = pos->next;
     linkNodes(pos, node);
@@ -56,9 +56,9 @@ void DoubleChain::insertAfter(Node* pos, Node* node) {
 
 void DoubleChain::insertBefore(Node* pos, Node* node) {
 
-    ETL_ASSERT(pos != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(pos != &frontNode);
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
 
     Node* prev = pos->prev;
     linkNodes(node, pos);
@@ -68,13 +68,13 @@ void DoubleChain::insertBefore(Node* pos, Node* node) {
 
 DoubleChain::Node* DoubleChain::remove(Node* node) {
 
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
     ETL_ASSERT(node != &backNode);
     ETL_ASSERT(node != &frontNode);
 
     linkNodes(node->prev, node->next);
-    node->prev = NULLPTR;
-    node->next = NULLPTR;
+    node->prev = nullptr;
+    node->next = nullptr;
 
     return node;
 }
@@ -82,8 +82,8 @@ DoubleChain::Node* DoubleChain::remove(Node* node) {
 
 void DoubleChain::replace(Node* n1, Node* n2) {
 
-    ETL_ASSERT(n1 != NULLPTR);
-    ETL_ASSERT(n2 != NULLPTR);
+    ETL_ASSERT(n1 != nullptr);
+    ETL_ASSERT(n2 != nullptr);
 
     if ((n1 != n2)) {
 

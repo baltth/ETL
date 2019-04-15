@@ -40,8 +40,8 @@ class DoubleChain {
         Node* next;
 
         Node() :
-            prev(NULLPTR),
-            next(NULLPTR) {};
+            prev(nullptr),
+            next(nullptr) {};
 
         Node(Node* p, Node* n) :
             prev(p),
@@ -57,8 +57,8 @@ class DoubleChain {
   public:   // functions
 
     DoubleChain() :
-        frontNode(NULLPTR, &backNode),
-        backNode(&frontNode, NULLPTR) {};
+        frontNode(nullptr, &backNode),
+        backNode(&frontNode, nullptr) {};
 
 #if ETL_USE_CPP11
 
@@ -101,10 +101,10 @@ class DoubleChain {
     }
 
     static void linkNodesProtected(Node* a, Node* b) {
-        if (a != NULLPTR) {
+        if (a != nullptr) {
             a->next = b;
         }
-        if (b != NULLPTR) {
+        if (b != nullptr) {
             b->prev = a;
         }
     }

@@ -84,7 +84,7 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         const_iterator() :
-            AListBase::Iterator(NULLPTR) {};
+            AListBase::Iterator(nullptr) {};
 
         const_iterator(const const_iterator& it) :
             AListBase::Iterator(it) {};
@@ -149,7 +149,7 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         iterator() :
-            AListBase::Iterator(NULLPTR) {};
+            AListBase::Iterator(nullptr) {};
 
         iterator(const iterator& it) :
             AListBase::Iterator(it) {};

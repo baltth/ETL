@@ -63,27 +63,27 @@ class StaticSized : public AMemStrategy<C> {
         data(d),
         capacity(c) {};
 
-    virtual uint32_t getMaxCapacity() const FINAL OVERRIDE {
+    uint32_t getMaxCapacity() const final {
         return capacity;
     }
 
-    virtual void reserveExactly(C& cont, uint32_t length) FINAL OVERRIDE {
+    void reserveExactly(C& cont, uint32_t length) final {
         setupData(cont, length);
     }
 
-    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
+    void reserve(C& cont, uint32_t length) final {
         setupData(cont, length);
     }
 
-    virtual void shrinkToFit(C& cont) FINAL OVERRIDE {
+    void shrinkToFit(C& cont) final {
         setupData(cont, capacity);
     }
 
-    virtual void cleanup(C& cont) FINAL OVERRIDE {
+    void cleanup(C& cont) final {
         cont.clear();
     }
 
-    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE;
+    void resize(C& cont, uint32_t length) final;
 
   private:
 
@@ -146,20 +146,20 @@ class DynamicSized : public AMemStrategy<C> {
 
   public:   // functions
 
-    virtual uint32_t getMaxCapacity() const FINAL OVERRIDE {
+    uint32_t getMaxCapacity() const final {
         return UINT32_MAX;
     }
 
-    virtual void reserveExactly(C& cont, uint32_t length) FINAL OVERRIDE;
+    void reserveExactly(C& cont, uint32_t length) final;
 
-    virtual void reserve(C& cont, uint32_t length) FINAL OVERRIDE {
+    void reserve(C& cont, uint32_t length) final {
         reserveExactly(cont, getRoundedLength(length));
     }
 
-    virtual void shrinkToFit(C& cont) FINAL OVERRIDE;
-    virtual void resize(C& cont, uint32_t length) FINAL OVERRIDE;
+    void shrinkToFit(C& cont) final;
+    void resize(C& cont, uint32_t length) final;
 
-    virtual void cleanup(C& cont) FINAL OVERRIDE {
+    void cleanup(C& cont) final {
         cont.clear();
         deallocate(cont);
     }
@@ -232,11 +232,11 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
 
     allocate(cont, len);
 
-    if (oldData != NULLPTR) {
+    if (oldData != nullptr) {
 
         uint32_t numToCopy = (len < cont.size()) ? len : cont.size();
 
-        if ((cont.data() != NULLPTR) && (numToCopy > 0)) {
+        if ((cont.data() != nullptr) && (numToCopy > 0)) {
 
             typename C::pointer dataAlias = cont.data();
             C::uninitializedCopy(oldData, dataAlias, numToCopy);
@@ -254,10 +254,10 @@ void DynamicSized<C, A>::allocate(C& cont, uint32_t len) {
     if (len > 0) {
         cont.proxy.setData(allocator.allocate(len));
     } else {
-        cont.proxy.setData(NULLPTR);
+        cont.proxy.setData(nullptr);
     }
 
-    if (cont.data() != NULLPTR) {
+    if (cont.data() != nullptr) {
         cont.proxy.setCapacity(len);
     } else {
         cont.proxy.setCapacity(0);

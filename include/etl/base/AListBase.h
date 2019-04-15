@@ -126,14 +126,14 @@ class AListBase {
     /// \name Element operations
     /// \{
     void pushFront(Node* item) {
-        if (item != NULLPTR) {
+        if (item != nullptr) {
             chain.insertBefore(chain.getFirst(), item);
             ++size_;
         }
     }
 
     void pushBack(Node* item) {
-        if (item != NULLPTR) {
+        if (item != nullptr) {
             chain.insertAfter(chain.getLast(), item);
             ++size_;
         }
@@ -143,7 +143,7 @@ class AListBase {
     Node* popBack();
 
     void insert(Iterator pos, Node* item) {
-        if (item != NULLPTR) {
+        if (item != nullptr) {
             chain.insertBefore(pos.node, item);
             ++size_;
         }

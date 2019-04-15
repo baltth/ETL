@@ -110,23 +110,23 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:   // functions
 
-    virtual size_t max_size() const OVERRIDE {
+    size_t max_size() const override {
         return allocator().max_size();
     }
 
-    virtual size_t size() const OVERRIDE {
+    size_t size() const override {
         return allocator().max_size();
     }
 
-    virtual PtrType allocate(uint32_t n) OVERRIDE {
+    PtrType allocate(uint32_t n) override {
         return allocator().allocate(n);
     }
 
-    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
+    void deallocate(PtrType ptr, uint32_t n) override {
         allocator().deallocate(ptr, n);
     }
 
-    virtual const void* handle() const OVERRIDE {
+    const void* handle() const override {
         return &allocator();
     }
 

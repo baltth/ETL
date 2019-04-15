@@ -102,7 +102,7 @@ class AHashTable {
         size_(0U),
         buckets(b, s),
         lastItem(&chain.getFrontNode()) {
-        ETL_ASSERT(b != NULLPTR);
+        ETL_ASSERT(b != nullptr);
         ETL_ASSERT(s > 0U);
     };
 

@@ -246,7 +246,7 @@ void testVectorFind() {
         IntMatcher(ItemT val) :
             value(val) {};
 
-        virtual bool call(const ItemT& ref) const OVERRIDE {
+        bool call(const ItemT& ref) const override {
             return value == ref;
         }
     };
