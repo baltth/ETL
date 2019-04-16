@@ -45,19 +45,17 @@ class Vector : public TypedVectorBase<T> {
     typedef Base StrategyBase;
 
     typedef T value_type;
-    typedef T& reference;
-    typedef const T& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
 
     typedef pointer iterator;
     typedef const_pointer const_iterator;
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-#if ETL_USE_CPP11
     typedef typename Base::CreateFunc CreateFunc;
-#endif
 
   private:  // variables
 
@@ -76,13 +74,9 @@ class Vector : public TypedVectorBase<T> {
         insert(this->begin(), first, last);
     }
 
-#if ETL_USE_CPP11
-
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
-
-#endif
 
     /// \name Capacity
     /// \{
@@ -122,8 +116,6 @@ class Vector : public TypedVectorBase<T> {
         return insertWithCreator(position, cc.getLength(), cc);
     }
 
-#if ETL_USE_CPP11
-
     void insert(const_iterator position, std::initializer_list<T> initList) {
         insert(position, initList.begin(), initList.end());
     }
@@ -138,8 +130,6 @@ class Vector : public TypedVectorBase<T> {
         emplace(this->end(), args...);
     }
 
-#endif
-
     void push_front(const_reference value) {
         insert(this->begin(), value);
     }
@@ -149,25 +139,6 @@ class Vector : public TypedVectorBase<T> {
     }
 
     bool swap(Vector& other);
-    /// \}
-
-    /// \name Lookup
-    /// \{
-#if ETL_USE_CPP11
-
-    iterator find(MatchFunc<T>&& matcher) const {
-        return find(this->begin(), this->end(), std::move(matcher));
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matcher) const;
-
-#endif
-
-    iterator find(const Matcher<T>& matcher) const {
-        return find(this->begin(), this->end(), matcher);
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matcher) const;
     /// \}
 
   protected:
@@ -182,11 +153,6 @@ class Vector : public TypedVectorBase<T> {
         return *this;
     }
 
-    template<class CR>
-    iterator insertWithCreator(const_iterator position, uint32_t num, const CR& creatorCall);
-
-#if ETL_USE_CPP11
-
     Vector& operator=(Vector&& other);
 
     Vector& operator=(std::initializer_list<T> initList) {
@@ -194,9 +160,9 @@ class Vector : public TypedVectorBase<T> {
         return *this;
     }
 
+    template<class CR>
+    iterator insertWithCreator(const_iterator position, uint32_t num, const CR& creatorCall);
     iterator insertWithCreator(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
-
-#endif
 
 };
 
@@ -225,25 +191,6 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
     return iterator(position);
 }
 
-template<class T>
-typename Vector<T>::iterator Vector<T>::find(const_iterator startPos,
-                                             const_iterator endPos,
-                                             const Matcher<T>& matcher) const {
-
-    bool match = false;
-
-    while (!match && (startPos < endPos)) {
-
-        match = matcher.call(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return iterator(startPos);
-}
-
 
 template<class T>
 bool Vector<T>::swap(Vector<T>& other) {
@@ -267,8 +214,6 @@ bool Vector<T>::swap(Vector<T>& other) {
     return swapped;
 }
 
-
-#if ETL_USE_CPP11
 
 template<class T>
 Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
@@ -346,41 +291,6 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 }
 
 
-template<class T>
-typename Vector<T>::iterator Vector<T>::find(const_iterator startPos,
-                                             const_iterator endPos,
-                                             MatchFunc<T>&& matcher) const {
-
-    bool match = false;
-
-    while (!match && (startPos < endPos)) {
-
-        match = matcher(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return iterator(startPos);
-}
-
-
-#else
-
-
-template<class T>
-typename Vector<T>::iterator Vector<T>::insert(const_iterator position,
-                                               uint32_t num,
-                                               const_reference value) {
-
-    typename Base::CopyCreator cc(value);
-    return insertWithCreator(position, num, cc);
-}
-
-#endif
-
-
 // Specialization for pointers
 
 template class Vector<void*>;
@@ -400,9 +310,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-#if ETL_USE_CPP11
     typedef typename Base::CreateFunc CreateFunc;
-#endif
 
   public:   // functions
 
@@ -523,8 +431,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Vector& operator=(Vector&& other) {
         Base::operator=(std::move(other));
         return *this;
@@ -534,8 +440,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
 };
 

@@ -10,7 +10,6 @@ set(ETL_INCLUDE_DIR ${ETL_SOURCE_DIR}/include)
 set(ETL_TESTS_DIR ${ETL_SOURCE_DIR}/tests)
 
 
-list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/AVectorBase.cpp)
 list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/AListBase.cpp)
 list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/SingleChain.cpp)
 list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/DoubleChain.cpp)

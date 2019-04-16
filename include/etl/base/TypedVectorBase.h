@@ -57,10 +57,10 @@ class TypedVectorBase : public AVectorBase {
   public:   // types
 
     typedef T value_type;
-    typedef T& reference;
-    typedef const T& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
 
     typedef pointer iterator;
     typedef const_pointer const_iterator;
@@ -69,11 +69,7 @@ class TypedVectorBase : public AVectorBase {
 
   protected:
 
-#if ETL_USE_CPP11
-
     using CreateFunc = std::function<void(pointer, uint32_t, bool)>;
-
-#endif
 
     class DefaultCreator {
       public:
@@ -279,18 +275,17 @@ class TypedVectorBase : public AVectorBase {
     }
 
     void copyOperation(pointer dst, const_pointer src, uint32_t num);
+    void moveOperation(pointer dst, pointer src, uint32_t num);
 
-#if ETL_USE_CPP11
-
-    static void assignValueTo(pointer ptr, T&& value) {
+    static void assignValueTo(pointer ptr, value_type&& value) {
         *ptr = std::move(value);
     }
 
-    static void placeValueTo(pointer ptr, T&& value) {
+    static void placeValueTo(pointer ptr, value_type&& value) {
         new (ptr) T(std::move(value));
     }
 
-    static void moveValue(pointer ptr, T&& value, bool place) {
+    static void moveValue(pointer ptr, value_type&& value, bool place) {
         if (place) {
             placeValueTo(ptr, std::move(value));
         } else {
@@ -298,23 +293,11 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void swapValues(T& lhs, T& rhs) {
-        T tmp(std::move(lhs));
+    static void swapValues(reference lhs, reference rhs) {
+        value_type tmp(std::move(lhs));
         lhs = std::move(rhs);
         rhs = std::move(tmp);
     }
-
-    void moveOperation(pointer dst, pointer src, uint32_t num);
-
-#else
-
-    static void swapValues(T& lhs, T& rhs) {
-        T tmp(lhs);
-        lhs = rhs;
-        rhs = tmp;
-    }
-
-#endif
 
     static void uninitializedCopy(pointer src, pointer dst, uint32_t num);
     static void initializedCopyUp(pointer src, pointer dst, uint32_t num);
@@ -413,8 +396,6 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 }
 
 
-#if ETL_USE_CPP11
-
 template<class T>
 void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num) {
 
@@ -434,19 +415,13 @@ void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num) {
     }
 }
 
-#endif
-
 
 template<class T>
 void TypedVectorBase<T>::uninitializedCopy(pointer src, pointer dst, uint32_t num) {
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {              // uninitializedCopy() always copies upwards
-#if ETL_USE_CPP11
             placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constructor
-#else
-            placeValueTo((dst + i), src[i]);                // Placement new, copy constructor
-#endif
         }
     }
 }
@@ -457,11 +432,7 @@ void TypedVectorBase<T>::initializedCopyUp(pointer src, pointer dst, uint32_t nu
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {
-#if ETL_USE_CPP11
             assignValueTo((dst + i), std::move(src[i]));
-#else
-            assignValueTo((dst + i), src[i]);
-#endif
         }
     }
 }
@@ -472,11 +443,7 @@ void TypedVectorBase<T>::initializedCopyDown(pointer src, pointer dst, uint32_t 
 
     if (src != dst) {
         for (uint32_t i = 0; i < num; ++i) {
-#if ETL_USE_CPP11
             assignValueTo((dst + i), std::move(src[i]));
-#else
-            assignValueTo((dst + i), src[i]);
-#endif
         }
     }
 }
@@ -511,21 +478,13 @@ void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
 
     if (diff.rGreaterWith > 0) {
 
-#if ETL_USE_CPP11
         this->moveOperation(&this->operator[](diff.common), &other[diff.common], diff.rGreaterWith);
-#else
-        this->copyOperation(&this->operator[](diff.common), &other[diff.common], diff.rGreaterWith);
-#endif
         other.destruct(&other[diff.common], other.end());
         other.proxy.setSize(diff.common);
 
     } else if (diff.lGreaterWith > 0) {
 
-#if ETL_USE_CPP11
         other.moveOperation(&other[diff.common], &this->operator[](diff.common), diff.lGreaterWith);
-#else
-        other.copyOperation(&other[diff.common], &this->operator[](diff.common), diff.lGreaterWith);
-#endif
         this->destruct(&this->operator[](diff.common), this->end());
         this->proxy.setSize(diff.common);
     }

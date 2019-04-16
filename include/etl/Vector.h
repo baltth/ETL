@@ -34,7 +34,7 @@ namespace Static {
 template<class T, size_t N>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::Vector<> size");
 
   public:   // types
 
@@ -79,8 +79,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Vector(Vector&& other) :
         Base(strategy),
         strategy(data_, N) {
@@ -102,8 +100,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Vector() {
         strategy.cleanup(*this);
@@ -176,8 +172,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Vector(Vector&& other) :
         Base(strategy) {
         operator=(std::move(other));
@@ -197,8 +191,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Vector() {
         strategy.cleanup(*this);

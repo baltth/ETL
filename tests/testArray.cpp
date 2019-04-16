@@ -195,15 +195,6 @@ TEST_CASE("Etl::MutableProxy - Array<> test", "[array][etl][basic]") {
     REQUIRE(proxy.data() == array.data());
     REQUIRE(proxy.getItemPointer(0) == array.begin());
     REQUIRE(proxy.getItemPointer(proxy.size()) == array.end());
-
-    CAPTURE(PATTERN1);
-    array.fill(PATTERN1);
-
-    CAPTURE(PATTERN2);
-    proxy.fill(PATTERN2);
-
-    REQUIRE(array[0] == PATTERN2);
-    REQUIRE(array[15] == PATTERN2);
 }
 
 

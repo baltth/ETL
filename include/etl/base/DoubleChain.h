@@ -60,12 +60,13 @@ class DoubleChain {
         frontNode(nullptr, &backNode),
         backNode(&frontNode, nullptr) {};
 
-#if ETL_USE_CPP11
+    DoubleChain(const DoubleChain& other) = delete;
+    DoubleChain& operator=(const DoubleChain& other) = delete;
 
     DoubleChain(DoubleChain&& other);
     DoubleChain& operator=(DoubleChain&& other);
 
-#endif
+    ~DoubleChain() = default;
 
     bool isEmpty() const {
         return (frontNode.next == &backNode);
@@ -90,9 +91,6 @@ class DoubleChain {
 
   private:
 
-    DoubleChain(const DoubleChain& other);
-    DoubleChain& operator=(const DoubleChain& other);
-
     void takeListOf(DoubleChain& other);
 
     static void linkNodes(Node* a, Node* b) {
@@ -114,4 +112,3 @@ class DoubleChain {
 }
 
 #endif /* __ETL_DOUBLECHAIN_H__ */
-

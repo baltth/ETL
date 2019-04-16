@@ -26,7 +26,6 @@ limitations under the License.
 #include <etl/Proxy.h>
 
 namespace ETL_NAMESPACE {
-{}
 
 class AVectorBase {
 
@@ -60,8 +59,8 @@ class AVectorBase {
       protected:
 
         explicit Proxy(size_t itemSize) :
-            GenericProxy(itemSize, nullptr, 0),
-            capacity_(0) {};
+            GenericProxy(itemSize, nullptr, 0U),
+            capacity_(0U) {};
 
     };
 
@@ -82,10 +81,12 @@ class AVectorBase {
     }
 
     bool empty() const {
-        return (proxy.size() == 0);
+        return (proxy.size() == 0U);
     }
     /// \}
 
+    /// \name Access
+    /// \{
     void* getItemPointer(uint32_t ix) {
         return proxy.getItemPointer(ix);
     }
@@ -93,13 +94,21 @@ class AVectorBase {
     const void* getItemPointer(uint32_t ix) const {
         return proxy.getItemPointer(ix);
     }
+    /// \}
 
   protected:
 
     explicit AVectorBase(size_t itemSize) :
         proxy(itemSize) {};
 
-    void swapProxy(AVectorBase& other);
+    void swapProxy(AVectorBase& other) {
+
+        ETL_ASSERT(itemSize == other.itemSize);
+
+        AVectorBase::Proxy tmp = proxy;
+        proxy = other.proxy;
+        other.proxy = tmp;
+    }
 
 };
 
