@@ -19,123 +19,123 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_SORTED_H__
-#define __ETL_SORTED_H__
+#ifndef __ETL_SORTEDLIST_H__
+#define __ETL_SORTEDLIST_H__
 
 #include <etl/etlSupport.h>
+#include <etl/base/ListTemplate.h>
 
 #include <functional>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
-template<class C, class Comp = std::less<typename C::value_type> >
-class Sorted {
+template<class T, class Comp = std::less<T>>
+class SortedList {
 
   public:   // types
 
-    typedef typename C::value_type value_type;
-    typedef typename C::reference reference;
-    typedef typename C::const_reference const_reference;
-    typedef typename C::pointer pointer;
-    typedef typename C::const_pointer const_pointer;
+    using Cont = List<T>;
 
-    typedef typename C::iterator iterator;
-    typedef typename C::const_iterator const_iterator;
+    typedef typename Cont::value_type value_type;
+    typedef typename Cont::reference reference;
+    typedef typename Cont::const_reference const_reference;
+    typedef typename Cont::pointer pointer;
+    typedef typename Cont::const_pointer const_pointer;
 
-    typedef typename C::Node Node;
+    typedef typename Cont::iterator iterator;
+    typedef typename Cont::const_iterator const_iterator;
+
+    typedef typename Cont::Node Node;
 
   protected: // variables
 
     static Comp comp;
 
-    C container;
+    Cont list;
 
   public:   // functions
 
-    Sorted(typename C::AllocatorBase& a) :
-        container(a) {};
+    SortedList(typename Cont::AllocatorBase& a) :
+        list(a) {};
 
-    ///\name Container<> forward
+    ///\name List<> forward
     /// \{
     uint32_t size() const {
-        return container.size();
+        return list.size();
     }
 
     bool empty() const {
-        return (container.size() == 0);
+        return (list.size() == 0);
     }
 
     iterator begin() {
-        return container.begin();
+        return list.begin();
     }
 
     const_iterator begin() const {
-        return container.begin();
+        return list.begin();
     }
 
     const_iterator cbegin() const {
-        return container.cbegin();
+        return list.cbegin();
     }
 
     iterator end() {
-        return container.end();
+        return list.end();
     }
 
     const_iterator end() const {
-        return container.end();
+        return list.end();
     }
 
     const_iterator cend() const {
-        return container.cend();
+        return list.cend();
     }
 
     void clear() {
-        container.clear();
+        list.clear();
     }
 
     iterator erase(iterator pos) {
-        return container.erase(pos);
+        return list.erase(pos);
     }
 
     iterator find(const Matcher<value_type>& matchCall) {
-        return container.find(begin(), end(), matchCall);
+        return list.find(begin(), end(), matchCall);
     }
 
     const_iterator find(const Matcher<value_type>& matchCall) const {
-        return container.find(begin(), end(), matchCall);
+        return list.find(begin(), end(), matchCall);
     }
 
     iterator find(const_iterator startPos, const_iterator endPos, const Matcher<value_type>& matchCall) {
-        return container.find(startPos, endPos, matchCall);
+        return list.find(startPos, endPos, matchCall);
     }
 
     const_iterator find(const_iterator startPos, const_iterator endPos, const Matcher<value_type>& matchCall) const {
-        return container.find(startPos, endPos, matchCall);
+        return list.find(startPos, endPos, matchCall);
     }
 
-#if ETL_USE_CPP11
-
     iterator find(MatchFunc<value_type>&& matchCall) {
-        return container.find(begin(), end(), std::move(matchCall));
+        return list.find(begin(), end(), std::move(matchCall));
     }
 
     const_iterator find(MatchFunc<value_type>&& matchCall) const {
-        return container.find(begin(), end(), std::move(matchCall));
+        return list.find(begin(), end(), std::move(matchCall));
     }
 
     iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<value_type>&& matchCall) {
-        return container.find(startPos, endPos, std::move(matchCall));
+        return list.find(startPos, endPos, std::move(matchCall));
     }
 
     const_iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<value_type>&& matchCall) const {
-        return container.find(startPos, endPos, std::move(matchCall));
+        return list.find(startPos, endPos, std::move(matchCall));
     }
 
-#endif
-
-    void swap(Sorted& other) {
-        container.swap(other.container);
+    void swap(SortedList& other) {
+        list.swap(other.list);
     }
     /// \}
 
@@ -180,41 +180,37 @@ class Sorted {
     std::pair<iterator, bool> insertUnique(const_reference item);
 
     iterator insertTo(const_iterator pos, const_reference item) {
-        return container.insert(pos, item);
+        return list.insert(pos, item);
     }
-
-#if ETL_USE_CPP11
 
     template<typename... Args>
     iterator emplaceTo(const_iterator pos, Args&& ... args) {
-        return container.emplace(pos, std::forward<Args>(args)...);
+        return list.emplace(pos, std::forward<Args>(args)...);
     }
-
-#endif
 
 };
 
 
-template<class C, class Comp /* = std::less<typename C::value_type> */>
-Comp Sorted<C, Comp>::comp;
+template<class T, class Comp /* = std::less<T> */>
+Comp SortedList<T, Comp>::comp;
 
 
-template<class C, class Comp /* = std::less<typename C::value_type> */>
-typename Sorted<C, Comp>::iterator Sorted<C, Comp>::insert(const_reference item) {
+template<class T, class Comp /* = std::less<T> */>
+typename SortedList<T, Comp>::iterator SortedList<T, Comp>::insert(const_reference item) {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
-    return container.insert(found.first, item);
+    return list.insert(found.first, item);
 }
 
 
-template<class C, class Comp /* = std::less<typename C::value_type> */>
-std::pair<typename Sorted<C, Comp>::iterator, bool> Sorted<C, Comp>::insertUnique(const_reference item) {
+template<class T, class Comp /* = std::less<T> */>
+std::pair<typename SortedList<T, Comp>::iterator, bool> SortedList<T, Comp>::insertUnique(const_reference item) {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
 
     if (found.second == false) {
 
-        found.first = container.insert(found.first, item);
+        found.first = list.insert(found.first, item);
         if (found.first != end()) {
             found.second = true;
         }
@@ -228,9 +224,9 @@ std::pair<typename Sorted<C, Comp>::iterator, bool> Sorted<C, Comp>::insertUniqu
 }
 
 
-template<class C, class Comp /* = std::less<typename C::value_type> */>
+template<class T, class Comp /* = std::less<T> */>
 template<typename It, typename CV, class CF>
-std::pair<It, It> Sorted<C, Comp>::findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const {
+std::pair<It, It> SortedList<T, Comp>::findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const {
 
     std::pair<It, It> res(endIt, endIt);
 
@@ -263,6 +259,7 @@ std::pair<It, It> Sorted<C, Comp>::findSortedRangeBase(It it, It endIt, const CV
 }
 
 }
+}
 
-#endif /* __ETL_SORTED_H__ */
+#endif /* __ETL_SORTEDLIST_H__ */
 

@@ -24,8 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/Sorted.h>
-#include <etl/base/ListTemplate.h>
+#include <etl/base/SortedList.h>
 
 #include <utility>
 
@@ -33,7 +32,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class E>
-class Set : public Sorted<List<E> > {
+class Set : public Detail::SortedList<E> {
 
   public:   // types
 
@@ -44,9 +43,9 @@ class Set : public Sorted<List<E> > {
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef List<E> ContainerType;
+    typedef Detail::SortedList<E> Base;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
-    typedef Sorted<ContainerType> Base;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
