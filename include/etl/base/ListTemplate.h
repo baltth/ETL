@@ -28,9 +28,7 @@ limitations under the License.
 #include <etl/base/TypedListBase.h>
 #include <etl/base/tools.h>
 
-#if ETL_USE_CPP11
 #include <initializer_list>
-#endif
 
 namespace ETL_NAMESPACE {
 
@@ -69,8 +67,6 @@ class List : public Detail::TypedListBase<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List& operator=(List&& other) {
         swap(other);
         return *this;
@@ -81,7 +77,8 @@ class List : public Detail::TypedListBase<T> {
         return *this;
     }
 
-#endif
+    List(const List& other) = delete;
+    List(List&& other) = delete;
 
     ~List() {
         clear();
@@ -100,13 +97,9 @@ class List : public Detail::TypedListBase<T> {
         insert(this->begin(), first, last);
     }
 
-#if ETL_USE_CPP11
-
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
-
-#endif
 
     /// \name Element operations
     /// \{
@@ -142,12 +135,8 @@ class List : public Detail::TypedListBase<T> {
         return next;
     }
 
-#if ETL_USE_CPP11
-
     template<typename... Args >
     iterator emplace(const_iterator pos, Args&& ... args);
-
-#endif
 
     void splice(const_iterator pos, List<T>& other) {
         splice(pos, other, other.begin(), other.end());
@@ -193,7 +182,6 @@ class List : public Detail::TypedListBase<T> {
     }
 
     Node* copyAndReplace(iterator& item, const T& value);
-
     void swapElements(List<T>& other);
 
 };
@@ -228,9 +216,6 @@ void List<T>::push_back(const T& item) {
 }
 
 
-#if ETL_USE_CPP11
-
-
 template<class T>
 typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
     return emplace(pos, item);
@@ -250,25 +235,6 @@ typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args)
 
     return it;
 }
-
-
-#else
-
-
-template<class T>
-typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
-
-    iterator it = this->end();
-    Node* inserted = createNode(item);
-    if (inserted != nullptr) {
-        it = Base::insert(pos, *inserted);
-    }
-
-    return it;
-}
-
-
-#endif
 
 
 template<class T>

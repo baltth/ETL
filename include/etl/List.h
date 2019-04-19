@@ -55,12 +55,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -74,16 +74,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -91,12 +84,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -135,12 +131,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -154,16 +150,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -171,12 +160,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -217,12 +209,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -236,16 +228,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -253,12 +238,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -299,12 +287,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -318,16 +306,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -335,12 +316,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -353,7 +337,6 @@ class List : public ETL_NAMESPACE::List<T> {
 };
 
 }
-
 }
 
 #endif /* __ETL_LIST_H__ */

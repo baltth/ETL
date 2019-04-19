@@ -32,10 +32,7 @@ limitations under the License.
 #include <utility>
 #include <iterator>
 
-#if ETL_USE_CPP11
 #include <functional>
-#include <initializer_list>
-#endif
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -60,15 +57,9 @@ class TypedListBase : protected AListBase {
 
       public:   // functions
 
-#if ETL_USE_CPP11
         template<typename... Args>
         Node(Args&& ... args) :
             item(std::forward<Args>(args)...) {};
-#else
-        Node() {};
-        explicit Node(const T& value) :
-            item(value) {};
-#endif
 
     };
 
@@ -221,6 +212,9 @@ class TypedListBase : protected AListBase {
 
     TypedListBase() {};
 
+    TypedListBase(const TypedListBase& other) = delete;
+    TypedListBase& operator=(const TypedListBase& other) = delete;
+
     /// \name Capacity
     /// \{
     uint32_t size() const {
@@ -320,8 +314,6 @@ class TypedListBase : protected AListBase {
         return findBase<const_iterator>(startPos, endPos, matchCall);
     }
 
-#if ETL_USE_CPP11
-
     iterator find(MatchFunc<T>&& matchCall) {
         return find(begin(), end(), std::move(matchCall));
     }
@@ -337,23 +329,12 @@ class TypedListBase : protected AListBase {
     const_iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const {
         return findBase<const_iterator>(startPos, endPos, std::move(matchCall));
     }
-
-#endif
     /// \}
 
   protected:
 
-#if ETL_USE_CPP11
-
-    TypedListBase(TypedListBase&& other) :
-        AListBase(std::move(other)) {};
-
-    TypedListBase& operator=(TypedListBase&& other) {
-        AListBase::operator=(other);
-        return *this;
-    }
-
-#endif
+    TypedListBase(TypedListBase&& other) = default;
+    TypedListBase& operator=(TypedListBase&& other) = default;
 
     iterator insert(const_iterator pos, Node& node) {
         AListBase::insert(pos, &node);
@@ -373,17 +354,11 @@ class TypedListBase : protected AListBase {
 
   private:
 
-    // Non-copyable
-    TypedListBase(const TypedListBase& other);
-    TypedListBase& operator=(const TypedListBase& other);
-
     template<typename It>
     It findBase(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const;
 
-#if ETL_USE_CPP11
     template<typename It>
     It findBase(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const;
-#endif
 
 };
 
@@ -409,8 +384,6 @@ It TypedListBase<T>::findBase(const_iterator startPos,
 }
 
 
-#if ETL_USE_CPP11
-
 template<class T>
 template<class It>
 It TypedListBase<T>::findBase(const_iterator startPos,
@@ -430,8 +403,6 @@ It TypedListBase<T>::findBase(const_iterator startPos,
 
     return It(startPos);
 }
-
-#endif
 
 }
 }

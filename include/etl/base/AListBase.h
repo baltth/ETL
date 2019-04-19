@@ -39,8 +39,7 @@ class AListBase {
 
       protected:
 
-        Node() :
-            DoubleChain::Node() {};
+        Node() = default;
 
         explicit Node(const DoubleChain::Node& other) :
             DoubleChain::Node(other) {};
@@ -91,19 +90,12 @@ class AListBase {
     AListBase() :
         size_(0U) {};
 
-#if ETL_USE_CPP11
+    AListBase(const AListBase& other) = delete;
+    AListBase& operator=(const AListBase& other) = delete;
 
-    AListBase(AListBase&& other) :
-        chain(std::move(other.chain)),
-        size_(other.size_) {};
-
-    AListBase& operator=(AListBase&& other) {
-        chain = std::move(other.chain);
-        size_ = other.size_;
-        return *this;
-    }
-
-#endif
+    AListBase(AListBase&& other) = default;
+    AListBase& operator=(AListBase&& other) = default;
+    ~AListBase() = default;
 
     uint32_t size() const {
         return size_;
@@ -164,11 +156,6 @@ class AListBase {
                 Iterator first,
                 Iterator last);
     /// \}
-
-  private:
-
-    AListBase(const AListBase& other);
-    AListBase& operator=(const AListBase& other);
 
 };
 
