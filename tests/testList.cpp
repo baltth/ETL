@@ -22,7 +22,8 @@ limitations under the License.
 #include "catch.hpp"
 
 #include <etl/List.h>
-#include <etl/funcSupport.h>
+
+#include <memory>
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
@@ -940,7 +941,7 @@ TEST_CASE("Etl::List<> with std::inner_product()", "[list][comp][etl]") {
 
 TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
 
-    typedef Etl::reference_wrapper<int> ItemT;
+    typedef std::reference_wrapper<int> ItemT;
     typedef Etl::Dynamic::List<ItemT> ListT;
 
     int i0 = 0;
@@ -949,10 +950,10 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     int i3 = 3;
 
     ListT list;
-    list.push_back(Etl::ref(i0));
-    list.push_back(Etl::ref(i1));
-    list.push_back(Etl::ref(i2));
-    list.push_back(Etl::ref(i3));
+    list.push_back(std::ref(i0));
+    list.push_back(std::ref(i1));
+    list.push_back(std::ref(i2));
+    list.push_back(std::ref(i3));
 
     REQUIRE(list.size() == 4);
 
@@ -964,13 +965,13 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     }
 
     it = list.begin();
-    *it = Etl::ref(i3);
+    *it = std::ref(i3);
     ++it;
-    *it = Etl::ref(i2);
+    *it = std::ref(i2);
     ++it;
-    *it = Etl::ref(i1);
+    *it = std::ref(i1);
     ++it;
-    *it = Etl::ref(i0);
+    *it = std::ref(i0);
 
     it = list.begin();
     for (uint8_t i = 0; i < list.size(); ++i) {

@@ -53,9 +53,6 @@ limitations under the License.
 
 
 // Language features
-
-#if ETL_USE_CPP11
-
 #include <cstdint>
 #include <functional>
 
@@ -68,12 +65,6 @@ using std::int16_t;
 using std::int32_t;
 using std::int64_t;
 using std::size_t;
-
-#else
-
-#include <stdint.h>
-
-#endif
 
 
 // Utilities
@@ -120,12 +111,9 @@ struct FunctionMatcher : Matcher<T> {
     }
 };
 
-#if ETL_USE_CPP11
 
 template<typename T>
 using MatchFunc = std::function<bool(const T&)>;
-
-#endif
 
 
 template<typename S, typename T>
