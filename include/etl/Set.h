@@ -52,12 +52,12 @@ class Set : public ETL_NAMESPACE::Set<E> {
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -71,16 +71,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -88,12 +81,15 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Set() {
         this->clear();
@@ -128,12 +124,12 @@ class Set : public ETL_NAMESPACE::Set<E> {
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -147,16 +143,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -164,12 +153,15 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Set() {
         this->clear();
@@ -206,12 +198,12 @@ class Set : public ETL_NAMESPACE::Set<E> {
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -225,16 +217,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -242,12 +227,15 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Set() {
         this->clear();
@@ -284,12 +272,12 @@ class Set : public ETL_NAMESPACE::Set<E> {
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -303,16 +291,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -320,12 +301,15 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Set() {
         this->clear();
@@ -338,7 +322,6 @@ class Set : public ETL_NAMESPACE::Set<E> {
 };
 
 }
-
 }
 
 #endif /* __ETL_SET_H__ */

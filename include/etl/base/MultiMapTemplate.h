@@ -66,8 +66,6 @@ class MultiMap : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, 
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     MultiMap& operator=(MultiMap&& other) {
         swap(other);
         return *this;
@@ -77,8 +75,6 @@ class MultiMap : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, 
         assign(initList);
         return *this;
     }
-
-#endif
 
     using Base::find;
     using Base::erase;
@@ -133,12 +129,8 @@ class MultiMap : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, 
         return equal_range(k).second;
     }
 
-#if ETL_USE_CPP11
-
     template<typename... Args>
     inline iterator emplace(const K& k, Args&& ... args);
-
-#endif
 
     static K getKey(const_reference item) {
         return item.first;
@@ -202,8 +194,6 @@ typename MultiMap<K, E>::const_iterator MultiMap<K, E>::find(const K& k) const {
 }
 
 
-#if ETL_USE_CPP11
-
 template<typename K, class E>
 template<typename... Args>
 typename MultiMap<K, E>::iterator MultiMap<K, E>::emplace(const K& k, Args&& ... args) {
@@ -213,8 +203,6 @@ typename MultiMap<K, E>::iterator MultiMap<K, E>::emplace(const K& k, Args&& ...
 
     return found.first;
 }
-
-#endif
 
 }
 

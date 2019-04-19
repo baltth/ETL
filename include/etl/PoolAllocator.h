@@ -140,8 +140,6 @@ class PoolHelper {
 
 };
 
-
-
 }
 
 #endif /* __ETL_POOLALLOCATOR_H__ */

@@ -52,12 +52,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
@@ -71,16 +71,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     MultiMap(MultiMap&& other) :
-        Base(allocator) {
+        MultiMap() {
         operator=(std::move(other));
-    }
-
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     MultiMap& operator=(MultiMap&& other) {
@@ -88,12 +81,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        MultiMap() {
+        operator=(initList);
+    }
+
     MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~MultiMap() {
         this->clear();
@@ -128,12 +124,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
@@ -147,16 +143,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     MultiMap(MultiMap&& other) :
-        Base(allocator) {
+        MultiMap() {
         operator=(std::move(other));
-    }
-
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     MultiMap& operator=(MultiMap&& other) {
@@ -164,12 +153,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        MultiMap() {
+        operator=(initList);
+    }
+
     MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~MultiMap() {
         this->clear();
@@ -206,12 +198,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
@@ -225,16 +217,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     MultiMap(MultiMap&& other) :
-        Base(allocator) {
+        MultiMap() {
         operator=(std::move(other));
-    }
-
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     MultiMap& operator=(MultiMap&& other) {
@@ -242,12 +227,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        MultiMap() {
+        operator=(initList);
+    }
+
     MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~MultiMap() {
         this->clear();
@@ -284,12 +272,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        Base(allocator) {
+        MultiMap() {
         Base::operator=(other);
     }
 
@@ -303,16 +291,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     MultiMap(MultiMap&& other) :
-        Base(allocator) {
+        MultiMap() {
         operator=(std::move(other));
-    }
-
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     MultiMap& operator=(MultiMap&& other) {
@@ -320,12 +301,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
+    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+        MultiMap() {
+        operator=(initList);
+    }
+
     MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~MultiMap() {
         this->clear();
@@ -338,7 +322,6 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 };
 
 }
-
 }
 
 #endif /* __ETL_MULTIMAP_H__ */

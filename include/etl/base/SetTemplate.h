@@ -26,8 +26,6 @@ limitations under the License.
 #include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
 
-#include <utility>
-
 namespace ETL_NAMESPACE {
 
 
@@ -60,8 +58,6 @@ class Set : public Detail::SortedList<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set& operator=(Set&& other) {
         swap(other);
         return *this;
@@ -71,8 +67,6 @@ class Set : public Detail::SortedList<E> {
         assign(initList);
         return this;
     }
-
-#endif
 
     using Base::find;
     using Base::erase;

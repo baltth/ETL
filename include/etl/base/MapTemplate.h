@@ -66,8 +66,6 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Map& operator=(Map&& other) {
         swap(other);
         return *this;
@@ -77,8 +75,6 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         assign(initList);
         return *this;
     }
-
-#endif
 
     using Base::find;
     using Base::erase;
@@ -113,16 +109,12 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         return getItem(k)->second;
     }
 
-#if ETL_USE_CPP11
-
     void insert(std::initializer_list<value_type> initList) {
         insert(initList.begin(), initList.end());
     }
 
     template<typename... Args>
     inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
-
-#endif
 
     static K getKey(const_reference item) {
         return item.first;
@@ -150,11 +142,7 @@ std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::insert_or_assign(const 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
-#if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, k, e);
-#else
-        found.first = Base::insertTo(found.first, value_type(k, e));
-#endif
     } else {
         --found.first;
         found.first->second = e;
@@ -208,11 +196,7 @@ typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
     if (found.second == false) {
-#if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, std::move(value_type(k, E())));
-#else
-        found.first = Base::insertTo(found.first, value_type(k, E()));
-#endif
     } else {
         --found.first;
     }
@@ -220,8 +204,6 @@ typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
     return found.first;
 }
 
-
-#if ETL_USE_CPP11
 
 template<typename K, class E>
 template<typename... Args>
@@ -236,8 +218,6 @@ std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::emplace(const K& k, Arg
     found.second = !found.second;
     return found;
 }
-
-#endif
 
 }
 

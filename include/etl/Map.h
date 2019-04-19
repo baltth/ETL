@@ -51,12 +51,12 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         Base(allocator) {};
 
     Map(const Map& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
@@ -70,16 +70,9 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Map(Map&& other) :
-        Base(allocator) {
+        Map() {
         operator=(std::move(other));
-    }
-
-    Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Map& operator=(Map&& other) {
@@ -87,12 +80,15 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
+    Map(std::initializer_list<std::pair<K, E>> initList) :
+        Map() {
+        operator=(initList);
+    }
+
     Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Map() {
         this->clear();
@@ -127,12 +123,12 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         Base(allocator) {};
 
     Map(const Map& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
@@ -146,16 +142,9 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Map(Map&& other) :
-        Base(allocator) {
+        Map() {
         operator=(std::move(other));
-    }
-
-    Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Map& operator=(Map&& other) {
@@ -163,12 +152,15 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
+    Map(std::initializer_list<std::pair<K, E>> initList) :
+        Map() {
+        operator=(initList);
+    }
+
     Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Map() {
         this->clear();
@@ -206,12 +198,12 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         Base(allocator) {};
 
     Map(const Map& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
@@ -225,16 +217,9 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Map(Map&& other) :
-        Base(allocator) {
+        Map() {
         operator=(std::move(other));
-    }
-
-    Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Map& operator=(Map&& other) {
@@ -242,12 +227,15 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
+    Map(std::initializer_list<std::pair<K, E>> initList) :
+        Map() {
+        operator=(initList);
+    }
+
     Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Map() {
         this->clear();
@@ -285,12 +273,12 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         Base(allocator) {};
 
     Map(const Map& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Base(allocator) {
+        Map() {
         Base::operator=(other);
     }
 
@@ -304,16 +292,9 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Map(Map&& other) :
-        Base(allocator) {
+        Map() {
         operator=(std::move(other));
-    }
-
-    Map(std::initializer_list<std::pair<K, E>> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Map& operator=(Map&& other) {
@@ -321,12 +302,15 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
+    Map(std::initializer_list<std::pair<K, E>> initList) :
+        Map() {
+        operator=(initList);
+    }
+
     Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Map() {
         this->clear();
