@@ -26,6 +26,8 @@ limitations under the License.
 #include <etl/Proxy.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
+
 
 class AVectorBase {
 
@@ -112,6 +114,7 @@ class AVectorBase {
 
 };
 
+}
 }
 
 #endif /* __ETL_AVECTORBASE_H__ */

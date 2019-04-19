@@ -31,7 +31,6 @@ limitations under the License.
 #include <cstddef>
 #include <utility>
 #include <iterator>
-
 #include <functional>
 
 namespace ETL_NAMESPACE {

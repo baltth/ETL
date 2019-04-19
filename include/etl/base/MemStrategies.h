@@ -23,7 +23,6 @@ limitations under the License.
 #define __ETL_MEMSTARTEGIES_H__
 
 #include <etl/etlSupport.h>
-#include <etl/base/AVectorBase.h>
 
 #include <memory>
 

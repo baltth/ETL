@@ -112,7 +112,7 @@ Vector<T, N>::Vector(uint32_t len) :
     Base(strategy),
     strategy(data_, N) {
 
-    typename TypedVectorBase<T>::DefaultCreator dc;
+    typename Base::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 
@@ -198,7 +198,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     bool swap(Vector& other) {
         if (&other != this) {
-            AVectorBase::swapProxy(other);
+            Detail::AVectorBase::swapProxy(other);
             return true;
         } else {
             return false;
@@ -216,7 +216,7 @@ template<class T, template<class> class A /* = std::allocator<T> */>
 Vector<T, A>::Vector(uint32_t len) :
     Base(strategy) {
 
-    typename TypedVectorBase<T>::DefaultCreator dc;
+    typename Base::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 

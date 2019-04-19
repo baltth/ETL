@@ -36,23 +36,21 @@ limitations under the License.
 #include <new>
 #include <utility>
 #include <iterator>
-
-#if ETL_USE_CPP11
 #include <functional>
-#include <initializer_list>
-#endif
 
 namespace ETL_NAMESPACE {
 
 template<class> class StaticSized;
 template<class, class> class DynamicSized;
 
+namespace Detail {
+
 
 template<class T>
 class TypedVectorBase : public AVectorBase {
 
     friend class StaticSized<TypedVectorBase>;
-    template<class C, class A> friend class DynamicSized;
+    template<class, class> friend class DynamicSized;
 
   public:   // types
 
@@ -516,6 +514,7 @@ typename TypedVectorBase<T>::const_reference TypedVectorBase<T>::at(uint32_t ix)
 
 #endif
 
+}
 }
 
 #endif /* __ETL_TYPEDVECTORBASE_H__ */

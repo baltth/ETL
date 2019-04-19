@@ -32,16 +32,17 @@ limitations under the License.
 
 #include <new>
 #include <utility>
+#include <initializer_list>
 
 namespace ETL_NAMESPACE {
 
 
 template<class T>
-class Vector : public TypedVectorBase<T> {
+class Vector : public Detail::TypedVectorBase<T> {
 
   public:   // types
 
-    typedef TypedVectorBase<T> Base;
+    typedef Detail::TypedVectorBase<T> Base;
     typedef Base StrategyBase;
 
     typedef T value_type;
