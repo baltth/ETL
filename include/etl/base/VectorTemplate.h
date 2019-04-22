@@ -30,15 +30,18 @@ limitations under the License.
 #undef min
 #undef max
 
-#include <new>
 #include <utility>
 #include <initializer_list>
+#include <type_traits>
 
 namespace ETL_NAMESPACE {
 
 
 template<class T>
 class Vector : public Detail::TypedVectorBase<T> {
+
+    static_assert(std::is_copy_constructible<T>::value, "Vector<>::value_type is not copy constructible");
+    static_assert(std::is_copy_assignable<T>::value, "Vector<>::value_type is not copy assignable");
 
   public:   // types
 
@@ -56,6 +59,8 @@ class Vector : public Detail::TypedVectorBase<T> {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
+    typedef std::uint32_t size_type;
+
     typedef typename Base::CreateFunc CreateFunc;
 
   private:  // variables
@@ -64,7 +69,7 @@ class Vector : public Detail::TypedVectorBase<T> {
 
   public:   // functions
 
-    void assign(uint32_t num, const_reference value) {
+    void assign(size_type num, const_reference value) {
         this->clear();
         insert(this->begin(), num, value);
     }
@@ -81,11 +86,16 @@ class Vector : public Detail::TypedVectorBase<T> {
 
     /// \name Capacity
     /// \{
-    void resize(uint32_t length) {
+    void resize(size_type length) {
+        static_assert(std::is_default_constructible<T>::value, "Vector<>::value_type is not default constructible");
         strategy.resize(*this, length);
     }
 
-    void reserve(uint32_t length) {
+    void resize(size_type length, const value_type& value) {
+        strategy.resize(*this, length, value);
+    }
+
+    void reserve(size_type length) {
         strategy.reserve(*this, length);
     }
 
@@ -93,7 +103,7 @@ class Vector : public Detail::TypedVectorBase<T> {
         return strategy.getMaxCapacity();
     }
 
-    void reserve_exactly(uint32_t length) {
+    void reserve_exactly(size_type length) {
         strategy.reserveExactly(*this, length);
     }
 
@@ -108,7 +118,7 @@ class Vector : public Detail::TypedVectorBase<T> {
         return insert(position, 1U, value);
     }
 
-    iterator insert(const_iterator position, uint32_t num, const_reference value);
+    iterator insert(const_iterator position, size_type num, const_reference value);
 
     template<typename InputIt>
     typename enable_if<!is_integral<InputIt>::value, iterator>::type        // *NOPAD*
@@ -162,8 +172,8 @@ class Vector : public Detail::TypedVectorBase<T> {
     }
 
     template<class CR>
-    iterator insertWithCreator(const_iterator position, uint32_t num, const CR& creatorCall);
-    iterator insertWithCreator(const_iterator position, uint32_t num, CreateFunc&& creatorCall);
+    iterator insertWithCreator(const_iterator position, size_type num, const CR& creatorCall);
+    iterator insertWithCreator(const_iterator position, size_type num, CreateFunc&& creatorCall);
 
 };
 
@@ -171,15 +181,15 @@ class Vector : public Detail::TypedVectorBase<T> {
 template<class T>
 template<class CR>
 typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator position,
-                                                          uint32_t numToInsert,
+                                                          size_type numToInsert,
                                                           const CR& creatorCall) {
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = Base::size() + numToInsert;
+        size_type requestedCapacity = Base::size() + numToInsert;
 
         if (requestedCapacity > this->capacity()) {
-            uint32_t positionIx = position - this->begin();
+            size_type positionIx = position - this->begin();
             this->reserve(requestedCapacity);
             position = this->begin() + positionIx;
         }
@@ -220,10 +230,10 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
 
 
 template<class T>
-typename Vector<T>::iterator Vector<T>::insert(const_iterator position, uint32_t num, const_reference value) {
+typename Vector<T>::iterator Vector<T>::insert(const_iterator position, size_type num, const_reference value) {
 
-    return insertWithCreator(position, num, [this, &value](pointer item, uint32_t cnt, bool place) {
-        for (uint32_t i = 0; i < cnt; ++i) {
+    return insertWithCreator(position, num, [this, &value](pointer item, size_type cnt, bool place) {
+        for (size_type i = 0; i < cnt; ++i) {
             if (place) {
                 this->placeValueTo(item + i, value);
             } else {
@@ -237,7 +247,7 @@ typename Vector<T>::iterator Vector<T>::insert(const_iterator position, uint32_t
 template<class T>
 typename Vector<T>::iterator Vector<T>::insert(const_iterator position, T&& value) {
 
-    return insertWithCreator(position, 1, [this, &value](pointer item, uint32_t, bool place) {
+    return insertWithCreator(position, 1, [this, &value](pointer item, size_type, bool place) {
 
         if (place) {
             this->placeValueTo(item, std::move(value));
@@ -252,7 +262,7 @@ template<class T>
 template<typename... Args >
 typename Vector<T>::iterator Vector<T>::emplace(const_iterator position, Args&& ... args) {
 
-    return insertWithCreator(position, 1, [&](pointer item, uint32_t, bool place) {
+    return insertWithCreator(position, 1, [&](pointer item, size_type, bool place) {
         if (place) {
             new (item) T(args...);
         } else {
@@ -264,16 +274,16 @@ typename Vector<T>::iterator Vector<T>::emplace(const_iterator position, Args&& 
 
 template<class T>
 typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator position,
-                                                          uint32_t numToInsert,
+                                                          size_type numToInsert,
                                                           CreateFunc&& creatorCall) {
 
     if (numToInsert > 0) {
 
-        uint32_t requestedCapacity = Base::size() + numToInsert;
+        size_type requestedCapacity = Base::size() + numToInsert;
 
         if (requestedCapacity > this->capacity()) {
 
-            uint32_t positionIx = position - this->begin();
+            size_type positionIx = position - this->begin();
             this->reserve(requestedCapacity);
             position = this->begin() + positionIx;
         }
@@ -305,6 +315,8 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef const value_type* const_iterator;
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+    typedef typename Base::size_type size_type;
 
     typedef typename Base::CreateFunc CreateFunc;
 
@@ -395,7 +407,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
                                                        value));
     }
 
-    iterator insert(const_iterator position, uint32_t num, const value_type& value) {
+    iterator insert(const_iterator position, size_type num, const value_type& value) {
         return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
                                                        num,
                                                        value));

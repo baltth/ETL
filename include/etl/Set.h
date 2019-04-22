@@ -181,7 +181,7 @@ namespace Static {
 template<class E, uint32_t N>
 class Set : public ETL_NAMESPACE::Set<E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::Set size");
 
   public:   // types
 
@@ -255,7 +255,7 @@ namespace Pooled {
 template<class E, uint32_t N>
 class Set : public ETL_NAMESPACE::Set<E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Pooled::Set size");
 
   public:   // types
 

@@ -181,7 +181,7 @@ namespace Static {
 template<class K, class E, uint32_t N>
 class Map : public ETL_NAMESPACE::Map<K, E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::Map size");
 
   public:   // types
 
@@ -256,7 +256,7 @@ namespace Pooled {
 template<class K, class E, uint32_t N>
 class Map : public ETL_NAMESPACE::Map<K, E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Pooled::Map size");
 
   public:   // types
 

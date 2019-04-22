@@ -181,7 +181,7 @@ namespace Static {
 template<class K, class E, uint32_t N>
 class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::MultiMap size");
 
   public:   // types
 
@@ -255,7 +255,7 @@ namespace Pooled {
 template<class K, class E, uint32_t N>
 class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Pooled::MultiMap size");
 
   public:   // types
 

@@ -24,8 +24,12 @@ limitations under the License.
 
 #include <etl/langSupport.h>
 
+#ifndef ETL_DISABLE_ASSERT
+#include <cassert>
+#endif
+
 #ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
+#define ETL_NAMESPACE       Etl
 #endif
 
 #ifndef ETL_DISABLE_HEAP
@@ -40,15 +44,9 @@ limitations under the License.
 // Assertions
 
 #if ETL_DISABLE_ASSERT
-
 #define ETL_ASSERT(cond)
-
 #else
-
-#include <cassert>
-
 #define ETL_ASSERT(cond)    assert(cond)
-
 #endif
 
 
@@ -163,8 +161,7 @@ struct AlignmentOf {
     };
 
     static const size_t value = sizeof(Aligned) - sizeof(Basic);
-
-    STATIC_ASSERT(value > 0);
+    static_assert(value > 0, "Error calculating alignment");
 
 };
 

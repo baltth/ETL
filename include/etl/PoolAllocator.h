@@ -37,7 +37,7 @@ Implements AAllocator based on MemoryPool.
 template<class T, uint32_t N>
 class PoolAllocator : public AAllocator<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid pool size");
 
   public:   // types
 
@@ -87,7 +87,7 @@ Forwards the `std::allocator` interface to a static MemoryPool.
 template<class T, uint32_t N>
 class CommonPoolAllocator : public AAllocator<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid pool size");
 
   public:   // types
 
