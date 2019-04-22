@@ -28,7 +28,6 @@ limitations under the License.
 #include "sequenceTests.h"
 #include "compatibilityTests.h"
 
-#include <ctime>
 
 using ETL_NAMESPACE::Test::UnalignedTester;
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -294,7 +293,8 @@ void testVectorSwap() {
 
     SECTION("Swap ego") {
 
-        REQUIRE_FALSE(vec1.swap(vec1));
+        vec1.swap(vec1);
+
         REQUIRE(vec1.size() == 3);
 
         REQUIRE(vec1[0] == 1);
@@ -304,7 +304,7 @@ void testVectorSwap() {
 
     SECTION("Swap equal length") {
 
-        REQUIRE(vec1.swap(vec2));
+        vec1.swap(vec2);
 
         REQUIRE(vec1.size() == 3);
         REQUIRE(vec2.size() == 3);
@@ -325,7 +325,7 @@ void testVectorSwap() {
 
         CHECK(vec2.size() == 5);
 
-        REQUIRE(vec1.swap(vec2));
+        vec1.swap(vec2);
 
         REQUIRE(vec1.size() == 5);
         REQUIRE(vec2.size() == 3);
@@ -340,7 +340,7 @@ void testVectorSwap() {
         REQUIRE(vec2[1] == 2);
         REQUIRE(vec2[2] == 3);
 
-        REQUIRE(vec1.swap(vec2));
+        vec1.swap(vec2);
 
         REQUIRE(vec1.size() == 3);
         REQUIRE(vec2.size() == 5);
@@ -358,7 +358,7 @@ void testVectorSwap() {
 
         CHECK(vec3.empty());
 
-        REQUIRE(vec1.swap(vec3));
+        vec1.swap(vec3);
 
         REQUIRE(vec1.empty());
         REQUIRE(vec3.size() == 3);
@@ -367,7 +367,7 @@ void testVectorSwap() {
         REQUIRE(vec3[1] == 2);
         REQUIRE(vec3[2] == 3);
 
-        REQUIRE(vec1.swap(vec3));
+        vec1.swap(vec3);
 
         REQUIRE(vec1.size() == 3);
         REQUIRE(vec3.empty());
@@ -400,7 +400,7 @@ TEST_CASE("Etl::Dynamic::Vector<> swap test", "[vec][dynamic][etl]") {
 
         const uint32_t copyCnt = ContainerTester::getCopyCount();
 
-        REQUIRE(vec.swap(vec2));
+        vec.swap(vec2);
 
         REQUIRE(ContainerTester::getCopyCount() == copyCnt);
     }
@@ -435,14 +435,14 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
             SECTION("1->2") {
 
-                REQUIRE(vec1.swap(vec2));
+                vec1.swap(vec2);
 
                 REQUIRE(vec1.empty());
                 REQUIRE(vec2.size() == 4);
                 REQUIRE(vec2[0] == 1);
                 REQUIRE(vec2[3] == 1);
 
-                REQUIRE(vec1.swap(vec2));
+                vec1.swap(vec2);
 
                 REQUIRE(vec1.size() == 4);
                 REQUIRE(vec2.empty());
@@ -452,14 +452,14 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
             SECTION("2->1") {
 
-                REQUIRE(vec2.swap(vec1));
+                vec2.swap(vec1);
 
                 REQUIRE(vec1.empty());
                 REQUIRE(vec2.size() == 4);
                 REQUIRE(vec2[0] == 1);
                 REQUIRE(vec2[3] == 1);
 
-                REQUIRE(vec2.swap(vec1));
+                vec2.swap(vec1);
 
                 REQUIRE(vec1.size() == 4);
                 REQUIRE(vec2.empty());
@@ -474,11 +474,11 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
             CHECK(vec1.size() > vec2.max_size());
 
             SECTION("1->2") {
-                REQUIRE_FALSE(vec1.swap(vec2));
+                vec1.swap(vec2);
             }
 
             SECTION("2->1") {
-                REQUIRE_FALSE(vec2.swap(vec1));
+                vec2.swap(vec1);
             }
         }
     }
@@ -657,7 +657,7 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
         const uint32_t sInitSize = sVec.size();
         const uint32_t dInitSize = dVec.size();
 
-        REQUIRE(sVec.swap(dVec));
+        sVec.swap(dVec);
 
         REQUIRE(sVec.size() == dInitSize);
         REQUIRE(dVec.size() == sInitSize);
@@ -667,7 +667,7 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
         REQUIRE(dVec.front() == ContainerTester(PATTERN_S));
         REQUIRE(dVec.back() == ContainerTester(PATTERN_S));
 
-        REQUIRE(dVec.swap(sVec));
+        dVec.swap(sVec);
 
         REQUIRE(sVec.size() == sInitSize);
         REQUIRE(dVec.size() == dInitSize);
@@ -1159,68 +1159,5 @@ TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
     typedef Etl::Dynamic::Vector<ItemT> VecT;
 
     testInnerProduct<VecT, VecT>();
-}
-
-
-// Etl::Vector performance tests ---------------------------------------------
-
-
-TEST_CASE("Etl::Vector<> insert performance", "[vec][perf][etl]") {
-
-    static const uint32_t CYCLES = 100000UL;
-
-    SECTION("with int32_t") {
-
-        typedef Etl::Static::Vector<int32_t, 128> VecT;
-
-        VecT vec;
-        vec.push_back(-2);
-        vec.push_back(-1);
-
-        std::clock_t start = std::clock();
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
-            vec.push_back(i);
-            VecT::iterator pos = vec.begin();
-            vec.insert(++pos, 40U, i + 1);
-            vec.push_front(i);
-            vec.erase(vec.end() - 42, vec.end());
-        }
-
-        std::clock_t end = std::clock();
-
-        CHECK(vec.size() == 2);
-
-        std::cout << "Etl::Static::Vector<int32_t> insertion: "
-                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
-    }
-
-    SECTION("with ContainerTester") {
-
-        typedef Etl::Static::Vector<ContainerTester, 128> VecT;
-
-        VecT vec;
-        vec.push_back(ContainerTester(-2));
-        vec.push_back(ContainerTester(-1));
-
-        std::clock_t start = std::clock();
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
-            vec.push_back(ContainerTester(i));
-            VecT::iterator pos = vec.begin();
-            vec.insert(++pos, 40U, ContainerTester(i + 1));
-            vec.push_front(ContainerTester(i));
-            vec.erase(vec.end() - 42, vec.end());
-        }
-
-        std::clock_t end = std::clock();
-
-        CHECK(vec.size() == 2);
-
-        std::cout << "Etl::Static::Vector<ContainerTester> insertion: "
-                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
-    }
 }
 

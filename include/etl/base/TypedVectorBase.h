@@ -71,9 +71,10 @@ class TypedVectorBase : public AVectorBase {
 
     class DefaultCreator {
       public:
-        void operator()(pointer pos, uint32_t cnt, bool place) const {
+        void operator()(pointer pos, uint32_t cnt, bool place) const
+        noexcept(noexcept(TypedVectorBase::defaultValue(pos, place))) {
             for (uint32_t i = 0; i < cnt; ++i) {
-                defaultValue(pos + i, place);
+                TypedVectorBase::defaultValue(pos + i, place);
             }
         }
     };
@@ -82,11 +83,12 @@ class TypedVectorBase : public AVectorBase {
       private:
         const_reference ref;
       public:
-        explicit CopyCreator(const_reference refValue) :
+        explicit CopyCreator(const_reference refValue) noexcept :
             ref(refValue) {};
-        void operator()(pointer pos, uint32_t cnt, bool place) const {
+        void operator()(pointer pos, uint32_t cnt, bool place) const
+        noexcept(noexcept(TypedVectorBase::copyValue(pos, ref, place))) {
             for (uint32_t i = 0; i < cnt; ++i) {
-                copyValue(pos + i, ref, place);
+                TypedVectorBase::copyValue(pos + i, ref, place);
             }
         }
     };
@@ -99,18 +101,19 @@ class TypedVectorBase : public AVectorBase {
         const uint32_t len;
       public:
         ContCreator(InputIt fst,
-                    InputIt lst) :
+                    InputIt lst) noexcept :
             first(fst),
             last(lst),
             len((first < last) ? (last - first) : 0) {};
-        uint32_t getLength() const {
+        uint32_t getLength() const noexcept {
             return len;
         }
-        void operator()(pointer pos, uint32_t cnt, bool place) const {
+        void operator()(pointer pos, uint32_t cnt, bool place) const
+        noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
             for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
                 if (first < last) {
                     --last;
-                    copyValue(pos + i, *last, place);
+                    TypedVectorBase::copyValue(pos + i, *last, place);
                 }
             }
         }
@@ -120,11 +123,11 @@ class TypedVectorBase : public AVectorBase {
 
     /// \name Element access
     /// \{
-    reference operator[](uint32_t ix) {
+    reference operator[](uint32_t ix) noexcept {
         return *(static_cast<pointer>(getItemPointer(ix)));
     }
 
-    const_reference operator[](uint32_t ix) const {
+    const_reference operator[](uint32_t ix) const noexcept {
         return *(static_cast<const_pointer>(getItemPointer(ix)));
     }
 
@@ -151,104 +154,112 @@ class TypedVectorBase : public AVectorBase {
         return *(static_cast<const_pointer>(getItemPointer(size() - 1)));
     }
 
-    pointer data() {
+    pointer data() noexcept {
         return static_cast<pointer>(getItemPointer(0));
     }
 
-    const_pointer data() const {
+    const_pointer data() const noexcept {
         return static_cast<const_pointer>(getItemPointer(0));
     }
     /// \}
 
     /// \name Iterators
     /// \{
-    iterator begin() {
+    iterator begin() noexcept {
         return static_cast<iterator>(getItemPointer(0));
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return static_cast<const_iterator>(getItemPointer(0));
     }
 
-    const_iterator cbegin() const {
+    const_iterator cbegin() const noexcept {
         return this->begin();
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return static_cast<iterator>(getItemPointer(size()));
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return static_cast<const_iterator>(getItemPointer(size()));
     }
 
-    const_iterator cend() const {
+    const_iterator cend() const noexcept {
         return this->end();
     }
 
-    reverse_iterator rbegin() {
+    reverse_iterator rbegin() noexcept {
         return reverse_iterator(this->end());
     }
 
-    const_reverse_iterator rbegin() const {
+    const_reverse_iterator rbegin() const noexcept {
         return const_reverse_iterator(this->end());
     }
 
-    const_reverse_iterator crbegin() const {
+    const_reverse_iterator crbegin() const noexcept {
         return const_reverse_iterator(this->cend());
     }
 
-    reverse_iterator rend() {
+    reverse_iterator rend() noexcept {
         return reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator rend() const {
+    const_reverse_iterator rend() const noexcept {
         return const_reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator crend() const {
+    const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(this->cbegin());
     }
     /// \}
 
     /// \name Modifiers
     /// \{
-    void clear();
-    iterator erase(iterator first, iterator last);
+    void clear() noexcept;
+    iterator erase(iterator first, iterator last) noexcept(std::is_nothrow_move_assignable<T>::value);
 
-    iterator erase(iterator pos) {
+    iterator erase(iterator pos) noexcept(std::is_nothrow_move_assignable<T>::value) {
         iterator next = pos;
         ++next;
         return erase(pos, next);
     }
 
-    void pop_front() {
+    void pop_front() noexcept(std::is_nothrow_move_assignable<T>::value) {
         erase(begin());
     }
 
-    void pop_back() {
+    void pop_back() noexcept(std::is_nothrow_move_assignable<T>::value) {
         erase(end() - 1);
     }
     /// \}
 
   protected:
 
-    TypedVectorBase() :
+    TypedVectorBase() noexcept :
         AVectorBase(sizeof(T)) {};
 
     ~TypedVectorBase() {
         clear();
     }
 
-    static void assignDefaultTo(pointer ptr) {
+    void copyOperation(pointer dst, const_pointer src, uint32_t num)
+    noexcept(std::is_nothrow_copy_assignable<T>::value && std::is_nothrow_copy_constructible<T>::value);
+
+    void moveOperation(pointer dst, pointer src, uint32_t num)
+    noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value);
+
+    static void assignDefaultTo(pointer ptr)
+    noexcept(std::is_nothrow_default_constructible<T>::value && std::is_nothrow_move_assignable<T>::value) {
         *ptr = T();
     }
 
-    static void placeDefaultTo(pointer ptr) {
+    static void placeDefaultTo(pointer ptr) noexcept(std::is_nothrow_default_constructible<T>::value) {
         new (ptr) T();
     }
 
-    static void defaultValue(pointer ptr, bool place) {
+    static void defaultValue(pointer ptr, bool place)
+    noexcept(noexcept(placeDefaultTo(ptr)) && noexcept(assignDefaultTo(ptr))) {
         if (place) {
             placeDefaultTo(ptr);
         } else {
@@ -256,15 +267,16 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void assignValueTo(pointer ptr, const_reference value) {
+    static void assignValueTo(pointer ptr, const_reference value) noexcept(std::is_nothrow_copy_assignable<T>::value) {
         *ptr = value;
     }
 
-    static void placeValueTo(pointer ptr, const_reference value) {
+    static void placeValueTo(pointer ptr, const_reference value) noexcept(std::is_nothrow_copy_constructible<T>::value) {
         new (ptr) T(value);
     }
 
-    static void copyValue(pointer ptr, const_reference value, bool place) {
+    static void copyValue(pointer ptr, const_reference value, bool place)
+    noexcept(noexcept(placeValueTo(ptr, value)) && noexcept(assignValueTo(ptr, value))) {
         if (place) {
             placeValueTo(ptr, value);
         } else {
@@ -272,18 +284,16 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    void copyOperation(pointer dst, const_pointer src, uint32_t num);
-    void moveOperation(pointer dst, pointer src, uint32_t num);
-
-    static void assignValueTo(pointer ptr, value_type&& value) {
+    static void assignValueTo(pointer ptr, value_type&& value) noexcept(std::is_nothrow_move_assignable<T>::value) {
         *ptr = std::move(value);
     }
 
-    static void placeValueTo(pointer ptr, value_type&& value) {
+    static void placeValueTo(pointer ptr, value_type&& value) noexcept(std::is_nothrow_move_constructible<T>::value) {
         new (ptr) T(std::move(value));
     }
 
-    static void moveValue(pointer ptr, value_type&& value, bool place) {
+    static void moveValue(pointer ptr, value_type&& value, bool place)
+    noexcept(noexcept(placeValueTo(ptr, std::move(value))) && noexcept(assignValueTo(ptr, std::move(value)))) {
         if (place) {
             placeValueTo(ptr, std::move(value));
         } else {
@@ -291,28 +301,39 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void swapValues(reference lhs, reference rhs) {
+    static void swapValues(reference lhs, reference rhs)
+    noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value) {
         value_type tmp(std::move(lhs));
         lhs = std::move(rhs);
         rhs = std::move(tmp);
     }
 
-    static void uninitializedCopy(pointer src, pointer dst, uint32_t num);
-    static void initializedCopyUp(pointer src, pointer dst, uint32_t num);
-    static void initializedCopyDown(pointer src, pointer dst, uint32_t num);
+    static void uninitializedMove(pointer src, pointer dst, uint32_t num)
+    noexcept(std::is_nothrow_move_constructible<T>::value);
 
-    static void destruct(iterator startPos, iterator endPos);
+    static void initializedMoveUp(pointer src, pointer dst, uint32_t num)
+    noexcept(std::is_nothrow_move_assignable<T>::value);
+
+    static void initializedMoveDown(pointer src, pointer dst, uint32_t num)
+    noexcept(std::is_nothrow_move_assignable<T>::value);
+
+    static void destruct(iterator startPos, iterator endPos) noexcept;
 
     template<class CR>
-    iterator insertOperation(const_iterator position, uint32_t num, const CR& creatorCall);
+    iterator insertOperation(const_iterator position, uint32_t num, const CR& creatorCall)
+    noexcept(noexcept(creatorCall(nullptr, 1, true)) &&
+             std::is_nothrow_move_assignable<T>::value &&
+             std::is_nothrow_move_constructible<T>::value);
 
-    void swapElements(TypedVectorBase& other);
+    void swapElements(TypedVectorBase& other)
+    noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value);
 
 };
 
 
 template<class T>
-typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, iterator last) {
+auto TypedVectorBase<T>::erase(iterator first, iterator last)
+noexcept(std::is_nothrow_move_assignable<T>::value) -> iterator {
 
     int numToErase = last - first;
     iterator itAfterDeleted = first;
@@ -320,7 +341,7 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, 
     if (numToErase > 0) {
 
         uint32_t numToMove = end() - last;
-        initializedCopyDown(&*last, &*first, numToMove);
+        initializedMoveDown(&*last, &*first, numToMove);
 
         first += numToMove;
         destruct(first, end());
@@ -333,7 +354,8 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::erase(iterator first, 
 
 
 template<class T>
-void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, uint32_t num) {
+void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, uint32_t num)
+noexcept(std::is_nothrow_copy_assignable<T>::value && std::is_nothrow_copy_constructible<T>::value) {
 
     pointer dataAlias = data();
 
@@ -342,11 +364,11 @@ void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, uint32_t 
         uint32_t totalNum = static_cast<uint32_t>(dst - dataAlias) + num;
 
         for (uint32_t i = 0; i < num; ++i) {
-            copyValue(dst, src[i], (static_cast<uint32_t>(dst - dataAlias) >= this->size()));
+            TypedVectorBase::copyValue(dst, src[i], (static_cast<uint32_t>(dst - dataAlias) >= this->size()));
             ++dst;
         }
 
-        destruct(dst, end());
+        TypedVectorBase::destruct(dst, end());
         proxy.setSize(totalNum);
     }
 }
@@ -354,9 +376,12 @@ void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, uint32_t 
 
 template<class T>
 template<class CR>
-typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_iterator position,
-                                                                          uint32_t numToInsert,
-                                                                          const CR& creatorCall) {
+auto TypedVectorBase<T>::insertOperation(const_iterator position,
+                                         uint32_t numToInsert,
+                                         const CR& creatorCall)
+noexcept(noexcept(creatorCall(nullptr, 1, true))&&
+         std::is_nothrow_move_assignable<T>::value &&
+         std::is_nothrow_move_constructible<T>::value) -> iterator {
 
     if (numToInsert > 0) {
 
@@ -370,12 +395,12 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
         pointer src = end() - uninitedCopyCnt;
         pointer dst = end() + numToInsert - uninitedCopyCnt;
 
-        uninitializedCopy(src, dst, uninitedCopyCnt);
+        uninitializedMove(src, dst, uninitedCopyCnt);
 
         src -= initedCopyCnt;
         dst -= initedCopyCnt;
 
-        initializedCopyUp(src, dst, initedCopyCnt);
+        initializedMoveUp(src, dst, initedCopyCnt);
 
         if (uninitedInsertCnt > 0) {
             dst -= uninitedInsertCnt;
@@ -395,7 +420,8 @@ typename TypedVectorBase<T>::iterator TypedVectorBase<T>::insertOperation(const_
 
 
 template<class T>
-void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num) {
+void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num)
+noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value) {
 
     pointer dataAlias = data();
 
@@ -415,18 +441,20 @@ void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, uint32_t num) {
 
 
 template<class T>
-void TypedVectorBase<T>::uninitializedCopy(pointer src, pointer dst, uint32_t num) {
+void TypedVectorBase<T>::uninitializedMove(pointer src, pointer dst, uint32_t num)
+noexcept(std::is_nothrow_move_constructible<T>::value) {
 
     if (src != dst) {
-        for (int i = (num - 1); i >= 0; --i) {              // uninitializedCopy() always copies upwards
-            placeValueTo((dst + i), std::move(src[i]));     // Placement new, move constructor
+        for (int i = (num - 1); i >= 0; --i) {              // always moves upwards
+            placeValueTo((dst + i), std::move(src[i]));
         }
     }
 }
 
 
 template<class T>
-void TypedVectorBase<T>::initializedCopyUp(pointer src, pointer dst, uint32_t num) {
+void TypedVectorBase<T>::initializedMoveUp(pointer src, pointer dst, uint32_t num)
+noexcept(std::is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {
@@ -437,7 +465,8 @@ void TypedVectorBase<T>::initializedCopyUp(pointer src, pointer dst, uint32_t nu
 
 
 template<class T>
-void TypedVectorBase<T>::initializedCopyDown(pointer src, pointer dst, uint32_t num) {
+void TypedVectorBase<T>::initializedMoveDown(pointer src, pointer dst, uint32_t num)
+noexcept(std::is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
         for (uint32_t i = 0; i < num; ++i) {
@@ -448,7 +477,7 @@ void TypedVectorBase<T>::initializedCopyDown(pointer src, pointer dst, uint32_t 
 
 
 template<class T>
-void TypedVectorBase<T>::clear() {
+void TypedVectorBase<T>::clear() noexcept {
 
     destruct(begin(), end());
     proxy.setSize(0);
@@ -456,9 +485,9 @@ void TypedVectorBase<T>::clear() {
 
 
 template<class T>
-void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos) {
+void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos) noexcept {
 
-    while (startPos < endPos) {         // operator<() instead of !=() : protection for startPos > endPos cases
+    while (startPos < endPos) {
         startPos->~T();
         ++startPos;
     }
@@ -466,7 +495,8 @@ void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos) {
 
 
 template<class T>
-void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) {
+void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other)
+noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value) {
 
     const SizeDiff diff(*this, other);
 

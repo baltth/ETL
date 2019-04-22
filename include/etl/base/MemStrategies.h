@@ -34,12 +34,12 @@ class AMemStrategy {
 
   public:   // functions
 
-    virtual uint32_t getMaxCapacity() const = 0;
+    virtual uint32_t getMaxCapacity() const noexcept = 0;
     virtual void reserveExactly(C& cont, uint32_t length) = 0;
     virtual void reserve(C& cont, uint32_t length) = 0;
-    virtual void shrinkToFit(C& cont) = 0;
+    virtual void shrinkToFit(C& cont) noexcept = 0;
     virtual void resize(C& cont, uint32_t length) = 0;
-    virtual void cleanup(C& cont) = 0;
+    virtual void cleanup(C& cont) noexcept = 0;
 
 };
 
@@ -62,7 +62,7 @@ class StaticSized : public AMemStrategy<C> {
         data(d),
         capacity(c) {};
 
-    uint32_t getMaxCapacity() const final {
+    uint32_t getMaxCapacity() const noexcept final {
         return capacity;
     }
 
@@ -74,11 +74,11 @@ class StaticSized : public AMemStrategy<C> {
         setupData(cont, length);
     }
 
-    void shrinkToFit(C& cont) final {
+    void shrinkToFit(C& cont) noexcept final {
         setupData(cont, capacity);
     }
 
-    void cleanup(C& cont) final {
+    void cleanup(C& cont) noexcept final {
         cont.clear();
     }
 
@@ -145,7 +145,7 @@ class DynamicSized : public AMemStrategy<C> {
 
   public:   // functions
 
-    uint32_t getMaxCapacity() const final {
+    uint32_t getMaxCapacity() const noexcept final {
         return UINT32_MAX;
     }
 
@@ -155,10 +155,10 @@ class DynamicSized : public AMemStrategy<C> {
         reserveExactly(cont, getRoundedLength(length));
     }
 
-    void shrinkToFit(C& cont) final;
+    void shrinkToFit(C& cont) noexcept final;
     void resize(C& cont, uint32_t length) final;
 
-    void cleanup(C& cont) final {
+    void cleanup(C& cont) noexcept final {
         cont.clear();
         deallocate(cont);
     }
@@ -168,11 +168,11 @@ class DynamicSized : public AMemStrategy<C> {
     void reallocateAndCopyFor(C& cont, uint32_t len);
     void allocate(C& cont, uint32_t len);
 
-    void deallocate(C& cont) {
+    void deallocate(C& cont) noexcept {
         allocator.deallocate(cont.data(), cont.capacity());
     }
 
-    static uint32_t getRoundedLength(uint32_t length) {
+    static uint32_t getRoundedLength(uint32_t length) noexcept {
         return (length + (RESIZE_STEP - 1)) & ~(RESIZE_STEP - 1);
     }
 
@@ -189,7 +189,7 @@ void DynamicSized<C, A>::reserveExactly(C& cont, uint32_t length) {
 
 
 template<class C, class A>
-void DynamicSized<C, A>::shrinkToFit(C& cont) {
+void DynamicSized<C, A>::shrinkToFit(C& cont) noexcept {
 
     if (cont.capacity() > cont.size()) {
         reallocateAndCopyFor(cont, cont.size());
@@ -238,7 +238,7 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, uint32_t len) {
         if ((cont.data() != nullptr) && (numToCopy > 0)) {
 
             typename C::pointer dataAlias = cont.data();
-            C::uninitializedCopy(oldData, dataAlias, numToCopy);
+            C::uninitializedMove(oldData, dataAlias, numToCopy);
         }
 
         C::destruct(oldData, oldEnd);
@@ -264,7 +264,6 @@ void DynamicSized<C, A>::allocate(C& cont, uint32_t len) {
 }
 
 }
-
 
 #endif /* __ETL_MEMSTARTEGIES_H__ */
 

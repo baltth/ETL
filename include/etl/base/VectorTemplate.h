@@ -89,7 +89,7 @@ class Vector : public Detail::TypedVectorBase<T> {
         strategy.reserve(*this, length);
     }
 
-    size_t max_size() const {
+    size_t max_size() const noexcept {
         return strategy.getMaxCapacity();
     }
 
@@ -97,7 +97,7 @@ class Vector : public Detail::TypedVectorBase<T> {
         strategy.reserveExactly(*this, length);
     }
 
-    void shrink_to_fit() {
+    void shrink_to_fit() noexcept {
         strategy.shrinkToFit(*this);
     }
     /// \}
@@ -139,12 +139,12 @@ class Vector : public Detail::TypedVectorBase<T> {
         insert(this->end(), value);
     }
 
-    bool swap(Vector& other);
+    void swap(Vector& other);
     /// \}
 
   protected:
 
-    explicit Vector(AMemStrategy<StrategyBase>& s) :
+    explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         strategy(s) {};
 
     Vector& operator=(const Vector& other) {
@@ -194,9 +194,7 @@ typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator positio
 
 
 template<class T>
-bool Vector<T>::swap(Vector<T>& other) {
-
-    bool swapped = false;
+void Vector<T>::swap(Vector<T>& other) {
 
     if (&other != this) {
         if ((this->max_size() >= other.size()) && (other.max_size() >= this->size())) {
@@ -207,12 +205,9 @@ bool Vector<T>::swap(Vector<T>& other) {
             if ((this->capacity() >= other.size()) && (other.capacity() >= this->size())) {
 
                 this->swapElements(other);
-                swapped = true;
             }
         }
     }
-
-    return swapped;
 }
 
 
@@ -315,59 +310,59 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
   public:   // functions
 
-    value_type& operator[](int32_t ix) {
+    value_type& operator[](int32_t ix) noexcept {
         return *(static_cast<value_type*>(Base::getItemPointer(ix)));
     }
 
-    const value_type& operator[](int32_t ix) const {
+    const value_type& operator[](int32_t ix) const noexcept {
         return *(static_cast<const value_type*>(Base::getItemPointer(ix)));
     }
 
-    iterator begin() {
+    iterator begin() noexcept {
         return reinterpret_cast<iterator>(Base::begin());
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return reinterpret_cast<const_iterator>(Base::begin());
     }
 
-    const_iterator cbegin() const {
+    const_iterator cbegin() const noexcept {
         return this->begin();
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return reinterpret_cast<iterator>(Base::end());
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return reinterpret_cast<const_iterator>(Base::end());
     }
 
-    const_iterator cend() const {
+    const_iterator cend() const noexcept {
         return this->end();
     }
 
-    reverse_iterator rbegin() {
+    reverse_iterator rbegin() noexcept {
         return reverse_iterator(this->end());
     }
 
-    const_reverse_iterator rbegin() const {
+    const_reverse_iterator rbegin() const noexcept {
         return const_reverse_iterator(this->end());
     }
 
-    const_reverse_iterator crbegin() const {
+    const_reverse_iterator crbegin() const noexcept {
         return const_reverse_iterator(this->cend());
     }
 
-    reverse_iterator rend() {
+    reverse_iterator rend() noexcept {
         return reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator rend() const {
+    const_reverse_iterator rend() const noexcept {
         return const_reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator crend() const {
+    const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(this->cbegin());
     }
 
@@ -387,11 +382,11 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         return reinterpret_cast<const value_type&>(Base::back());
     }
 
-    value_type* data() {
+    value_type* data() noexcept {
         return static_cast<value_type*>(Base::data());
     }
 
-    const value_type* data() const {
+    const value_type* data() const noexcept {
         return static_cast<value_type*>(Base::data());
     }
 
@@ -413,18 +408,18 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
                                                        last));
     }
 
-    iterator erase(iterator pos) {
+    iterator erase(iterator pos) noexcept {
         return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(pos)));
     }
 
-    iterator erase(iterator first, iterator last) {
+    iterator erase(iterator first, iterator last) noexcept {
         return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(first),
                                                       reinterpret_cast<typename Base::iterator>(last)));
     }
 
   protected:
 
-    explicit Vector(AMemStrategy<StrategyBase>& s) :
+    explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         Base(s) {};
 
     Vector& operator=(const Vector& other) {

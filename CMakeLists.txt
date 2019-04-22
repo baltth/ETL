@@ -17,7 +17,6 @@ list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/FifoIndexing.cpp)
 list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/PoolBase.cpp)
 list(APPEND ETL_SRCS ${ETL_SOURCE_DIR}/src/BufStr.cpp)
 
-list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/ContainerTester.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testArray.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testVector.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testList.cpp)
@@ -27,7 +26,9 @@ list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testMultiMap.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testFifo.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testPool.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testBufStr.cpp)
-list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testMain.cpp)
+
+list(APPEND ETL_TEST_CMN ${ETL_TESTS_DIR}/ContainerTester.cpp)
+list(APPEND ETL_TEST_CMN ${ETL_TESTS_DIR}/testMain.cpp)
 
 
 add_library(etl ${ETL_SRCS})
@@ -35,6 +36,8 @@ target_include_directories(etl PUBLIC ${ETL_INCLUDE_DIR})
 target_compile_definitions(etl PUBLIC ETL_USE_EXCEPTIONS=0)
 target_compile_options(etl PUBLIC --std=c++11 -Wall -g)
 
-add_executable(testEtl ${ETL_TEST_SRCS})
+add_executable(testEtl ${ETL_TEST_SRCS} ${ETL_TEST_CMN})
 target_link_libraries(testEtl etl)
 
+add_executable(etlInfo ${ETL_TESTS_DIR}/info.cpp ${ETL_TEST_CMN})
+target_link_libraries(etlInfo etl)

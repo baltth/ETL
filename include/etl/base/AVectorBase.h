@@ -42,25 +42,25 @@ class AVectorBase {
 
       public:   // functions
 
-        void setData(void* d) {
+        void setData(void* d) noexcept {
             data_ = d;
         }
 
-        void setSize(uint32_t s) {
+        void setSize(uint32_t s) noexcept {
             size_ = s;
         }
 
-        void setCapacity(uint32_t c) {
+        void setCapacity(uint32_t c) noexcept {
             capacity_ = c;
         }
 
-        uint32_t capacity() const {
+        uint32_t capacity() const noexcept {
             return capacity_;
         }
 
       protected:
 
-        explicit Proxy(size_t itemSize) :
+        explicit Proxy(size_t itemSize) noexcept :
             GenericProxy(itemSize, nullptr, 0U),
             capacity_(0U) {};
 
@@ -74,36 +74,36 @@ class AVectorBase {
 
     /// \name Capacity
     /// \{
-    uint32_t capacity() const {
+    uint32_t capacity() const noexcept {
         return proxy.capacity();
     }
 
-    uint32_t size() const {
+    uint32_t size() const noexcept {
         return proxy.size();
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return (proxy.size() == 0U);
     }
     /// \}
 
     /// \name Access
     /// \{
-    void* getItemPointer(uint32_t ix) {
+    void* getItemPointer(uint32_t ix) noexcept {
         return proxy.getItemPointer(ix);
     }
 
-    const void* getItemPointer(uint32_t ix) const {
+    const void* getItemPointer(uint32_t ix) const noexcept {
         return proxy.getItemPointer(ix);
     }
     /// \}
 
   protected:
 
-    explicit AVectorBase(size_t itemSize) :
+    explicit AVectorBase(size_t itemSize) noexcept :
         proxy(itemSize) {};
 
-    void swapProxy(AVectorBase& other) {
+    void swapProxy(AVectorBase& other) noexcept {
 
         ETL_ASSERT(itemSize == other.itemSize);
 

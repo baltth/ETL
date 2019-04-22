@@ -48,7 +48,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // functions
 
-    Vector() :
+    Vector() noexcept :
         Base(strategy),
         strategy(data_, N) {
         this->reserve(N);
@@ -196,16 +196,15 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         strategy.cleanup(*this);
     }
 
-    bool swap(Vector& other) {
+    void swap(Vector& other) {
         if (&other != this) {
             Detail::AVectorBase::swapProxy(other);
-            return true;
         } else {
-            return false;
+            Base::swap(other);
         }
     }
 
-    bool swap(Base& other) {
+    void swap(Base& other) {
         return Base::swap(other);
     }
 
@@ -229,7 +228,6 @@ Vector<T, A>::Vector(uint32_t len, const T& item) :
 }
 
 }
-
 }
 
 #endif /* __ETL_VECTOR_H__ */
