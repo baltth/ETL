@@ -680,11 +680,6 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
 }
 
 
-// Etl::Vector tests - C++11 --------------------------------------------------
-
-#if ETL_USE_CPP11
-
-
 template<class VecT>
 void testVectorWithInitList() {
 
@@ -741,7 +736,7 @@ void testVectorWithInitList() {
     }
 }
 
-TEST_CASE("Etl::Dynamic::Vector<> with std::initializer_list<>", "[vec][dynamic][etl][cpp11]") {
+TEST_CASE("Etl::Dynamic::Vector<> with std::initializer_list<>", "[vec][dynamic][etl]") {
 
     typedef int ItemT;
     typedef Etl::Dynamic::Vector<ItemT> VecT;
@@ -749,7 +744,7 @@ TEST_CASE("Etl::Dynamic::Vector<> with std::initializer_list<>", "[vec][dynamic]
     testVectorWithInitList<VecT>();
 }
 
-TEST_CASE("Etl::Static::Vector<> with std::initializer_list<>", "[vec][static][etl][cpp11]") {
+TEST_CASE("Etl::Static::Vector<> with std::initializer_list<>", "[vec][static][etl]") {
 
     typedef int ItemT;
     typedef Etl::Static::Vector<ItemT, 16> VecT;
@@ -799,7 +794,7 @@ void testVectorEmplace() {
     }
 }
 
-TEST_CASE("Etl::Dynamic::Vector<> emplace test", "[vec][dynamic][etl][cpp11]") {
+TEST_CASE("Etl::Dynamic::Vector<> emplace test", "[vec][dynamic][etl]") {
 
     typedef ContainerTester ItemT;
     typedef Etl::Dynamic::Vector<ItemT> VecT;
@@ -807,7 +802,7 @@ TEST_CASE("Etl::Dynamic::Vector<> emplace test", "[vec][dynamic][etl][cpp11]") {
     testVectorEmplace<VecT>();
 }
 
-TEST_CASE("Etl::Static::Vector<> emplace test", "[vec][static][etl][cpp11]") {
+TEST_CASE("Etl::Static::Vector<> emplace test", "[vec][static][etl]") {
 
     typedef ContainerTester ItemT;
     typedef Etl::Static::Vector<ItemT, 16> VecT;
@@ -861,7 +856,7 @@ void testVectorMove() {
     }
 }
 
-TEST_CASE("Etl::Dynamic::Vector<> move test", "[vec][dynamic][etl][cpp11]") {
+TEST_CASE("Etl::Dynamic::Vector<> move test", "[vec][dynamic][etl]") {
 
     typedef ContainerTester ItemT;
     typedef Etl::Dynamic::Vector<ItemT> VecT;
@@ -869,7 +864,7 @@ TEST_CASE("Etl::Dynamic::Vector<> move test", "[vec][dynamic][etl][cpp11]") {
     testVectorMove<VecT>();
 }
 
-TEST_CASE("Etl::Static::Vector<> move test", "[vec][static][etl][cpp11]") {
+TEST_CASE("Etl::Static::Vector<> move test", "[vec][static][etl]") {
 
     typedef ContainerTester ItemT;
     typedef Etl::Static::Vector<ItemT, 16> VecT;
@@ -877,7 +872,155 @@ TEST_CASE("Etl::Static::Vector<> move test", "[vec][static][etl][cpp11]") {
     testVectorMove<VecT>();
 }
 
-#endif
+
+template<class SrcVecT, class T = typename SrcVecT::value_type>
+void testVectorAssignToBase(Etl::Vector<T>& dst) {
+
+    SrcVecT vec;
+    vec.push_back(ContainerTester(-1));
+    vec.push_back(ContainerTester(-2));
+    vec.push_back(ContainerTester(-3));
+
+    const auto size = vec.size();
+
+    SECTION("Copy assignment") {
+
+        const auto copyCnt = ContainerTester::getCopyCount();
+        const auto moveCnt = ContainerTester::getMoveCount();
+
+        dst = vec;
+
+        REQUIRE(dst.size() == size);
+        REQUIRE(ContainerTester::getCopyCount() >= copyCnt);
+        REQUIRE(ContainerTester::getMoveCount() == moveCnt);
+        REQUIRE(dst[0] == ContainerTester(-1));
+        REQUIRE(dst[2] == ContainerTester(-3));
+    }
+
+    SECTION("Move assignment") {
+
+        const auto copyCnt = ContainerTester::getCopyCount();
+        const auto moveCnt = ContainerTester::getMoveCount();
+
+        dst = std::move(vec);
+
+        REQUIRE(dst.size() == size);
+        REQUIRE(ContainerTester::getCopyCount() == copyCnt);
+        REQUIRE(ContainerTester::getMoveCount() >= moveCnt);
+        REQUIRE(dst[0] == ContainerTester(-1));
+        REQUIRE(dst[2] == ContainerTester(-3));
+    }
+}
+
+TEST_CASE("Etl::Vector<> assignment to base", "[vec][dynamic][static][etl]") {
+
+    typedef ContainerTester ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> DVecT;
+    typedef Etl::Static::Vector<ItemT, 16U> SVecT;
+
+    SECTION("Assigning to Etl::Dynamic::Vector<>") {
+
+        DVecT dst;
+
+        SECTION("From Etl::Dynamic::Vector<>") {
+            testVectorAssignToBase<DVecT>(dst);
+        }
+
+        SECTION("From Etl::Static::Vector<>") {
+            testVectorAssignToBase<SVecT>(dst);
+        }
+    }
+
+    SECTION("Assigning to Etl::Static::Vector<>") {
+
+        SVecT dst;
+
+        SECTION("From Etl::Dynamic::Vector<>") {
+            testVectorAssignToBase<DVecT>(dst);
+        }
+
+        SECTION("From Etl::Static::Vector<>") {
+            testVectorAssignToBase<SVecT>(dst);
+        }
+    }
+}
+
+
+template<class VecT, class T = typename VecT::value_type>
+void testVectorAssignFromBase(Etl::Vector<T>&& src) {
+
+    VecT dst;
+
+    const auto size = src.size();
+    CHECK(size >= 3);
+
+    SECTION("Copy assignment") {
+
+        const auto copyCnt = ContainerTester::getCopyCount();
+        const auto moveCnt = ContainerTester::getMoveCount();
+
+        dst = src;
+
+        REQUIRE(dst.size() == size);
+        REQUIRE(ContainerTester::getCopyCount() >= copyCnt);
+        REQUIRE(ContainerTester::getMoveCount() == moveCnt);
+        REQUIRE(dst[0] == ContainerTester(-1));
+        REQUIRE(dst[2] == ContainerTester(-3));
+    }
+
+    SECTION("Move assignment") {
+
+        const auto copyCnt = ContainerTester::getCopyCount();
+        const auto moveCnt = ContainerTester::getMoveCount();
+
+        dst = std::move(src);
+
+        REQUIRE(dst.size() == size);
+        REQUIRE(ContainerTester::getCopyCount() == copyCnt);
+        REQUIRE(ContainerTester::getMoveCount() >= moveCnt);
+        REQUIRE(dst[0] == ContainerTester(-1));
+        REQUIRE(dst[2] == ContainerTester(-3));
+    }
+}
+
+TEST_CASE("Etl::Vector<> assignment from base", "[vec][dynamic][static][etl]") {
+
+    typedef ContainerTester ItemT;
+    typedef Etl::Dynamic::Vector<ItemT> DVecT;
+    typedef Etl::Static::Vector<ItemT, 16U> SVecT;
+
+    SECTION("Assigning from Etl::Dynamic::Vector<>") {
+
+        DVecT src;
+        src.push_back(ContainerTester(-1));
+        src.push_back(ContainerTester(-2));
+        src.push_back(ContainerTester(-3));
+
+        SECTION("To Etl::Dynamic::Vector<>") {
+            testVectorAssignFromBase<DVecT>(std::move(src));
+        }
+
+        SECTION("To Etl::Static::Vector<>") {
+            testVectorAssignFromBase<SVecT>(std::move(src));
+        }
+    }
+
+    SECTION("Assigning from Etl::Static::Vector<>") {
+
+        SVecT src;
+        src.push_back(ContainerTester(-1));
+        src.push_back(ContainerTester(-2));
+        src.push_back(ContainerTester(-3));
+
+        SECTION("To Etl::Dynamic::Vector<>") {
+            testVectorAssignFromBase<DVecT>(std::move(src));
+        }
+
+        SECTION("To Etl::Static::Vector<>") {
+            testVectorAssignFromBase<SVecT>(std::move(src));
+        }
+    }
+}
 
 
 TEST_CASE("Vector<> test cleanup", "[vec][static][dynamic][etl]") {

@@ -69,6 +69,27 @@ class Vector : public Detail::TypedVectorBase<T> {
 
   public:   // functions
 
+    Vector& operator=(const Vector& other) {
+        if (&other != this) {
+            assign(other.begin(), other.end());
+        }
+        return *this;
+    }
+
+    Vector& operator=(Vector&& other) {
+        this->replaceWith(std::move(other));
+        return *this;
+    }
+
+    Vector& operator=(std::initializer_list<T> initList) {
+        assign(initList);
+        return *this;
+    }
+
+    Vector(const Vector& other) = delete;
+    Vector(Vector&& other) = delete;
+    ~Vector() = default;
+
     void assign(size_type num, const_reference value) {
         this->clear();
         insert(this->begin(), num, value);
@@ -157,23 +178,11 @@ class Vector : public Detail::TypedVectorBase<T> {
     explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         strategy(s) {};
 
-    Vector& operator=(const Vector& other) {
-        if (&other != this) {
-            assign(other.begin(), other.end());
-        }
-        return *this;
-    }
-
-    Vector& operator=(Vector&& other);
-
-    Vector& operator=(std::initializer_list<T> initList) {
-        assign(initList);
-        return *this;
-    }
-
     template<class CR>
     iterator insertWithCreator(const_iterator position, size_type num, const CR& creatorCall);
     iterator insertWithCreator(const_iterator position, size_type num, CreateFunc&& creatorCall);
+
+    void replaceWith(Vector&& other);
 
 };
 
@@ -222,10 +231,17 @@ void Vector<T>::swap(Vector<T>& other) {
 
 
 template<class T>
-Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
+void Vector<T>::replaceWith(Vector&& other) {
 
-    this->swap(other);
-    return *this;
+    if ((&other != this) && (this->max_size() >= other.size())) {
+
+        this->reserve_exactly(other.size());
+        if (this->capacity() >= other.size()) {
+
+            this->moveOperation(this->data(), other.data(), other.size());
+            other.clear();
+        }
+    }
 }
 
 
@@ -309,25 +325,64 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
   public:   // types
 
     typedef T* value_type;
-    typedef Vector<typename CopyConst<T, void>::Type*> Base;
-    typedef typename Base::StrategyBase StrategyBase;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+
     typedef value_type* iterator;
     typedef const value_type* const_iterator;
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    typedef typename Base::size_type size_type;
+    typedef Vector<typename CopyConst<T, void>::Type*> Base;
+    typedef typename Base::StrategyBase StrategyBase;
 
+    typedef typename Base::size_type size_type;
     typedef typename Base::CreateFunc CreateFunc;
 
   public:   // functions
 
-    value_type& operator[](int32_t ix) noexcept {
-        return *(static_cast<value_type*>(Base::getItemPointer(ix)));
+    Vector& operator=(const Vector& other) {
+        Base::operator=(other);
+        return *this;
     }
 
-    const value_type& operator[](int32_t ix) const noexcept {
-        return *(static_cast<const value_type*>(Base::getItemPointer(ix)));
+    Vector& operator=(Vector&& other) {
+        Base::operator=(std::move(other));
+        return *this;
+    }
+
+    Vector& operator=(std::initializer_list<T> initList) {
+        Base::operator=(initList);
+        return *this;
+    }
+
+    Vector(const Vector& other) = delete;
+    Vector(Vector&& other) = delete;
+    ~Vector() = default;
+
+    void assign(size_type num, const_reference value) {
+        this->clear();
+        insert(this->begin(), num, value);
+    }
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(this->begin(), first, last);
+    }
+
+    void assign(std::initializer_list<T> initList) {
+        assign(initList.begin(), initList.end());
+    }
+
+    reference operator[](int32_t ix) noexcept {
+        return *(static_cast<pointer>(Base::getItemPointer(ix)));
+    }
+
+    const_reference operator[](int32_t ix) const noexcept {
+        return *(static_cast<const_pointer>(Base::getItemPointer(ix)));
     }
 
     iterator begin() noexcept {
@@ -378,36 +433,36 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         return const_reverse_iterator(this->cbegin());
     }
 
-    value_type& front() {
-        return reinterpret_cast<value_type&>(Base::front());
+    reference front() {
+        return reinterpret_cast<reference>(Base::front());
     }
 
-    const value_type& front() const {
-        return reinterpret_cast<const value_type&>(Base::front());
+    const_reference front() const {
+        return reinterpret_cast<const_reference>(Base::front());
     }
 
-    value_type& back() {
-        return reinterpret_cast<value_type&>(Base::back());
+    reference back() {
+        return reinterpret_cast<reference>(Base::back());
     }
 
-    const value_type& back() const {
-        return reinterpret_cast<const value_type&>(Base::back());
+    const_reference back() const {
+        return reinterpret_cast<const_reference>(Base::back());
     }
 
-    value_type* data() noexcept {
-        return static_cast<value_type*>(Base::data());
+    pointer data() noexcept {
+        return static_cast<pointer>(Base::data());
     }
 
-    const value_type* data() const noexcept {
-        return static_cast<value_type*>(Base::data());
+    const_pointer data() const noexcept {
+        return static_cast<pointer>(Base::data());
     }
 
-    iterator insert(const_iterator position, const value_type& value) {
+    iterator insert(const_iterator position, const_reference value) {
         return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
                                                        value));
     }
 
-    iterator insert(const_iterator position, size_type num, const value_type& value) {
+    iterator insert(const_iterator position, size_type num, const_reference value) {
         return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
                                                        num,
                                                        value));
@@ -433,21 +488,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
     explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         Base(s) {};
-
-    Vector& operator=(const Vector& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Vector& operator=(Vector&& other) {
-        Base::operator=(std::move(other));
-        return *this;
-    }
-
-    Vector& operator=(std::initializer_list<T> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
 
 };
 

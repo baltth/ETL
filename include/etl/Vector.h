@@ -96,6 +96,11 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
+    Vector& operator=(Base&& other) {
+        Base::operator=(std::move(other));
+        return *this;
+    }
+
     Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
@@ -184,6 +189,11 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     Vector& operator=(Vector&& other) {
         this->swap(other);
+        return *this;
+    }
+
+    Vector& operator=(Base&& other) {
+        Base::operator=(std::move(other));
         return *this;
     }
 
