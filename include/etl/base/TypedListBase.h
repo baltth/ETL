@@ -62,6 +62,9 @@ class TypedListBase : protected AListBase {
         Node(Args&& ... args) :
             item(std::forward<Args>(args)...) {};
 
+        Node& operator=(const Node& other) = delete;
+        Node& operator=(Node&& other) = delete;
+        ~Node() = default;
     };
 
     class const_iterator : public AListBase::Iterator {
