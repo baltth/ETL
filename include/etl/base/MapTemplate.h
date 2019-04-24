@@ -84,7 +84,7 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
     }
 
     template<class InputIt>
-    typename enable_if<!is_integral<InputIt>::value>::type      // *NOPAD*
+    enable_if_t<!is_integral<InputIt>::value>
     insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);

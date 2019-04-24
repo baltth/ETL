@@ -142,7 +142,7 @@ class Vector : public Detail::TypedVectorBase<T> {
     iterator insert(const_iterator position, size_type num, const_reference value);
 
     template<typename InputIt>
-    typename enable_if<!is_integral<InputIt>::value, iterator>::type        // *NOPAD*
+    enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last) {
         typename Base::template ContCreator<InputIt> cc(first, last);
         return insertWithCreator(position, cc.getLength(), cc);

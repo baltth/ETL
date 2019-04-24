@@ -34,21 +34,9 @@ class Fifo : public FifoTemplate<C> {
 
   public:   // functions
 
-#if ETL_USE_CPP11
-
     template<typename... Args>
     explicit Fifo<C>(Args&& ... args) :
         FifoTemplate<C>(args...) {};
-
-#else
-
-    Fifo<C>() :
-        FifoTemplate<C>() {};
-
-    Fifo<C>(uint32_t len) :
-        FifoTemplate<C>(len) {};
-
-#endif
 
     void setupFifo(uint32_t len);
 
@@ -65,22 +53,13 @@ void Fifo<C>::setupFifo(uint32_t len) {
 
 
 template<typename T, uint32_t N>
-class Fifo<Array<T, N> > : public FifoTemplate<Array<T, N> > {
+class Fifo<Array<T, N>> : public FifoTemplate<Array<T, N>> {
 
   public:   // functions
 
-#if ETL_USE_CPP11
-
     template<typename... Args>
-    explicit Fifo<Array<T, N> >(Args&& ... args) :
-        FifoTemplate<Array<T, N> >(args...) {};
-
-#else
-
-    Fifo<Array<T, N> >() :
-        FifoTemplate<Array<T, N> >() {};
-
-#endif
+    explicit Fifo<Array<T, N>>(Args&& ... args) :
+        FifoTemplate<Array<T, N>>(args...) {};
 
     void setupFifo(uint32_t len) {};
 

@@ -24,8 +24,6 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::SingleChain;
 
 
-#if ETL_USE_CPP11
-
 SingleChain::SingleChain(SingleChain&& other) {
 
     setEmpty();
@@ -38,8 +36,6 @@ SingleChain& SingleChain::operator=(SingleChain&& other) {
     swap(other);
     return *this;
 }
-
-#endif
 
 
 void SingleChain::insertAfter(Node* pos, Node* node) {

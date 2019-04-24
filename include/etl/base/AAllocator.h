@@ -60,31 +60,10 @@ class AAllocator {
         new (ptr) ItemType(other);
     }
 
-#if ETL_USE_CPP11
-
     template<typename... Args >
     static void construct(PtrType ptr, Args&& ... args) {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
-
-#else
-
-    template<typename A>
-    static void construct(PtrType ptr, A a) {
-        new (ptr) ItemType(a);
-    }
-
-    template<typename A, typename B>
-    static void construct(PtrType ptr, A a, B b) {
-        new (ptr) ItemType(a, b);
-    }
-
-    template<typename A, typename B, typename C>
-    static void construct(PtrType ptr, A a, B b, C c) {
-        new (ptr) ItemType(a, b, c);
-    }
-
-#endif
 
     static void destroy(PtrType ptr) {
         ptr->~ItemType();

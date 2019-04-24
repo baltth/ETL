@@ -55,12 +55,8 @@ class SingleChain {
     SingleChain() :
         frontNode() {};
 
-#if ETL_USE_CPP11
-
     SingleChain(SingleChain&& other);
     SingleChain& operator=(SingleChain&& other);
-
-#endif
 
     bool isEmpty() const {
         return (frontNode.next == nullptr);

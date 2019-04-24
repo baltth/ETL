@@ -22,28 +22,12 @@ limitations under the License.
 #ifndef __ETL_LANGSUPPORT_H__
 #define __ETL_LANGSUPPORT_H__
 
-#if (__cplusplus < 201103L)
-#define ETL_HAS_CPP11   0
+#if (__cplusplus >= 201402L)
+#define ETL_HAS_CPP14   1
+#elif (__cplusplus >= 201103L)
+#define ETL_HAS_CPP14   0
+#else
 #error "Deprecated"
-#else
-#define ETL_HAS_CPP11   1
-#endif
-
-
-#ifdef ETL_USE_CPP11
-
-#if ((ETL_USE_CPP11 > 0) && (ETL_HAS_CPP11 == 0))
-#undef ETL_USE_CPP11
-#define ETL_USE_CPP11   0
-#warning "C++11 features can not be used with the actual compiler settings"
-#endif
-
-#else
-
-#if (ETL_HAS_CPP11)
-#define ETL_USE_CPP11   1
-#endif
-
 #endif
 
 

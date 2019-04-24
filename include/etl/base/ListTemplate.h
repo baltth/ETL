@@ -125,7 +125,7 @@ class List : public Detail::TypedListBase<T> {
     }
 
     template<typename InputIt>
-    typename enable_if < !is_integral<InputIt>::value, iterator >::type
+    enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
     iterator erase(iterator pos) {
@@ -239,7 +239,7 @@ typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args)
 
 template<class T>
 template<typename InputIt>
-typename enable_if < !is_integral<InputIt>::value, typename List<T>::iterator >::type
+enable_if_t<!is_integral<InputIt>::value, typename List<T>::iterator>
 List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);

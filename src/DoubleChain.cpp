@@ -24,8 +24,6 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::DoubleChain;
 
 
-#if ETL_USE_CPP11
-
 DoubleChain::DoubleChain(DoubleChain&& other) {
 
     setEmpty();
@@ -38,8 +36,6 @@ DoubleChain& DoubleChain::operator=(DoubleChain&& other) {
     swap(other);
     return *this;
 }
-
-#endif
 
 
 void DoubleChain::insertAfter(Node* pos, Node* node) {
