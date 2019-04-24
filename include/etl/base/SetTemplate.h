@@ -68,7 +68,6 @@ class Set : public Detail::SortedList<E> {
         return this;
     }
 
-    using Base::find;
     using Base::erase;
 
     std::pair<iterator, bool> insert(const E& e) {

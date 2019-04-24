@@ -43,10 +43,12 @@ class TypedListBase : protected AListBase {
   public:   // types
 
     typedef T value_type;
-    typedef T& reference;
-    typedef const T& const_reference;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
     typedef T* pointer;
     typedef const T* const_pointer;
+
+    typedef AListBase::size_type size_type;
 
     class Node : public AListBase::Node {
 
@@ -70,7 +72,7 @@ class TypedListBase : protected AListBase {
         typedef int difference_type;
         typedef const T value_type;
         typedef const T* pointer;
-        typedef const T& reference;
+        typedef const value_type& reference;
         typedef std::bidirectional_iterator_tag iterator_category;
 
         const_iterator() :
@@ -79,42 +81,42 @@ class TypedListBase : protected AListBase {
         const_iterator(const const_iterator& it) :
             AListBase::Iterator(it) {};
 
-        explicit const_iterator(const AListBase::Iterator& it) :
+        explicit const_iterator(const AListBase::Iterator& it) noexcept :
             AListBase::Iterator(it) {};
 
-        const_reference operator*() const {
+        const_reference operator*() const noexcept {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
         }
 
-        const_pointer operator->() const {
+        const_pointer operator->() const noexcept {
             return &(static_cast<TypedListBase<T>::Node*>(node)->item);
         }
 
-        bool operator==(const const_iterator& other) const {
+        bool operator==(const const_iterator& other) const noexcept {
             return AListBase::Iterator::operator==(other);
         }
 
-        bool operator!=(const const_iterator& other) const {
+        bool operator!=(const const_iterator& other) const noexcept {
             return !(operator==(other));
         }
 
-        const_iterator& operator++() {
+        const_iterator& operator++() noexcept {
             AListBase::Iterator::operator++();
             return *this;
         }
 
-        const_iterator& operator--() {
+        const_iterator& operator--() noexcept {
             AListBase::Iterator::operator--();
             return *this;
         }
 
-        const const_iterator operator++(int) {
+        const const_iterator operator++(int) noexcept {
             const_iterator old = *this;
             this->operator++();
             return old;
         }
 
-        const const_iterator operator--(int) {
+        const const_iterator operator--(int) noexcept {
             const_iterator old = *this;
             this->operator--();
             return old;
@@ -122,7 +124,7 @@ class TypedListBase : protected AListBase {
 
       private:
 
-        explicit const_iterator(TypedListBase<T>::Node* n) :
+        explicit const_iterator(TypedListBase<T>::Node* n) noexcept :
             AListBase::Iterator(n) {};
 
     };
@@ -135,7 +137,7 @@ class TypedListBase : protected AListBase {
         typedef int difference_type;
         typedef T value_type;
         typedef T* pointer;
-        typedef T& reference;
+        typedef value_type& reference;
         typedef std::bidirectional_iterator_tag iterator_category;
 
         iterator() :
@@ -144,51 +146,51 @@ class TypedListBase : protected AListBase {
         iterator(const iterator& it) :
             AListBase::Iterator(it) {};
 
-        operator const_iterator() const {
+        operator const_iterator() const noexcept {
             return const_iterator(*this);
         }
 
-        reference operator*() const {
+        reference operator*() const noexcept {
             return static_cast<TypedListBase<T>::Node*>(this->node)->item;
         }
 
-        pointer operator->() const {
+        pointer operator->() const noexcept {
             return &(static_cast<TypedListBase<T>::Node*>(this->node)->item);
         }
 
-        bool operator==(const iterator& other) const {
+        bool operator==(const iterator& other) const noexcept {
             return AListBase::Iterator::operator==(other);
         }
 
-        bool operator!=(const iterator& other) const {
+        bool operator!=(const iterator& other) const noexcept {
             return !(operator==(other));
         }
 
-        bool operator==(const const_iterator& other) const {
+        bool operator==(const const_iterator& other) const noexcept {
             return AListBase::Iterator::operator==(other);
         }
 
-        bool operator!=(const const_iterator& other) const {
+        bool operator!=(const const_iterator& other) const noexcept {
             return !(operator==(other));
         }
 
-        iterator& operator++() {
+        iterator& operator++() noexcept {
             AListBase::Iterator::operator++();
             return *this;
         }
 
-        iterator& operator--() {
+        iterator& operator--() noexcept {
             AListBase::Iterator::operator--();
             return *this;
         }
 
-        const iterator operator++(int) {
+        const iterator operator++(int) noexcept {
             iterator old = *this;
             this->operator++();
             return old;
         }
 
-        const iterator operator--(int) {
+        const iterator operator--(int) noexcept {
             iterator old = *this;
             this->operator--();
             return old;
@@ -196,10 +198,10 @@ class TypedListBase : protected AListBase {
 
       private:
 
-        explicit iterator(TypedListBase<T>::Node* n) :
+        explicit iterator(TypedListBase<T>::Node* n) noexcept :
             AListBase::Iterator(n) {};
 
-        explicit iterator(const AListBase::Iterator& it) :
+        explicit iterator(const AListBase::Iterator& it) noexcept :
             AListBase::Iterator(it) {};
 
     };
@@ -209,69 +211,69 @@ class TypedListBase : protected AListBase {
 
   public:   // functions
 
-    TypedListBase() {};
+    TypedListBase() = default;
 
     TypedListBase(const TypedListBase& other) = delete;
     TypedListBase& operator=(const TypedListBase& other) = delete;
 
     /// \name Capacity
     /// \{
-    uint32_t size() const {
+    size_type size() const noexcept {
         return AListBase::size();
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return AListBase::empty();
     }
     /// \}
 
     /// \name Iterators
     /// \{
-    iterator begin() {
+    iterator begin() noexcept {
         return iterator(AListBase::begin());
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return const_iterator(AListBase::begin());
     }
 
-    const_iterator cbegin() const {
+    const_iterator cbegin() const noexcept {
         return this->begin();
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return iterator(AListBase::end());
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return const_iterator(AListBase::end());
     }
 
-    const_iterator cend() const {
+    const_iterator cend() const noexcept {
         return this->end();
     }
 
-    reverse_iterator rbegin() {
+    reverse_iterator rbegin() noexcept {
         return reverse_iterator(this->end());
     }
 
-    const_reverse_iterator rbegin() const {
+    const_reverse_iterator rbegin() const noexcept {
         return const_reverse_iterator(this->end());
     }
 
-    const_reverse_iterator crbegin() const {
+    const_reverse_iterator crbegin() const noexcept {
         return const_reverse_iterator(this->cend());
     }
 
-    reverse_iterator rend() {
+    reverse_iterator rend() noexcept {
         return reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator rend() const {
+    const_reverse_iterator rend() const noexcept {
         return const_reverse_iterator(this->begin());
     }
 
-    const_reverse_iterator crend() const {
+    const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(this->cbegin());
     }
     /// \}
@@ -295,113 +297,29 @@ class TypedListBase : protected AListBase {
     }
     /// \}
 
-    /// \name Lookup
-    /// \{
-    iterator find(const Matcher<T>& matchCall) {
-        return find(begin(), end(), matchCall);
-    }
-
-    const_iterator find(const Matcher<T>& matchCall) const {
-        return find(begin(), end(), matchCall);
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) {
-        return findBase<iterator>(startPos, endPos, matchCall);
-    }
-
-    const_iterator find(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const {
-        return findBase<const_iterator>(startPos, endPos, matchCall);
-    }
-
-    iterator find(MatchFunc<T>&& matchCall) {
-        return find(begin(), end(), std::move(matchCall));
-    }
-
-    const_iterator find(MatchFunc<T>&& matchCall) const {
-        return find(begin(), end(), std::move(matchCall));
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) {
-        return findBase<iterator>(startPos, endPos, std::move(matchCall));
-    }
-
-    const_iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const {
-        return findBase<const_iterator>(startPos, endPos, std::move(matchCall));
-    }
-    /// \}
-
   protected:
 
     TypedListBase(TypedListBase&& other) = default;
     TypedListBase& operator=(TypedListBase&& other) = default;
 
-    iterator insert(const_iterator pos, Node& node) {
-        AListBase::insert(pos, &node);
+    iterator insert(const_iterator pos, Node& node) noexcept {
+        AListBase::insert(pos, node);
         return iterator(&node);
     }
 
-    Node* replace(iterator& it, Node* other) {
+    Node* replace(iterator& it, Node& other) noexcept {
+        ETL_ASSERT(it.node != nullptr);
         Node* removed = static_cast<TypedListBase::Node*>(it.node);
-        AListBase::replace(it.node, other);
-        it.node = other;
+        AListBase::replace(*it.node, other);
+        it.node = &other;
         return removed;
     }
 
-    static iterator convert(const_iterator it) {
+    static iterator convert(const_iterator it) noexcept {
         return iterator(it);
     }
 
-  private:
-
-    template<typename It>
-    It findBase(const_iterator startPos, const_iterator endPos, const Matcher<T>& matchCall) const;
-
-    template<typename It>
-    It findBase(const_iterator startPos, const_iterator endPos, MatchFunc<T>&& matchCall) const;
-
 };
-
-
-template<class T>
-template<class It>
-It TypedListBase<T>::findBase(const_iterator startPos,
-                              const_iterator endPos,
-                              const Matcher<T>& matchCall) const {
-
-    bool match = false;
-
-    while (!match && (startPos != endPos)) {
-
-        match = matchCall.call(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return It(startPos);
-}
-
-
-template<class T>
-template<class It>
-It TypedListBase<T>::findBase(const_iterator startPos,
-                              const_iterator endPos,
-                              MatchFunc<T>&& matchCall) const {
-
-    bool match = false;
-
-    while (!match && (startPos != endPos)) {
-
-        match = matchCall(*startPos);
-
-        if (!match) {
-            ++startPos;
-        }
-    }
-
-    return It(startPos);
-}
 
 }
 }

@@ -50,11 +50,11 @@ class PoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    size_t max_size() const override {
+    size_t max_size() const noexcept override {
         return pool.capacity();
     }
 
-    size_t size() const override {
+    size_t size() const noexcept override {
         return pool.getCount();
     }
 
@@ -66,12 +66,12 @@ class PoolAllocator : public AAllocator<T> {
         }
     }
 
-    void deallocate(PtrType ptr, uint32_t n) override {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         (void)n;
         pool.push(ptr);
     }
 
-    const void* handle() const override {
+    const void* handle() const noexcept override {
         return &pool;
     }
 
@@ -97,11 +97,11 @@ class CommonPoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    size_t max_size() const override {
+    size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    size_t size() const override {
+    size_t size() const noexcept override {
         return allocator().size();
     }
 
@@ -109,11 +109,11 @@ class CommonPoolAllocator : public AAllocator<T> {
         return allocator().allocate(n);
     }
 
-    void deallocate(PtrType ptr, uint32_t n) override {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 
-    const void* handle() const override {
+    const void* handle() const noexcept override {
         return allocator().handle();
     }
 

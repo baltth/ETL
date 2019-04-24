@@ -351,24 +351,6 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 
         REQUIRE(it == map.end());
     }
-
-    SECTION("find(ItemMatcher)") {
-
-        struct Matcher : MapType::ItemMatcher {
-            virtual bool call(const MapType::value_type& item) const {
-                return (item.first == 3) && (item.second.getValue() == -3);
-            }
-        };
-
-        Matcher matchCall;
-
-        MapType::iterator it = map.find(matchCall);
-        REQUIRE(it->first == 3);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it == map.end());
-    }
 }
 
 

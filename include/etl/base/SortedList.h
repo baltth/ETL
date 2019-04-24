@@ -102,38 +102,6 @@ class SortedList {
         return list.erase(pos);
     }
 
-    iterator find(const Matcher<value_type>& matchCall) {
-        return list.find(begin(), end(), matchCall);
-    }
-
-    const_iterator find(const Matcher<value_type>& matchCall) const {
-        return list.find(begin(), end(), matchCall);
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, const Matcher<value_type>& matchCall) {
-        return list.find(startPos, endPos, matchCall);
-    }
-
-    const_iterator find(const_iterator startPos, const_iterator endPos, const Matcher<value_type>& matchCall) const {
-        return list.find(startPos, endPos, matchCall);
-    }
-
-    iterator find(MatchFunc<value_type>&& matchCall) {
-        return list.find(begin(), end(), std::move(matchCall));
-    }
-
-    const_iterator find(MatchFunc<value_type>&& matchCall) const {
-        return list.find(begin(), end(), std::move(matchCall));
-    }
-
-    iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<value_type>&& matchCall) {
-        return list.find(startPos, endPos, std::move(matchCall));
-    }
-
-    const_iterator find(const_iterator startPos, const_iterator endPos, MatchFunc<value_type>&& matchCall) const {
-        return list.find(startPos, endPos, std::move(matchCall));
-    }
-
     void swap(SortedList& other) {
         list.swap(other.list);
     }

@@ -43,7 +43,7 @@ class DoubleChain {
             prev(nullptr),
             next(nullptr) {};
 
-        Node(Node* p, Node* n) :
+        Node(Node* p, Node* n) noexcept :
             prev(p),
             next(n) {};
 
@@ -63,42 +63,42 @@ class DoubleChain {
     DoubleChain(const DoubleChain& other) = delete;
     DoubleChain& operator=(const DoubleChain& other) = delete;
 
-    DoubleChain(DoubleChain&& other);
-    DoubleChain& operator=(DoubleChain&& other);
+    DoubleChain(DoubleChain&& other) noexcept;
+    DoubleChain& operator=(DoubleChain&& other) noexcept;
 
     ~DoubleChain() = default;
 
-    bool isEmpty() const {
+    bool isEmpty() const noexcept {
         return (frontNode.next == &backNode);
     }
 
-    Node* getFirst() const {
+    Node* getFirst() const noexcept {
         return frontNode.next;
     }
 
-    Node* getLast() const {
+    Node* getLast() const noexcept {
         return backNode.prev;
     }
 
-    void insertAfter(Node* pos, Node* node);
-    void insertBefore(Node* pos, Node* node);
+    void insertAfter(Node* pos, Node* node) noexcept;
+    void insertBefore(Node* pos, Node* node) noexcept;
 
-    Node* remove(Node* node);
-    void replace(Node* n1, Node* n2);
-    void setEmpty();
+    Node* remove(Node* node) noexcept;
+    void replace(Node* n1, Node* n2) noexcept;
+    void setEmpty() noexcept;
 
-    void swap(DoubleChain& other);
+    void swap(DoubleChain& other) noexcept;
 
   private:
 
-    void takeListOf(DoubleChain& other);
+    void takeListOf(DoubleChain& other) noexcept;
 
-    static void linkNodes(Node* a, Node* b) {
+    static void linkNodes(Node* a, Node* b) noexcept {
         a->next = b;
         b->prev = a;
     }
 
-    static void linkNodesProtected(Node* a, Node* b) {
+    static void linkNodesProtected(Node* a, Node* b) noexcept {
         if (a != nullptr) {
             a->next = b;
         }

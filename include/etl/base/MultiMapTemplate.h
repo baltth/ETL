@@ -76,7 +76,6 @@ class MultiMap : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, 
         return *this;
     }
 
-    using Base::find;
     using Base::erase;
 
     iterator insert(const value_type& item) {

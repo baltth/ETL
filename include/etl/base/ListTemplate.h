@@ -38,9 +38,9 @@ class List : public Detail::TypedListBase<T> {
 
   public:   // types
 
-    typedef T valueType;
-    typedef T& reference;
-    typedef const T& const_reference;
+    typedef T value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
     typedef T* pointer;
     typedef const T* const_pointer;
 
@@ -51,6 +51,8 @@ class List : public Detail::TypedListBase<T> {
 
     typedef AAllocator<Node> AllocatorBase;
 
+    typedef typename Base::size_type size_type;
+
     friend class Base::Node;
 
   private:  // variables
@@ -59,7 +61,7 @@ class List : public Detail::TypedListBase<T> {
 
   public:   // functions
 
-    explicit List(AllocatorBase& a) :
+    explicit List(AllocatorBase& a) noexcept :
         allocator(a) {};
 
     List& operator=(const List& other) {
@@ -80,11 +82,11 @@ class List : public Detail::TypedListBase<T> {
     List(const List& other) = delete;
     List(List&& other) = delete;
 
-    ~List() {
+    ~List() noexcept(AllocatorBase::NoexceptDestroy) {
         clear();
     }
 
-    void clear();
+    void clear() noexcept(AllocatorBase::NoexceptDestroy);
 
     void assign(uint32_t num, const_reference value) {
         this->clear();
@@ -106,11 +108,11 @@ class List : public Detail::TypedListBase<T> {
     inline void push_front(const T& item);
     inline void push_back(const T& item);
 
-    void pop_front() {
+    void pop_front() noexcept(AllocatorBase::NoexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
     }
 
-    void pop_back() {
+    void pop_back() noexcept(AllocatorBase::NoexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
@@ -128,7 +130,7 @@ class List : public Detail::TypedListBase<T> {
     enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
-    iterator erase(iterator pos) {
+    iterator erase(iterator pos) noexcept {
         iterator next = pos;
         ++next;
         deleteNode(static_cast<Node*>(Detail::AListBase::remove(pos)));
@@ -138,22 +140,22 @@ class List : public Detail::TypedListBase<T> {
     template<typename... Args >
     iterator emplace(const_iterator pos, Args&& ... args);
 
-    void splice(const_iterator pos, List<T>& other) {
+    void splice(const_iterator pos, List& other) {
         splice(pos, other, other.begin(), other.end());
     }
 
-    void splice(const_iterator pos, List<T>& other, const_iterator it) {
+    void splice(const_iterator pos, List& other, const_iterator it) {
         const_iterator it2 = it;
         ++it2;
         splice(pos, other, it, it2);
     }
 
     void splice(const_iterator pos,
-                List<T>& other,
+                List& other,
                 const_iterator first,
                 const_iterator last);
 
-    void swap(List<T>& other) {
+    void swap(List& other) {
         if (this != &other) {
             if (allocator.handle() == other.allocator.handle()) {
                 Detail::AListBase::swapNodeList(other);
@@ -174,7 +176,7 @@ class List : public Detail::TypedListBase<T> {
         return p;
     }
 
-    void deleteNode(Node* ptr) {
+    void deleteNode(Node* ptr) noexcept(AllocatorBase::NoexceptDestroy) {
         if (ptr) {
             allocator.destroy(ptr);
             allocator.deallocate(ptr, 1);
@@ -188,7 +190,7 @@ class List : public Detail::TypedListBase<T> {
 
 
 template<class T>
-void List<T>::clear() {
+void List<T>::clear() noexcept(AllocatorBase::NoexceptDestroy) {
 
     while (Base::size() > 0) {
         pop_back();
@@ -201,7 +203,7 @@ void List<T>::push_front(const T& item) {
 
     Node* p = createNode(item);
     if (p != nullptr) {
-        Detail::AListBase::pushFront(p);
+        Detail::AListBase::pushFront(*p);
     }
 }
 
@@ -211,20 +213,20 @@ void List<T>::push_back(const T& item) {
 
     Node* p = createNode(item);
     if (p != nullptr) {
-        Detail::AListBase::pushBack(p);
+        Detail::AListBase::pushBack(*p);
     }
 }
 
 
 template<class T>
-typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
+auto List<T>::insert(const_iterator pos, const T& item) -> iterator {
     return emplace(pos, item);
 }
 
 
 template<class T>
 template<typename... Args >
-typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args) {
+auto List<T>::emplace(const_iterator pos, Args&& ... args) -> iterator {
 
     iterator it = this->end();
     Node* inserted = allocator.allocate(1);
@@ -258,12 +260,12 @@ List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
 
 template<class T>
-typename List<T>::Node* List<T>::copyAndReplace(iterator& item, const T& value) {
+auto List<T>::copyAndReplace(iterator& item, const T& value) -> Node* {
 
     Node* removed = nullptr;
     Node* newItem = createNode(value);
     if (newItem != nullptr) {
-        removed = Base::replace(item, newItem);
+        removed = Base::replace(item, *newItem);
     }
 
     return removed;

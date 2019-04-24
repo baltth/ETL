@@ -75,8 +75,8 @@ namespace ETL_NAMESPACE {
 
 template<typename T>
 struct Matcher {
-    virtual bool call(const T&) const = 0;
-    bool operator()(const T& item) const {
+    virtual bool call(const T&) const noexcept = 0;
+    bool operator()(const T& item) const noexcept {
         return this->call(item);
     }
 };
@@ -87,10 +87,10 @@ struct MethodMatcher : Matcher<T> {
     typedef  V(T::*Method)() const;
     Method method;
     const V val;
-    MethodMatcher(Method m, const V& v) :
+    MethodMatcher(Method m, const V& v) noexcept :
         method(m),
         val(v) {};
-    bool call(const T& item) const override {
+    bool call(const T& item) const noexcept override {
         return ((item.*method)() == val);
     }
 };
@@ -101,10 +101,10 @@ struct FunctionMatcher : Matcher<T> {
     typedef  V(*Func)(const T&);
     Func func;
     const V val;
-    FunctionMatcher(Func f, const V& v) :
+    FunctionMatcher(Func f, const V& v) noexcept :
         func(f),
         val(v) {};
-    bool call(const T& item) const override {
+    bool call(const T& item) const noexcept override {
         return ((*func)(item) == val);
     }
 };

@@ -76,7 +76,6 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         return *this;
     }
 
-    using Base::find;
     using Base::erase;
 
     std::pair<iterator, bool> insert(const value_type& item) {

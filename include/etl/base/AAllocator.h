@@ -40,24 +40,22 @@ class AAllocator {
     typedef T ItemType;
     typedef T* PtrType;
 
+    static constexpr bool NoexceptDestroy = is_nothrow_destructible<T>::value;
+
   public:   // functions
 
     virtual ~AAllocator() {};
 
-    virtual size_t max_size() const = 0;
-    virtual size_t size() const = 0;
+    virtual size_t max_size() const noexcept = 0;
+    virtual size_t size() const noexcept = 0;
 
     virtual PtrType allocate(uint32_t n) = 0;
-    virtual void deallocate(PtrType ptr, uint32_t n) = 0;
+    virtual void deallocate(PtrType ptr, uint32_t n) noexcept = 0;
 
-    virtual const void* handle() const = 0;
+    virtual const void* handle() const noexcept = 0;
 
     static void construct(PtrType ptr) {
         new (ptr) ItemType;
-    }
-
-    static void construct(PtrType ptr, const ItemType& other) {
-        new (ptr) ItemType(other);
     }
 
     template<typename... Args >
@@ -65,7 +63,7 @@ class AAllocator {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 
-    static void destroy(PtrType ptr) {
+    static void destroy(PtrType ptr) noexcept(NoexceptDestroy) {
         ptr->~ItemType();
     }
 
@@ -89,11 +87,11 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:   // functions
 
-    size_t max_size() const override {
+    size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    size_t size() const override {
+    size_t size() const noexcept override {
         return allocator().max_size();
     }
 
@@ -101,11 +99,11 @@ class AllocatorWrapper : public AAllocator<T> {
         return allocator().allocate(n);
     }
 
-    void deallocate(PtrType ptr, uint32_t n) override {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 
-    const void* handle() const override {
+    const void* handle() const noexcept override {
         return &allocator();
     }
 
