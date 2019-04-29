@@ -33,7 +33,7 @@ namespace ETL_NAMESPACE {
 
 
 template<typename K, class E>
-class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
+class Map : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
 
   public:   // types
 
@@ -49,16 +49,24 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
     typedef KeyCompare<K, E> Compare;
     typedef Detail::SortedList<value_type, Compare> Base;
     typedef typename Base::Cont ContainerType;
+    typedef typename Base::Node Node;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+
+    typedef typename Base::size_type size_type;
 
     typedef Matcher<value_type> ItemMatcher;
 
   public:   // functions
 
-    Map(AllocatorBase& a) :
+    /// \name Construction, destruction, assignment
+    /// \{
+
+    Map(AllocatorBase& a) noexcept :
         Base(a) {};
 
     Map& operator=(const Map& other) {
@@ -75,8 +83,45 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         assign(initList);
         return *this;
     }
+    /// \}
 
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    /// \}
+
+    /// \name Element access
+    /// \{
+
+    E& operator[](const K& k) {
+        return getItem(k)->second;
+    }
+
+    E& operator[](K&& k) {
+        return getItem(k)->second;
+    }
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
     using Base::erase;
+
+    void erase(const K& k);
 
     std::pair<iterator, bool> insert(const value_type& item) {
         return Base::insertUnique(item);
@@ -95,19 +140,6 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         return insert(value_type(k, e));
     }
 
-    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
-
-    void erase(const K& k);
-
-    iterator find(const K& k);
-    const_iterator find(const K& k) const;
-
-    iterator getItem(const K& k);
-
-    E& operator[](const K& k) {
-        return getItem(k)->second;
-    }
-
     void insert(std::initializer_list<value_type> initList) {
         insert(initList.begin(), initList.end());
     }
@@ -115,9 +147,19 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
     template<typename... Args>
     inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
 
-    static K getKey(const_reference item) {
-        return item.first;
+    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
+
+    void swap(Map& other) {
+        Base::swap(other);
     }
+    /// \}
+
+    /// \name Lookup
+    /// \{
+
+    iterator find(const K& k);
+    const_iterator find(const K& k) const;
+    /// \}
 
   protected:
 
@@ -132,11 +174,13 @@ class Map : public Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
         assign(other.begin(), other.end());
     }
 
+    iterator getItem(const K& k);
+
 };
 
 
 template<typename K, class E>
-std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::insert_or_assign(const K& k, const E& e) {
+auto Map<K, E>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, bool> {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -164,7 +208,7 @@ void Map<K, E>::erase(const K& k) {
 
 
 template<typename K, class E>
-typename Map<K, E>::iterator Map<K, E>::find(const K& k) {
+auto Map<K, E>::find(const K& k) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -177,7 +221,7 @@ typename Map<K, E>::iterator Map<K, E>::find(const K& k) {
 
 
 template<typename K, class E>
-typename Map<K, E>::const_iterator Map<K, E>::find(const K& k) const {
+auto Map<K, E>::find(const K& k) const -> const_iterator {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
 
@@ -190,7 +234,7 @@ typename Map<K, E>::const_iterator Map<K, E>::find(const K& k) const {
 
 
 template<typename K, class E>
-typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
+auto Map<K, E>::getItem(const K& k) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -206,7 +250,7 @@ typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
 
 template<typename K, class E>
 template<typename... Args>
-std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::emplace(const K& k, Args&& ... args) {
+auto Map<K, E>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, bool> {
 
     auto found = Base::findSortedPosition(k);
 

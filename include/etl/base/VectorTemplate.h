@@ -38,7 +38,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class T>
-class Vector : public Detail::TypedVectorBase<T> {
+class Vector : protected Detail::TypedVectorBase<T> {
 
     static_assert(std::is_copy_constructible<T>::value, "Vector<>::value_type is not copy constructible");
     static_assert(std::is_copy_assignable<T>::value, "Vector<>::value_type is not copy assignable");
@@ -59,7 +59,7 @@ class Vector : public Detail::TypedVectorBase<T> {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    typedef std::uint32_t size_type;
+    typedef typename Base::size_type size_type;
 
     typedef typename Base::CreateFunc CreateFunc;
 
@@ -68,6 +68,9 @@ class Vector : public Detail::TypedVectorBase<T> {
     AMemStrategy<StrategyBase>& strategy;
 
   public:   // functions
+
+    /// \name Construction, destruction, assignment
+    /// \{
 
     Vector& operator=(const Vector& other) {
         if (&other != this) {
@@ -104,9 +107,14 @@ class Vector : public Detail::TypedVectorBase<T> {
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
+    /// \}
 
     /// \name Capacity
     /// \{
+    using Base::size;
+    using Base::empty;
+    using Base::capacity;
+
     void resize(size_type length) {
         static_assert(std::is_default_constructible<T>::value, "Vector<>::value_type is not default constructible");
         strategy.resize(*this, length);
@@ -133,8 +141,37 @@ class Vector : public Detail::TypedVectorBase<T> {
     }
     /// \}
 
+    /// \name Element access
+    /// \{
+    using Base::operator[];
+    using Base::front;
+    using Base::back;
+    using Base::data;
+
+#if ETL_USE_EXCEPTIONS
+    using Base::at;
+#endif
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
     /// \name Modifiers
     /// \{
+    using Base::clear;
+    using Base::pop_front;
+    using Base::pop_back;
+    using Base::erase;
+
     iterator insert(const_iterator position, const_reference value) {
         return insert(position, 1U, value);
     }
@@ -189,9 +226,9 @@ class Vector : public Detail::TypedVectorBase<T> {
 
 template<class T>
 template<class CR>
-typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator position,
-                                                          size_type numToInsert,
-                                                          const CR& creatorCall) {
+auto Vector<T>::insertWithCreator(const_iterator position,
+                                  size_type numToInsert,
+                                  const CR& creatorCall) -> iterator {
 
     if (numToInsert > 0) {
 
@@ -246,7 +283,7 @@ void Vector<T>::replaceWith(Vector&& other) {
 
 
 template<class T>
-typename Vector<T>::iterator Vector<T>::insert(const_iterator position, size_type num, const_reference value) {
+auto Vector<T>::insert(const_iterator position, size_type num, const_reference value) -> iterator {
 
     return insertWithCreator(position, num, [this, &value](pointer item, size_type cnt, bool place) {
         for (size_type i = 0; i < cnt; ++i) {
@@ -261,7 +298,7 @@ typename Vector<T>::iterator Vector<T>::insert(const_iterator position, size_typ
 
 
 template<class T>
-typename Vector<T>::iterator Vector<T>::insert(const_iterator position, T&& value) {
+auto Vector<T>::insert(const_iterator position, T&& value) -> iterator {
 
     return insertWithCreator(position, 1, [this, &value](pointer item, size_type, bool place) {
 
@@ -276,7 +313,7 @@ typename Vector<T>::iterator Vector<T>::insert(const_iterator position, T&& valu
 
 template<class T>
 template<typename... Args >
-typename Vector<T>::iterator Vector<T>::emplace(const_iterator position, Args&& ... args) {
+auto Vector<T>::emplace(const_iterator position, Args&& ... args) -> iterator {
 
     return insertWithCreator(position, 1, [&](pointer item, size_type, bool place) {
         if (place) {
@@ -289,9 +326,9 @@ typename Vector<T>::iterator Vector<T>::emplace(const_iterator position, Args&& 
 
 
 template<class T>
-typename Vector<T>::iterator Vector<T>::insertWithCreator(const_iterator position,
-                                                          size_type numToInsert,
-                                                          CreateFunc&& creatorCall) {
+auto Vector<T>::insertWithCreator(const_iterator position,
+                                  size_type numToInsert,
+                                  CreateFunc&& creatorCall) -> iterator {
 
     if (numToInsert > 0) {
 
@@ -343,6 +380,9 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
   public:   // functions
 
+    /// \name Construction, destruction, assignment
+    /// \{
+
     Vector& operator=(const Vector& other) {
         Base::operator=(other);
         return *this;
@@ -376,6 +416,22 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
+    /// \}
+
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    using Base::capacity;
+    using Base::resize;
+    using Base::reserve;
+    using Base::reserve_exactly;
+    using Base::shrink_to_fit;
+    /// \}
+
+    /// \name Element access
+    /// \{
 
     reference operator[](int32_t ix) noexcept {
         return *(static_cast<pointer>(Base::getItemPointer(ix)));
@@ -384,6 +440,34 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     const_reference operator[](int32_t ix) const noexcept {
         return *(static_cast<const_pointer>(Base::getItemPointer(ix)));
     }
+
+    reference front() {
+        return reinterpret_cast<reference>(Base::front());
+    }
+
+    const_reference front() const {
+        return reinterpret_cast<const_reference>(Base::front());
+    }
+
+    reference back() {
+        return reinterpret_cast<reference>(Base::back());
+    }
+
+    const_reference back() const {
+        return reinterpret_cast<const_reference>(Base::back());
+    }
+
+    pointer data() noexcept {
+        return static_cast<pointer>(Base::data());
+    }
+
+    const_pointer data() const noexcept {
+        return static_cast<pointer>(Base::data());
+    }
+    /// \}
+
+    /// \name Iterators
+    /// \{
 
     iterator begin() noexcept {
         return reinterpret_cast<iterator>(Base::begin());
@@ -432,30 +516,11 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(this->cbegin());
     }
+    /// \}
 
-    reference front() {
-        return reinterpret_cast<reference>(Base::front());
-    }
-
-    const_reference front() const {
-        return reinterpret_cast<const_reference>(Base::front());
-    }
-
-    reference back() {
-        return reinterpret_cast<reference>(Base::back());
-    }
-
-    const_reference back() const {
-        return reinterpret_cast<const_reference>(Base::back());
-    }
-
-    pointer data() noexcept {
-        return static_cast<pointer>(Base::data());
-    }
-
-    const_pointer data() const noexcept {
-        return static_cast<pointer>(Base::data());
-    }
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
 
     iterator insert(const_iterator position, const_reference value) {
         return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
@@ -483,6 +548,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
         return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(first),
                                                       reinterpret_cast<typename Base::iterator>(last)));
     }
+    /// \}
 
   protected:
 

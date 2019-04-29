@@ -34,7 +34,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class T>
-class List : public Detail::TypedListBase<T> {
+class List : private Detail::TypedListBase<T> {
 
   public:   // types
 
@@ -48,6 +48,8 @@ class List : public Detail::TypedListBase<T> {
     typedef typename Base::Node Node;
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
     typedef AAllocator<Node> AllocatorBase;
 
@@ -60,6 +62,9 @@ class List : public Detail::TypedListBase<T> {
     AllocatorBase& allocator;
 
   public:   // functions
+
+    /// \name Construction, destruction, assignment
+    /// \{
 
     explicit List(AllocatorBase& a) noexcept :
         allocator(a) {};
@@ -86,8 +91,6 @@ class List : public Detail::TypedListBase<T> {
         clear();
     }
 
-    void clear() noexcept(AllocatorBase::NoexceptDestroy);
-
     void assign(uint32_t num, const_reference value) {
         this->clear();
         insert(this->begin(), num, value);
@@ -102,9 +105,41 @@ class List : public Detail::TypedListBase<T> {
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
+    /// \}
 
-    /// \name Element operations
+    /// \name Capacity
     /// \{
+    using Base::size;
+    using Base::empty;
+
+    size_type max_size() const noexcept {
+        return allocator.max_size();
+    }
+    /// \}
+
+    /// \name Element access
+    /// \{
+    using Base::front;
+    using Base::back;
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+
+    void clear() noexcept(AllocatorBase::NoexceptDestroy);
+
     inline void push_front(const T& item);
     inline void push_back(const T& item);
 
@@ -130,15 +165,39 @@ class List : public Detail::TypedListBase<T> {
     enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
-    iterator erase(iterator pos) noexcept {
+    template<typename... Args >
+    iterator emplace(const_iterator pos, Args&&... args);
+
+    template<typename... Args >
+    iterator emplace_front(Args&&... args) {
+        return emplace(this->begin(), std::forward<Args>(args)...);
+    }
+
+    template<typename... Args >
+    iterator emplace_back(Args&&... args) {
+        return emplace(this->end(), std::forward<Args>(args)...);
+    }
+
+    iterator erase(iterator pos) noexcept(AllocatorBase::NoexceptDestroy) {
         iterator next = pos;
         ++next;
         deleteNode(static_cast<Node*>(Detail::AListBase::remove(pos)));
         return next;
     }
 
-    template<typename... Args >
-    iterator emplace(const_iterator pos, Args&& ... args);
+    void swap(List& other) {
+        if (this != &other) {
+            if (allocator.handle() == other.allocator.handle()) {
+                Detail::AListBase::swapNodeList(other);
+            } else {
+                swapElements(other);
+            }
+        }
+    }
+    /// \}
+
+    /// \name List operations
+    /// \{
 
     void splice(const_iterator pos, List& other) {
         splice(pos, other, other.begin(), other.end());
@@ -155,15 +214,6 @@ class List : public Detail::TypedListBase<T> {
                 const_iterator first,
                 const_iterator last);
 
-    void swap(List& other) {
-        if (this != &other) {
-            if (allocator.handle() == other.allocator.handle()) {
-                Detail::AListBase::swapNodeList(other);
-            } else {
-                swapElements(other);
-            }
-        }
-    }
     /// \}
 
   private:

@@ -54,12 +54,13 @@ class AAllocator {
 
     virtual const void* handle() const noexcept = 0;
 
-    static void construct(PtrType ptr) {
+    static void construct(PtrType ptr) noexcept(noexcept(new (ptr) ItemType)) {
         new (ptr) ItemType;
     }
 
     template<typename... Args >
-    static void construct(PtrType ptr, Args&& ... args) {
+    static void construct(PtrType ptr, Args&& ... args)
+    noexcept(noexcept(new (ptr) ItemType(std::forward<Args>(args)...))) {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 

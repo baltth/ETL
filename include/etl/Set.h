@@ -48,7 +48,7 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
@@ -91,11 +91,11 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -120,7 +120,7 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
@@ -163,11 +163,11 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -194,7 +194,7 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
@@ -237,11 +237,11 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -268,7 +268,7 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
@@ -311,11 +311,11 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 

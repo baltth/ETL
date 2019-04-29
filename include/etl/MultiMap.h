@@ -48,7 +48,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
   public:   // functions
 
-    MultiMap() :
+    MultiMap() noexcept :
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
@@ -91,11 +91,11 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-    ~MultiMap() {
+    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -120,7 +120,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
   public:   // functions
 
-    MultiMap() :
+    MultiMap() noexcept :
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
@@ -163,11 +163,11 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-    ~MultiMap() {
+    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -194,7 +194,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
   public:   // functions
 
-    MultiMap() :
+    MultiMap() noexcept :
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
@@ -237,11 +237,11 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-    ~MultiMap() {
+    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -268,7 +268,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 
   public:   // functions
 
-    MultiMap() :
+    MultiMap() noexcept :
         Base(allocator) {};
 
     MultiMap(const MultiMap& other) :
@@ -311,11 +311,11 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
         return *this;
     }
 
-    ~MultiMap() {
+    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 

@@ -46,8 +46,12 @@ class SortedList {
 
     typedef typename Cont::iterator iterator;
     typedef typename Cont::const_iterator const_iterator;
+    typedef typename Cont::reverse_iterator reverse_iterator;
+    typedef typename Cont::const_reverse_iterator const_reverse_iterator;
 
     typedef typename Cont::Node Node;
+
+    typedef typename Cont::size_type size_type;
 
   protected: // variables
 
@@ -57,48 +61,76 @@ class SortedList {
 
   public:   // functions
 
-    SortedList(typename Cont::AllocatorBase& a) :
+    SortedList(typename Cont::AllocatorBase& a) noexcept :
         list(a) {};
 
     ///\name List<> forward
     /// \{
-    uint32_t size() const {
+    size_type size() const noexcept {
         return list.size();
     }
 
-    bool empty() const {
-        return (list.size() == 0);
+    size_type max_size() const noexcept {
+        return list.max_size();
     }
 
-    iterator begin() {
+    bool empty() const noexcept {
+        return list.empty();
+    }
+
+    iterator begin() noexcept {
         return list.begin();
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return list.begin();
     }
 
-    const_iterator cbegin() const {
+    const_iterator cbegin() const noexcept {
         return list.cbegin();
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return list.end();
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return list.end();
     }
 
-    const_iterator cend() const {
+    const_iterator cend() const noexcept {
         return list.cend();
     }
 
-    void clear() {
+    reverse_iterator rbegin() noexcept {
+        return list.rbegin();
+    }
+
+    const_reverse_iterator rbegin() const noexcept {
+        return list.rbegin();
+    }
+
+    const_reverse_iterator crbegin() const noexcept {
+        return list.crbegin();
+    }
+
+    reverse_iterator rend() noexcept {
+        return list.rend();
+    }
+
+    const_reverse_iterator rend() const noexcept {
+        return list.rend();
+    }
+
+    const_reverse_iterator crend() const noexcept {
+        return list.crend();
+    }
+
+    void clear() noexcept(Cont::AllocatorBase::NoexceptDestroy) {
         list.clear();
     }
 
-    iterator erase(iterator pos) {
+    iterator erase(iterator pos) noexcept(Cont::AllocatorBase::NoexceptDestroy) {
         return list.erase(pos);
     }
 
@@ -164,7 +196,7 @@ Comp SortedList<T, Comp>::comp;
 
 
 template<class T, class Comp /* = std::less<T> */>
-typename SortedList<T, Comp>::iterator SortedList<T, Comp>::insert(const_reference item) {
+auto SortedList<T, Comp>::insert(const_reference item) -> iterator {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
     return list.insert(found.first, item);
@@ -172,7 +204,7 @@ typename SortedList<T, Comp>::iterator SortedList<T, Comp>::insert(const_referen
 
 
 template<class T, class Comp /* = std::less<T> */>
-std::pair<typename SortedList<T, Comp>::iterator, bool> SortedList<T, Comp>::insertUnique(const_reference item) {
+auto SortedList<T, Comp>::insertUnique(const_reference item) -> std::pair<iterator, bool> {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
 

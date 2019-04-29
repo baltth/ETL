@@ -47,7 +47,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
   public:   // functions
 
-    Map() :
+    Map() noexcept :
         Base(allocator) {};
 
     Map(const Map& other) :
@@ -90,11 +90,11 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-    ~Map() {
+    ~Map() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -119,7 +119,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
   public:   // functions
 
-    Map() :
+    Map() noexcept :
         Base(allocator) {};
 
     Map(const Map& other) :
@@ -162,7 +162,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-    ~Map() {
+    ~Map() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
@@ -194,7 +194,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
   public:   // functions
 
-    Map() :
+    Map() noexcept :
         Base(allocator) {};
 
     Map(const Map& other) :
@@ -237,11 +237,11 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-    ~Map() {
+    ~Map() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -269,7 +269,7 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 
   public:   // functions
 
-    Map() :
+    Map() noexcept :
         Base(allocator) {};
 
     Map(const Map& other) :
@@ -312,11 +312,11 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
         return *this;
     }
 
-    ~Map() {
+    ~Map() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 

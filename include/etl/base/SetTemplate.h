@@ -30,7 +30,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class E>
-class Set : public Detail::SortedList<E> {
+class Set : private Detail::SortedList<E> {
 
   public:   // types
 
@@ -43,12 +43,20 @@ class Set : public Detail::SortedList<E> {
 
     typedef Detail::SortedList<E> Base;
     typedef typename Base::Cont ContainerType;
+    typedef typename Base::Node Node;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+
+    typedef typename Base::size_type size_type;
 
   public:   // functions
+
+    /// \name Construction, destruction, assignment
+    /// \{
 
     Set(AllocatorBase& a) :
         Base(a) {};
@@ -67,8 +75,33 @@ class Set : public Detail::SortedList<E> {
         assign(initList);
         return this;
     }
+    /// \}
 
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
     using Base::erase;
+
+    void erase(const E& e);
 
     std::pair<iterator, bool> insert(const E& e) {
         return Base::insertUnique(e);
@@ -83,10 +116,17 @@ class Set : public Detail::SortedList<E> {
         }
     }
 
-    void erase(const E& e);
+    void swap(Set& other) {
+        Base::swap(other);
+    }
+    /// \}
+
+    /// \name Lookup
+    /// \{
 
     iterator find(const E& e);
     const_iterator find(const E& e) const;
+    /// \}
 
   protected:
 
@@ -116,7 +156,7 @@ void Set<E>::erase(const E& e) {
 
 
 template<class E>
-typename Set<E>::iterator  Set<E>::find(const E& e) {
+auto Set<E>::find(const E& e) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
@@ -129,7 +169,7 @@ typename Set<E>::iterator  Set<E>::find(const E& e) {
 
 
 template<class E>
-typename Set<E>::const_iterator  Set<E>::find(const E& e) const {
+auto Set<E>::find(const E& e) const -> const_iterator {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
 
