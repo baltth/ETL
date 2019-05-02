@@ -411,10 +411,26 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
+TEST_CASE("Etl::MultiMap<> custom compare tests", "[multimap][etl]") {
+
+    typedef Etl::Dynamic::MultiMap<uint32_t, int, std::greater<uint32_t>> MapType;
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(3, -9);
+    map.insert(4, -4);
+
+    CHECK(map.size() == 5);
+    REQUIRE(map.begin()->first == 4);
+}
+
+
+TEST_CASE("Etl::Custom::MultiMap<> allocator test", "[multimap][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef Etl::Custom::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -477,7 +493,7 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
 TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
-    typedef Etl::Dynamic::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Custom::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());

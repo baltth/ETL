@@ -33,13 +33,13 @@ namespace ETL_NAMESPACE {
 namespace Custom {
 
 /// Map with custom allocator.
-template<class K, class E, template<class> class A>
-class Map : public ETL_NAMESPACE::Map<K, E> {
+template<class K, class E, template<class> class A, class C = std::less<K>>
+class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E> Base;
-    typedef A<typename Base::Node> Allocator;
+    typedef ETL_NAMESPACE::Map<K, E, C> Base;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
@@ -105,12 +105,12 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 namespace Dynamic {
 
 /// Map with dynamic memory allocation, defaults to std::allocator.
-template<class K, class E, template<class> class A = std::allocator>
-class Map : public ETL_NAMESPACE::Map<K, E> {
+template<class K, class E, class C = std::less<K>, template<class> class A = std::allocator>
+class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef ETL_NAMESPACE::Map<K, E, C> Base;
     typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
@@ -178,14 +178,14 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 namespace Static {
 
 /// Map with unique pool allocator.
-template<class K, class E, uint32_t N>
-class Map : public ETL_NAMESPACE::Map<K, E> {
+template<class K, class E, uint32_t N, class C = std::less<K>>
+class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Static::Map size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef ETL_NAMESPACE::Map<K, E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
 
   private:  // variables
@@ -253,14 +253,14 @@ class Map : public ETL_NAMESPACE::Map<K, E> {
 namespace Pooled {
 
 /// Map with common pool allocator.
-template<class K, class E, uint32_t N>
-class Map : public ETL_NAMESPACE::Map<K, E> {
+template<class K, class E, uint32_t N, class C = std::less<K>>
+class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::Map size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Map<K, E> Base;
+    typedef ETL_NAMESPACE::Map<K, E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
 
   private:  // variables

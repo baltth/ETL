@@ -31,7 +31,7 @@ namespace ETL_NAMESPACE {
 namespace Detail {
 
 
-template<class T, class Comp = std::less<T>>
+template<class T, class Comp>
 class SortedList {
 
   public:   // types
@@ -49,13 +49,11 @@ class SortedList {
     typedef typename Cont::reverse_iterator reverse_iterator;
     typedef typename Cont::const_reverse_iterator const_reverse_iterator;
 
-    typedef typename Cont::Node Node;
-
     typedef typename Cont::size_type size_type;
 
-  protected: // variables
+    typedef typename Cont::Node Node;
 
-    static Comp comp;
+  protected: // variables
 
     Cont list;
 
@@ -142,25 +140,25 @@ class SortedList {
   protected:
 
     template<typename It, typename CV, class CF>
-    std::pair<It, It> findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const;
+    std::pair<It, It> findSortedRangeBase(It it, It endIt, const CV& val, const CF& compare) const;
 
     template<typename CV>
     std::pair<iterator, iterator> findSortedRange(const CV& val) {
-        return findSortedRangeBase(this->begin(), this->end(), val, comp);
+        return findSortedRangeBase(this->begin(), this->end(), val, Comp());
     }
 
     template<typename CV>
     std::pair<const_iterator, const_iterator> findSortedRange(const CV& val) const {
-        return findSortedRangeBase(this->cbegin(), this->cend(), val, comp);
+        return findSortedRangeBase(this->cbegin(), this->cend(), val, Comp());
     }
 
     template<typename CV, class CF>
-    std::pair<iterator, iterator> findSortedRange(const CV& val, CF& compare) {
+    std::pair<iterator, iterator> findSortedRange(const CV& val, const CF& compare) {
         return findSortedRangeBase(this->begin(), this->end(), val, compare);
     }
 
     template<typename CV, class CF>
-    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val, CF& compare) const {
+    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val, const CF& compare) const {
         return findSortedRangeBase(this->cbegin(), this->cend(), val, compare);
     }
 
@@ -191,11 +189,7 @@ class SortedList {
 };
 
 
-template<class T, class Comp /* = std::less<T> */>
-Comp SortedList<T, Comp>::comp;
-
-
-template<class T, class Comp /* = std::less<T> */>
+template<class T, class Comp>
 auto SortedList<T, Comp>::insert(const_reference item) -> iterator {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
@@ -203,7 +197,7 @@ auto SortedList<T, Comp>::insert(const_reference item) -> iterator {
 }
 
 
-template<class T, class Comp /* = std::less<T> */>
+template<class T, class Comp>
 auto SortedList<T, Comp>::insertUnique(const_reference item) -> std::pair<iterator, bool> {
 
     std::pair<iterator, bool> found = findSortedPosition(item);
@@ -224,9 +218,11 @@ auto SortedList<T, Comp>::insertUnique(const_reference item) -> std::pair<iterat
 }
 
 
-template<class T, class Comp /* = std::less<T> */>
+template<class T, class Comp>
 template<typename It, typename CV, class CF>
-std::pair<It, It> SortedList<T, Comp>::findSortedRangeBase(It it, It endIt, const CV& val, CF& compare) const {
+auto SortedList<T, Comp>::findSortedRangeBase(It it, It endIt,
+                                              const CV& val,
+                                              const CF& compare) const -> std::pair<It, It> {
 
     std::pair<It, It> res(endIt, endIt);
 

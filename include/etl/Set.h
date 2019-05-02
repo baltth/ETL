@@ -34,13 +34,13 @@ namespace ETL_NAMESPACE {
 namespace Custom {
 
 /// Set with custom allocator.
-template<class E, template<class> class A>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, template<class> class A, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
-    typedef A<typename Base::Node> Allocator;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
@@ -106,12 +106,12 @@ class Set : public ETL_NAMESPACE::Set<E> {
 namespace Dynamic {
 
 /// Set with dynamic memory allocation, defaults to std::allocator.
-template<class E, template<class> class A = std::allocator>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, class C = std::less<E>, template<class> class A = std::allocator>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
@@ -178,14 +178,14 @@ class Set : public ETL_NAMESPACE::Set<E> {
 namespace Static {
 
 /// Set with unique pool allocator.
-template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, uint32_t N, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
     static_assert(N > 0, "Invalid Etl::Static::Set size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
 
   private:  // variables
@@ -252,14 +252,14 @@ class Set : public ETL_NAMESPACE::Set<E> {
 namespace Pooled {
 
 /// Set with common pool allocator.
-template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, uint32_t N, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::Set size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
 
   private:  // variables

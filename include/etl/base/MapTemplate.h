@@ -28,12 +28,13 @@ limitations under the License.
 #include <etl/base/KeyCompare.h>
 
 #include <utility>
+#include <functional>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E>
-class Map : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
+template<class K, class E, class C = std::less<K>>
+class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
   public:   // types
 
@@ -46,10 +47,10 @@ class Map : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> 
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef KeyCompare<K, E> Compare;
-    typedef Detail::SortedList<value_type, Compare> Base;
-    typedef typename Base::Cont ContainerType;
+    typedef C key_compare;
+    typedef Detail::SortedList<value_type, Detail::KeyCompare<C>> Base;
     typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
 
     typedef typename Base::iterator iterator;
@@ -58,8 +59,6 @@ class Map : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> 
     typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
     typedef typename Base::size_type size_type;
-
-    typedef Matcher<value_type> ItemMatcher;
 
   public:   // functions
 
@@ -179,8 +178,8 @@ class Map : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> 
 };
 
 
-template<typename K, class E>
-auto Map<K, E>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, bool> {
+template<class K, class E, class C>
+auto Map<K, E, C>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, bool> {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -196,8 +195,8 @@ auto Map<K, E>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, 
 }
 
 
-template<typename K, class E>
-void Map<K, E>::erase(const K& k) {
+template<class K, class E, class C>
+void Map<K, E, C>::erase(const K& k) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -207,8 +206,8 @@ void Map<K, E>::erase(const K& k) {
 }
 
 
-template<typename K, class E>
-auto Map<K, E>::find(const K& k) -> iterator {
+template<class K, class E, class C>
+auto Map<K, E, C>::find(const K& k) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -220,8 +219,8 @@ auto Map<K, E>::find(const K& k) -> iterator {
 }
 
 
-template<typename K, class E>
-auto Map<K, E>::find(const K& k) const -> const_iterator {
+template<class K, class E, class C>
+auto Map<K, E, C>::find(const K& k) const -> const_iterator {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
 
@@ -233,8 +232,8 @@ auto Map<K, E>::find(const K& k) const -> const_iterator {
 }
 
 
-template<typename K, class E>
-auto Map<K, E>::getItem(const K& k) -> iterator {
+template<class K, class E, class C>
+auto Map<K, E, C>::getItem(const K& k) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -248,9 +247,9 @@ auto Map<K, E>::getItem(const K& k) -> iterator {
 }
 
 
-template<typename K, class E>
+template<class K, class E, class C>
 template<typename... Args>
-auto Map<K, E>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, bool> {
+auto Map<K, E, C>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, bool> {
 
     auto found = Base::findSortedPosition(k);
 

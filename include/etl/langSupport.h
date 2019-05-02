@@ -30,10 +30,5 @@ limitations under the License.
 #error "Deprecated"
 #endif
 
-
-#define STATIC_ASSERT(x)        static_assert((x), "Assertion failed")
-#define STATIC_ASSERT_(x, n)    static_assert((x), "Assertion failed: ## n")
-
-
 #endif /* __ETL_LANGSUPPORT_H__ */
 

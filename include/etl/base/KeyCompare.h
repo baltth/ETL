@@ -23,24 +23,52 @@ limitations under the License.
 #define __ETL_KEYCOMPARE_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
-template<typename K, class E>
-struct KeyCompare {
-    typedef std::pair<const K, E> ItemType;
-    bool operator()(const ItemType& lhs, const ItemType& rhs) const {
-        return std::less<K>()(lhs.first, rhs.first);
-    }
-    bool operator()(const ItemType& lhs, const K& rhs) const {
-        return std::less<K>()(lhs.first, rhs);
-    }
-    bool operator()(const K& lhs, const ItemType& rhs) const {
-        return std::less<K>()(lhs, rhs.first);
-    }
+template<class T, class S = void>
+struct TypeDefined {
+    typedef S type;
 };
 
+template<class T, class Enable = void>
+struct HasFirstType : std::false_type {};
+
+template<class T>
+struct HasFirstType<T, typename TypeDefined<typename T::first_type>::type> : std::true_type {};
+
+
+template<typename Comp>
+struct KeyCompare {
+
+    template<class Item,
+             typename = enable_if_t<HasFirstType<Item>::value>>
+    bool operator()(const Item& lhs, const Item& rhs) const {
+        return Comp()(lhs.first, rhs.first);
+    }
+
+    template<class Key,
+             class Item,
+             typename = enable_if_t<HasFirstType<Item>::value>>
+    enable_if_t<is_same<Key, remove_cv_t<typename Item::first_type>>::value, bool>
+    operator()(const Key& lhs, const Item& rhs) const {
+        return Comp()(lhs, rhs.first);
+    }
+
+    template<class Key,
+             class Item,
+             typename = enable_if_t<HasFirstType<Item>::value>>
+    enable_if_t<is_same<Key, remove_cv_t<typename Item::first_type>>::value, bool>
+    operator()(const Item& lhs, const Key& rhs) const {
+        return Comp()(lhs.first, rhs);
+    }
+
+};
+
+}
 }
 
 #endif /* __ETL_KEYCOMPARE_H__ */

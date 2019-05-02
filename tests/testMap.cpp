@@ -354,10 +354,25 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
+TEST_CASE("Etl::Map<> custom compare tests", "[map][etl]") {
+
+    typedef Etl::Dynamic::Map<uint32_t, ContainerTester, std::greater<int>> MapType;
+    MapType map;
+
+    map.insert(1, ContainerTester(-1));
+    map.insert(2, ContainerTester(-2));
+    map.insert(3, ContainerTester(-3));
+    map.insert(4, ContainerTester(-4));
+
+    CHECK(map.size() == 4);
+    REQUIRE(map.begin()->first == 4);
+}
+
+
+TEST_CASE("Etl::Custom::Map<> allocator test", "[map][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::Map<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef Etl::Custom::Map<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -421,7 +436,7 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Custom::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());

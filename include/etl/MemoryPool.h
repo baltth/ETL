@@ -36,8 +36,8 @@ Memory pool template.
 template<size_t S, uint32_t N>
 class MemoryPool {
 
-    STATIC_ASSERT_(S > 0, size);
-    STATIC_ASSERT_(N > 0, length);
+    static_assert(S > 0, "Invalid item size");
+    static_assert(N > 0, "Invalid pool length");
 
   private:  // types
 

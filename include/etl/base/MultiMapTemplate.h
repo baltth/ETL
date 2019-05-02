@@ -28,12 +28,13 @@ limitations under the License.
 #include <etl/base/KeyCompare.h>
 
 #include <utility>
+#include <functional>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E>
-class MultiMap : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K, E>> {
+template<class K, class E, class C = std::less<K>>
+class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
   public:   // types
 
@@ -46,10 +47,10 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K,
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef KeyCompare<K, E> Compare;
-    typedef Detail::SortedList<value_type, Compare> Base;
-    typedef typename Base::Cont ContainerType;
+    typedef C key_compare;
+    typedef Detail::SortedList<value_type, Detail::KeyCompare<C>> Base;
     typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
 
     typedef typename Base::iterator iterator;
@@ -58,8 +59,6 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K,
     typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
     typedef typename Base::size_type size_type;
-
-    typedef Matcher<value_type> ItemMatcher;
 
   public:   // functions
 
@@ -187,8 +186,8 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, KeyCompare<K,
 };
 
 
-template<typename K, class E>
-auto MultiMap<K, E>::erase(const K& k) -> size_type {
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::erase(const K& k) -> size_type {
 
     std::pair<iterator, iterator> found = Base::findSortedRange(k);
     iterator it = found.first;
@@ -203,8 +202,8 @@ auto MultiMap<K, E>::erase(const K& k) -> size_type {
 }
 
 
-template<typename K, class E>
-auto MultiMap<K, E>::find(const K& k) -> iterator {
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::find(const K& k) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(k);
 
@@ -216,8 +215,8 @@ auto MultiMap<K, E>::find(const K& k) -> iterator {
 }
 
 
-template<typename K, class E>
-auto MultiMap<K, E>::find(const K& k) const -> const_iterator {
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::find(const K& k) const -> const_iterator {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
 
@@ -229,9 +228,9 @@ auto MultiMap<K, E>::find(const K& k) const -> const_iterator {
 }
 
 
-template<typename K, class E>
+template<class K, class E, class C>
 template<typename... Args>
-auto MultiMap<K, E>::emplace(const K& k, Args&& ... args) -> iterator {
+auto MultiMap<K, E, C>::emplace(const K& k, Args&& ... args) -> iterator {
 
     auto found = Base::findSortedPosition(k);
     found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);

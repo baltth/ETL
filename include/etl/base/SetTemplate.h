@@ -26,11 +26,13 @@ limitations under the License.
 #include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
 
+#include <functional>
+
 namespace ETL_NAMESPACE {
 
 
-template<class E>
-class Set : private Detail::SortedList<E> {
+template<class E, class C = std::less<E>>
+class Set : private Detail::SortedList<E, C> {
 
   public:   // types
 
@@ -41,9 +43,11 @@ class Set : private Detail::SortedList<E> {
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef Detail::SortedList<E> Base;
-    typedef typename Base::Cont ContainerType;
+    typedef C key_compare;
+    typedef C value_compare;
+    typedef Detail::SortedList<E, C> Base;
     typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
 
     typedef typename Base::iterator iterator;
@@ -144,8 +148,8 @@ class Set : private Detail::SortedList<E> {
 };
 
 
-template<class E>
-void Set<E>::erase(const E& e) {
+template<class E, class C>
+void Set<E,C>::erase(const E& e) {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
@@ -155,8 +159,8 @@ void Set<E>::erase(const E& e) {
 }
 
 
-template<class E>
-auto Set<E>::find(const E& e) -> iterator {
+template<class E, class C>
+auto Set<E,C>::find(const E& e) -> iterator {
 
     std::pair<iterator, bool> found = Base::findSortedPosition(e);
 
@@ -168,8 +172,8 @@ auto Set<E>::find(const E& e) -> iterator {
 }
 
 
-template<class E>
-auto Set<E>::find(const E& e) const -> const_iterator {
+template<class E, class C>
+auto Set<E,C>::find(const E& e) const -> const_iterator {
 
     std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
 

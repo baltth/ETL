@@ -34,13 +34,13 @@ namespace ETL_NAMESPACE {
 namespace Custom {
 
 /// MultiMap with custom allocator.
-template<class K, class E, template<class> class A>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
+template<class K, class E, template<class> class A, class C = std::less<K>>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
-    typedef A<typename Base::Node> Allocator;
+    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
@@ -106,12 +106,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 namespace Dynamic {
 
 /// MultiMap dynamic memory allocation, defaults to std::allocator.
-template<class K, class E, template<class> class A = std::allocator>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
+template<class K, class E, class C = std::less<K>, template<class> class A = std::allocator>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
     typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
@@ -178,14 +178,14 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 namespace Static {
 
 /// MultiMap with unique pool allocator.
-template<class K, class E, uint32_t N>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
+template<class K, class E, uint32_t N, class C = std::less<K>>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Static::MultiMap size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
 
   private:  // variables
@@ -252,14 +252,14 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
 namespace Pooled {
 
 /// MultiMap with common pool allocator.
-template<class K, class E, uint32_t N>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E> {
+template<class K, class E, uint32_t N, class C = std::less<K>>
+class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::MultiMap size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E> Base;
+    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
 
   private:  // variables
