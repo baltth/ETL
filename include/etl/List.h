@@ -43,7 +43,7 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
     typedef typename Base::Node Node;
 
-    typedef A<typename Base::Node> Allocator;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
@@ -106,79 +106,12 @@ class List : public ETL_NAMESPACE::List<T> {
 
 }
 
+
 namespace Dynamic {
 
-/// List with dynamic memory allocation, defaults to std::allocator.
-template<class T, template<class> class A = std::allocator>
-class List : public ETL_NAMESPACE::List<T> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::List<T> Base;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::Node Node;
-
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    List() :
-        Base(allocator) {};
-
-    List(const List& other) :
-        List() {
-        Base::operator=(other);
-    }
-
-    explicit List(const Base& other) :
-        List() {
-        Base::operator=(other);
-    }
-
-    List& operator=(const List& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    List& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    List(List&& other) :
-        List() {
-        operator=(std::move(other));
-    }
-
-    List& operator=(List&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    List(std::initializer_list<T> initList) :
-        List() {
-        operator=(initList);
-    }
-
-    List& operator=(std::initializer_list<T> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-    ~List() {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const {
-        return allocator;
-    }
-
-};
+/// List with dynamic memory allocation using std::allocator.
+template<class T>
+using List = ETL_NAMESPACE::Custom::List<T, std::allocator>;
 
 }
 

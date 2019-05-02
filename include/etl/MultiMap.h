@@ -103,77 +103,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
 }
 
+
 namespace Dynamic {
 
-/// MultiMap dynamic memory allocation, defaults to std::allocator.
-template<class K, class E, class C = std::less<K>, template<class> class A = std::allocator>
-class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    MultiMap() noexcept :
-        Base(allocator) {};
-
-    MultiMap(const MultiMap& other) :
-        MultiMap() {
-        Base::operator=(other);
-    }
-
-    explicit MultiMap(const Base& other) :
-        MultiMap() {
-        Base::operator=(other);
-    }
-
-    MultiMap& operator=(const MultiMap& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    MultiMap& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    MultiMap(MultiMap&& other) :
-        MultiMap() {
-        operator=(std::move(other));
-    }
-
-    MultiMap& operator=(MultiMap&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
-        MultiMap() {
-        operator=(initList);
-    }
-
-    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const noexcept {
-        return allocator;
-    }
-
-};
+/// MultiMap with dynamic memory allocation using std::allocator.
+template<class K, class E, class C = std::less<K>>
+using MultiMap = ETL_NAMESPACE::Custom::MultiMap<K, E, std::allocator, C>;
 
 }
+
 
 namespace Static {
 
@@ -248,6 +186,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 };
 
 }
+
 
 namespace Pooled {
 

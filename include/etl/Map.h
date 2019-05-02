@@ -102,75 +102,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
 }
 
+
 namespace Dynamic {
 
-/// Map with dynamic memory allocation, defaults to std::allocator.
-template<class K, class E, class C = std::less<K>, template<class> class A = std::allocator>
-class Map : public ETL_NAMESPACE::Map<K, E, C> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    Map() noexcept :
-        Base(allocator) {};
-
-    Map(const Map& other) :
-        Map() {
-        Base::operator=(other);
-    }
-
-    explicit Map(const Base& other) :
-        Map() {
-        Base::operator=(other);
-    }
-
-    Map& operator=(const Map& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Map& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Map(Map&& other) :
-        Map() {
-        operator=(std::move(other));
-    }
-
-    Map& operator=(Map&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    Map(std::initializer_list<std::pair<K, E>> initList) :
-        Map() {
-        operator=(initList);
-    }
-
-    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-    ~Map() noexcept(Allocator::NoexceptDestroy) {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const {
-        return allocator;
-    }
-
-};
+/// Map with dynamic memory allocation using std::allocator.
+template<class K, class E, class C = std::less<K>>
+using Map = ETL_NAMESPACE::Custom::Map<K, E, std::allocator, C>;
 
 }
 

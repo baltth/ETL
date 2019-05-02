@@ -105,75 +105,12 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
 namespace Dynamic {
 
-/// Set with dynamic memory allocation, defaults to std::allocator.
-template<class E, class C = std::less<E>, template<class> class A = std::allocator>
-class Set : public ETL_NAMESPACE::Set<E, C> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    Set() noexcept :
-        Base(allocator) {};
-
-    Set(const Set& other) :
-        Set() {
-        Base::operator=(other);
-    }
-
-    explicit Set(const Base& other) :
-        Set() {
-        Base::operator=(other);
-    }
-
-    Set& operator=(const Set& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Set& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Set(Set&& other) :
-        Set() {
-        operator=(std::move(other));
-    }
-
-    Set& operator=(Set&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Set() {
-        operator=(initList);
-    }
-
-    Set& operator=(std::initializer_list<E> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const noexcept {
-        return allocator;
-    }
-
-};
+/// Set with dynamic memory allocation using std::allocator.
+template<class E, class C = std::less<E>>
+using Set = ETL_NAMESPACE::Custom::Set<E, std::allocator, C>;
 
 }
+
 
 namespace Static {
 

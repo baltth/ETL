@@ -693,10 +693,10 @@ TEST_CASE("Etl::Pooled::List<>::splice() test", "[list][etl]") {
     }
 }
 
-TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
+TEST_CASE("Etl::Custom::List<> allocator test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::List<ItemType, DummyAllocator> ListT;
+    typedef Etl::Custom::List<ItemType, DummyAllocator> ListT;
     typedef ListT::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -833,7 +833,7 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
-    typedef Etl::Dynamic::List<ContainerTester, DummyAllocator> ListT;
+    typedef Etl::Custom::List<ContainerTester, DummyAllocator> ListT;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(ListT::Allocator::Allocator::getDeleteCount() == ListT::Allocator::Allocator::getAllocCount());
