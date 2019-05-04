@@ -24,21 +24,11 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
+#include <etl/base/tools.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
 
-
-template<class T, class S = void>
-struct TypeDefined {
-    typedef S type;
-};
-
-template<class T, class Enable = void>
-struct HasFirstType : std::false_type {};
-
-template<class T>
-struct HasFirstType<T, typename TypeDefined<typename T::first_type>::type> : std::true_type {};
 
 
 template<typename Comp>

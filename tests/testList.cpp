@@ -29,6 +29,7 @@ limitations under the License.
 #include "DummyAllocator.h"
 #include "sequenceTests.h"
 #include "compatibilityTests.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -837,6 +838,47 @@ TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(ListT::Allocator::Allocator::getDeleteCount() == ListT::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::List comparision tests ---------------------------------------------
+
+
+TEST_CASE("Etl::List<> comparision", "[list][etl]") {
+
+    SECTION("Etl::List<> vs Etl::List<>") {
+
+        Etl::Dynamic::List<int> lhs;
+        Etl::Dynamic::List<int> rhs;
+
+        auto inserter = [](Etl::List<int>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(static_cast<Etl::List<int>&>(lhs),
+                        static_cast<Etl::List<int>&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::List<> vs Etl::Static::List<>") {
+
+        Etl::Dynamic::List<int> lhs;
+        Etl::Static::List<int, 32U> rhs;
+
+        auto lInserter = [](Etl::Dynamic::List<int>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        auto rInserter = [](Etl::Static::List<int, 32U>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 
 

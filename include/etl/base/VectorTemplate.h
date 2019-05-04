@@ -557,7 +557,49 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
 };
 
+
+template<class T>
+bool operator==(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return Detail::isEqual(lhs, rhs);
 }
+
+template<class T>
+bool operator!=(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class T>
+bool operator<(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class T>
+bool operator<=(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class T>
+bool operator>(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class T>
+bool operator>=(const Vector<T>& lhs, const Vector<T>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class T>
+void swap(ETL_NAMESPACE::Vector<T>& lhs, ETL_NAMESPACE::Vector<T>& rhs) {
+    lhs.swap(rhs);
+}
+
+}
+
 
 #endif /* __ETL_VECTORTEMPLATE_H__ */
 

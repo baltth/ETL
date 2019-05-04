@@ -341,7 +341,7 @@ void List<T>::splice(const_iterator pos,
 template<class T>
 void List<T>::swapElements(List<T>& other) {
 
-    const SizeDiff diff(*this, other);
+    const Detail::SizeDiff diff(*this, other);
 
     iterator ownIt = this->begin();
     iterator otherIt = other.begin();
@@ -366,7 +366,49 @@ void List<T>::swapElements(List<T>& other) {
     }
 }
 
+
+template<class T>
+bool operator==(const List<T>& lhs, const List<T>& rhs) {
+    return Detail::isEqual(lhs, rhs);
 }
+
+template<class T>
+bool operator!=(const List<T>& lhs, const List<T>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class T>
+bool operator<(const List<T>& lhs, const List<T>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class T>
+bool operator<=(const List<T>& lhs, const List<T>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class T>
+bool operator>(const List<T>& lhs, const List<T>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class T>
+bool operator>=(const List<T>& lhs, const List<T>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class T>
+void swap(ETL_NAMESPACE::List<T>& lhs, ETL_NAMESPACE::List<T>& rhs) {
+    lhs.swap(rhs);
+}
+
+}
+
 
 #endif /* __ETL_LISTTEMPLATE_H__ */
 

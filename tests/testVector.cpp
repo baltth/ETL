@@ -27,7 +27,7 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "sequenceTests.h"
 #include "compatibilityTests.h"
-
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::UnalignedTester;
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -1275,6 +1275,46 @@ TEST_CASE("Etl::Static::Vector<> test cleanup", "[vec][static][etl]") {
     CHECK(ContainerTester::getObjectCount() == 0);
 }
 
+
+// Etl::Vector comparision tests -------------------------------------------
+
+
+TEST_CASE("Etl::Vector<> comparision", "[vector][etl]") {
+
+    SECTION("Etl::Vector<> vs Etl::Vector<>") {
+
+        Etl::Dynamic::Vector<int> lhs;
+        Etl::Dynamic::Vector<int> rhs;
+
+        auto inserter = [](Etl::Vector<int>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(static_cast<Etl::Vector<int>&>(lhs),
+                        static_cast<Etl::Vector<int>&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::Vector<> vs Etl::Static::Vector<>") {
+
+        Etl::Dynamic::Vector<int> lhs;
+        Etl::Static::Vector<int, 32U> rhs;
+
+        auto lInserter = [](Etl::Dynamic::Vector<int>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        auto rInserter = [](Etl::Static::Vector<int, 32U>& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
+}
 
 
 // Etl::Vector compatibility tests ---------------------------------------------
