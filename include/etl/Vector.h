@@ -133,10 +133,10 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
 }
 
 
-namespace Dynamic {
+namespace Custom {
 
-/// Vector with dynamic memory strategy, defaults to std::allocator.
-template<class T, template<class> class A = std::allocator>
+/// Vector with dynamic memory strategy, using custom allocator.
+template<class T, template<class> class A>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // types
@@ -221,7 +221,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 };
 
 
-template<class T, template<class> class A /* = std::allocator<T> */>
+template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len) :
     Base(strategy) {
 
@@ -230,7 +230,7 @@ Vector<T, A>::Vector(uint32_t len) :
 }
 
 
-template<class T, template<class> class A /* = std::allocator<T> */>
+template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len, const T& item) :
     Base(strategy) {
 
@@ -238,6 +238,26 @@ Vector<T, A>::Vector(uint32_t len, const T& item) :
 }
 
 }
+
+
+namespace Dynamic {
+
+/// Vector with dynamic memory allocation using std::allocator.
+template<class T>
+using Vector = ETL_NAMESPACE::Custom::Vector<T, std::allocator>;
+
+}
+
+}
+
+
+namespace std {
+
+template<class T, template<class> class A>
+void swap(ETL_NAMESPACE::Custom::Vector<T, A>& lhs, ETL_NAMESPACE::Custom::Vector<T, A>& rhs) {
+    lhs.swap(rhs);
+}
+
 }
 
 #endif /* __ETL_VECTOR_H__ */
