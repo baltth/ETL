@@ -26,6 +26,7 @@ limitations under the License.
 #include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
 #include <etl/base/KeyCompare.h>
+#include <etl/base/tools.h>
 
 #include <utility>
 #include <functional>
@@ -181,7 +182,7 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
 template<class K, class E, class C>
 auto Map<K, E, C>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, bool> {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, k, e);
@@ -198,7 +199,7 @@ auto Map<K, E, C>::insert_or_assign(const K& k, const E& e) -> std::pair<iterato
 template<class K, class E, class C>
 void Map<K, E, C>::erase(const K& k) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -209,7 +210,7 @@ void Map<K, E, C>::erase(const K& k) {
 template<class K, class E, class C>
 auto Map<K, E, C>::find(const K& k) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -222,7 +223,7 @@ auto Map<K, E, C>::find(const K& k) -> iterator {
 template<class K, class E, class C>
 auto Map<K, E, C>::find(const K& k) const -> const_iterator {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -235,7 +236,7 @@ auto Map<K, E, C>::find(const K& k) const -> const_iterator {
 template<class K, class E, class C>
 auto Map<K, E, C>::getItem(const K& k) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, std::move(value_type(k, E())));
@@ -259,6 +260,47 @@ auto Map<K, E, C>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, b
 
     found.second = !found.second;
     return found;
+}
+
+
+template<class K, class E, class C>
+bool operator==(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator!=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class K, class E, class C>
+bool operator<(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator<=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class K, class E, class C>
+void swap(ETL_NAMESPACE::Map<K, E, C>& lhs, ETL_NAMESPACE::Map<K, E, C>& rhs) {
+    lhs.swap(rhs);
 }
 
 }

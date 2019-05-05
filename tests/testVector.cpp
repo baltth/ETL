@@ -1283,29 +1283,35 @@ TEST_CASE("Etl::Vector<> comparision", "[vector][etl]") {
 
     SECTION("Etl::Vector<> vs Etl::Vector<>") {
 
-        Etl::Dynamic::Vector<int> lhs;
-        Etl::Dynamic::Vector<int> rhs;
+        using VecType = Etl::Dynamic::Vector<int>;
+        using Base = Etl::Vector<int>;
 
-        auto inserter = [](Etl::Vector<int>& cont, int val) {
+        VecType lhs;
+        VecType rhs;
+
+        auto inserter = [](Base& cont, int val) {
             cont.push_back(val);
         };
 
-        testComparision(static_cast<Etl::Vector<int>&>(lhs),
-                        static_cast<Etl::Vector<int>&>(rhs),
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
                         inserter,
                         inserter);
     }
 
     SECTION("Etl::Dynamic::Vector<> vs Etl::Static::Vector<>") {
 
-        Etl::Dynamic::Vector<int> lhs;
-        Etl::Static::Vector<int, 32U> rhs;
+        using LType = Etl::Dynamic::Vector<int>;
+        using RType = Etl::Static::Vector<int, 32U>;
 
-        auto lInserter = [](Etl::Dynamic::Vector<int>& cont, int val) {
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
             cont.push_back(val);
         };
 
-        auto rInserter = [](Etl::Static::Vector<int, 32U>& cont, int val) {
+        auto rInserter = [](RType& cont, int val) {
             cont.push_back(val);
         };
 

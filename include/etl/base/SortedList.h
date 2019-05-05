@@ -192,7 +192,7 @@ class SortedList {
 template<class T, class Comp>
 auto SortedList<T, Comp>::insert(const_reference item) -> iterator {
 
-    std::pair<iterator, bool> found = findSortedPosition(item);
+    auto found = findSortedPosition(item);
     return list.insert(found.first, item);
 }
 
@@ -200,7 +200,7 @@ auto SortedList<T, Comp>::insert(const_reference item) -> iterator {
 template<class T, class Comp>
 auto SortedList<T, Comp>::insertUnique(const_reference item) -> std::pair<iterator, bool> {
 
-    std::pair<iterator, bool> found = findSortedPosition(item);
+    auto found = findSortedPosition(item);
 
     if (found.second == false) {
 
@@ -224,7 +224,8 @@ auto SortedList<T, Comp>::findSortedRangeBase(It it, It endIt,
                                               const CV& val,
                                               const CF& compare) const -> std::pair<It, It> {
 
-    std::pair<It, It> res(endIt, endIt);
+    //std::pair<It, It> res(endIt, endIt);
+    auto res = std::make_pair(endIt, endIt);
 
     if (it != endIt) {
 

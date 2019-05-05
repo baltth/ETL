@@ -848,29 +848,35 @@ TEST_CASE("Etl::List<> comparision", "[list][etl]") {
 
     SECTION("Etl::List<> vs Etl::List<>") {
 
-        Etl::Dynamic::List<int> lhs;
-        Etl::Dynamic::List<int> rhs;
+        using ListType = Etl::Dynamic::List<int>;
+        using Base = Etl::List<int>;
 
-        auto inserter = [](Etl::List<int>& cont, int val) {
+        ListType lhs;
+        ListType rhs;
+
+        auto inserter = [](Base& cont, int val) {
             cont.push_back(val);
         };
 
-        testComparision(static_cast<Etl::List<int>&>(lhs),
-                        static_cast<Etl::List<int>&>(rhs),
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
                         inserter,
                         inserter);
     }
 
     SECTION("Etl::Dynamic::List<> vs Etl::Static::List<>") {
 
-        Etl::Dynamic::List<int> lhs;
-        Etl::Static::List<int, 32U> rhs;
+        using LType = Etl::Dynamic::List<int>;
+        using RType = Etl::Static::List<int, 32U>;
 
-        auto lInserter = [](Etl::Dynamic::List<int>& cont, int val) {
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
             cont.push_back(val);
         };
 
-        auto rInserter = [](Etl::Static::List<int, 32U>& cont, int val) {
+        auto rInserter = [](RType& cont, int val) {
             cont.push_back(val);
         };
 

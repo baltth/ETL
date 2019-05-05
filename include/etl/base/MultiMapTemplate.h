@@ -26,6 +26,7 @@ limitations under the License.
 #include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
 #include <etl/base/KeyCompare.h>
+#include <etl/base/tools.h>
 
 #include <utility>
 #include <functional>
@@ -189,7 +190,7 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
 template<class K, class E, class C>
 auto MultiMap<K, E, C>::erase(const K& k) -> size_type {
 
-    std::pair<iterator, iterator> found = Base::findSortedRange(k);
+    auto found = Base::findSortedRange(k);
     iterator it = found.first;
     size_type count = 0;
 
@@ -205,7 +206,7 @@ auto MultiMap<K, E, C>::erase(const K& k) -> size_type {
 template<class K, class E, class C>
 auto MultiMap<K, E, C>::find(const K& k) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -218,7 +219,7 @@ auto MultiMap<K, E, C>::find(const K& k) -> iterator {
 template<class K, class E, class C>
 auto MultiMap<K, E, C>::find(const K& k) const -> const_iterator {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -236,6 +237,47 @@ auto MultiMap<K, E, C>::emplace(const K& k, Args&& ... args) -> iterator {
     found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);
 
     return found.first;
+}
+
+
+template<class K, class E, class C>
+bool operator==(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator!=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class K, class E, class C>
+bool operator<(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator<=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class K, class E, class C>
+void swap(ETL_NAMESPACE::MultiMap<K, E, C>& lhs, ETL_NAMESPACE::MultiMap<K, E, C>& rhs) {
+    lhs.swap(rhs);
 }
 
 }

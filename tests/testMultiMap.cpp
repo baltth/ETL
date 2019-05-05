@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -497,5 +498,52 @@ TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::MultiMap comparision tests -----------------------------------------
+
+
+TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
+
+    SECTION("Etl::MultiMap<> vs Etl::MultiMap<>") {
+
+        using MapType = Etl::Dynamic::MultiMap<int, int>;
+        using Base = Etl::MultiMap<int, int>;
+
+        MapType lhs;
+        MapType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::MultiMap<> vs Etl::Static::MultiMap<>") {
+
+        using LType = Etl::Dynamic::MultiMap<int, int>;
+        using RType = Etl::Static::MultiMap<int, int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 

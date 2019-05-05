@@ -25,6 +25,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
+#include <etl/base/tools.h>
 
 #include <functional>
 
@@ -120,6 +121,9 @@ class Set : private Detail::SortedList<E, C> {
         }
     }
 
+    template<class... Args>
+    std::pair<iterator,bool> emplace(Args&&... args);
+
     void swap(Set& other) {
         Base::swap(other);
     }
@@ -149,9 +153,9 @@ class Set : private Detail::SortedList<E, C> {
 
 
 template<class E, class C>
-void Set<E,C>::erase(const E& e) {
+void Set<E, C>::erase(const E& e) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -160,9 +164,9 @@ void Set<E,C>::erase(const E& e) {
 
 
 template<class E, class C>
-auto Set<E,C>::find(const E& e) -> iterator {
+auto Set<E, C>::find(const E& e) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
@@ -173,15 +177,72 @@ auto Set<E,C>::find(const E& e) -> iterator {
 
 
 template<class E, class C>
-auto Set<E,C>::find(const E& e) const -> const_iterator {
+auto Set<E, C>::find(const E& e) const -> const_iterator {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
     } else {
         return Base::end();
     }
+}
+
+
+template<class E, class C>
+template<typename... Args>
+auto Set<E, C>::emplace(Args&& ... args) -> std::pair<iterator, bool> {
+
+    value_type e(std::forward<Args>(args)...);
+    auto found = Base::findSortedPosition(e);
+
+    if (found.second == false) {
+        found.first = Base::emplaceTo(found.first, std::move(e));
+    }
+
+    found.second = !found.second;
+    return found;
+}
+
+
+template<class E, class C>
+bool operator==(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class E, class C>
+bool operator!=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class E, class C>
+bool operator<(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class E, class C>
+bool operator<=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class E, class C>
+bool operator>(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class E, class C>
+bool operator>=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class E, class C>
+void swap(ETL_NAMESPACE::Set<E, C>& lhs, ETL_NAMESPACE::Set<E, C>& rhs) {
+    lhs.swap(rhs);
 }
 
 }

@@ -26,6 +26,7 @@ limitations under the License.
 #include <etl/traitSupport.h>
 #include <etl/base/TypedVectorBase.h>
 #include <etl/base/MemStrategies.h>
+#include <etl/base/tools.h>
 
 #undef min
 #undef max

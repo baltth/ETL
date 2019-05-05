@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -440,5 +441,52 @@ TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::Map comparision tests ----------------------------------------------
+
+
+TEST_CASE("Etl::Map<> comparision", "[map][etl]") {
+
+    SECTION("Etl::Map<> vs Etl::Map<>") {
+
+        using MapType = Etl::Dynamic::Map<int, int>;
+        using Base = Etl::Map<int, int>;
+
+        MapType lhs;
+        MapType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::Map<> vs Etl::Static::Map<>") {
+
+        using LType = Etl::Dynamic::Map<int, int>;
+        using RType = Etl::Static::Map<int, int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 
