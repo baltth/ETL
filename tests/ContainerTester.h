@@ -40,10 +40,7 @@ class ContainerTester {
     static uint32_t objectCnt;
     static uint32_t objectRef;
     static uint32_t copyCnt;
-
-#if ETL_USE_CPP11
     static uint32_t moveCnt;
-#endif
 
   public:
 
@@ -116,8 +113,6 @@ class ContainerTester {
         return copyCnt;
     }
 
-#if ETL_USE_CPP11
-
     ContainerTester(ContainerTester&& other) :
         value(other.value),
         objectId(++objectRef) {
@@ -145,8 +140,6 @@ class ContainerTester {
     static uint32_t getMoveCount() {
         return moveCnt;
     }
-
-#endif
 
     void reportConstructor() {
         std::cout << "C()     ";

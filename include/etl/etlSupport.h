@@ -24,8 +24,12 @@ limitations under the License.
 
 #include <etl/langSupport.h>
 
+#ifndef ETL_DISABLE_ASSERT
+#include <cassert>
+#endif
+
 #ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE   Etl
+#define ETL_NAMESPACE       Etl
 #endif
 
 #ifndef ETL_DISABLE_HEAP
@@ -40,22 +44,13 @@ limitations under the License.
 // Assertions
 
 #if ETL_DISABLE_ASSERT
-
 #define ETL_ASSERT(cond)
-
 #else
-
-#include <cassert>
-
 #define ETL_ASSERT(cond)    assert(cond)
-
 #endif
 
 
 // Language features
-
-#if ETL_USE_CPP11
-
 #include <cstdint>
 #include <functional>
 
@@ -69,12 +64,6 @@ using std::int32_t;
 using std::int64_t;
 using std::size_t;
 
-#else
-
-#include <stdint.h>
-
-#endif
-
 
 // Utilities
 
@@ -86,8 +75,8 @@ namespace ETL_NAMESPACE {
 
 template<typename T>
 struct Matcher {
-    virtual bool call(const T&) const = 0;
-    bool operator()(const T& item) const {
+    virtual bool call(const T&) const noexcept = 0;
+    bool operator()(const T& item) const noexcept {
         return this->call(item);
     }
 };
@@ -98,10 +87,10 @@ struct MethodMatcher : Matcher<T> {
     typedef  V(T::*Method)() const;
     Method method;
     const V val;
-    MethodMatcher(Method m, const V& v) :
+    MethodMatcher(Method m, const V& v) noexcept :
         method(m),
         val(v) {};
-    virtual bool call(const T& item) const OVERRIDE {
+    bool call(const T& item) const noexcept override {
         return ((item.*method)() == val);
     }
 };
@@ -112,20 +101,17 @@ struct FunctionMatcher : Matcher<T> {
     typedef  V(*Func)(const T&);
     Func func;
     const V val;
-    FunctionMatcher(Func f, const V& v) :
+    FunctionMatcher(Func f, const V& v) noexcept :
         func(f),
         val(v) {};
-    virtual bool call(const T& item) const OVERRIDE {
+    bool call(const T& item) const noexcept override {
         return ((*func)(item) == val);
     }
 };
 
-#if ETL_USE_CPP11
 
 template<typename T>
 using MatchFunc = std::function<bool(const T&)>;
-
-#endif
 
 
 template<typename S, typename T>
@@ -156,7 +142,7 @@ struct IsIterator {
     template<typename U>
     static No test(...);
 
-    static const bool value = (sizeof(test<T>(NULLPTR)) == sizeof(Yes));
+    static const bool value = (sizeof(test<T>(nullptr)) == sizeof(Yes));
 };
 
 
@@ -175,8 +161,7 @@ struct AlignmentOf {
     };
 
     static const size_t value = sizeof(Aligned) - sizeof(Basic);
-
-    STATIC_ASSERT(value > 0);
+    static_assert(value > 0, "Error calculating alignment");
 
 };
 

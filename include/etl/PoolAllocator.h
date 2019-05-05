@@ -37,7 +37,7 @@ Implements AAllocator based on MemoryPool.
 template<class T, uint32_t N>
 class PoolAllocator : public AAllocator<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid pool size");
 
   public:   // types
 
@@ -50,28 +50,28 @@ class PoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    virtual size_t max_size() const OVERRIDE {
+    size_t max_size() const noexcept override {
         return pool.capacity();
     }
 
-    virtual size_t size() const OVERRIDE {
+    size_t size() const noexcept override {
         return pool.getCount();
     }
 
-    virtual PtrType allocate(uint32_t n) OVERRIDE {
+    PtrType allocate(uint32_t n) override {
         if (n == 1) {
             return static_cast<PtrType>(pool.pop());
         } else {
-            return NULLPTR;
+            return nullptr;
         }
     }
 
-    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         (void)n;
         pool.push(ptr);
     }
 
-    virtual const void* handle() const OVERRIDE {
+    const void* handle() const noexcept override {
         return &pool;
     }
 
@@ -87,7 +87,7 @@ Forwards the `std::allocator` interface to a static MemoryPool.
 template<class T, uint32_t N>
 class CommonPoolAllocator : public AAllocator<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid pool size");
 
   public:   // types
 
@@ -97,23 +97,23 @@ class CommonPoolAllocator : public AAllocator<T> {
 
   public:   // functions
 
-    virtual size_t max_size() const OVERRIDE {
+    size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    virtual size_t size() const OVERRIDE {
+    size_t size() const noexcept override {
         return allocator().size();
     }
 
-    virtual PtrType allocate(uint32_t n) OVERRIDE {
+    PtrType allocate(uint32_t n) override {
         return allocator().allocate(n);
     }
 
-    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 
-    virtual const void* handle() const OVERRIDE {
+    const void* handle() const noexcept override {
         return allocator().handle();
     }
 
@@ -139,8 +139,6 @@ class PoolHelper {
     class CommonAllocator : public CommonPoolAllocator<T, N> {};
 
 };
-
-
 
 }
 

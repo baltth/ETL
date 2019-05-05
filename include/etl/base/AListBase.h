@@ -39,10 +39,9 @@ class AListBase {
 
       protected:
 
-        Node() :
-            DoubleChain::Node() {};
+        Node() = default;
 
-        explicit Node(const DoubleChain::Node& other) :
+        explicit Node(const DoubleChain::Node& other) noexcept :
             DoubleChain::Node(other) {};
 
     };
@@ -56,119 +55,102 @@ class AListBase {
 
       public:
 
-        bool operator==(const Iterator& other) const {
+        bool operator==(const Iterator& other) const noexcept {
             return (node == other.node);
         }
 
-        bool operator!=(const Iterator& other) const {
+        bool operator!=(const Iterator& other) const noexcept {
             return !(operator==(other));
         }
 
-        Iterator& operator++() {
+        Iterator& operator++() noexcept {
             node = static_cast<AListBase::Node*>(node->next);
             return *this;
         }
 
-        Iterator& operator--() {
+        Iterator& operator--() noexcept {
             node = static_cast<AListBase::Node*>(node->prev);
             return *this;
         }
 
       protected:
 
-        explicit Iterator(AListBase::Node* n) :
+        explicit Iterator(AListBase::Node* n) noexcept :
             node(n) {};
 
     };
 
+    typedef uint32_t size_type;
+
   protected: // variables
 
     DoubleChain chain;
-    uint32_t size_;
+    size_type size_ = 0U;
 
   public:   // functions
 
-    AListBase() :
-        size_(0U) {};
+    AListBase() = default;
 
-#if ETL_USE_CPP11
+    AListBase(const AListBase& other) = delete;
+    AListBase& operator=(const AListBase& other) = delete;
 
-    AListBase(AListBase&& other) :
-        chain(std::move(other.chain)),
-        size_(other.size_) {};
+    AListBase(AListBase&& other) = default;
+    AListBase& operator=(AListBase&& other) = default;
+    ~AListBase() = default;
 
-    AListBase& operator=(AListBase&& other) {
-        chain = std::move(other.chain);
-        size_ = other.size_;
-        return *this;
-    }
-
-#endif
-
-    uint32_t size() const {
+    size_type size() const noexcept {
         return size_;
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return (size_ == 0U);
     }
 
   protected:
 
-    Iterator begin() const {
+    Iterator begin() const noexcept {
         return Iterator(static_cast<AListBase::Node*>(chain.getFirst()));
     }
 
-    Iterator end() const {
+    Iterator end() const noexcept {
         return Iterator(static_cast<AListBase::Node*>(chain.getLast()->next));
     }
 
     /// \name Element operations
     /// \{
-    void pushFront(Node* item) {
-        if (item != NULLPTR) {
-            chain.insertBefore(chain.getFirst(), item);
-            ++size_;
-        }
+    void pushFront(Node& item) noexcept {
+        chain.insertBefore(chain.getFirst(), &item);
+        ++size_;
     }
 
-    void pushBack(Node* item) {
-        if (item != NULLPTR) {
-            chain.insertAfter(chain.getLast(), item);
-            ++size_;
-        }
+    void pushBack(Node& item) noexcept {
+        chain.insertAfter(chain.getLast(), &item);
+        ++size_;
     }
 
-    Node* popFront();
-    Node* popBack();
+    Node* popFront() noexcept;
+    Node* popBack() noexcept;
 
-    void insert(Iterator pos, Node* item) {
-        if (item != NULLPTR) {
-            chain.insertBefore(pos.node, item);
-            ++size_;
-        }
+    void insert(Iterator pos, Node& item) noexcept {
+        chain.insertBefore(pos.node, &item);
+        ++size_;
     }
 
-    Node* remove(Iterator pos) {
+    Node* remove(Iterator pos) noexcept {
         --size_;
         return static_cast<AListBase::Node*>(chain.remove(pos.node));
     }
 
-    void replace(Node* n1, Node* n2) {
-        chain.replace(n1, n2);
+    void replace(Node& n1, Node& n2) noexcept {
+        chain.replace(&n1, &n2);
     }
 
-    void swapNodeList(AListBase& other);
+    void swapNodeList(AListBase& other) noexcept;
     void splice(Iterator pos,
                 AListBase& other,
                 Iterator first,
-                Iterator last);
+                Iterator last) noexcept;
     /// \}
-
-  private:
-
-    AListBase(const AListBase& other);
-    AListBase& operator=(const AListBase& other);
 
 };
 

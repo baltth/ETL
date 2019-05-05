@@ -43,86 +43,6 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
     typedef typename Base::Node Node;
 
-    typedef A<typename Base::Node> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    List() :
-        Base(allocator) {};
-
-    List(const List& other) :
-        Base(allocator) {
-        Base::operator=(other);
-    }
-
-    explicit List(const Base& other) :
-        Base(allocator) {
-        Base::operator=(other);
-    }
-
-    List& operator=(const List& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    List& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-#if ETL_USE_CPP11
-
-    List(List&& other) :
-        Base(allocator) {
-        operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
-    }
-
-    List& operator=(List&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    List& operator=(std::initializer_list<T> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-#endif
-
-    ~List() {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const {
-        return allocator;
-    }
-
-};
-
-}
-
-namespace Dynamic {
-
-/// List with dynamic memory allocation, defaults to std::allocator.
-template<class T, template<class> class A = std::allocator>
-class List : public ETL_NAMESPACE::List<T> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::List<T> Base;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::Node Node;
-
     typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
@@ -135,12 +55,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -154,16 +74,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -171,12 +84,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -191,13 +107,22 @@ class List : public ETL_NAMESPACE::List<T> {
 }
 
 
+namespace Dynamic {
+
+/// List with dynamic memory allocation using std::allocator.
+template<class T>
+using List = ETL_NAMESPACE::Custom::List<T, std::allocator>;
+
+}
+
+
 namespace Static {
 
 /// List with unique pool allocator.
 template<class T, uint32_t N>
 class List : public ETL_NAMESPACE::List<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::List size");
 
   public:   // types
 
@@ -217,12 +142,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -236,16 +161,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -253,12 +171,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -279,7 +200,7 @@ namespace Pooled {
 template<class T, uint32_t N>
 class List : public ETL_NAMESPACE::List<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Pooled::List size");
 
   public:   // types
 
@@ -299,12 +220,12 @@ class List : public ETL_NAMESPACE::List<T> {
         Base(allocator) {};
 
     List(const List& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        Base(allocator) {
+        List() {
         Base::operator=(other);
     }
 
@@ -318,16 +239,9 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     List(List&& other) :
-        Base(allocator) {
+        List() {
         operator=(std::move(other));
-    }
-
-    List(std::initializer_list<T> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     List& operator=(List&& other) {
@@ -335,12 +249,15 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
+    List(std::initializer_list<T> initList) :
+        List() {
+        operator=(initList);
+    }
+
     List& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~List() {
         this->clear();
@@ -353,7 +270,6 @@ class List : public ETL_NAMESPACE::List<T> {
 };
 
 }
-
 }
 
 #endif /* __ETL_LIST_H__ */

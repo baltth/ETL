@@ -24,8 +24,6 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::SingleChain;
 
 
-#if ETL_USE_CPP11
-
 SingleChain::SingleChain(SingleChain&& other) {
 
     setEmpty();
@@ -39,13 +37,11 @@ SingleChain& SingleChain::operator=(SingleChain&& other) {
     return *this;
 }
 
-#endif
-
 
 void SingleChain::insertAfter(Node* pos, Node* node) {
 
-    ETL_ASSERT(pos != NULLPTR);
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
+    ETL_ASSERT(node != nullptr);
 
     Node* next = pos->next;
     linkNodes(pos, node);
@@ -55,12 +51,12 @@ void SingleChain::insertAfter(Node* pos, Node* node) {
 
 SingleChain::Node* SingleChain::removeAfter(Node* pos) {
 
-    ETL_ASSERT(pos != NULLPTR);
-    ETL_ASSERT(pos->next != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
+    ETL_ASSERT(pos->next != nullptr);
 
     Node* removed = pos->next;
     linkNodes(pos, pos->next->next);
-    removed->next = NULLPTR;
+    removed->next = nullptr;
 
     return removed;
 }

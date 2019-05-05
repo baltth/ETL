@@ -36,8 +36,8 @@ Memory pool template.
 template<size_t S, uint32_t N>
 class MemoryPool {
 
-    STATIC_ASSERT_(S > 0, size);
-    STATIC_ASSERT_(N > 0, length);
+    static_assert(S > 0, "Invalid item size");
+    static_assert(N > 0, "Invalid pool length");
 
   private:  // types
 
@@ -58,35 +58,35 @@ class MemoryPool {
 
   public:   // functions
 
-    MemoryPool<S, N>() :
+    MemoryPool() :
         data(),
         base(data) {};
 
-    inline void* pop() {
+    MemoryPool(const MemoryPool& other) = delete;
+    MemoryPool& operator=(const MemoryPool& other) = delete;
+    MemoryPool(MemoryPool&& other) = delete;
+    MemoryPool& operator=(MemoryPool&& other) = delete;
+    ~MemoryPool() = default;
+
+    void* pop() {
         return base.pop();
     }
 
-    inline bool push(void* item) {
+    bool push(void* item) {
         return base.push(item);
     }
 
-    inline uint32_t getFreeCount() const {
+    uint32_t getFreeCount() const {
         return base.getFreeCount();
     }
 
-    inline uint32_t capacity() const {
+    uint32_t capacity() const {
         return N;
     }
 
-    inline uint32_t getCount() const {
+    uint32_t getCount() const {
         return capacity() - getFreeCount();
     }
-
-  private:
-
-    // Non-copyable
-    MemoryPool<S, N>(const MemoryPool<S, N>& other);
-    MemoryPool<S, N>& operator=(const MemoryPool<S, N>& other);
 
 };
 

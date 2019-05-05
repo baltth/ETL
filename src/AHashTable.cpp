@@ -29,7 +29,7 @@ void AHashTable::insert(AHashTable::Node& item) {
 
     uint32_t ix = bucketOfHash(item.hash);
 
-    if (buckets[ix] == NULLPTR) {
+    if (buckets[ix] == nullptr) {
 
         buckets[ix] = lastItem;
         chain.insertAfter(buckets[ix], &item);
@@ -47,19 +47,19 @@ void AHashTable::insert(AHashTable::Node& item) {
 std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash, ix) {
 
     ETL_ASSERT(bucketOfHash(hash) == ix);
-    ETL_ASSERT(buckets[ix] != NULLPTR);
+    ETL_ASSERT(buckets[ix] != nullptr);
 
     bool found = false;
     bool end = false;
     SingleChain::Node* prev = buckets[ix];
 
-    ETL_ASSERT(prev->next != NULLPTR);
+    ETL_ASSERT(prev->next != nullptr);
 
     while ((!found) && (!end)) {
 
         SinngleChain::Node* next = prev->next;
 
-        if ((next == NULLPTR) || (bucketOfHash(next) != ix)) {
+        if ((next == nullptr) || (bucketOfHash(next) != ix)) {
             end = true;
         } else if (next->hash > hash) {
             end = true;
@@ -87,11 +87,11 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
     std::uint32_t ix = prev.second;
 
     if (buckets[ix] == lastItem) {
-        buckets[ix] = NULLPTR;
+        buckets[ix] = nullptr;
     } else {
         const Node& next = static_cast<const Node&>(*(buckets[ix].next));
         if (bucketOfHash(next.hash) != ix) {
-            buckets[ix] = NULLPTR;
+            buckets[ix] = nullptr;
         }
     }
 
@@ -105,12 +105,12 @@ std::pair<SingleChain::Node*, std::uint32_t> AHashTable::findPrevious(AHashTable
 
     uint32_t ix = bucketOfHash(item.hash);
 
-    ETL_ASSERT(buckets[ix] != NULLPTR);
+    ETL_ASSERT(buckets[ix] != nullptr);
 
     SingleChain::Node* prev = buckets[ix];
     while (prev->next != &item) {
         prev = prev->next;
-        ETL_ASSERT(prev != NULLPTR);
+        ETL_ASSERT(prev != nullptr);
         ETL_ASSERT(bucketOfHash(static_cast<Node*>(prev)->hash) == ix);
     }
 
@@ -120,16 +120,16 @@ std::pair<SingleChain::Node*, std::uint32_t> AHashTable::findPrevious(AHashTable
 
 const AHashTable::Node* AHashTable::find(HashType hash) const {
 
-    const AHashTable::Node* res = NULLPTR;
+    const AHashTable::Node* res = nullptr;
     uint32_t ix = bucketOfHash(hash);
 
-    if (buckets[ix] != NULLPTR) {
+    if (buckets[ix] != nullptr) {
 
         const Node* node = static_cast<const Node*>(buckets[ix].next);
 
         while ((node->hash != hash) && (bucketOfHash(node.hash) == ix)) {
             node = node->next;
-            ETL_ASSERT(node != NULLPTR);
+            ETL_ASSERT(node != nullptr);
         }
 
         if (node->hash == hash) {
@@ -143,14 +143,14 @@ const AHashTable::Node* AHashTable::find(HashType hash) const {
 
 std::pair<const AHashTable::Node*, const AHashTable::Node*> AHashTable::equalRange(HashType hash) const {
 
-    Node* rangeEnd = NULLPTR;
+    Node* rangeEnd = nullptr;
     Node* rangeStart = find(hash);
 
-    if (rangeStart != NULLPTR) {
+    if (rangeStart != nullptr) {
 
         rangeEnd = rangeStart->next;
 
-        while ((rangeEnd != NULLPTR) && (rangeEnd.hash == hash)) {
+        while ((rangeEnd != nullptr) && (rangeEnd.hash == hash)) {
             rangeEnd = rangeEnd->next;
         }
     }
@@ -164,7 +164,7 @@ std::uint32_t AHashTable::count(HashType hash) const {
     std::uint32_t cnt = 0U;
     std::pair<const Node*, const Node*> res = equalRange(hash);
 
-    if (res.first != NULLPTR) {
+    if (res.first != nullptr) {
         while (res.first != res.second) {
             ++cnt;
             res.first = res.first->next;

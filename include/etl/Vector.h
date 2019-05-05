@@ -34,7 +34,7 @@ namespace Static {
 template<class T, size_t N>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::Vector<> size");
 
   public:   // types
 
@@ -48,7 +48,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // functions
 
-    Vector() :
+    Vector() noexcept :
         Base(strategy),
         strategy(data_, N) {
         this->reserve(N);
@@ -79,8 +79,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Vector(Vector&& other) :
         Base(strategy),
         strategy(data_, N) {
@@ -98,12 +96,15 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
+    Vector& operator=(Base&& other) {
+        Base::operator=(std::move(other));
+        return *this;
+    }
+
     Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
-
-#endif
 
     ~Vector() {
         strategy.cleanup(*this);
@@ -116,7 +117,7 @@ Vector<T, N>::Vector(uint32_t len) :
     Base(strategy),
     strategy(data_, N) {
 
-    typename TypedVectorBase<T>::DefaultCreator dc;
+    typename Base::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 
@@ -132,10 +133,10 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
 }
 
 
-namespace Dynamic {
+namespace Custom {
 
-/// Vector with dynamic memory strategy, defaults to std::allocator.
-template<class T, template<class> class A = std::allocator>
+/// Vector with dynamic memory strategy, using custom allocator.
+template<class T, template<class> class A>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:   // types
@@ -176,8 +177,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Vector(Vector&& other) :
         Base(strategy) {
         operator=(std::move(other));
@@ -193,49 +192,70 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
+    Vector& operator=(Base&& other) {
+        Base::operator=(std::move(other));
+        return *this;
+    }
+
     Vector& operator=(std::initializer_list<T> initList) {
         Base::operator=(initList);
         return *this;
     }
 
-#endif
-
     ~Vector() {
         strategy.cleanup(*this);
     }
 
-    bool swap(Vector& other) {
+    void swap(Vector& other) {
         if (&other != this) {
-            AVectorBase::swapProxy(other);
-            return true;
+            Detail::AVectorBase::swapProxy(other);
         } else {
-            return false;
+            Base::swap(other);
         }
     }
 
-    bool swap(Base& other) {
+    void swap(Base& other) {
         return Base::swap(other);
     }
 
 };
 
 
-template<class T, template<class> class A /* = std::allocator<T> */>
+template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len) :
     Base(strategy) {
 
-    typename TypedVectorBase<T>::DefaultCreator dc;
+    typename Base::DefaultCreator dc;
     this->insertWithCreator(this->begin(), len, dc);
 }
 
 
-template<class T, template<class> class A /* = std::allocator<T> */>
+template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len, const T& item) :
     Base(strategy) {
 
     this->insert(this->begin(), len, item);
 }
 
+}
+
+
+namespace Dynamic {
+
+/// Vector with dynamic memory allocation using std::allocator.
+template<class T>
+using Vector = ETL_NAMESPACE::Custom::Vector<T, std::allocator>;
+
+}
+
+}
+
+
+namespace std {
+
+template<class T, template<class> class A>
+void swap(ETL_NAMESPACE::Custom::Vector<T, A>& lhs, ETL_NAMESPACE::Custom::Vector<T, A>& rhs) {
+    lhs.swap(rhs);
 }
 
 }

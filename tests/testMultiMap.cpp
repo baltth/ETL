@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -411,10 +412,26 @@ TEST_CASE("Etl::Dynamic::MultiMap<> search tests", "[multimap][etl]") {
 }
 
 
-TEST_CASE("Etl::MultiMap<> allocator test", "[multimap][etl]") {
+TEST_CASE("Etl::MultiMap<> custom compare tests", "[multimap][etl]") {
+
+    typedef Etl::Dynamic::MultiMap<uint32_t, int, std::greater<uint32_t>> MapType;
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(3, -9);
+    map.insert(4, -4);
+
+    CHECK(map.size() == 5);
+    REQUIRE(map.begin()->first == 4);
+}
+
+
+TEST_CASE("Etl::Custom::MultiMap<> allocator test", "[multimap][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef Etl::Custom::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -477,9 +494,56 @@ TEST_CASE("Etl::Pooled::MultiMap<> test", "[multimap][etl]") {
 
 TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
 
-    typedef Etl::Dynamic::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Custom::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::MultiMap comparision tests -----------------------------------------
+
+
+TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
+
+    SECTION("Etl::MultiMap<> vs Etl::MultiMap<>") {
+
+        using MapType = Etl::Dynamic::MultiMap<int, int>;
+        using Base = Etl::MultiMap<int, int>;
+
+        MapType lhs;
+        MapType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::MultiMap<> vs Etl::Static::MultiMap<>") {
+
+        using LType = Etl::Dynamic::MultiMap<int, int>;
+        using RType = Etl::Static::MultiMap<int, int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 

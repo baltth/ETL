@@ -24,29 +24,25 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::DoubleChain;
 
 
-#if ETL_USE_CPP11
-
-DoubleChain::DoubleChain(DoubleChain&& other) {
+DoubleChain::DoubleChain(DoubleChain&& other) noexcept {
 
     setEmpty();
     swap(other);
 }
 
 
-DoubleChain& DoubleChain::operator=(DoubleChain&& other) {
+DoubleChain& DoubleChain::operator=(DoubleChain&& other) noexcept {
 
     swap(other);
     return *this;
 }
 
-#endif
 
+void DoubleChain::insertAfter(Node* pos, Node* node) noexcept {
 
-void DoubleChain::insertAfter(Node* pos, Node* node) {
-
-    ETL_ASSERT(pos != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(pos != &backNode);
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
 
     Node* next = pos->next;
     linkNodes(pos, node);
@@ -54,11 +50,11 @@ void DoubleChain::insertAfter(Node* pos, Node* node) {
 }
 
 
-void DoubleChain::insertBefore(Node* pos, Node* node) {
+void DoubleChain::insertBefore(Node* pos, Node* node) noexcept {
 
-    ETL_ASSERT(pos != NULLPTR);
+    ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(pos != &frontNode);
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
 
     Node* prev = pos->prev;
     linkNodes(node, pos);
@@ -66,24 +62,24 @@ void DoubleChain::insertBefore(Node* pos, Node* node) {
 }
 
 
-DoubleChain::Node* DoubleChain::remove(Node* node) {
+DoubleChain::Node* DoubleChain::remove(Node* node) noexcept {
 
-    ETL_ASSERT(node != NULLPTR);
+    ETL_ASSERT(node != nullptr);
     ETL_ASSERT(node != &backNode);
     ETL_ASSERT(node != &frontNode);
 
     linkNodes(node->prev, node->next);
-    node->prev = NULLPTR;
-    node->next = NULLPTR;
+    node->prev = nullptr;
+    node->next = nullptr;
 
     return node;
 }
 
 
-void DoubleChain::replace(Node* n1, Node* n2) {
+void DoubleChain::replace(Node* n1, Node* n2) noexcept {
 
-    ETL_ASSERT(n1 != NULLPTR);
-    ETL_ASSERT(n2 != NULLPTR);
+    ETL_ASSERT(n1 != nullptr);
+    ETL_ASSERT(n2 != nullptr);
 
     if ((n1 != n2)) {
 
@@ -98,14 +94,14 @@ void DoubleChain::replace(Node* n1, Node* n2) {
 }
 
 
-void DoubleChain::setEmpty() {
+void DoubleChain::setEmpty() noexcept {
 
     frontNode.next = &backNode;
     backNode.prev = &frontNode;
 }
 
 
-void DoubleChain::takeListOf(DoubleChain& other) {
+void DoubleChain::takeListOf(DoubleChain& other) noexcept {
 
     if (&other != this) {
         linkNodes(&frontNode, other.getFirst());
@@ -115,7 +111,7 @@ void DoubleChain::takeListOf(DoubleChain& other) {
 }
 
 
-void DoubleChain::swap(DoubleChain& other) {
+void DoubleChain::swap(DoubleChain& other) noexcept {
 
     if (&other != this) {
 

@@ -35,7 +35,7 @@ class PoolBase {
     struct FreeItem {
         FreeItem* next;
         FreeItem() :
-            next(NULLPTR) {};
+            next(nullptr) {};
         explicit FreeItem(void* ptr) :
             next(static_cast<FreeItem*>(ptr)) {};
     };

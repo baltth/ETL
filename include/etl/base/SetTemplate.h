@@ -24,16 +24,16 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/Sorted.h>
-#include <etl/base/ListTemplate.h>
+#include <etl/base/SortedList.h>
+#include <etl/base/tools.h>
 
-#include <utility>
+#include <functional>
 
 namespace ETL_NAMESPACE {
 
 
-template<class E>
-class Set : public Sorted<List<E> > {
+template<class E, class C = std::less<E>>
+class Set : private Detail::SortedList<E, C> {
 
   public:   // types
 
@@ -44,14 +44,24 @@ class Set : public Sorted<List<E> > {
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef List<E> ContainerType;
+    typedef C key_compare;
+    typedef C value_compare;
+    typedef Detail::SortedList<E, C> Base;
+    typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
-    typedef Sorted<ContainerType> Base;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+
+    typedef typename Base::size_type size_type;
 
   public:   // functions
+
+    /// \name Construction, destruction, assignment
+    /// \{
 
     Set(AllocatorBase& a) :
         Base(a) {};
@@ -60,8 +70,6 @@ class Set : public Sorted<List<E> > {
         assign(other.begin(), other.end());
         return *this;
     }
-
-#if ETL_USE_CPP11
 
     Set& operator=(Set&& other) {
         swap(other);
@@ -72,18 +80,40 @@ class Set : public Sorted<List<E> > {
         assign(initList);
         return this;
     }
+    /// \}
 
-#endif
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    /// \}
 
-    using Base::find;
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
     using Base::erase;
+
+    void erase(const E& e);
 
     std::pair<iterator, bool> insert(const E& e) {
         return Base::insertUnique(e);
     }
 
     template<class InputIt>
-    typename enable_if<!is_integral<InputIt>::value>::type      // *NOPAD*
+    enable_if_t<!is_integral<InputIt>::value>
     insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
@@ -91,10 +121,20 @@ class Set : public Sorted<List<E> > {
         }
     }
 
-    void erase(const E& e);
+    template<class... Args>
+    std::pair<iterator,bool> emplace(Args&&... args);
+
+    void swap(Set& other) {
+        Base::swap(other);
+    }
+    /// \}
+
+    /// \name Lookup
+    /// \{
 
     iterator find(const E& e);
     const_iterator find(const E& e) const;
+    /// \}
 
   protected:
 
@@ -112,10 +152,10 @@ class Set : public Sorted<List<E> > {
 };
 
 
-template<class E>
-void Set<E>::erase(const E& e) {
+template<class E, class C>
+void Set<E, C>::erase(const E& e) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -123,10 +163,10 @@ void Set<E>::erase(const E& e) {
 }
 
 
-template<class E>
-typename Set<E>::iterator  Set<E>::find(const E& e) {
+template<class E, class C>
+auto Set<E, C>::find(const E& e) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
@@ -136,16 +176,73 @@ typename Set<E>::iterator  Set<E>::find(const E& e) {
 }
 
 
-template<class E>
-typename Set<E>::const_iterator  Set<E>::find(const E& e) const {
+template<class E, class C>
+auto Set<E, C>::find(const E& e) const -> const_iterator {
 
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(e);
+    auto found = Base::findSortedPosition(e);
 
     if (found.second == true) {
         return --found.first;
     } else {
         return Base::end();
     }
+}
+
+
+template<class E, class C>
+template<typename... Args>
+auto Set<E, C>::emplace(Args&& ... args) -> std::pair<iterator, bool> {
+
+    value_type e(std::forward<Args>(args)...);
+    auto found = Base::findSortedPosition(e);
+
+    if (found.second == false) {
+        found.first = Base::emplaceTo(found.first, std::move(e));
+    }
+
+    found.second = !found.second;
+    return found;
+}
+
+
+template<class E, class C>
+bool operator==(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class E, class C>
+bool operator!=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class E, class C>
+bool operator<(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class E, class C>
+bool operator<=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class E, class C>
+bool operator>(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class E, class C>
+bool operator>=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class E, class C>
+void swap(ETL_NAMESPACE::Set<E, C>& lhs, ETL_NAMESPACE::Set<E, C>& rhs) {
+    lhs.swap(rhs);
 }
 
 }

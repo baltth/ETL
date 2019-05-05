@@ -102,7 +102,7 @@ class AHashTable {
         size_(0U),
         buckets(b, s),
         lastItem(&chain.getFrontNode()) {
-        ETL_ASSERT(b != NULLPTR);
+        ETL_ASSERT(b != nullptr);
         ETL_ASSERT(s > 0U);
     };
 
@@ -158,12 +158,8 @@ class AHashTable {
     AHashTable(const AHashTable& other);
     AHashTable& operator=(const AHashTable& other);
 
-#if ETL_USE_CPP11
-
     AHashTable(AHashTable&& other) = delete;
     AHashTable& operator=(AHashTable&& other) = delete;
-
-#endif
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, uint32_t ix);
 

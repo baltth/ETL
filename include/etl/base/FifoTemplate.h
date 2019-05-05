@@ -52,24 +52,10 @@ class FifoTemplate : protected C, public FifoIndexing {
 
   public:   // functions
 
-#if ETL_USE_CPP11
-
     template<typename... Args>
     explicit FifoTemplate<C>(Args... args) :
         C(args...),
         FifoIndexing(C::size()) {};
-
-#else
-
-    FifoTemplate<C>() :
-        C(),
-        FifoIndexing(C::size()) {};
-
-    explicit FifoTemplate<C>(uint32_t len) :
-        C(len),
-        FifoIndexing(C::size()) {};
-
-#endif
 
     bool empty() const {
         return FifoIndexing::empty();

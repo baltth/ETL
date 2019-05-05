@@ -32,7 +32,7 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE>> FifoType;
 
     FifoType fifo;
 
@@ -57,7 +57,7 @@ TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynam
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType> > FifoType;
+    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType>> FifoType;
 
     FifoType fifo(SIZE);
 
@@ -82,7 +82,7 @@ TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::Static::Vector<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Static::Vector<ItemType, SIZE>> FifoType;
 
     FifoType fifo(SIZE);
 
@@ -107,7 +107,7 @@ TEST_CASE("Etl::Fifo<> element access", "[fifo][etl]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;
-    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE>> FifoType;
 
     FifoType fifo;
 
@@ -137,7 +137,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 4;
-    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE>> FifoType;
 
     FifoType fifo;
 
@@ -177,7 +177,7 @@ TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 4;
-    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE>> FifoType;
 
     FifoType fifo;
 
@@ -214,7 +214,7 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
     typedef int ItemType;
     static const uint32_t SIZE1 = 4;
     static const uint32_t SIZE2 = 32;
-    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType> > FifoType;
+    typedef Etl::Fifo<Etl::Dynamic::Vector<ItemType>> FifoType;
 
     FifoType fifo;
 
@@ -241,7 +241,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 8;
-    typedef Etl::Fifo<Etl::Array<ItemType, SIZE> > FifoType;
+    typedef Etl::Fifo<Etl::Array<ItemType, SIZE>> FifoType;
 
     FifoType fifo;
 

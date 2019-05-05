@@ -28,21 +28,19 @@ limitations under the License.
 #include <etl/base/TypedListBase.h>
 #include <etl/base/tools.h>
 
-#if ETL_USE_CPP11
 #include <initializer_list>
-#endif
 
 namespace ETL_NAMESPACE {
 
 
 template<class T>
-class List : public Detail::TypedListBase<T> {
+class List : private Detail::TypedListBase<T> {
 
   public:   // types
 
-    typedef T valueType;
-    typedef T& reference;
-    typedef const T& const_reference;
+    typedef T value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
     typedef T* pointer;
     typedef const T* const_pointer;
 
@@ -50,8 +48,12 @@ class List : public Detail::TypedListBase<T> {
     typedef typename Base::Node Node;
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
     typedef AAllocator<Node> AllocatorBase;
+
+    typedef typename Base::size_type size_type;
 
     friend class Base::Node;
 
@@ -61,15 +63,16 @@ class List : public Detail::TypedListBase<T> {
 
   public:   // functions
 
-    explicit List(AllocatorBase& a) :
+    /// \name Construction, destruction, assignment
+    /// \{
+
+    explicit List(AllocatorBase& a) noexcept :
         allocator(a) {};
 
     List& operator=(const List& other) {
         assign(other.begin(), other.end());
         return *this;
     }
-
-#if ETL_USE_CPP11
 
     List& operator=(List&& other) {
         swap(other);
@@ -81,13 +84,12 @@ class List : public Detail::TypedListBase<T> {
         return *this;
     }
 
-#endif
+    List(const List& other) = delete;
+    List(List&& other) = delete;
 
-    ~List() {
+    ~List() noexcept(AllocatorBase::NoexceptDestroy) {
         clear();
     }
-
-    void clear();
 
     void assign(uint32_t num, const_reference value) {
         this->clear();
@@ -100,24 +102,52 @@ class List : public Detail::TypedListBase<T> {
         insert(this->begin(), first, last);
     }
 
-#if ETL_USE_CPP11
-
     void assign(std::initializer_list<T> initList) {
         assign(initList.begin(), initList.end());
     }
+    /// \}
 
-#endif
-
-    /// \name Element operations
+    /// \name Capacity
     /// \{
+    using Base::size;
+    using Base::empty;
+
+    size_type max_size() const noexcept {
+        return allocator.max_size();
+    }
+    /// \}
+
+    /// \name Element access
+    /// \{
+    using Base::front;
+    using Base::back;
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+
+    void clear() noexcept(AllocatorBase::NoexceptDestroy);
+
     inline void push_front(const T& item);
     inline void push_back(const T& item);
 
-    void pop_front() {
+    void pop_front() noexcept(AllocatorBase::NoexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
     }
 
-    void pop_back() {
+    void pop_back() noexcept(AllocatorBase::NoexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
@@ -132,39 +162,30 @@ class List : public Detail::TypedListBase<T> {
     }
 
     template<typename InputIt>
-    typename enable_if < !is_integral<InputIt>::value, iterator >::type
+    enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
-    iterator erase(iterator pos) {
+    template<typename... Args >
+    iterator emplace(const_iterator pos, Args&&... args);
+
+    template<typename... Args >
+    iterator emplace_front(Args&&... args) {
+        return emplace(this->begin(), std::forward<Args>(args)...);
+    }
+
+    template<typename... Args >
+    iterator emplace_back(Args&&... args) {
+        return emplace(this->end(), std::forward<Args>(args)...);
+    }
+
+    iterator erase(iterator pos) noexcept(AllocatorBase::NoexceptDestroy) {
         iterator next = pos;
         ++next;
         deleteNode(static_cast<Node*>(Detail::AListBase::remove(pos)));
         return next;
     }
 
-#if ETL_USE_CPP11
-
-    template<typename... Args >
-    iterator emplace(const_iterator pos, Args&& ... args);
-
-#endif
-
-    void splice(const_iterator pos, List<T>& other) {
-        splice(pos, other, other.begin(), other.end());
-    }
-
-    void splice(const_iterator pos, List<T>& other, const_iterator it) {
-        const_iterator it2 = it;
-        ++it2;
-        splice(pos, other, it, it2);
-    }
-
-    void splice(const_iterator pos,
-                List<T>& other,
-                const_iterator first,
-                const_iterator last);
-
-    void swap(List<T>& other) {
+    void swap(List& other) {
         if (this != &other) {
             if (allocator.handle() == other.allocator.handle()) {
                 Detail::AListBase::swapNodeList(other);
@@ -175,17 +196,37 @@ class List : public Detail::TypedListBase<T> {
     }
     /// \}
 
+    /// \name List operations
+    /// \{
+
+    void splice(const_iterator pos, List& other) {
+        splice(pos, other, other.begin(), other.end());
+    }
+
+    void splice(const_iterator pos, List& other, const_iterator it) {
+        const_iterator it2 = it;
+        ++it2;
+        splice(pos, other, it, it2);
+    }
+
+    void splice(const_iterator pos,
+                List& other,
+                const_iterator first,
+                const_iterator last);
+
+    /// \}
+
   private:
 
     Node* createNode(const T& item) {
         Node* p = allocator.allocate(1);
-        if (p != NULLPTR) {
+        if (p != nullptr) {
             allocator.construct(p, item);
         }
         return p;
     }
 
-    void deleteNode(Node* ptr) {
+    void deleteNode(Node* ptr) noexcept(AllocatorBase::NoexceptDestroy) {
         if (ptr) {
             allocator.destroy(ptr);
             allocator.deallocate(ptr, 1);
@@ -193,14 +234,13 @@ class List : public Detail::TypedListBase<T> {
     }
 
     Node* copyAndReplace(iterator& item, const T& value);
-
     void swapElements(List<T>& other);
 
 };
 
 
 template<class T>
-void List<T>::clear() {
+void List<T>::clear() noexcept(AllocatorBase::NoexceptDestroy) {
 
     while (Base::size() > 0) {
         pop_back();
@@ -212,8 +252,8 @@ template<class T>
 void List<T>::push_front(const T& item) {
 
     Node* p = createNode(item);
-    if (p != NULLPTR) {
-        Detail::AListBase::pushFront(p);
+    if (p != nullptr) {
+        Detail::AListBase::pushFront(*p);
     }
 }
 
@@ -222,28 +262,25 @@ template<class T>
 void List<T>::push_back(const T& item) {
 
     Node* p = createNode(item);
-    if (p != NULLPTR) {
-        Detail::AListBase::pushBack(p);
+    if (p != nullptr) {
+        Detail::AListBase::pushBack(*p);
     }
 }
 
 
-#if ETL_USE_CPP11
-
-
 template<class T>
-typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
+auto List<T>::insert(const_iterator pos, const T& item) -> iterator {
     return emplace(pos, item);
 }
 
 
 template<class T>
 template<typename... Args >
-typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args) {
+auto List<T>::emplace(const_iterator pos, Args&& ... args) -> iterator {
 
     iterator it = this->end();
     Node* inserted = allocator.allocate(1);
-    if (inserted != NULLPTR) {
+    if (inserted != nullptr) {
         new (inserted) Node(std::forward<Args>(args)...);
         it = Base::insert(pos, *inserted);
     }
@@ -252,28 +289,9 @@ typename List<T>::iterator List<T>::emplace(const_iterator pos, Args&& ... args)
 }
 
 
-#else
-
-
-template<class T>
-typename List<T>::iterator List<T>::insert(const_iterator pos, const T& item) {
-
-    iterator it = this->end();
-    Node* inserted = createNode(item);
-    if (inserted != NULLPTR) {
-        it = Base::insert(pos, *inserted);
-    }
-
-    return it;
-}
-
-
-#endif
-
-
 template<class T>
 template<typename InputIt>
-typename enable_if < !is_integral<InputIt>::value, typename List<T>::iterator >::type
+enable_if_t<!is_integral<InputIt>::value, typename List<T>::iterator>
 List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);
@@ -292,12 +310,12 @@ List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
 
 template<class T>
-typename List<T>::Node* List<T>::copyAndReplace(iterator& item, const T& value) {
+auto List<T>::copyAndReplace(iterator& item, const T& value) -> Node* {
 
-    Node* removed = NULLPTR;
+    Node* removed = nullptr;
     Node* newItem = createNode(value);
-    if (newItem != NULLPTR) {
-        removed = Base::replace(item, newItem);
+    if (newItem != nullptr) {
+        removed = Base::replace(item, *newItem);
     }
 
     return removed;
@@ -323,7 +341,7 @@ void List<T>::splice(const_iterator pos,
 template<class T>
 void List<T>::swapElements(List<T>& other) {
 
-    const SizeDiff diff(*this, other);
+    const Detail::SizeDiff diff(*this, other);
 
     iterator ownIt = this->begin();
     iterator otherIt = other.begin();
@@ -331,7 +349,7 @@ void List<T>::swapElements(List<T>& other) {
     for (uint32_t i = 0; i < diff.common; ++i) {
 
         Node* removed = copyAndReplace(ownIt, *otherIt);
-        if (removed != NULLPTR) {
+        if (removed != nullptr) {
             Node* otherRemoved = other.copyAndReplace(otherIt, removed->item);
             deleteNode(removed);
             other.deleteNode(otherRemoved);
@@ -348,7 +366,49 @@ void List<T>::swapElements(List<T>& other) {
     }
 }
 
+
+template<class T>
+bool operator==(const List<T>& lhs, const List<T>& rhs) {
+    return Detail::isEqual(lhs, rhs);
 }
+
+template<class T>
+bool operator!=(const List<T>& lhs, const List<T>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class T>
+bool operator<(const List<T>& lhs, const List<T>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class T>
+bool operator<=(const List<T>& lhs, const List<T>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class T>
+bool operator>(const List<T>& lhs, const List<T>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class T>
+bool operator>=(const List<T>& lhs, const List<T>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class T>
+void swap(ETL_NAMESPACE::List<T>& lhs, ETL_NAMESPACE::List<T>& rhs) {
+    lhs.swap(rhs);
+}
+
+}
+
 
 #endif /* __ETL_LISTTEMPLATE_H__ */
 

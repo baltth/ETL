@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -289,10 +290,25 @@ TEST_CASE("Etl::Dynamic::Set<> search tests", "[set][etl]") {
 }
 
 
-TEST_CASE("Etl::Set<> allocator test", "[set][etl]") {
+TEST_CASE("Etl::Set<> custom compare tests", "[set][etl]") {
+
+    typedef Etl::Dynamic::Set<int, std::greater<int>> SetType;
+    SetType set;
+
+    set.insert(1);
+    set.insert(2);
+    set.insert(3);
+    set.insert(4);
+
+    CHECK(set.size() == 4);
+    REQUIRE(*set.begin() == 4);
+}
+
+
+TEST_CASE("Etl::Custom::Set<> allocator test", "[set][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::Set<ItemType, DummyAllocator> SetType;
+    typedef Etl::Custom::Set<ItemType, DummyAllocator> SetType;
     typedef SetType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -356,9 +372,56 @@ TEST_CASE("Etl::Pooled::Set<> test", "[set][etl]") {
 
 TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
 
-    typedef Etl::Dynamic::Set<ContainerTester, DummyAllocator> SetType;
+    typedef Etl::Custom::Set<ContainerTester, DummyAllocator> SetType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(SetType::Allocator::Allocator::getDeleteCount() == SetType::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::Set comparision tests ----------------------------------------------
+
+
+TEST_CASE("Etl::Set<> comparision", "[set][etl]") {
+
+    SECTION("Etl::Set<> vs Etl::Set<>") {
+
+        using SetType = Etl::Dynamic::Set<int>;
+        using Base = Etl::Set<int>;
+
+        SetType lhs;
+        SetType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.emplace(val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::Set<> vs Etl::Static::Set<>") {
+
+        using LType = Etl::Dynamic::Set<int>;
+        using RType = Etl::Static::Set<int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.emplace(val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.emplace(val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 

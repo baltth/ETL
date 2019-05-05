@@ -34,43 +34,49 @@ class GenericProxy {
   protected: // variables
 
     void* data_;
-    uint32_t size_;
-    const size_t itemSize;
+    size_t size_;
+    size_t itemSize;
 
   public:   // functions
 
-    GenericProxy(size_t itemSize, void* dataPointer, uint32_t s) :
-        data_(dataPointer),
+    GenericProxy(size_t is, void* d, size_t s) noexcept :
+        data_(d),
         size_(s),
-        itemSize(itemSize) {};
+        itemSize(is) {};
 
     template<class C>   // cppcheck-suppress noExplicitConstructor
-    GenericProxy(C& container) :
+    GenericProxy(C& container) noexcept :
         data_(container.data()),
         size_(container.size()),
         itemSize(sizeof(typename C::value_type)) {};
 
-    void* getItemPointer(uint32_t ix) {
+    GenericProxy(const GenericProxy& other) = default;
+    GenericProxy& operator=(const GenericProxy& other) = default;
+    GenericProxy(GenericProxy&& other) = default;
+    GenericProxy& operator=(GenericProxy&& other) = default;
+    ~GenericProxy() = default;
+
+    void* getItemPointer(size_t ix) noexcept {
         return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
     }
 
-    const void* getItemPointer(uint32_t ix) const {
+    const void* getItemPointer(size_t ix) const noexcept {
         return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
     }
 
-    void* data() {
+    void* data() noexcept {
         return data_;
     }
 
-    const void* data() const {
+    const void* data() const noexcept {
         return data_;
     }
 
-    uint32_t size() const {
+    size_t size() const noexcept {
         return size_;
     }
 
-    uint32_t getItemSize() const {
+    size_t getItemSize() const noexcept {
         return itemSize;
     }
 
@@ -83,82 +89,98 @@ class Proxy {
   public:   // types
 
     typedef T value_type;
+    typedef const T* const_pointer;
+    typedef const T& const_reference;
 
   protected: // variables
 
-    const value_type* data_;
-    uint32_t size_;
+    const_pointer data_;
+    size_t size_;
 
   public:   // functions
 
-    Proxy(const value_type* dataPointer, uint32_t s) :
-        data_(dataPointer),
+    Proxy(const_pointer d, size_t s) noexcept :
+        data_(d),
         size_(s) {};
 
-    template<class C>   // cppcheck-suppress noExplicitConstructor
-    Proxy(const C& container) :
+    template<class C>
+    Proxy(const C& container) noexcept :
         data_(container.data()),
         size_(container.size()) {};
 
-    const value_type* data() const {
+    Proxy(const Proxy& other) = default;
+    Proxy& operator=(const Proxy& other) = default;
+    Proxy(Proxy&& other) = default;
+    Proxy& operator=(Proxy&& other) = default;
+    ~Proxy() = default;
+
+    size_t size() const noexcept {
+        return size_;
+    }
+
+    const_pointer data() const noexcept {
         return data_;
     }
 
-    const value_type* getItemPointer(uint32_t ix) const {
+    const_pointer getItemPointer(size_t ix) const noexcept {
         return &(data_[ix]);
     }
 
-    inline const value_type& operator[](uint32_t ix) const {
+    const_reference operator[](size_t ix) const noexcept {
         return data_[ix];
-    }
-
-    uint32_t size() const {
-        return size_;
     }
 
 };
 
 
 template<typename T>
-class MutableProxy : public GenericProxy {
+class MutableProxy {
 
   public:   // types
 
     typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+  protected: // variables
+
+    pointer data_;
+    size_t size_;
 
   public:   // functions
 
-    MutableProxy(T* data_, uint32_t c, uint32_t s) :
-        GenericProxy(sizeof(T), data_, c, s) {};
+    MutableProxy(pointer d, size_t s) noexcept :
+        data_(d),
+        size_(s) {};
 
-    template<class C>   // cppcheck-suppress noExplicitConstructor
-    MutableProxy(C& container) :
-        GenericProxy(container) {};
+    template<class C>
+    MutableProxy(C& container) noexcept :
+        data_(container.data()),
+        size_(container.size()) {};
 
-    value_type* data() const {
-        return static_cast<T*>(data_);
+    MutableProxy(const MutableProxy& other) = default;
+    MutableProxy& operator=(const MutableProxy& other) = default;
+    MutableProxy(MutableProxy&& other) = default;
+    MutableProxy& operator=(MutableProxy&& other) = default;
+    ~MutableProxy() = default;
+
+    size_t size() const noexcept {
+        return size_;
     }
 
-    value_type* getItemPointer(uint32_t ix) const {
-        return const_cast<value_type*>(static_cast<const value_type*>(GenericProxy::getItemPointer(ix)));
+    pointer data() const noexcept {
+        return data_;
     }
 
-    inline T& operator[](uint32_t ix) const {
-        return *(getItemPointer(ix));
+    pointer getItemPointer(size_t ix) const noexcept {
+        return &(data_[ix]);
     }
 
-    void fill(const T& value) const;
+    reference operator[](size_t ix) const noexcept {
+        return data_[ix];
+    }
 
 };
-
-
-template<typename T>
-void MutableProxy<T>::fill(const T& value) const {
-
-    for (uint32_t i = 0; i < size(); ++i) {
-        operator[](i) = value;
-    }
-}
 
 }
 

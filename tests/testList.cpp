@@ -22,12 +22,14 @@ limitations under the License.
 #include "catch.hpp"
 
 #include <etl/List.h>
-#include <etl/funcSupport.h>
+
+#include <memory>
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "sequenceTests.h"
 #include "compatibilityTests.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -692,81 +694,10 @@ TEST_CASE("Etl::Pooled::List<>::splice() test", "[list][etl]") {
     }
 }
 
-
-TEST_CASE("Etl::Dynamic::List<>::find(Etl::Matcher<>) test", "[list][etl]") {
-
-    typedef int ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
-
-    class IntMatcher : public Etl::Matcher<ItemType> {
-        const ItemType value;
-      public:
-        IntMatcher(ItemType val) :
-            value(val) {};
-
-        virtual bool call(const ItemType& ref) const OVERRIDE {
-            return value == ref;
-        }
-    };
-
-    static const ItemType REF_VALUE = 123;
-
-    CAPTURE(REF_VALUE);
-
-    ListT list;
-    list.push_back(1);
-    list.push_back(2);
-    list.push_back(REF_VALUE);
-    ListT::iterator it1 = --list.end();
-    list.push_back(4);
-    list.push_back(REF_VALUE);
-    ListT::iterator it2 = --list.end();
-    list.push_back(6);
-
-    ListT::iterator found = list.find(IntMatcher(REF_VALUE));
-    REQUIRE(found == it1);
-    found = list.find((++found), list.end(), IntMatcher(REF_VALUE));
-    REQUIRE(found == it2);
-    found = list.find((++found), list.end(), IntMatcher(REF_VALUE));
-    REQUIRE(found == list.end());
-}
-
-
-TEST_CASE("Etl::Dynamic::List<>::find<F, V>() test", "[list][etl]") {
+TEST_CASE("Etl::Custom::List<> allocator test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
-
-    static const int REF_VALUE = 123;
-    const ItemType REF_ITEM(REF_VALUE);
-
-    CAPTURE(REF_ITEM.getValue());
-
-    ListT list;
-    list.push_back(ItemType(1));
-    list.push_back(ItemType(2));
-    list.push_back(REF_ITEM);
-    ListT::iterator it1 = --list.end();
-    list.push_back(ItemType(4));
-    list.push_back(REF_ITEM);
-    ListT::iterator it2 = --list.end();
-    list.push_back(ItemType(6));
-
-    Etl::MethodMatcher<ItemType, int> mm(&ItemType::getValue, REF_VALUE);
-
-    ListT::iterator found = list.find(mm);
-    REQUIRE(found == it1);
-    found = list.find((++found), list.end(), mm);
-    REQUIRE(found == it2);
-    found = list.find((++found), list.end(), mm);
-    REQUIRE(found == list.end());
-}
-
-
-TEST_CASE("Etl::List<> allocator test", "[list][etl]") {
-
-    typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::List<ItemType, DummyAllocator> ListT;
+    typedef Etl::Custom::List<ItemType, DummyAllocator> ListT;
     typedef ListT::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -903,10 +834,57 @@ TEST_CASE("Etl::Pooled::List<> test", "[list][etl]") {
 
 TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
 
-    typedef Etl::Dynamic::List<ContainerTester, DummyAllocator> ListT;
+    typedef Etl::Custom::List<ContainerTester, DummyAllocator> ListT;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(ListT::Allocator::Allocator::getDeleteCount() == ListT::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::List comparision tests ---------------------------------------------
+
+
+TEST_CASE("Etl::List<> comparision", "[list][etl]") {
+
+    SECTION("Etl::List<> vs Etl::List<>") {
+
+        using ListType = Etl::Dynamic::List<int>;
+        using Base = Etl::List<int>;
+
+        ListType lhs;
+        ListType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::List<> vs Etl::Static::List<>") {
+
+        using LType = Etl::Dynamic::List<int>;
+        using RType = Etl::Static::List<int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.push_back(val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.push_back(val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 
 
@@ -940,7 +918,7 @@ TEST_CASE("Etl::List<> with std::inner_product()", "[list][comp][etl]") {
 
 TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
 
-    typedef Etl::reference_wrapper<int> ItemT;
+    typedef std::reference_wrapper<int> ItemT;
     typedef Etl::Dynamic::List<ItemT> ListT;
 
     int i0 = 0;
@@ -949,10 +927,10 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     int i3 = 3;
 
     ListT list;
-    list.push_back(Etl::ref(i0));
-    list.push_back(Etl::ref(i1));
-    list.push_back(Etl::ref(i2));
-    list.push_back(Etl::ref(i3));
+    list.push_back(std::ref(i0));
+    list.push_back(std::ref(i1));
+    list.push_back(std::ref(i2));
+    list.push_back(std::ref(i3));
 
     REQUIRE(list.size() == 4);
 
@@ -964,13 +942,13 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     }
 
     it = list.begin();
-    *it = Etl::ref(i3);
+    *it = std::ref(i3);
     ++it;
-    *it = Etl::ref(i2);
+    *it = std::ref(i2);
     ++it;
-    *it = Etl::ref(i1);
+    *it = std::ref(i1);
     ++it;
-    *it = Etl::ref(i0);
+    *it = std::ref(i0);
 
     it = list.begin();
     for (uint8_t i = 0; i < list.size(); ++i) {

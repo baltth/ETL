@@ -24,22 +24,23 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/Sorted.h>
+#include <etl/base/SortedList.h>
 #include <etl/base/KeyCompare.h>
-#include <etl/base/ListTemplate.h>
+#include <etl/base/tools.h>
 
 #include <utility>
+#include <functional>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E>
-class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
+template<class K, class E, class C = std::less<K>>
+class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
   public:   // types
 
-    typedef K KeyType;
-    typedef E MappedType;
+    typedef K key_type;
+    typedef E mapped_type;
     typedef std::pair<const K, E> value_type;
 
     typedef value_type& reference;
@@ -47,27 +48,31 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef List<value_type> ContainerType;
+    typedef C key_compare;
+    typedef Detail::SortedList<value_type, Detail::KeyCompare<C>> Base;
+    typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
-    typedef KeyCompare<K, E> Compare;
-    typedef Sorted<ContainerType, Compare> Base;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
-    typedef Matcher<value_type> ItemMatcher;
+    typedef typename Base::size_type size_type;
 
   public:   // functions
 
-    MultiMap(AllocatorBase& a) :
+    /// \name Construction, destruction, assignment
+    /// \{
+
+    MultiMap(AllocatorBase& a) noexcept :
         Base(a) {};
 
     MultiMap& operator=(const MultiMap& other) {
         assign(other.begin(), other.end());
         return *this;
     }
-
-#if ETL_USE_CPP11
 
     MultiMap& operator=(MultiMap&& other) {
         swap(other);
@@ -78,18 +83,40 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
         assign(initList);
         return *this;
     }
+    /// \}
 
-#endif
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    /// \}
 
-    using Base::find;
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
     using Base::erase;
+
+    size_type erase(const K& k);
 
     iterator insert(const value_type& item) {
         return Base::insert(item);
     }
 
     template<class InputIt>
-    typename enable_if<!is_integral<InputIt>::value>::type      // *NOPAD*
+    enable_if_t<!is_integral<InputIt>::value>
     insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
@@ -105,7 +132,16 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
         return insert(value_type(k, e));
     }
 
-    uint32_t erase(const K& k);
+    template<typename... Args>
+    inline iterator emplace(const K& k, Args&& ... args);
+
+    void swap(MultiMap& other) {
+        Base::swap(other);
+    }
+    /// \}
+
+    /// \name Lookup
+    /// \{
 
     iterator find(const K& k);
     const_iterator find(const K& k) const;
@@ -133,17 +169,7 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
     const_iterator upper_bound(const K& k) const {
         return equal_range(k).second;
     }
-
-#if ETL_USE_CPP11
-
-    template<typename... Args>
-    inline iterator emplace(const K& k, Args&& ... args);
-
-#endif
-
-    static K getKey(const_reference item) {
-        return item.first;
-    }
+    /// \}
 
   protected:
 
@@ -161,12 +187,12 @@ class MultiMap : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > 
 };
 
 
-template<typename K, class E>
-uint32_t MultiMap<K, E>::erase(const K& k) {
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::erase(const K& k) -> size_type {
 
-    std::pair<iterator, iterator> found = Base::findSortedRange(k);
+    auto found = Base::findSortedRange(k);
     iterator it = found.first;
-    uint32_t count = 0;
+    size_type count = 0;
 
     while (it != found.second) {
         it = Base::erase(it);
@@ -177,23 +203,10 @@ uint32_t MultiMap<K, E>::erase(const K& k) {
 }
 
 
-template<typename K, class E>
-typename MultiMap<K, E>::iterator MultiMap<K, E>::find(const K& k) {
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::find(const K& k) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
-
-    if (found.second == true) {
-        return --found.first;
-    } else {
-        return Base::end();
-    }
-}
-
-
-template<typename K, class E>
-typename MultiMap<K, E>::const_iterator MultiMap<K, E>::find(const K& k) const {
-
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -203,11 +216,22 @@ typename MultiMap<K, E>::const_iterator MultiMap<K, E>::find(const K& k) const {
 }
 
 
-#if ETL_USE_CPP11
+template<class K, class E, class C>
+auto MultiMap<K, E, C>::find(const K& k) const -> const_iterator {
 
-template<typename K, class E>
+    auto found = Base::findSortedPosition(k);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
+    }
+}
+
+
+template<class K, class E, class C>
 template<typename... Args>
-typename MultiMap<K, E>::iterator MultiMap<K, E>::emplace(const K& k, Args&& ... args) {
+auto MultiMap<K, E, C>::emplace(const K& k, Args&& ... args) -> iterator {
 
     auto found = Base::findSortedPosition(k);
     found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);
@@ -215,7 +239,46 @@ typename MultiMap<K, E>::iterator MultiMap<K, E>::emplace(const K& k, Args&& ...
     return found.first;
 }
 
-#endif
+
+template<class K, class E, class C>
+bool operator==(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator!=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class K, class E, class C>
+bool operator<(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator<=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class K, class E, class C>
+void swap(ETL_NAMESPACE::MultiMap<K, E, C>& lhs, ETL_NAMESPACE::MultiMap<K, E, C>& rhs) {
+    lhs.swap(rhs);
+}
 
 }
 

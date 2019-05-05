@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
+#include "comparisionTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -351,31 +352,28 @@ TEST_CASE("Etl::Dynamic::Map<> search tests", "[map][etl]") {
 
         REQUIRE(it == map.end());
     }
-
-    SECTION("find(ItemMatcher)") {
-
-        struct Matcher : MapType::ItemMatcher {
-            virtual bool call(const MapType::value_type& item) const {
-                return (item.first == 3) && (item.second.getValue() == -3);
-            }
-        };
-
-        Matcher matchCall;
-
-        MapType::iterator it = map.find(matchCall);
-        REQUIRE(it->first == 3);
-
-        ++it;
-        it = map.find(it, map.end(), matchCall);
-        REQUIRE(it == map.end());
-    }
 }
 
 
-TEST_CASE("Etl::Map<> allocator test", "[map][etl]") {
+TEST_CASE("Etl::Map<> custom compare tests", "[map][etl]") {
+
+    typedef Etl::Dynamic::Map<uint32_t, ContainerTester, std::greater<int>> MapType;
+    MapType map;
+
+    map.insert(1, ContainerTester(-1));
+    map.insert(2, ContainerTester(-2));
+    map.insert(3, ContainerTester(-3));
+    map.insert(4, ContainerTester(-4));
+
+    CHECK(map.size() == 4);
+    REQUIRE(map.begin()->first == 4);
+}
+
+
+TEST_CASE("Etl::Custom::Map<> allocator test", "[map][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::Map<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef Etl::Custom::Map<uint32_t, ItemType, DummyAllocator> MapType;
     typedef MapType::Allocator::Allocator AllocatorType;
 
     AllocatorType::reset();
@@ -439,9 +437,56 @@ TEST_CASE("Etl::Pooled::Map<> test", "[map][etl]") {
 
 TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
+    typedef Etl::Custom::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
     CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+}
+
+
+// Etl::Map comparision tests ----------------------------------------------
+
+
+TEST_CASE("Etl::Map<> comparision", "[map][etl]") {
+
+    SECTION("Etl::Map<> vs Etl::Map<>") {
+
+        using MapType = Etl::Dynamic::Map<int, int>;
+        using Base = Etl::Map<int, int>;
+
+        MapType lhs;
+        MapType rhs;
+
+        auto inserter = [](Base& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(static_cast<Base&>(lhs),
+                        static_cast<Base&>(rhs),
+                        inserter,
+                        inserter);
+    }
+
+    SECTION("Etl::Dynamic::Map<> vs Etl::Static::Map<>") {
+
+        using LType = Etl::Dynamic::Map<int, int>;
+        using RType = Etl::Static::Map<int, int, 32U>;
+
+        LType lhs;
+        RType rhs;
+
+        auto lInserter = [](LType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        auto rInserter = [](RType& cont, int val) {
+            cont.emplace(val, val);
+        };
+
+        testComparision(lhs,
+                        rhs,
+                        lInserter,
+                        rInserter);
+    }
 }
 

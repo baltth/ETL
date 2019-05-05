@@ -24,17 +24,18 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/Sorted.h>
+#include <etl/base/SortedList.h>
 #include <etl/base/KeyCompare.h>
-#include <etl/base/ListTemplate.h>
+#include <etl/base/tools.h>
 
 #include <utility>
+#include <functional>
 
 namespace ETL_NAMESPACE {
 
 
-template<typename K, class E>
-class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
+template<class K, class E, class C = std::less<K>>
+class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
   public:   // types
 
@@ -47,27 +48,31 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
 
-    typedef List<value_type> ContainerType;
+    typedef C key_compare;
+    typedef Detail::SortedList<value_type, Detail::KeyCompare<C>> Base;
+    typedef typename Base::Node Node;
+    typedef typename Base::Cont ContainerType;
     typedef typename ContainerType::AllocatorBase AllocatorBase;
-    typedef KeyCompare<K, E> Compare;
-    typedef Sorted<ContainerType, Compare> Base;
 
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
+    typedef typename Base::reverse_iterator reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
 
-    typedef Matcher<value_type> ItemMatcher;
+    typedef typename Base::size_type size_type;
 
   public:   // functions
 
-    Map(AllocatorBase& a) :
+    /// \name Construction, destruction, assignment
+    /// \{
+
+    Map(AllocatorBase& a) noexcept :
         Base(a) {};
 
     Map& operator=(const Map& other) {
         assign(other.begin(), other.end());
         return *this;
     }
-
-#if ETL_USE_CPP11
 
     Map& operator=(Map&& other) {
         swap(other);
@@ -78,18 +83,52 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
         assign(initList);
         return *this;
     }
+    /// \}
 
-#endif
+    /// \name Capacity
+    /// \{
+    using Base::size;
+    using Base::max_size;
+    using Base::empty;
+    /// \}
 
-    using Base::find;
+    /// \name Element access
+    /// \{
+
+    E& operator[](const K& k) {
+        return getItem(k)->second;
+    }
+
+    E& operator[](K&& k) {
+        return getItem(k)->second;
+    }
+    /// \}
+
+    /// \name Iterators
+    /// \{
+    using Base::begin;
+    using Base::cbegin;
+    using Base::end;
+    using Base::cend;
+    using Base::rbegin;
+    using Base::crbegin;
+    using Base::rend;
+    using Base::crend;
+    /// \}
+
+    /// \name Modifiers
+    /// \{
+    using Base::clear;
     using Base::erase;
+
+    void erase(const K& k);
 
     std::pair<iterator, bool> insert(const value_type& item) {
         return Base::insertUnique(item);
     }
 
     template<class InputIt>
-    typename enable_if<!is_integral<InputIt>::value>::type      // *NOPAD*
+    enable_if_t<!is_integral<InputIt>::value>
     insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
@@ -101,21 +140,6 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
         return insert(value_type(k, e));
     }
 
-    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
-
-    void erase(const K& k);
-
-    iterator find(const K& k);
-    const_iterator find(const K& k) const;
-
-    iterator getItem(const K& k);
-
-    E& operator[](const K& k) {
-        return getItem(k)->second;
-    }
-
-#if ETL_USE_CPP11
-
     void insert(std::initializer_list<value_type> initList) {
         insert(initList.begin(), initList.end());
     }
@@ -123,11 +147,19 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
     template<typename... Args>
     inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
 
-#endif
+    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
 
-    static K getKey(const_reference item) {
-        return item.first;
+    void swap(Map& other) {
+        Base::swap(other);
     }
+    /// \}
+
+    /// \name Lookup
+    /// \{
+
+    iterator find(const K& k);
+    const_iterator find(const K& k) const;
+    /// \}
 
   protected:
 
@@ -142,20 +174,18 @@ class Map : public Sorted<List<std::pair<const K, E> >, KeyCompare<K, E> > {
         assign(other.begin(), other.end());
     }
 
+    iterator getItem(const K& k);
+
 };
 
 
-template<typename K, class E>
-std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::insert_or_assign(const K& k, const E& e) {
+template<class K, class E, class C>
+auto Map<K, E, C>::insert_or_assign(const K& k, const E& e) -> std::pair<iterator, bool> {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
-#if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, k, e);
-#else
-        found.first = Base::insertTo(found.first, value_type(k, e));
-#endif
     } else {
         --found.first;
         found.first->second = e;
@@ -166,10 +196,10 @@ std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::insert_or_assign(const 
 }
 
 
-template<typename K, class E>
-void Map<K, E>::erase(const K& k) {
+template<class K, class E, class C>
+void Map<K, E, C>::erase(const K& k) {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         Base::erase(--found.first);
@@ -177,23 +207,10 @@ void Map<K, E>::erase(const K& k) {
 }
 
 
-template<typename K, class E>
-typename Map<K, E>::iterator Map<K, E>::find(const K& k) {
+template<class K, class E, class C>
+auto Map<K, E, C>::find(const K& k) -> iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
-
-    if (found.second == true) {
-        return --found.first;
-    } else {
-        return Base::end();
-    }
-}
-
-
-template<typename K, class E>
-typename Map<K, E>::const_iterator Map<K, E>::find(const K& k) const {
-
-    std::pair<const_iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == true) {
         return --found.first;
@@ -203,17 +220,26 @@ typename Map<K, E>::const_iterator Map<K, E>::find(const K& k) const {
 }
 
 
-template<typename K, class E>
-typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
+template<class K, class E, class C>
+auto Map<K, E, C>::find(const K& k) const -> const_iterator {
 
-    std::pair<iterator, bool> found = Base::findSortedPosition(k);
+    auto found = Base::findSortedPosition(k);
+
+    if (found.second == true) {
+        return --found.first;
+    } else {
+        return Base::end();
+    }
+}
+
+
+template<class K, class E, class C>
+auto Map<K, E, C>::getItem(const K& k) -> iterator {
+
+    auto found = Base::findSortedPosition(k);
 
     if (found.second == false) {
-#if ETL_USE_CPP11
         found.first = Base::emplaceTo(found.first, std::move(value_type(k, E())));
-#else
-        found.first = Base::insertTo(found.first, value_type(k, E()));
-#endif
     } else {
         --found.first;
     }
@@ -222,11 +248,9 @@ typename Map<K, E>::iterator Map<K, E>::getItem(const K& k) {
 }
 
 
-#if ETL_USE_CPP11
-
-template<typename K, class E>
+template<class K, class E, class C>
 template<typename... Args>
-std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::emplace(const K& k, Args&& ... args) {
+auto Map<K, E, C>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, bool> {
 
     auto found = Base::findSortedPosition(k);
 
@@ -238,7 +262,46 @@ std::pair<typename Map<K, E>::iterator, bool> Map<K, E>::emplace(const K& k, Arg
     return found;
 }
 
-#endif
+
+template<class K, class E, class C>
+bool operator==(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return Detail::isEqual(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator!=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class K, class E, class C>
+bool operator<(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return Detail::isLess(lhs, rhs);
+}
+
+template<class K, class E, class C>
+bool operator<=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return (rhs < lhs);
+}
+
+template<class K, class E, class C>
+bool operator>=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
+    return !(lhs < rhs);
+}
+
+}
+
+
+namespace std {
+
+template<class K, class E, class C>
+void swap(ETL_NAMESPACE::Map<K, E, C>& lhs, ETL_NAMESPACE::Map<K, E, C>& rhs) {
+    lhs.swap(rhs);
+}
 
 }
 

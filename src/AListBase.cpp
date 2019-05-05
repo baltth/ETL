@@ -24,28 +24,28 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::AListBase;
 
 
-AListBase::Node* AListBase::popFront() {
+AListBase::Node* AListBase::popFront() noexcept {
 
     if (size_ > 0) {
         --size_;
         return static_cast<Node*>(chain.remove(chain.getFirst()));
     } else {
-        return NULLPTR;
+        return nullptr;
     }
 }
 
-AListBase::Node* AListBase::popBack() {
+AListBase::Node* AListBase::popBack() noexcept {
 
     if (size_ > 0) {
         --size_;
         return static_cast<Node*>(chain.remove(chain.getLast()));
     } else {
-        return NULLPTR;
+        return nullptr;
     }
 }
 
 
-void AListBase::swapNodeList(AListBase& other) {
+void AListBase::swapNodeList(AListBase& other) noexcept {
 
     chain.swap(other.chain);
 
@@ -58,7 +58,7 @@ void AListBase::swapNodeList(AListBase& other) {
 void AListBase::splice(Iterator pos,
                        AListBase& other,
                        Iterator first,
-                       Iterator last) {
+                       Iterator last) noexcept {
 
     if (&other != this) {
 
@@ -67,7 +67,7 @@ void AListBase::splice(Iterator pos,
 
             Iterator next = item;
             ++next;
-            insert(pos, other.remove(item));
+            insert(pos, *other.remove(item));
             item = next;
         }
     }

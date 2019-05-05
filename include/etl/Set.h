@@ -34,13 +34,13 @@ namespace ETL_NAMESPACE {
 namespace Custom {
 
 /// Set with custom allocator.
-template<class E, template<class> class A>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, template<class> class A, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
-    typedef A<typename Base::Node> Allocator;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
+    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
 
   private:  // variables
 
@@ -48,16 +48,16 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -71,16 +71,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -88,18 +81,21 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
 
-#endif
-
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -109,91 +105,24 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
 namespace Dynamic {
 
-/// Set with dynamic memory allocation, defaults to std::allocator.
-template<class E, template<class> class A = std::allocator>
-class Set : public ETL_NAMESPACE::Set<E> {
-
-  public:   // types
-
-    typedef ETL_NAMESPACE::Set<E> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
-
-  private:  // variables
-
-    mutable Allocator allocator;
-
-  public:   // functions
-
-    Set() :
-        Base(allocator) {};
-
-    Set(const Set& other) :
-        Base(allocator) {
-        Base::operator=(other);
-    }
-
-    explicit Set(const Base& other) :
-        Base(allocator) {
-        Base::operator=(other);
-    }
-
-    Set& operator=(const Set& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    Set& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-#if ETL_USE_CPP11
-
-    Set(Set&& other) :
-        Base(allocator) {
-        operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
-    }
-
-    Set& operator=(Set&& other) {
-        this->swap(other);
-        return *this;
-    }
-
-    Set& operator=(std::initializer_list<E> initList) {
-        Base::operator=(initList);
-        return *this;
-    }
-
-#endif
-
-    ~Set() {
-        this->clear();
-    }
-
-    Allocator& getAllocator() const {
-        return allocator;
-    }
-
-};
+/// Set with dynamic memory allocation using std::allocator.
+template<class E, class C = std::less<E>>
+using Set = ETL_NAMESPACE::Custom::Set<E, std::allocator, C>;
 
 }
+
 
 namespace Static {
 
 /// Set with unique pool allocator.
-template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, uint32_t N, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Static::Set size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
 
   private:  // variables
@@ -202,16 +131,16 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -225,16 +154,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -242,18 +164,21 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
 
-#endif
-
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
@@ -264,14 +189,14 @@ class Set : public ETL_NAMESPACE::Set<E> {
 namespace Pooled {
 
 /// Set with common pool allocator.
-template<class E, uint32_t N>
-class Set : public ETL_NAMESPACE::Set<E> {
+template<class E, uint32_t N, class C = std::less<E>>
+class Set : public ETL_NAMESPACE::Set<E, C> {
 
-    STATIC_ASSERT(N > 0);
+    static_assert(N > 0, "Invalid Etl::Pooled::Set size");
 
   public:   // types
 
-    typedef ETL_NAMESPACE::Set<E> Base;
+    typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
 
   private:  // variables
@@ -280,16 +205,16 @@ class Set : public ETL_NAMESPACE::Set<E> {
 
   public:   // functions
 
-    Set() :
+    Set() noexcept :
         Base(allocator) {};
 
     Set(const Set& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Base(allocator) {
+        Set() {
         Base::operator=(other);
     }
 
@@ -303,16 +228,9 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
-#if ETL_USE_CPP11
-
     Set(Set&& other) :
-        Base(allocator) {
+        Set() {
         operator=(std::move(other));
-    }
-
-    Set(std::initializer_list<E> initList) :
-        Base(allocator) {
-        operator=(initList);
     }
 
     Set& operator=(Set&& other) {
@@ -320,25 +238,27 @@ class Set : public ETL_NAMESPACE::Set<E> {
         return *this;
     }
 
+    Set(std::initializer_list<E> initList) :
+        Set() {
+        operator=(initList);
+    }
+
     Set& operator=(std::initializer_list<E> initList) {
         Base::operator=(initList);
         return *this;
     }
 
-#endif
-
-    ~Set() {
+    ~Set() noexcept(Allocator::NoexceptDestroy) {
         this->clear();
     }
 
-    Allocator& getAllocator() const {
+    Allocator& getAllocator() const noexcept {
         return allocator;
     }
 
 };
 
 }
-
 }
 
 #endif /* __ETL_SET_H__ */

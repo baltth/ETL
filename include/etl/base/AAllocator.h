@@ -40,53 +40,31 @@ class AAllocator {
     typedef T ItemType;
     typedef T* PtrType;
 
+    static constexpr bool NoexceptDestroy = is_nothrow_destructible<T>::value;
+
   public:   // functions
 
     virtual ~AAllocator() {};
 
-    virtual size_t max_size() const = 0;
-    virtual size_t size() const = 0;
+    virtual size_t max_size() const noexcept = 0;
+    virtual size_t size() const noexcept = 0;
 
     virtual PtrType allocate(uint32_t n) = 0;
-    virtual void deallocate(PtrType ptr, uint32_t n) = 0;
+    virtual void deallocate(PtrType ptr, uint32_t n) noexcept = 0;
 
-    virtual const void* handle() const = 0;
+    virtual const void* handle() const noexcept = 0;
 
-    static void construct(PtrType ptr) {
+    static void construct(PtrType ptr) noexcept(noexcept(new (ptr) ItemType)) {
         new (ptr) ItemType;
     }
 
-    static void construct(PtrType ptr, const ItemType& other) {
-        new (ptr) ItemType(other);
-    }
-
-#if ETL_USE_CPP11
-
     template<typename... Args >
-    static void construct(PtrType ptr, Args&& ... args) {
+    static void construct(PtrType ptr, Args&& ... args)
+    noexcept(noexcept(new (ptr) ItemType(std::forward<Args>(args)...))) {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 
-#else
-
-    template<typename A>
-    static void construct(PtrType ptr, A a) {
-        new (ptr) ItemType(a);
-    }
-
-    template<typename A, typename B>
-    static void construct(PtrType ptr, A a, B b) {
-        new (ptr) ItemType(a, b);
-    }
-
-    template<typename A, typename B, typename C>
-    static void construct(PtrType ptr, A a, B b, C c) {
-        new (ptr) ItemType(a, b, c);
-    }
-
-#endif
-
-    static void destroy(PtrType ptr) {
+    static void destroy(PtrType ptr) noexcept(NoexceptDestroy) {
         ptr->~ItemType();
     }
 
@@ -110,23 +88,23 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:   // functions
 
-    virtual size_t max_size() const OVERRIDE {
+    size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    virtual size_t size() const OVERRIDE {
+    size_t size() const noexcept override {
         return allocator().max_size();
     }
 
-    virtual PtrType allocate(uint32_t n) OVERRIDE {
+    PtrType allocate(uint32_t n) override {
         return allocator().allocate(n);
     }
 
-    virtual void deallocate(PtrType ptr, uint32_t n) OVERRIDE {
+    void deallocate(PtrType ptr, uint32_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 
-    virtual const void* handle() const OVERRIDE {
+    const void* handle() const noexcept override {
         return &allocator();
     }
 
