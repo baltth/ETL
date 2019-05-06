@@ -125,6 +125,7 @@ class TypedVectorBase : public AVectorBase {
 
     /// \name Element access
     /// \{
+
     reference operator[](size_type ix) noexcept {
         return *(static_cast<pointer>(getItemPointer(ix)));
     }
