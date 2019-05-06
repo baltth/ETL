@@ -40,6 +40,8 @@ class UnorderedBase : protected AHashTable {
     typedef T* pointer;
     typedef const T* const_pointer;
 
+    typedef size_type AHashTable::size_type;
+
     class Node : public AHashTable::Node {
 
       public:   // variables
@@ -48,15 +50,9 @@ class UnorderedBase : protected AHashTable {
 
       public:   // functions
 
-#if ETL_USE_CPP11
         template<typename... Args>
         Node(Args&& ... args) :
             item(std::forward<Args>(args)...) {};
-#else
-        Node() {};
-        explicit Node(const T& value) :
-            item(value) {};
-#endif
 
     };
 
@@ -72,7 +68,7 @@ class UnorderedBase : protected AHashTable {
         typedef std::forward_iterator_tag iterator_category;
 
         const_iterator() :
-            AHashTable::Iterator(NULLPTR) {};
+            AHashTable::Iterator(nullptr) {};
 
         const_iterator(const const_iterator& it) :
             AHashTable::Iterator(it) {};
@@ -126,7 +122,7 @@ class UnorderedBase : protected AHashTable {
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() :
-            AHashTable::Iterator(NULLPTR) {};
+            AHashTable::Iterator(nullptr) {};
 
         iterator(const iterator& it) :
             AHashTable::Iterator(it) {};
@@ -182,7 +178,13 @@ class UnorderedBase : protected AHashTable {
 
   public:   // functions
 
-    UnorderedBase() {};
+    UnorderedBase() = default;
+
+    UnorderedBase(const UnorderedBase& other) = delete;
+    UnorderedBase& operator=(const UnorderedBase& other) = delete;
+
+    UnorderedBase(UnorderedBase&& other) = default;
+    UnorderedBase& operator=(UnorderedBase&& other) = default;
 
     /// \name Capacity
     /// \{
@@ -220,10 +222,6 @@ class UnorderedBase : protected AHashTable {
   protected:
 
   private:
-
-    // Non-copyable
-    UnorderedBase(const UnorderedBase& other);
-    UnorderedBase& operator=(const UnorderedBase& other);
 
 };
 

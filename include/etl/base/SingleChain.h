@@ -51,45 +51,53 @@ class SingleChain {
 
   public:  // functions
 
-    SingleChain() :
-        frontNode() {};
+    SingleChain() = default;
 
-    SingleChain(SingleChain&& other);
-    SingleChain& operator=(SingleChain&& other);
+    SingleChain(const SingleChain& other) = delete;
+    SingleChain& operator=(const SingleChain& other) = delete;
 
-    bool isEmpty() const {
+    SingleChain(SingleChain&& other) noexcept {
+        takeListOf(other);
+        other.setEmpty();
+    }
+
+    SingleChain& operator=(SingleChain&& other) noexcept {
+        swap(other);
+        return *this;
+    }
+
+    ~SingleChain() = default;
+
+    bool isEmpty() const noexcept {
         return (frontNode.next == nullptr);
     }
 
-    Node* getFirst() const {
+    Node* getFirst() const noexcept {
         return frontNode.next;
     }
 
-    Node& getFrontNode() {
+    Node& getFrontNode() noexcept {
         return frontNode;
     }
 
-    const Node& getFrontNode() const {
+    const Node& getFrontNode() const noexcept {
         return frontNode;
     }
 
-    void insertAfter(Node* pos, Node* node);
-    Node* removeAfter(Node* pos);
+    void insertAfter(Node* pos, Node* node) noexcept;
+    Node* removeAfter(Node* pos) noexcept;
 
-    void setEmpty() {
+    void setEmpty() noexcept {
         frontNode.next = nullptr;
     }
 
-    void swap(SingleChain& other);
+    void swap(SingleChain& other) noexcept;
 
   private:
 
-    SingleChain(const SingleChain& other);
-    SingleChain& operator=(const SingleChain& other);
+    void takeListOf(SingleChain& other) noexcept;
 
-    void takeListOf(SingleChain& other);
-
-    static void linkNodes(Node* a, Node* b) {
+    static void linkNodes(Node* a, Node* b) noexcept {
         a->next = b;
     }
 };

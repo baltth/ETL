@@ -24,21 +24,7 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::SingleChain;
 
 
-SingleChain::SingleChain(SingleChain&& other) {
-
-    setEmpty();
-    swap(other);
-}
-
-
-SingleChain& SingleChain::operator=(SingleChain&& other) {
-
-    swap(other);
-    return *this;
-}
-
-
-void SingleChain::insertAfter(Node* pos, Node* node) {
+void SingleChain::insertAfter(Node* pos, Node* node) noexcept {
 
     ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(node != nullptr);
@@ -49,7 +35,7 @@ void SingleChain::insertAfter(Node* pos, Node* node) {
 }
 
 
-SingleChain::Node* SingleChain::removeAfter(Node* pos) {
+SingleChain::Node* SingleChain::removeAfter(Node* pos) noexcept {
 
     ETL_ASSERT(pos != nullptr);
     ETL_ASSERT(pos->next != nullptr);
@@ -62,7 +48,7 @@ SingleChain::Node* SingleChain::removeAfter(Node* pos) {
 }
 
 
-void SingleChain::takeListOf(SingleChain& other) {
+void SingleChain::takeListOf(SingleChain& other) noexcept {
 
     if (&other != this) {
         linkNodes(&frontNode, other.getFirst());
@@ -71,7 +57,7 @@ void SingleChain::takeListOf(SingleChain& other) {
 }
 
 
-void SingleChain::swap(SingleChain& other) {
+void SingleChain::swap(SingleChain& other) noexcept {
 
     if (&other != this) {
 

@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_AHASHTABLE_H__
 #define __ETL_AHASHTABLE_H__
 
-#include <etl/Proxy.h>
-#include <etl/base/SingleChain.h>
 #include <etl/etlSupport.h>
+#include <etl/base/SingleChain.h>
+#include <etl/Proxy.h>
 
 #include <utility>
 
@@ -35,6 +35,8 @@ namespace Detail {
 class AHashTable {
 
   public:  // types
+
+    typedef std::uint32_t size_type;
 
     typedef std::size_t HashType;
 
@@ -89,14 +91,14 @@ class AHashTable {
   protected:  // variables
 
     SingleChain chain;
-    uint32_t size_;
+    size_type size_;
 
     MutableProxy<BucketItem> buckets;
     BucketItem lastItem;
 
   public:  // functions
 
-    AHashTable(BucketItem* b, uint32_t s) :
+    AHashTable(BucketItem* b, size_type s) :
         size_(0U),
         buckets(b, s),
         lastItem(&chain.getFrontNode()) {
@@ -104,7 +106,15 @@ class AHashTable {
         ETL_ASSERT(s > 0U);
     };
 
-    uint32_t size() const {
+    AHashTable(const AHashTable& other) = delete;
+    AHashTable& operator=(const AHashTable& other) = delete;
+
+    AHashTable(AHashTable&& other) = default;
+    AHashTable& operator=(AHashTable&& other) = default;
+
+    ~AHashTable() = default;
+
+    size_type size() const {
         return size_;
     }
 
@@ -127,7 +137,7 @@ class AHashTable {
     void insert(Node& item);
     Node* remove(Node& item);
 
-    std::pair<SingleChain::Node*, std::uint32_t> findPrevious(Node& item) const;
+    std::pair<SingleChain::Node*, size_type> findPrevious(Node& item) const;
 
     Node* find(HashType hash) {
         return const_cast<Node*>(static_cast<const AHashTable*>(this)->find(hash));
@@ -142,24 +152,18 @@ class AHashTable {
 
     std::pair<const Node*, const Node*> equalRange(HashType hash) const;
 
-    std::uint32_t count(HashType hash) const;
+    size_type count(HashType hash) const;
 
     /// \}
 
-    uint32_t bucketOfHash(HashType h) const {
+    size_type bucketOfHash(HashType h) const {
         return (h % buckets.size());
     }
 
   private:
 
-    // Non-copyable
-    AHashTable(const AHashTable& other);
-    AHashTable& operator=(const AHashTable& other);
+    std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
 
-    AHashTable(AHashTable&& other) = delete;
-    AHashTable& operator=(AHashTable&& other) = delete;
-
-    std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, uint32_t ix);
 };
 
 }  // namespace Detail
