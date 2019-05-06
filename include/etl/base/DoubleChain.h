@@ -63,8 +63,16 @@ class DoubleChain {
     DoubleChain(const DoubleChain& other) = delete;
     DoubleChain& operator=(const DoubleChain& other) = delete;
 
-    DoubleChain(DoubleChain&& other) noexcept;
-    DoubleChain& operator=(DoubleChain&& other) noexcept;
+    DoubleChain(DoubleChain&& other) noexcept :
+        DoubleChain() {
+        takeListOf(other);
+        other.setEmpty();
+    }
+
+    DoubleChain& operator=(DoubleChain&& other) noexcept {
+        swap(other);
+        return *this;
+    }
 
     ~DoubleChain() noexcept = default;
 
