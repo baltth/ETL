@@ -237,6 +237,12 @@ Vector<T, A>::Vector(uint32_t len, const T& item) :
     this->insert(this->begin(), len, item);
 }
 
+
+template<class T, template<class> class A>
+void swap(Custom::Vector<T, A>& lhs, Custom::Vector<T, A>& rhs) {
+    lhs.swap(rhs);
+}
+
 }
 
 
@@ -246,16 +252,6 @@ namespace Dynamic {
 template<class T>
 using Vector = ETL_NAMESPACE::Custom::Vector<T, std::allocator>;
 
-}
-
-}
-
-
-namespace std {
-
-template<class T, template<class> class A>
-void swap(ETL_NAMESPACE::Custom::Vector<T, A>& lhs, ETL_NAMESPACE::Custom::Vector<T, A>& rhs) {
-    lhs.swap(rhs);
 }
 
 }

@@ -397,13 +397,9 @@ bool operator>=(const List<T>& lhs, const List<T>& rhs) {
     return !(lhs < rhs);
 }
 
-}
-
-
-namespace std {
 
 template<class T>
-void swap(ETL_NAMESPACE::List<T>& lhs, ETL_NAMESPACE::List<T>& rhs) {
+void swap(List<T>& lhs, List<T>& rhs) {
     lhs.swap(rhs);
 }
 

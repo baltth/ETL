@@ -293,13 +293,9 @@ bool operator>=(const Map<K, E, C>& lhs, const Map<K, E, C>& rhs) {
     return !(lhs < rhs);
 }
 
-}
-
-
-namespace std {
 
 template<class K, class E, class C>
-void swap(ETL_NAMESPACE::Map<K, E, C>& lhs, ETL_NAMESPACE::Map<K, E, C>& rhs) {
+void swap(Map<K, E, C>& lhs, Map<K, E, C>& rhs) {
     lhs.swap(rhs);
 }
 

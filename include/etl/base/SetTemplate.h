@@ -235,13 +235,9 @@ bool operator>=(const Set<E, C>& lhs, const Set<E, C>& rhs) {
     return !(lhs < rhs);
 }
 
-}
-
-
-namespace std {
 
 template<class E, class C>
-void swap(ETL_NAMESPACE::Set<E, C>& lhs, ETL_NAMESPACE::Set<E, C>& rhs) {
+void swap(Set<E, C>& lhs, Set<E, C>& rhs) {
     lhs.swap(rhs);
 }
 

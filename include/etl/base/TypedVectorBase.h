@@ -310,9 +310,8 @@ class TypedVectorBase : public AVectorBase {
 
     static void swapValues(reference lhs, reference rhs)
     noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value) {
-        value_type tmp(std::move(lhs));
-        lhs = std::move(rhs);
-        rhs = std::move(tmp);
+        using std::swap;
+        swap(lhs, rhs);
     }
 
     static void uninitializedMove(pointer src, pointer dst, size_type num)
