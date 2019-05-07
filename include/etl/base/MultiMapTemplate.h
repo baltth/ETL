@@ -270,13 +270,9 @@ bool operator>=(const MultiMap<K, E, C>& lhs, const MultiMap<K, E, C>& rhs) {
     return !(lhs < rhs);
 }
 
-}
-
-
-namespace std {
 
 template<class K, class E, class C>
-void swap(ETL_NAMESPACE::MultiMap<K, E, C>& lhs, ETL_NAMESPACE::MultiMap<K, E, C>& rhs) {
+void swap(MultiMap<K, E, C>& lhs, MultiMap<K, E, C>& rhs) {
     lhs.swap(rhs);
 }
 
