@@ -28,15 +28,17 @@ limitations under the License.
 
 #include <cstddef>
 #include <iterator>
+#include <array>
 
 namespace ETL_NAMESPACE {
 
 namespace Detail {
 
 template<class From, class To>
-struct IsDataConvertible {
+struct EnableIfArrayDataConvertible : enable_if<std::is_convertible<From(*)[], To(*)[]>::value> {};
 
-};
+template<class From, class To>
+using EnableIfArrayDataConvertibleType = typename EnableIfArrayDataConvertible<From, To>::type;
 
 }
 
@@ -69,19 +71,19 @@ class Span {
 
   private:  // variables
 
-    pointer const data_;
-    const std::size_t size_;
+    pointer data_;
+    std::size_t size_;
 
   public:   // functions
 
     /// \name Construction, destruction, assignment
     /// \{
 
-    template<class = enable_if_t<(extent == 0U) || (extent == dynamic_extent)>>
+    template<bool Dep = false,
+             class = enable_if_t<Dep || (extent == 0U) || (extent == dynamic_extent)>>
     constexpr Span() noexcept :
         data_(nullptr),
         size_(0U) {};
-
 
     constexpr Span(pointer ptr, index_type count) :
         data_(ptr),
@@ -98,28 +100,28 @@ class Span {
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>,
-             class = enable_if_t<std::is_convertible<value_type(*)[], element_type(*)[]>::value>>
+             class From = value_type,
+             class = Detail::EnableIfArrayDataConvertibleType<From, element_type>>
     constexpr Span(std::array<value_type, N>& arr) noexcept :
-        data_(arr.data()),
+        data_(&std::get<0>(arr)),
         size_(N) {};
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>,
-             class = enable_if_t<std::is_convertible<add_const_t<value_type>(*)[], element_type(*)[]>::value>>
+             class From = add_const_t<value_type>,
+             class = Detail::EnableIfArrayDataConvertibleType<From, element_type>>
     constexpr Span(const std::array<value_type, N>& arr) noexcept :
-        data_(arr.data()),
+        data_(&std::get<0>(arr)),
         size_(N) {};
 
     template<class Cont,
-             class = enable_if_t<std::is_convertible<typename Cont::value_type(*)[],
-                                                     element_type(*)[]>::value>>
+             class = Detail::EnableIfArrayDataConvertibleType<typename Cont::value_type, element_type>>
     constexpr Span(Cont& container) :
         data_(container.data()),
         size_(container.size()) {};
 
     template<class Cont,
-             class = enable_if_t<std::is_convertible<add_const_t<typename Cont::value_type>(*)[],
-                                                     element_type(*)[]>::value>>
+             class = Detail::EnableIfArrayDataConvertibleType<add_const_t<typename Cont::value_type>, element_type>>
     constexpr Span(const Cont& container) :
         data_(container.data()),
         size_(container.size()) {};
@@ -127,7 +129,7 @@ class Span {
     template<class U,
              std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>,
-             class = enable_if_t<std::is_convertible<U(*)[], element_type(*)[]>::value>>
+             class = Detail::EnableIfArrayDataConvertibleType<U, element_type>>
     constexpr Span(const Span<U, N>& other) noexcept :
         data_(other.data()),
         size_(other.size()) {};
@@ -141,6 +143,10 @@ class Span {
 
     constexpr index_type size() const noexcept {
         return size_;
+    }
+
+    constexpr index_type size_bytes() const noexcept {
+        return size() * sizeof(element_type);
     }
 
     constexpr bool empty() const noexcept {
@@ -201,6 +207,58 @@ class Span {
 
     constexpr pointer data() const noexcept {
         return data_;
+    }
+    /// \}
+
+    /// \name Subviews
+    /// \{
+
+    template<std::size_t Cnt>
+    constexpr Span<element_type, Cnt> first() const {
+        static_assert((extent == dynamic_extent) || (Cnt <= extent), "Invalid first<count>()");
+        return Span<element_type, Cnt>(data_, Cnt);
+    }
+
+    constexpr Span<element_type, dynamic_extent> first(std::size_t cnt) const {
+        return Span<element_type, dynamic_extent>(data_, cnt);
+    }
+
+    template<std::size_t Cnt>
+    constexpr Span<element_type, Cnt> last() const {
+        static_assert((extent == dynamic_extent) || (Cnt <= extent), "Invalid last<count>()");
+        return Span<element_type, Cnt>(data_ + size() - Cnt, Cnt);
+    }
+
+    constexpr Span<element_type, dynamic_extent> last(std::size_t cnt) const {
+        return Span<element_type, dynamic_extent>(data_ + size() - cnt, cnt);
+    }
+
+    template<std::size_t Offs,
+             std::size_t Cnt = dynamic_extent,
+             class = enable_if_t<Cnt != dynamic_extent>>
+    constexpr Span<element_type, Cnt> subspan() const {
+        static_assert((extent == dynamic_extent) || ((Offs + Cnt) <= extent), "Invalid subspan<offs, count>()");
+        return Span<element_type, dynamic_extent>(data_ + Offs, Cnt);
+    }
+
+    template<std::size_t Offs,
+             std::size_t Cnt = dynamic_extent,
+             class = enable_if_t<(Cnt == dynamic_extent) && (extent != dynamic_extent)>>
+    constexpr Span<element_type, (extent - Offs)> subspan() const {
+        static_assert(Offs <= extent, "Invalid subspan<offs, count>()");
+        return Span<element_type, (extent - Offs)>(data_ + Offs, size() - Offs);
+    }
+
+    template<std::size_t Offs,
+             std::size_t Cnt = dynamic_extent,
+             class = enable_if_t<(Cnt == dynamic_extent) && (extent == dynamic_extent)>>
+    constexpr Span<element_type, dynamic_extent> subspan() const {
+        return Span<element_type, dynamic_extent>(data_ + Offs, size() - Offs);
+    }
+
+    constexpr Span<element_type, dynamic_extent> subspan(std::size_t offs, std::size_t cnt = dynamic_extent) const {
+        return Span<element_type, dynamic_extent>(data_ + offs,
+                                                  (cnt == dynamic_extent) ? (size() - offs) : cnt);
     }
     /// \}
 
