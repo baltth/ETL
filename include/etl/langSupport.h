@@ -22,9 +22,14 @@ limitations under the License.
 #ifndef __ETL_LANGSUPPORT_H__
 #define __ETL_LANGSUPPORT_H__
 
-#if (__cplusplus >= 201402L)
+#if (__cplusplus >= 201703L)
+#define ETL_HAS_CPP17   1
+#define ETL_HAS_CPP14   1
+#elif (__cplusplus >= 201402L)
+#define ETL_HAS_CPP17   0
 #define ETL_HAS_CPP14   1
 #elif (__cplusplus >= 201103L)
+#define ETL_HAS_CPP17   0
 #define ETL_HAS_CPP14   0
 #else
 #error "Deprecated"
