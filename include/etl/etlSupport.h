@@ -24,6 +24,13 @@ limitations under the License.
 
 #include <etl/langSupport.h>
 
+#include <cstdint>
+#include <cstddef>
+#include <functional>
+#include <stdexcept>    // For new overrides
+#include <iterator>
+
+
 #ifndef ETL_DISABLE_ASSERT
 #include <cassert>
 #endif
@@ -51,9 +58,6 @@ limitations under the License.
 
 
 // Language features
-#include <cstdint>
-#include <functional>
-
 using std::uint8_t;
 using std::uint16_t;
 using std::uint32_t;
@@ -66,9 +70,6 @@ using std::size_t;
 
 
 // Utilities
-
-#include <stdexcept>    // For new overrides
-#include <iterator>
 
 namespace ETL_NAMESPACE {
 
