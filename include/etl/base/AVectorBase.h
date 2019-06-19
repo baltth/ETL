@@ -105,7 +105,7 @@ class AVectorBase {
 
     void swapProxy(AVectorBase& other) noexcept {
 
-        ETL_ASSERT(itemSize == other.itemSize);
+        ETL_ASSERT(proxy.getItemSize() == other.proxy.getItemSize());
 
         AVectorBase::Proxy tmp = proxy;
         proxy = other.proxy;

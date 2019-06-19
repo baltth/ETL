@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(etl_test)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 #set (CMAKE_C_COMPILER "/usr/bin/clang")
 #set (CMAKE_CXX_COMPILER "/usr/bin/clang++")
