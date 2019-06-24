@@ -97,8 +97,13 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == 0U, "Span<>: Invalid size()");
+#if ETL_FULL_CONSTEXPR
         static_assert(span.data() == nullptr, "Span<>: Invalid data()");
         static_assert(span.begin() == span.end(), "Span<>: Invalid iterators");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.begin() != span.end());
+#endif
 
         CHECK(true);
     }
@@ -108,16 +113,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(&C_ARRAY[0], SIZE);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         CHECK(true);
     }
@@ -128,16 +142,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(&C_ARRAY[0], &C_ARRAY[0] + SIZE);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         CHECK(true);
     }
@@ -147,16 +170,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(C_ARRAY);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         CHECK(true);
     }
@@ -166,16 +198,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(ARRAY);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         CHECK(true);
     }
@@ -186,16 +227,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(spanRef);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         CHECK(true);
     }
@@ -205,16 +255,25 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         constexpr Etl::Span<const char> span(ARRAY);
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
-
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
-        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
 
+#if ETL_FULL_CONSTEXPR
+        static_assert(span.data() != nullptr, "Span<>: Invalid data()");
         static_assert(span.front() == '0', "Span<>: Invalid front()");
         static_assert(span.back() == '9', "Span<>: Invalid back()");
 
         static_assert(span.begin() != span.end(), "Span<>: Invalid iterators");
         static_assert(*span.begin() == '0', "Span<>: Invalid begin()");
         static_assert(*(span.end() - 1) == '9', "Span<>: Invalid end()");
+#else
+        REQUIRE(span.data() != nullptr);
+        REQUIRE(span.front() == '0');
+        REQUIRE(span.back() == '9');
+
+        REQUIRE(span.begin() != span.end());
+        REQUIRE(*span.begin() == '0');
+        REQUIRE(*(span.end() - 1) == '9');
+#endif
 
         SECTION("first<>()") {
 
@@ -222,8 +281,14 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(firstSub.extent == 6, "Span<>: static extent '6' expected");
             static_assert(firstSub.size() == 6, "Span<>: Invalid size()");
+
+#if ETL_FULL_CONSTEXPR
             static_assert(firstSub.data() != nullptr, "Span<>: Invalid data()");
             static_assert(firstSub.front() == '0', "Span<>: Invalid front()");
+#else
+            REQUIRE(firstSub.data() != nullptr);
+            REQUIRE(firstSub.front() == '0');
+#endif
 
             CHECK(true);
         }
@@ -234,8 +299,14 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(firstSub.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
             static_assert(firstSub.size() == 6, "Span<>: Invalid size()");
+
+#if ETL_FULL_CONSTEXPR
             static_assert(firstSub.data() != nullptr, "Span<>: Invalid data()");
             static_assert(firstSub.front() == '0', "Span<>: Invalid front()");
+#else
+            REQUIRE(firstSub.data() != nullptr);
+            REQUIRE(firstSub.front() == '0');
+#endif
 
             CHECK(true);
         }
@@ -246,8 +317,14 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(lastSub.extent == 6, "Span<>: static extent '6' expected");
             static_assert(lastSub.size() == 6, "Span<>: Invalid size()");
+
+#if ETL_FULL_CONSTEXPR
             static_assert(lastSub.data() != nullptr, "Span<>: Invalid data()");
             static_assert(lastSub.front() == '4', "Span<>: Invalid front()");
+#else
+            REQUIRE(lastSub.data() != nullptr);
+            REQUIRE(lastSub.front() == '4');
+#endif
 
             CHECK(true);
         }
@@ -258,14 +335,21 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(lastSub.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
             static_assert(lastSub.size() == 6, "Span<>: Invalid size()");
+
+#if ETL_FULL_CONSTEXPR
             static_assert(lastSub.data() != nullptr, "Span<>: Invalid data()");
             static_assert(lastSub.front() == '4', "Span<>: Invalid front()");
+#else
+            REQUIRE(lastSub.data() != nullptr);
+            REQUIRE(lastSub.front() == '4');
+#endif
 
             CHECK(true);
         }
 
         SECTION("subspan<>()") {
 
+#if ETL_FULL_CONSTEXPR
             constexpr auto sub1 = span.subspan<3, 5>();
 
             static_assert(sub1.extent == 5, "Span<>: static extent '5' expected");
@@ -278,15 +362,34 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(sub2.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
             static_assert(sub2.size() == 7, "Span<>: Invalid size()");
+
             static_assert(sub2.data() != nullptr, "Span<>: Invalid data()");
             static_assert(sub2.front() == '3', "Span<>: Invalid front()");
             static_assert(sub2.back() == '9', "Span<>: Invalid back()");
+#else
+            const auto sub1 = span.subspan<3, 5>();
+
+            REQUIRE(sub1.extent == 5);
+            REQUIRE(sub1.size() == 5);
+            REQUIRE(sub1.data() != nullptr);
+            REQUIRE(sub1.front() == '3');
+            REQUIRE(sub1.back() == '7');
+
+            const auto sub2 = span.subspan<3>();
+
+            REQUIRE(sub2.extent == Etl::dynamic_extent);
+            REQUIRE(sub2.size() == 7);
+            REQUIRE(sub2.data() != nullptr);
+            REQUIRE(sub2.front() == '3');
+            REQUIRE(sub2.back() == '9');
+#endif
 
             CHECK(true);
         }
 
         SECTION("subspan()") {
 
+#if ETL_FULL_CONSTEXPR
             constexpr auto sub = span.subspan(3, 5);
 
             static_assert(sub.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
@@ -294,6 +397,15 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
             static_assert(sub.data() != nullptr, "Span<>: Invalid data()");
             static_assert(sub.front() == '3', "Span<>: Invalid front()");
             static_assert(sub.back() == '7', "Span<>: Invalid back()");
+#else
+            const auto sub = span.subspan(3, 5);
+
+            REQUIRE(sub.extent == Etl::dynamic_extent);
+            REQUIRE(sub.size() == 5);
+            REQUIRE(sub.data() != nullptr);
+            REQUIRE(sub.front() == '3');
+            REQUIRE(sub.back() == '7');
+#endif
 
             CHECK(true);
         }

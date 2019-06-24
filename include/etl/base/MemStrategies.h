@@ -139,7 +139,7 @@ void StaticSized<C>::resizeWithInserter(C& cont, size_type length, INS inserter)
             C::destruct(newEnd, cont.end());
         }
 
-        cont.proxy.setSize(length);
+        cont.getProxy().setSize(length);
     }
 }
 
@@ -147,8 +147,8 @@ template<class C>
 void StaticSized<C>::setupData(C& cont, size_type length) {
 
     if (length <= capacity) {
-        cont.proxy.setData(data);
-        cont.proxy.setCapacity(capacity);
+        cont.getProxy().setData(data);
+        cont.getProxy().setCapacity(capacity);
     } else {
         // TODO throw;
     }
@@ -265,7 +265,7 @@ void DynamicSized<C, A>::resizeWithInserter(C& cont, size_type length, INS inser
         C::destruct(newEnd, cont.end());
     }
 
-    cont.proxy.setSize(length);
+    cont.getProxy().setSize(length);
 }
 
 
@@ -298,15 +298,15 @@ template<class C, class A>
 void DynamicSized<C, A>::allocate(C& cont, size_type len) {
 
     if (len > 0) {
-        cont.proxy.setData(allocator.allocate(len));
+        cont.getProxy().setData(allocator.allocate(len));
     } else {
-        cont.proxy.setData(nullptr);
+        cont.getProxy().setData(nullptr);
     }
 
     if (cont.data() != nullptr) {
-        cont.proxy.setCapacity(len);
+        cont.getProxy().setCapacity(len);
     } else {
-        cont.proxy.setCapacity(0);
+        cont.getProxy().setCapacity(0);
     }
 }
 

@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(etl_test)
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#set (CMAKE_C_COMPILER "/usr/bin/clang")
-#set (CMAKE_CXX_COMPILER "/usr/bin/clang++")
+if(USE_CLANG)
+    set(CMAKE_C_COMPILER "/usr/bin/clang")
+    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+endif()
 
 set(ETL_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(ETL_INCLUDE_DIR ${ETL_SOURCE_DIR}/include)
@@ -35,7 +38,7 @@ list(APPEND ETL_TEST_CMN ${ETL_TESTS_DIR}/testMain.cpp)
 add_library(etl ${ETL_SRCS})
 target_include_directories(etl PUBLIC ${ETL_INCLUDE_DIR})
 target_compile_definitions(etl PUBLIC ETL_USE_EXCEPTIONS=0)
-target_compile_options(etl PUBLIC --std=c++11 -Wall -g)
+target_compile_options(etl PUBLIC --std=c++11 -Wall -O2 -g)
 
 add_executable(testEtl ${ETL_TEST_SRCS} ${ETL_TEST_CMN})
 target_link_libraries(testEtl etl)

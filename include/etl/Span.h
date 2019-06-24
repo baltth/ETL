@@ -157,35 +157,35 @@ class Span {
     /// \name Iterators
     /// \{
 
-    constexpr iterator begin() const noexcept {
+    ETL_COND_CONSTEXPR iterator begin() const noexcept {
         return data();
     }
 
-    constexpr const_iterator cbegin() const noexcept {
+    ETL_COND_CONSTEXPR const_iterator cbegin() const noexcept {
         return data();
     }
 
-    constexpr iterator end() const noexcept {
+    ETL_COND_CONSTEXPR iterator end() const noexcept {
         return data() + size();
     }
 
-    constexpr const_iterator cend() const noexcept {
+    ETL_COND_CONSTEXPR const_iterator cend() const noexcept {
         return data() + size();
     }
 
-    constexpr reverse_iterator rbegin() const noexcept {
+    ETL_COND_CONSTEXPR reverse_iterator rbegin() const noexcept {
         return reverse_iterator(this->end());
     }
 
-    constexpr const_reverse_iterator crbegin() const noexcept {
+    ETL_COND_CONSTEXPR const_reverse_iterator crbegin() const noexcept {
         return const_reverse_iterator(this->cend());
     }
 
-    constexpr reverse_iterator rend() const noexcept {
+    ETL_COND_CONSTEXPR reverse_iterator rend() const noexcept {
         return reverse_iterator(this->begin());
     }
 
-    constexpr const_reverse_iterator crend() const noexcept {
+    ETL_COND_CONSTEXPR const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(this->cbegin());
     }
     /// \}
@@ -193,19 +193,19 @@ class Span {
     /// \name Element access
     /// \{
 
-    constexpr reference front() const {
-        return *(this->begin());
+    ETL_COND_CONSTEXPR reference front() const {
+        return *(begin());
     }
 
-    constexpr reference back() const {
-        return *(this->end() - 1);
+    ETL_COND_CONSTEXPR reference back() const {
+        return data_[size() - 1];
     }
 
-    constexpr reference operator[](index_type ix) const {
+    ETL_COND_CONSTEXPR reference operator[](index_type ix) const {
         return data_[ix];
     }
 
-    constexpr pointer data() const noexcept {
+    ETL_COND_CONSTEXPR pointer data() const noexcept {
         return data_;
     }
     /// \}
@@ -252,17 +252,22 @@ class Span {
     template<std::size_t Offs,
              std::size_t Cnt = dynamic_extent,
              class = enable_if_t<(Cnt == dynamic_extent) && (extent == dynamic_extent)>>
-    constexpr Span<element_type, dynamic_extent> subspan() const {
+    ETL_COND_CONSTEXPR Span<element_type, dynamic_extent> subspan() const {
         return Span<element_type, dynamic_extent>(data_ + Offs, size() - Offs);
     }
 
-    constexpr Span<element_type, dynamic_extent> subspan(std::size_t offs, std::size_t cnt = dynamic_extent) const {
+    ETL_COND_CONSTEXPR Span<element_type, dynamic_extent> subspan(std::size_t offs,
+                                                                  std::size_t cnt = dynamic_extent) const {
         return Span<element_type, dynamic_extent>(data_ + offs,
                                                   (cnt == dynamic_extent) ? (size() - offs) : cnt);
     }
     /// \}
 
 };
+
+
+template<class T, std::size_t Extent>
+constexpr std::size_t Span<T, Extent>::extent;
 
 }
 

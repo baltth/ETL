@@ -71,55 +71,11 @@ class TypedVectorBase : public AVectorBase {
 
     using CreateFunc = std::function<void(pointer, size_type, bool)>;
 
-    class DefaultCreator {
-      public:
-        void operator()(pointer pos, size_type cnt, bool place) const
-        noexcept(noexcept(TypedVectorBase::defaultValue(pos, place))) {
-            for (size_type i = 0; i < cnt; ++i) {
-                TypedVectorBase::defaultValue(pos + i, place);
-            }
-        }
-    };
-
-    class CopyCreator {
-      private:
-        const_reference ref;
-      public:
-        explicit CopyCreator(const_reference refValue) noexcept :
-            ref(refValue) {};
-        void operator()(pointer pos, size_type cnt, bool place) const
-        noexcept(noexcept(TypedVectorBase::copyValue(pos, ref, place))) {
-            for (size_type i = 0; i < cnt; ++i) {
-                TypedVectorBase::copyValue(pos + i, ref, place);
-            }
-        }
-    };
+    class DefaultCreator;
+    class CopyCreator;
 
     template<class InputIt>
-    class ContCreator {
-      private:
-        const InputIt first;
-        mutable InputIt last;
-        const size_type len;
-      public:
-        ContCreator(InputIt fst,
-                    InputIt lst) noexcept :
-            first(fst),
-            last(lst),
-            len((first < last) ? (last - first) : 0) {};
-        size_type getLength() const noexcept {
-            return len;
-        }
-        void operator()(pointer pos, size_type cnt, bool place) const
-        noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
-            for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
-                if (first < last) {
-                    --last;
-                    TypedVectorBase::copyValue(pos + i, *last, place);
-                }
-            }
-        }
-    };
+    class ContCreator;
 
   public:   // functions
 
@@ -241,20 +197,22 @@ class TypedVectorBase : public AVectorBase {
     }
     /// \}
 
-  protected:
-
-    TypedVectorBase() noexcept :
-        AVectorBase(sizeof(T)) {};
-
-    ~TypedVectorBase() noexcept(is_nothrow_destructible<T>::value) {
-        clear();
+    AVectorBase::Proxy& getProxy() {
+        return this->proxy;
     }
 
-    void copyOperation(pointer dst, const_pointer src, size_type num)
-    noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T>::value);
+    const AVectorBase::Proxy& getProxy() const {
+        return this->proxy;
+    }
 
-    void moveOperation(pointer dst, pointer src, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value);
+    static void uninitializedMove(pointer src, pointer dst, size_type num)
+    noexcept(is_nothrow_move_constructible<T>::value);
+
+    static void initializedMoveUp(pointer src, pointer dst, size_type num)
+    noexcept(is_nothrow_move_assignable<T>::value);
+
+    static void initializedMoveDown(pointer src, pointer dst, size_type num)
+    noexcept(is_nothrow_move_assignable<T>::value);
 
     static void assignDefaultTo(pointer ptr)
     noexcept(is_nothrow_default_constructible<T>::value && is_nothrow_move_assignable<T>::value) {
@@ -314,16 +272,22 @@ class TypedVectorBase : public AVectorBase {
         swap(lhs, rhs);
     }
 
-    static void uninitializedMove(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_constructible<T>::value);
-
-    static void initializedMoveUp(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value);
-
-    static void initializedMoveDown(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value);
-
     static void destruct(iterator startPos, iterator endPos) noexcept(is_nothrow_destructible<T>::value);
+
+  protected:
+
+    TypedVectorBase() noexcept :
+        AVectorBase(sizeof(T)) {};
+
+    ~TypedVectorBase() noexcept(is_nothrow_destructible<T>::value) {
+        clear();
+    }
+
+    void copyOperation(pointer dst, const_pointer src, size_type num)
+    noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T>::value);
+
+    void moveOperation(pointer dst, pointer src, size_type num)
+    noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value);
 
     template<class CR>
     iterator insertOperation(const_iterator position, size_type num, const CR& creatorCall)
@@ -551,6 +515,61 @@ typename TypedVectorBase<T>::const_reference TypedVectorBase<T>::at(size_type ix
 
 #endif
 
+template<typename T>
+class TypedVectorBase<T>::DefaultCreator {
+  public:
+    void operator()(pointer pos, size_type cnt, bool place) const
+    noexcept(noexcept(TypedVectorBase::defaultValue(pos, place))) {
+        for (size_type i = 0; i < cnt; ++i) {
+            TypedVectorBase::defaultValue(pos + i, place);
+        }
+    }
+};
+
+
+template<typename T>
+class TypedVectorBase<T>::CopyCreator {
+
+  private:
+    const_reference ref;
+  public:
+    explicit CopyCreator(const_reference refValue) noexcept :
+        ref(refValue) {};
+    void operator()(pointer pos, size_type cnt, bool place) const
+    noexcept(noexcept(TypedVectorBase::copyValue(pos, ref, place))) {
+        for (size_type i = 0; i < cnt; ++i) {
+            TypedVectorBase::copyValue(pos + i, ref, place);
+        }
+    }
+};
+
+template<typename T>
+template<class InputIt>
+class TypedVectorBase<T>::ContCreator {
+
+  private:
+    const InputIt first;
+    mutable InputIt last;
+    const size_type len;
+  public:
+    ContCreator(InputIt fst,
+                InputIt lst) noexcept :
+        first(fst),
+        last(lst),
+        len((first < last) ? (last - first) : 0) {};
+    size_type getLength() const noexcept {
+        return len;
+    }
+    void operator()(pointer pos, size_type cnt, bool place) const
+    noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
+        for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
+            if (first < last) {
+                --last;
+                TypedVectorBase::copyValue(pos + i, *last, place);
+            }
+        }
+    }
+};
 }
 }
 
