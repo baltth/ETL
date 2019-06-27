@@ -71,6 +71,11 @@ using std::size_t;
 
 // Utilities
 
+#ifndef NULLPTR
+#define NULLPTR nullptr
+#endif
+
+
 namespace ETL_NAMESPACE {
 
 

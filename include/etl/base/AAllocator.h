@@ -25,6 +25,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 
 #include <new>
+#include <type_traits>
 
 namespace ETL_NAMESPACE {
 
@@ -40,7 +41,7 @@ class AAllocator {
     typedef T ItemType;
     typedef T* PtrType;
 
-    static constexpr bool NoexceptDestroy = is_nothrow_destructible<T>::value;
+    static constexpr bool NoexceptDestroy = std::is_nothrow_destructible<T>::value;
 
   public:   // functions
 
@@ -116,6 +117,15 @@ class AllocatorWrapper : public AAllocator<T> {
     }
 
 };
+
+
+template<class T, template<class> class A>
+struct AllocatorType {
+    using Type = typename std::conditional<std::is_base_of<AAllocator<T>, A<T>>::value,
+          A<T>,
+          AllocatorWrapper<T, A>>::type;
+};
+
 
 }
 

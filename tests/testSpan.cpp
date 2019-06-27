@@ -101,8 +101,8 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         static_assert(span.data() == nullptr, "Span<>: Invalid data()");
         static_assert(span.begin() == span.end(), "Span<>: Invalid iterators");
 #else
-        REQUIRE(span.data() != nullptr);
-        REQUIRE(span.begin() != span.end());
+        REQUIRE(span.data() == nullptr);
+        REQUIRE(span.begin() == span.end());
 #endif
 
         CHECK(true);

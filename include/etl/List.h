@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/ListTemplate.h>
+#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -43,7 +44,7 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
     typedef typename Base::Node Node;
 
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
+    typedef typename AllocatorType<Node, A>::Type Allocator;
 
   private:  // variables
 

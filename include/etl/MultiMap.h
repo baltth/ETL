@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/MultiMapTemplate.h>
+#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -40,7 +41,8 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
   public:   // types
 
     typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
+    typedef typename Base::Node Node;
+    typedef typename AllocatorType<Node, A>::Type Allocator;
 
   private:  // variables
 

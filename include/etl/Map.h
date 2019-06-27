@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/MapTemplate.h>
+#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
 
 #include <memory>
@@ -39,7 +40,8 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
   public:   // types
 
     typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef ETL_NAMESPACE::AllocatorWrapper<typename Base::Node, A> Allocator;
+    typedef typename Base::Node Node;
+    typedef typename AllocatorType<Node, A>::Type Allocator;
 
   private:  // variables
 

@@ -23,7 +23,7 @@ limitations under the License.
 #define __ETL_FIFOACCESS_H__
 
 #include <etl/etlSupport.h>
-#include <etl/Proxy.h>
+#include <etl/Span.h>
 #include <etl/base/FifoIndexing.h>
 #include <etl/base/AFifoIterator.h>
 
@@ -53,11 +53,11 @@ class FifoAccess : public FifoIndexing {
 
   private:  // variables
 
-    MutableProxy<T> proxy;
+    Span<T> proxy;
 
   public:   // functions
 
-    explicit FifoAccess(const MutableProxy<T>& p) :
+    explicit FifoAccess(Span<T> p) :
         FifoIndexing(p.size()),
         proxy(p) {};
 
@@ -112,7 +112,7 @@ template<class T>
 void FifoAccess<T>::push(const_reference item) {
 
     FifoIndexing::push();
-    proxy.operator[](FifoIndexing::getWriteIx()) = item;
+    proxy[FifoIndexing::getWriteIx()] = item;
 }
 
 
@@ -120,21 +120,21 @@ template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::pop() {
 
     FifoIndexing::pop();
-    return proxy.operator[](FifoIndexing::getReadIx());
+    return proxy[FifoIndexing::getReadIx()];
 }
 
 
 template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::getFromBack(uint32_t ix) const {
 
-    return proxy.operator[](FifoIndexing::getIndexFromFront(ix));
+    return proxy[FifoIndexing::getIndexFromFront(ix)];
 }
 
 
 template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::getFromFront(uint32_t ix) const {
 
-    return proxy.operator[](FifoIndexing::getIndexFromBack(ix));
+    return proxy[FifoIndexing::getIndexFromBack(ix)];
 }
 
 
@@ -148,7 +148,7 @@ typename FifoAccess<T>::reference FifoAccess<T>::operator[](int32_t ix) {
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return proxy.operator[](ix);
+    return proxy[ix];
 }
 
 
@@ -162,7 +162,7 @@ typename FifoAccess<T>::const_reference FifoAccess<T>::operator[](int32_t ix) co
         ix = FifoIndexing::getIndexFromFront(ix);
     }
 
-    return proxy.operator[](ix);
+    return proxy[ix];
 }
 
 }
