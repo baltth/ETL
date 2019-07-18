@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Set.h>
 
@@ -375,7 +375,8 @@ TEST_CASE("Etl::Set<> test cleanup", "[set][etl]") {
     typedef Etl::Custom::Set<ContainerTester, DummyAllocator> SetType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(SetType::Allocator::Allocator::getDeleteCount() == SetType::Allocator::Allocator::getAllocCount());
+    CHECK(SetType::Allocator::Allocator::getDeleteCount()
+          == SetType::Allocator::Allocator::getAllocCount());
 }
 
 
@@ -392,9 +393,7 @@ TEST_CASE("Etl::Set<> comparision", "[set][etl]") {
         SetType lhs;
         SetType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.emplace(val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.emplace(val); };
 
         testComparision(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
@@ -410,13 +409,9 @@ TEST_CASE("Etl::Set<> comparision", "[set][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.emplace(val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.emplace(val); };
 
-        auto rInserter = [](RType& cont, int val) {
-            cont.emplace(val);
-        };
+        auto rInserter = [](RType& cont, int val) { cont.emplace(val); };
 
         testComparision(lhs,
                         rhs,
@@ -424,4 +419,3 @@ TEST_CASE("Etl::Set<> comparision", "[set][etl]") {
                         rInserter);
     }
 }
-

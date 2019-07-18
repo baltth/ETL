@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/MultiMap.h>
 
@@ -497,7 +497,8 @@ TEST_CASE("Etl::MultiMap<> test cleanup", "[multimap][etl]") {
     typedef Etl::Custom::MultiMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+    CHECK(MapType::Allocator::Allocator::getDeleteCount()
+          == MapType::Allocator::Allocator::getAllocCount());
 }
 
 
@@ -514,9 +515,7 @@ TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
         MapType lhs;
         MapType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.emplace(val, val); };
 
         testComparision(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
@@ -532,13 +531,8 @@ TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.emplace(val, val);
-        };
-
-        auto rInserter = [](RType& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.emplace(val, val); };
+        auto rInserter = [](RType& cont, int val) { cont.emplace(val, val); };
 
         testComparision(lhs,
                         rhs,
@@ -546,4 +540,3 @@ TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
                         rInserter);
     }
 }
-

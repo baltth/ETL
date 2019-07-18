@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Map.h>
 
@@ -237,23 +237,23 @@ TEST_CASE("Etl::Dynamic::Map<> association tests", "[map][etl]") {
 
     SECTION("write existing") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         map[4] = ContainerTester(-5);
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
 
         CAPTURE(map.find(4)->second.toString());
-        CAPTURE(ContainerTester(-5).toString())
+        CAPTURE(ContainerTester(-5).toString());
         REQUIRE(map.find(4)->second == ContainerTester(-5));
     }
 
     SECTION("write new") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         map[5] = ContainerTester(-5);
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
 
         CAPTURE(map.find(5)->second.toString());
-        CAPTURE(ContainerTester(-5).toString())
+        CAPTURE(ContainerTester(-5).toString());
         REQUIRE(map.find(5)->second == ContainerTester(-5));
     }
 
@@ -265,9 +265,9 @@ TEST_CASE("Etl::Dynamic::Map<> association tests", "[map][etl]") {
 
     SECTION("read new - default insertion") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         REQUIRE(map[5] == ContainerTester());
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
     }
 }
 
@@ -440,7 +440,8 @@ TEST_CASE("Etl::Map<> test cleanup", "[map][etl]") {
     typedef Etl::Custom::Map<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+    CHECK(MapType::Allocator::Allocator::getDeleteCount()
+          == MapType::Allocator::Allocator::getAllocCount());
 }
 
 
@@ -457,9 +458,7 @@ TEST_CASE("Etl::Map<> comparision", "[map][etl]") {
         MapType lhs;
         MapType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.emplace(val, val); };
 
         testComparision(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
@@ -475,13 +474,8 @@ TEST_CASE("Etl::Map<> comparision", "[map][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.emplace(val, val);
-        };
-
-        auto rInserter = [](RType& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.emplace(val, val); };
+        auto rInserter = [](RType& cont, int val) { cont.emplace(val, val); };
 
         testComparision(lhs,
                         rhs,
@@ -489,4 +483,3 @@ TEST_CASE("Etl::Map<> comparision", "[map][etl]") {
                         rInserter);
     }
 }
-

@@ -22,16 +22,16 @@ limitations under the License.
 #ifndef __ETL_BUFSTR_H__
 #define __ETL_BUFSTR_H__
 
+#include <etl/Vector.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/Vector.h>
 
 namespace ETL_NAMESPACE {
 
 
 class BufStr {
 
-  public:   // types
+  public:  // types
 
     struct Char {
         char ch;
@@ -39,9 +39,7 @@ class BufStr {
             ch(c) {};
     };
 
-    static const struct EndlineT : Char {
-        EndlineT() : Char('\n') {};
-    } Endl;
+    static const struct EndlineT : Char { EndlineT() : Char('\n') {}; } Endl;
 
     enum Radix {
         BIN = 2,
@@ -78,11 +76,14 @@ class BufStr {
             padding(p) {};
     };
 
-    static const struct DecModT {} SetDec;
-    static const struct HexModT {} SetHex;
-    static const struct BinModT {} SetBin;
-
-    static const struct DefaultModT {} Default;
+    struct DecModT {};
+    static const DecModT SetDec;
+    struct HexModT {};
+    static const HexModT SetHex;
+    struct BinModT {};
+    static const BinModT SetBin;
+    struct DefaultModT {};
+    static const DefaultModT Default;
 
     template<uint32_t S>
     struct SizeTypeTrait {};
@@ -120,11 +121,11 @@ class BufStr {
     Etl::Vector<char>& data;
     Format format;
 
-  public:   // functions
+  public:  // functions
 
     BufStr& operator=(const BufStr& other) {
         clear();
-        return operator <<(other);
+        return operator<<(other);
     }
 
     /// \name Data interface
@@ -138,7 +139,7 @@ class BufStr {
     BufStr& write(const char* str, size_t len);
     BufStr& write(const char* str);
 
-    BufStr& operator <<(bool data) {
+    BufStr& operator<<(bool data) {
         if (data) {
             return write("true", sizeof("true") - 1);
         } else {
@@ -146,33 +147,30 @@ class BufStr {
         }
     }
 
-    BufStr& operator <<(Char data) {
+    BufStr& operator<<(Char data) {
         return put(data.ch);
     }
 
     template<typename T>
-    enable_if_t<is_integral<T>::value && is_unsigned<T>::value, BufStr&>
-    operator <<(T data) {
+    enable_if_t<is_integral<T>::value && is_unsigned<T>::value, BufStr&> operator<<(T data) {
         return putUNumber(data);
     }
 
     template<typename T>
-    enable_if_t<is_integral<T>::value && is_signed<T>::value, BufStr&>
-    operator <<(T data) {
+    enable_if_t<is_integral<T>::value && is_signed<T>::value, BufStr&> operator<<(T data) {
         return putSNumber(data);
     }
 
     template<typename T>
-    enable_if_t<is_floating_point<T>::value, BufStr&>
-    operator <<(T data) {
+    enable_if_t<is_floating_point<T>::value, BufStr&> operator<<(T data) {
         return putFloat(data);
     }
 
-    BufStr& operator <<(const void* data) {
+    BufStr& operator<<(const void* data) {
         return putPointer(data);
     }
 
-    BufStr& operator <<(const BufStr& other) {
+    BufStr& operator<<(const BufStr& other) {
         if (!other.empty()) {
             write(other.cStr(), other.size());
         }
@@ -204,7 +202,7 @@ class BufStr {
     /// \name Format interface
     /// \{
     template<typename T>
-    BufStr& operator <<(IntFormatSpec<T> data) {
+    BufStr& operator<<(IntFormatSpec<T> data) {
         Format f = format;
         format.radix = data.radix;
         *this << Fill(data.fill) << data.val;
@@ -227,21 +225,21 @@ class BufStr {
         return *this;
     }
 
-    BufStr& operator <<(Fill mod) {
+    BufStr& operator<<(Fill mod) {
         if (mod.fill) {
             format.fill = mod.fill;
         }
         return *this;
     }
 
-    BufStr& operator <<(Prec mod) {
+    BufStr& operator<<(Prec mod) {
         if (mod.precision) {
             format.precision = mod.precision;
         }
         return *this;
     }
 
-    BufStr& operator <<(Pad mod) {
+    BufStr& operator<<(Pad mod) {
         if (mod.padding) {
             format.padding = mod.padding;
         }
@@ -359,7 +357,6 @@ class BufStr {
     }
 
     static char tetradeToChar(uint8_t val);
-
 };
 
 
@@ -368,7 +365,7 @@ namespace Static {
 template<uint32_t N>
 class BufStr : public ETL_NAMESPACE::BufStr {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::BufStr Base;
 
@@ -376,7 +373,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
     Etl::Static::Vector<char, N> data;
 
-  public:   // functions
+  public:  // functions
 
     BufStr() :
         Base(data) {
@@ -386,18 +383,18 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(const BufStr& other) :
         Base(data) {
         closeStr();
-        operator <<(other);
+        operator<<(other);
     };
 
     explicit BufStr(const Etl::BufStr& other) :
         Base(data) {
         closeStr();
-        operator <<(other);
+        operator<<(other);
     };
 
     BufStr& operator=(const BufStr& other) {
         Etl::BufStr::operator=(other);
-        return* this;
+        return *this;
     }
 
     BufStr& operator=(const Etl::BufStr& other) {
@@ -410,17 +407,16 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         closeStr();
         write(str);
     }
-
 };
 
-}
+}  // namespace Static
 
 
 namespace Dynamic {
 
 class BufStr : public ETL_NAMESPACE::BufStr {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::BufStr Base;
 
@@ -428,7 +424,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
     Etl::Dynamic::Vector<char> data;
 
-  public:   // functions
+  public:  // functions
 
     BufStr() :
         Base(data) {
@@ -438,18 +434,18 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(const BufStr& other) :
         Base(data) {
         closeStr();
-        operator <<(other);
+        operator<<(other);
     };
 
     explicit BufStr(const Etl::BufStr& other) :
         Base(data) {
         closeStr();
-        operator <<(other);
+        operator<<(other);
     };
 
     BufStr& operator=(const BufStr& other) {
         Etl::BufStr::operator=(other);
-        return* this;
+        return *this;
     }
 
     BufStr& operator=(const Etl::BufStr& other) {
@@ -462,10 +458,9 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         closeStr();
         write(str);
     }
-
 };
 
-}
+}  // namespace Dynamic
 
 
 template<>
@@ -488,13 +483,12 @@ struct BufStr::SizeTypeTrait<sizeof(uint64_t)> {
     static const uint8_t VALUE = 3;
 };
 
-}   /* ETL_NAMESPACE */
+}  // namespace ETL_NAMESPACE
 
 
-inline ETL_NAMESPACE::BufStr& operator <<(ETL_NAMESPACE::BufStr& bs, const char* data) {
+inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* data) {
 
     return bs.write(data);
 }
 
-#endif /* __ETL_BUFSTR_H__ */
-
+#endif // __ETL_BUFSTR_H__

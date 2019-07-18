@@ -19,15 +19,17 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/BufStr.h>
 
 #include <cstring>
 
 #if 0
-#define PRINT_DATA      { std::cout << std::string(data.begin()); }
-#define PRINT_DATA_NL   { std::cout << std::string(data.begin()) << std::endl; }
+#define PRINT_DATA                                                                                 \
+    { std::cout << std::string(data.begin()); }
+#define PRINT_DATA_NL                                                                              \
+    { std::cout << std::string(data.begin()) << std::endl; }
 #else
 #define PRINT_DATA
 #define PRINT_DATA_NL
@@ -348,39 +350,39 @@ TEST_CASE("Etl::BufStr() - copy/assignment", "[bufstr][etl]") {
     Etl::Dynamic::BufStr bs7;
 
     REQUIRE(bs2.cStr() != bs1.cStr());
-    CAPTURE(bs2.cStr())
-    CAPTURE(bs1.cStr())
+    CAPTURE(bs2.cStr());
+    CAPTURE(bs1.cStr());
     REQUIRE(strcmp(bs2.cStr(), bs1.cStr()) == 0);
 
     REQUIRE(bs3.cStr() != bs1.cStr());
-    CAPTURE(bs3.cStr())
-    CAPTURE(bs1.cStr())
+    CAPTURE(bs3.cStr());
+    CAPTURE(bs1.cStr());
     REQUIRE(strcmp(bs3.cStr(), bs1.cStr()) == 0);
 
     bs2 = bs4;
 
     REQUIRE(bs2.cStr() != bs4.cStr());
-    CAPTURE(bs2.cStr())
-    CAPTURE(bs4.cStr())
+    CAPTURE(bs2.cStr());
+    CAPTURE(bs4.cStr());
     REQUIRE(strcmp(bs2.cStr(), bs4.cStr()) == 0);
 
     REQUIRE(bs5.cStr() != bs4.cStr());
-    CAPTURE(bs5.cStr())
-    CAPTURE(bs4.cStr())
+    CAPTURE(bs5.cStr());
+    CAPTURE(bs4.cStr());
     REQUIRE(strcmp(bs5.cStr(), bs4.cStr()) == 0);
 
     bs6 = bs4;
 
     REQUIRE(bs6.cStr() != bs4.cStr());
-    CAPTURE(bs6.cStr())
-    CAPTURE(bs4.cStr())
+    CAPTURE(bs6.cStr());
+    CAPTURE(bs4.cStr());
     REQUIRE(strcmp(bs6.cStr(), bs4.cStr()) == 0);
 
     bs7 = bs4;
 
     REQUIRE(bs7.cStr() != bs4.cStr());
-    CAPTURE(bs7.cStr())
-    CAPTURE(bs4.cStr())
+    CAPTURE(bs7.cStr());
+    CAPTURE(bs4.cStr());
     REQUIRE(strcmp(bs7.cStr(), bs4.cStr()) == 0);
 }
 
@@ -394,4 +396,3 @@ TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
     REQUIRE(bs.size() == 16);
     REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
 }
-

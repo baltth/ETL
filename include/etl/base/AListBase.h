@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_ALISTBASE_H__
 #define __ETL_ALISTBASE_H__
 
-#include <etl/etlSupport.h>
 #include <etl/base/DoubleChain.h>
+#include <etl/etlSupport.h>
 
 #include <utility>
 
@@ -33,7 +33,7 @@ namespace Detail {
 
 class AListBase {
 
-  public:   // types
+  public:  // types
 
     class Node : public DoubleChain::Node {
 
@@ -43,7 +43,6 @@ class AListBase {
 
         explicit Node(const DoubleChain::Node& other) noexcept :
             DoubleChain::Node(other) {};
-
     };
 
     class Iterator {
@@ -77,17 +76,16 @@ class AListBase {
 
         explicit Iterator(AListBase::Node* n) noexcept :
             node(n) {};
-
     };
 
     typedef uint32_t size_type;
 
-  protected: // variables
+  protected:  // variables
 
     DoubleChain chain;
     size_type size_ = 0U;
 
-  public:   // functions
+  public:  // functions
 
     AListBase() = default;
 
@@ -151,11 +149,9 @@ class AListBase {
                 Iterator first,
                 Iterator last) noexcept;
     /// \}
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_ALISTBASE_H__ */
-
+#endif  // __ETL_ALISTBASE_H__

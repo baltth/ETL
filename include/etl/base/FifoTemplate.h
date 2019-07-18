@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_FIFOTEMPLATE_H__
 #define __ETL_FIFOTEMPLATE_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/FifoIndexing.h>
 #include <etl/base/AFifoIterator.h>
+#include <etl/base/FifoIndexing.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -32,7 +32,7 @@ namespace ETL_NAMESPACE {
 template<class C>
 class FifoTemplate : protected C, public FifoIndexing {
 
-  public:   // types
+  public:  // types
 
     typedef typename C::value_type value_type;
     typedef typename C::reference reference;
@@ -47,10 +47,9 @@ class FifoTemplate : protected C, public FifoIndexing {
 
         iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
             FifoIterator<value_type>(const_cast<pointer>(fifo->data()), fifo, ix) {};
-
     };
 
-  public:   // functions
+  public:  // functions
 
     template<typename... Args>
     explicit FifoTemplate<C>(Args... args) :
@@ -89,7 +88,6 @@ class FifoTemplate : protected C, public FifoIndexing {
     iterator iteratorFor(uint32_t ix) const {
         return iterator(this, ix);
     }
-
 };
 
 
@@ -151,7 +149,6 @@ typename FifoTemplate<C>::const_reference FifoTemplate<C>::operator[](int32_t ix
 }
 
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_FIFOTEMPLATE_H__ */
-
+#endif  // __ETL_FIFOTEMPLATE_H__

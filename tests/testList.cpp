@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/List.h>
 
@@ -27,9 +27,9 @@ limitations under the License.
 
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
-#include "sequenceTests.h"
-#include "compatibilityTests.h"
 #include "comparisionTests.h"
+#include "compatibilityTests.h"
+#include "sequenceTests.h"
 
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
@@ -837,7 +837,8 @@ TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
     typedef Etl::Custom::List<ContainerTester, DummyAllocator> ListT;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(ListT::Allocator::Allocator::getDeleteCount() == ListT::Allocator::Allocator::getAllocCount());
+    CHECK(ListT::Allocator::Allocator::getDeleteCount()
+          == ListT::Allocator::Allocator::getAllocCount());
 }
 
 
@@ -854,9 +855,7 @@ TEST_CASE("Etl::List<> comparision", "[list][etl]") {
         ListType lhs;
         ListType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.push_back(val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.push_back(val); };
 
         testComparision(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
@@ -872,13 +871,8 @@ TEST_CASE("Etl::List<> comparision", "[list][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.push_back(val);
-        };
-
-        auto rInserter = [](RType& cont, int val) {
-            cont.push_back(val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.push_back(val); };
+        auto rInserter = [](RType& cont, int val) { cont.push_back(val); };
 
         testComparision(lhs,
                         rhs,

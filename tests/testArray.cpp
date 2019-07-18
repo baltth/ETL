@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Array.h>
 #include <etl/Proxy.h>
@@ -78,8 +78,6 @@ TEST_CASE("Etl::Proxy - Array<> test", "[array][etl][basic]") {
 TEST_CASE("Etl::MutableProxy - Array<> test", "[array][etl][basic]") {
 
     typedef int ItemType;
-    static const int PATTERN1 = 123;
-    static const int PATTERN2 = 321;
 
     Etl::Array<ItemType, 16> array;
     Etl::MutableProxy<ItemType> proxy(array);
@@ -89,5 +87,3 @@ TEST_CASE("Etl::MutableProxy - Array<> test", "[array][etl][basic]") {
     REQUIRE(proxy.getItemPointer(0) == array.begin());
     REQUIRE(proxy.getItemPointer(proxy.size()) == array.end());
 }
-
-

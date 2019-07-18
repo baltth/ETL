@@ -36,14 +36,14 @@ Allocator interface class.
 template<class T>
 class AAllocator {
 
-  public:   // types
+  public:  // types
 
     typedef T ItemType;
     typedef T* PtrType;
 
     static constexpr bool NoexceptDestroy = std::is_nothrow_destructible<T>::value;
 
-  public:   // functions
+  public:  // functions
 
     virtual ~AAllocator() {};
 
@@ -59,16 +59,16 @@ class AAllocator {
         new (ptr) ItemType;
     }
 
-    template<typename... Args >
-    static void construct(PtrType ptr, Args&& ... args)
-    noexcept(noexcept(new (ptr) ItemType(std::forward<Args>(args)...))) {
+    template<typename... Args>
+    static void
+    construct(PtrType ptr,
+              Args&&... args) noexcept(noexcept(new (ptr) ItemType(std::forward<Args>(args)...))) {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 
     static void destroy(PtrType ptr) noexcept(NoexceptDestroy) {
         ptr->~ItemType();
     }
-
 };
 
 
@@ -80,14 +80,14 @@ Allocator template class for forwarding std concept allocators.
 template<class T, template<class> class A = std::allocator>
 class AllocatorWrapper : public AAllocator<T> {
 
-  public:   // types
+  public:  // types
 
     typedef T ItemType;
     typedef T* PtrType;
 
     typedef A<T> Allocator;
 
-  public:   // functions
+  public:  // functions
 
     size_t max_size() const noexcept override {
         return allocator().max_size();
@@ -115,19 +115,17 @@ class AllocatorWrapper : public AAllocator<T> {
         static Allocator alloc;
         return alloc;
     }
-
 };
 
 
 template<class T, template<class> class A>
 struct AllocatorType {
     using Type = typename std::conditional<std::is_base_of<AAllocator<T>, A<T>>::value,
-          A<T>,
-          AllocatorWrapper<T, A>>::type;
+                                           A<T>,
+                                           AllocatorWrapper<T, A>>::type;
 };
 
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_AALLOCATOR_H__ */
-
+#endif // __ETL_AALLOCATOR_H__

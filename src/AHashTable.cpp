@@ -40,7 +40,7 @@ void AHashTable::insert(AHashTable::Node& item) {
         chain.insertAfter(res.first, &item);
     }
 
-    ++ size_;
+    ++size_;
 }
 
 
@@ -101,7 +101,8 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
 }
 
 
-std::pair<SingleChain::Node*, std::uint32_t> AHashTable::findPrevious(AHashTable::Node& item) const {
+std::pair<SingleChain::Node*, std::uint32_t>
+AHashTable::findPrevious(AHashTable::Node& item) const {
 
     uint32_t ix = bucketOfHash(item.hash);
 
@@ -141,7 +142,8 @@ const AHashTable::Node* AHashTable::find(HashType hash) const {
 }
 
 
-std::pair<const AHashTable::Node*, const AHashTable::Node*> AHashTable::equalRange(HashType hash) const {
+std::pair<const AHashTable::Node*, const AHashTable::Node*>
+AHashTable::equalRange(HashType hash) const {
 
     Node* rangeEnd = nullptr;
     Node* rangeStart = find(hash);
@@ -173,4 +175,3 @@ std::uint32_t AHashTable::count(HashType hash) const {
 
     return cnt;
 }
-

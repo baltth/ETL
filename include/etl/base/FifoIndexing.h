@@ -40,7 +40,7 @@ class FifoIndexing {
     uint32_t writeIx;
     uint32_t readIx;
 
-  public:   // functions
+  public:  // functions
 
     bool empty() const {
         return (length == 0);
@@ -98,10 +98,8 @@ class FifoIndexing {
   private:
 
     uint32_t limitIndexForLength(uint32_t ix) const;
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_FIFOINDEXING_H__ */
-
+#endif  // __ETL_FIFOINDEXING_H__

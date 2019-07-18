@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_SETTEMPLATE_H__
 #define __ETL_SETTEMPLATE_H__
 
-#include <etl/etlSupport.h>
-#include <etl/traitSupport.h>
 #include <etl/base/SortedList.h>
 #include <etl/base/tools.h>
+#include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 
 #include <functional>
 
@@ -35,7 +35,7 @@ namespace ETL_NAMESPACE {
 template<class E, class C = std::less<E>>
 class Set : private Detail::SortedList<E, C> {
 
-  public:   // types
+  public:  // types
 
     typedef E key_type;
     typedef E value_type;
@@ -58,7 +58,7 @@ class Set : private Detail::SortedList<E, C> {
 
     typedef typename Base::size_type size_type;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -113,8 +113,7 @@ class Set : private Detail::SortedList<E, C> {
     }
 
     template<class InputIt>
-    enable_if_t<!is_integral<InputIt>::value>
-    insert(InputIt first, InputIt last) {
+    enable_if_t<!is_integral<InputIt>::value> insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
             ++first;
@@ -122,7 +121,7 @@ class Set : private Detail::SortedList<E, C> {
     }
 
     template<class... Args>
-    std::pair<iterator,bool> emplace(Args&&... args);
+    std::pair<iterator, bool> emplace(Args&&... args);
 
     void swap(Set& other) {
         Base::swap(other);
@@ -148,7 +147,6 @@ class Set : private Detail::SortedList<E, C> {
     void assign(const Cont& other) {
         assign(other.begin(), other.end());
     }
-
 };
 
 
@@ -191,7 +189,7 @@ auto Set<E, C>::find(const E& e) const -> const_iterator {
 
 template<class E, class C>
 template<typename... Args>
-auto Set<E, C>::emplace(Args&& ... args) -> std::pair<iterator, bool> {
+auto Set<E, C>::emplace(Args&&... args) -> std::pair<iterator, bool> {
 
     value_type e(std::forward<Args>(args)...);
     auto found = Base::findSortedPosition(e);
@@ -241,7 +239,6 @@ void swap(Set<E, C>& lhs, Set<E, C>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_SETTEMPLATE_H__ */
-
+#endif  // __ETL_SETTEMPLATE_H__

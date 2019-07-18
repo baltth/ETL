@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_LIST_H__
 #define __ETL_LIST_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/ListTemplate.h>
-#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
+#include <etl/base/AAllocator.h>
+#include <etl/base/ListTemplate.h>
+#include <etl/etlSupport.h>
 
 #include <memory>
 
@@ -37,7 +37,7 @@ namespace Custom {
 template<class T, template<class> class A>
 class List : public ETL_NAMESPACE::List<T> {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::List<T> Base;
     typedef typename Base::iterator iterator;
@@ -50,7 +50,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     List() :
         Base(allocator) {};
@@ -102,10 +102,9 @@ class List : public ETL_NAMESPACE::List<T> {
     Allocator& getAllocator() const {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Custom
 
 
 namespace Dynamic {
@@ -114,7 +113,7 @@ namespace Dynamic {
 template<class T>
 using List = ETL_NAMESPACE::Custom::List<T, std::allocator>;
 
-}
+}  // namespace Dynamic
 
 
 namespace Static {
@@ -125,19 +124,20 @@ class List : public ETL_NAMESPACE::List<T> {
 
     static_assert(N > 0, "Invalid Etl::Static::List size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::List<T> Base;
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
 
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     List() :
         Base(allocator) {};
@@ -189,10 +189,9 @@ class List : public ETL_NAMESPACE::List<T> {
     Allocator& getAllocator() const {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Static
 
 
 namespace Pooled {
@@ -203,19 +202,20 @@ class List : public ETL_NAMESPACE::List<T> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::List size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::List<T> Base;
     typedef typename Base::iterator iterator;
     typedef typename Base::const_iterator const_iterator;
 
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     List() :
         Base(allocator) {};
@@ -267,11 +267,9 @@ class List : public ETL_NAMESPACE::List<T> {
     Allocator& getAllocator() const {
         return allocator;
     }
-
 };
 
-}
-}
+}  // namespace Pooled
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_LIST_H__ */
-
+#endif  // __ETL_LIST_H__

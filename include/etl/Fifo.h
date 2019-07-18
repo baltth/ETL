@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_FIFO_H__
 #define __ETL_FIFO_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/FifoTemplate.h>
 #include <etl/Array.h>
+#include <etl/base/FifoTemplate.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -32,14 +32,13 @@ namespace ETL_NAMESPACE {
 template<class C>
 class Fifo : public FifoTemplate<C> {
 
-  public:   // functions
+  public:  // functions
 
     template<typename... Args>
-    explicit Fifo<C>(Args&& ... args) :
+    explicit Fifo<C>(Args&&... args) :
         FifoTemplate<C>(args...) {};
 
     void setupFifo(uint32_t len);
-
 };
 
 
@@ -55,17 +54,15 @@ void Fifo<C>::setupFifo(uint32_t len) {
 template<typename T, uint32_t N>
 class Fifo<Array<T, N>> : public FifoTemplate<Array<T, N>> {
 
-  public:   // functions
+  public:  // functions
 
     template<typename... Args>
-    explicit Fifo<Array<T, N>>(Args&& ... args) :
+    explicit Fifo<Array<T, N>>(Args&&... args) :
         FifoTemplate<Array<T, N>>(args...) {};
 
     void setupFifo(uint32_t len) {};
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_FIFO_H__ */
-
+#endif  // __ETL_FIFO_H__

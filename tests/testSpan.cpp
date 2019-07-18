@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Span.h>
 
@@ -32,10 +32,11 @@ namespace {
 constexpr char C_ARRAY[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 constexpr std::size_t SIZE = sizeof(C_ARRAY);
 
-constexpr std::initializer_list<char> INIT_LIST = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+constexpr std::initializer_list<char> INIT_LIST =
+    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 constexpr std::array<char, SIZE> ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
-}
+}  // namespace
 
 
 TEST_CASE("Etl::Span<> basic test", "[span][etl][basic]") {
@@ -297,7 +298,8 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             constexpr auto firstSub = span.first(6);
 
-            static_assert(firstSub.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
+            static_assert(firstSub.extent == Etl::dynamic_extent,
+                          "Span<>: dynamic_extent expected");
             static_assert(firstSub.size() == 6, "Span<>: Invalid size()");
 
 #if ETL_FULL_CONSTEXPR
@@ -411,4 +413,3 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         }
     }
 }
-

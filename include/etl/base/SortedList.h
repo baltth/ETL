@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_SORTEDLIST_H__
 #define __ETL_SORTEDLIST_H__
 
-#include <etl/etlSupport.h>
 #include <etl/base/ListTemplate.h>
+#include <etl/etlSupport.h>
 
 #include <functional>
 
@@ -34,7 +34,7 @@ namespace Detail {
 template<class T, class Comp>
 class SortedList {
 
-  public:   // types
+  public:  // types
 
     using Cont = List<T>;
 
@@ -53,11 +53,11 @@ class SortedList {
 
     typedef typename Cont::Node Node;
 
-  protected: // variables
+  protected:  // variables
 
     Cont list;
 
-  public:   // functions
+  public:  // functions
 
     SortedList(typename Cont::AllocatorBase& a) noexcept :
         list(a) {};
@@ -158,7 +158,8 @@ class SortedList {
     }
 
     template<typename CV, class CF>
-    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val, const CF& compare) const {
+    std::pair<const_iterator, const_iterator> findSortedRange(const CV& val,
+                                                              const CF& compare) const {
         return findSortedRangeBase(this->cbegin(), this->cend(), val, compare);
     }
 
@@ -182,10 +183,9 @@ class SortedList {
     }
 
     template<typename... Args>
-    iterator emplaceTo(const_iterator pos, Args&& ... args) {
+    iterator emplaceTo(const_iterator pos, Args&&... args) {
         return list.emplace(pos, std::forward<Args>(args)...);
     }
-
 };
 
 
@@ -220,11 +220,12 @@ auto SortedList<T, Comp>::insertUnique(const_reference item) -> std::pair<iterat
 
 template<class T, class Comp>
 template<typename It, typename CV, class CF>
-auto SortedList<T, Comp>::findSortedRangeBase(It it, It endIt,
+auto SortedList<T, Comp>::findSortedRangeBase(It it,
+                                              It endIt,
                                               const CV& val,
                                               const CF& compare) const -> std::pair<It, It> {
 
-    //std::pair<It, It> res(endIt, endIt);
+    // std::pair<It, It> res(endIt, endIt);
     auto res = std::make_pair(endIt, endIt);
 
     if (it != endIt) {
@@ -255,8 +256,7 @@ auto SortedList<T, Comp>::findSortedRangeBase(It it, It endIt,
     return res;
 }
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_SORTEDLIST_H__ */
-
+#endif  // __ETL_SORTEDLIST_H__

@@ -22,18 +22,18 @@ limitations under the License.
 #ifndef __ETL_VECTORTEMPLATE_H__
 #define __ETL_VECTORTEMPLATE_H__
 
+#include <etl/base/MemStrategies.h>
+#include <etl/base/TypedVectorBase.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/TypedVectorBase.h>
-#include <etl/base/MemStrategies.h>
-#include <etl/base/tools.h>
 
 #undef min
 #undef max
 
-#include <utility>
 #include <initializer_list>
 #include <type_traits>
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
@@ -41,10 +41,11 @@ namespace ETL_NAMESPACE {
 template<class T>
 class Vector : protected Detail::TypedVectorBase<T> {
 
-    static_assert(std::is_copy_constructible<T>::value, "Vector<>::value_type is not copy constructible");
+    static_assert(std::is_copy_constructible<T>::value,
+                  "Vector<>::value_type is not copy constructible");
     static_assert(std::is_copy_assignable<T>::value, "Vector<>::value_type is not copy assignable");
 
-  public:   // types
+  public:  // types
 
     typedef Detail::TypedVectorBase<T> Base;
     typedef Base StrategyBase;
@@ -68,7 +69,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
     AMemStrategy<StrategyBase>& strategy;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -117,7 +118,8 @@ class Vector : protected Detail::TypedVectorBase<T> {
     using Base::capacity;
 
     void resize(size_type length) {
-        static_assert(std::is_default_constructible<T>::value, "Vector<>::value_type is not default constructible");
+        static_assert(std::is_default_constructible<T>::value,
+                      "Vector<>::value_type is not default constructible");
         strategy.resize(*this, length);
     }
 
@@ -192,11 +194,11 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
     iterator insert(const_iterator position, T&& value);
 
-    template<typename... Args >
-    iterator emplace(const_iterator pos, Args&& ... args);
+    template<typename... Args>
+    iterator emplace(const_iterator pos, Args&&... args);
 
-    template<typename... Args >
-    void emplace_back(Args&& ... args) {
+    template<typename... Args>
+    void emplace_back(Args&&... args) {
         emplace(this->end(), args...);
     }
 
@@ -221,7 +223,6 @@ class Vector : protected Detail::TypedVectorBase<T> {
     iterator insertWithCreator(const_iterator position, size_type num, CreateFunc&& creatorCall);
 
     void replaceWith(Vector&& other);
-
 };
 
 
@@ -286,15 +287,16 @@ void Vector<T>::replaceWith(Vector&& other) {
 template<class T>
 auto Vector<T>::insert(const_iterator position, size_type num, const_reference value) -> iterator {
 
-    return insertWithCreator(position, num, [this, &value](pointer item, size_type cnt, bool place) {
-        for (size_type i = 0; i < cnt; ++i) {
-            if (place) {
-                this->placeValueTo(item + i, value);
-            } else {
-                this->assignValueTo(item + i, value);
+    return insertWithCreator(
+        position, num, [this, &value](pointer item, size_type cnt, bool place) {
+            for (size_type i = 0; i < cnt; ++i) {
+                if (place) {
+                    this->placeValueTo(item + i, value);
+                } else {
+                    this->assignValueTo(item + i, value);
+                }
             }
-        }
-    });
+        });
 }
 
 
@@ -302,7 +304,6 @@ template<class T>
 auto Vector<T>::insert(const_iterator position, T&& value) -> iterator {
 
     return insertWithCreator(position, 1, [this, &value](pointer item, size_type, bool place) {
-
         if (place) {
             this->placeValueTo(item, std::move(value));
         } else {
@@ -313,8 +314,8 @@ auto Vector<T>::insert(const_iterator position, T&& value) -> iterator {
 
 
 template<class T>
-template<typename... Args >
-auto Vector<T>::emplace(const_iterator position, Args&& ... args) -> iterator {
+template<typename... Args>
+auto Vector<T>::emplace(const_iterator position, Args&&... args) -> iterator {
 
     return insertWithCreator(position, 1, [&](pointer item, size_type, bool place) {
         if (place) {
@@ -360,7 +361,7 @@ template class Vector<const void*>;
 template<class T>
 class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
-  public:   // types
+  public:  // types
 
     typedef T* value_type;
     typedef value_type& reference;
@@ -379,7 +380,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef typename Base::size_type size_type;
     typedef typename Base::CreateFunc CreateFunc;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -524,30 +525,35 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     using Base::clear;
 
     iterator insert(const_iterator position, const_reference value) {
-        return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
-                                                       value));
+        return reinterpret_cast<iterator>(
+            Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
+                         value));
     }
 
     iterator insert(const_iterator position, size_type num, const_reference value) {
-        return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
-                                                       num,
-                                                       value));
+        return reinterpret_cast<iterator>(
+            Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
+                         num,
+                         value));
     }
 
     template<typename InputIt>
     iterator insert(const_iterator position, InputIt first, InputIt last) {
-        return reinterpret_cast<iterator>(Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
-                                                       first,
-                                                       last));
+        return reinterpret_cast<iterator>(
+            Base::insert(reinterpret_cast<typename Base::const_iterator>(position),
+                         first,
+                         last));
     }
 
     iterator erase(iterator pos) noexcept {
-        return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(pos)));
+        return reinterpret_cast<iterator>(
+            Base::erase(reinterpret_cast<typename Base::iterator>(pos)));
     }
 
     iterator erase(iterator first, iterator last) noexcept {
-        return reinterpret_cast<iterator>(Base::erase(reinterpret_cast<typename Base::iterator>(first),
-                                                      reinterpret_cast<typename Base::iterator>(last)));
+        return reinterpret_cast<iterator>(
+            Base::erase(reinterpret_cast<typename Base::iterator>(first),
+                        reinterpret_cast<typename Base::iterator>(last)));
     }
     /// \}
 
@@ -555,7 +561,6 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
     explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         Base(s) {};
-
 };
 
 
@@ -595,8 +600,7 @@ void swap(Vector<T>& lhs, Vector<T>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
 
-#endif /* __ETL_VECTORTEMPLATE_H__ */
-
+#endif // __ETL_VECTORTEMPLATE_H__

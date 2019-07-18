@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
-#include <etl/etlSupport.h>
 #include <etl/Proxy.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -31,16 +31,16 @@ namespace Detail {
 
 class AVectorBase {
 
-  protected: // types
+  protected:  // types
 
     class Proxy : public GenericProxy {
         friend class AVectorBase;
 
-      protected: // variables
+      protected:  // variables
 
         uint32_t capacity_;
 
-      public:   // functions
+      public:  // functions
 
         void setData(void* d) noexcept {
             data_ = d;
@@ -63,14 +63,13 @@ class AVectorBase {
         explicit Proxy(size_t itemSize) noexcept :
             GenericProxy(itemSize, nullptr, 0U),
             capacity_(0U) {};
-
     };
 
-  protected: // variables
+  protected:  // variables
 
     Proxy proxy;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Capacity
     /// \{
@@ -111,11 +110,9 @@ class AVectorBase {
         proxy = other.proxy;
         other.proxy = tmp;
     }
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_AVECTORBASE_H__ */
-
+#endif  // __ETL_AVECTORBASE_H__

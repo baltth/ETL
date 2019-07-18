@@ -22,11 +22,11 @@ limitations under the License.
 #ifndef __ETL_LISTTEMPLATE_H__
 #define __ETL_LISTTEMPLATE_H__
 
-#include <etl/etlSupport.h>
-#include <etl/traitSupport.h>
 #include <etl/base/AAllocator.h>
 #include <etl/base/TypedListBase.h>
 #include <etl/base/tools.h>
+#include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 
 #include <initializer_list>
 
@@ -36,7 +36,7 @@ namespace ETL_NAMESPACE {
 template<class T>
 class List : private Detail::TypedListBase<T> {
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef value_type& reference;
@@ -61,7 +61,7 @@ class List : private Detail::TypedListBase<T> {
 
     AllocatorBase& allocator;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -165,15 +165,15 @@ class List : private Detail::TypedListBase<T> {
     enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
-    template<typename... Args >
+    template<typename... Args>
     iterator emplace(const_iterator pos, Args&&... args);
 
-    template<typename... Args >
+    template<typename... Args>
     iterator emplace_front(Args&&... args) {
         return emplace(this->begin(), std::forward<Args>(args)...);
     }
 
-    template<typename... Args >
+    template<typename... Args>
     iterator emplace_back(Args&&... args) {
         return emplace(this->end(), std::forward<Args>(args)...);
     }
@@ -235,7 +235,6 @@ class List : private Detail::TypedListBase<T> {
 
     Node* copyAndReplace(iterator& item, const T& value);
     void swapElements(List<T>& other);
-
 };
 
 
@@ -275,8 +274,8 @@ auto List<T>::insert(const_iterator pos, const T& item) -> iterator {
 
 
 template<class T>
-template<typename... Args >
-auto List<T>::emplace(const_iterator pos, Args&& ... args) -> iterator {
+template<typename... Args>
+auto List<T>::emplace(const_iterator pos, Args&&... args) -> iterator {
 
     iterator it = this->end();
     Node* inserted = allocator.allocate(1);
@@ -403,8 +402,6 @@ void swap(List<T>& lhs, List<T>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-
-#endif /* __ETL_LISTTEMPLATE_H__ */
-
+#endif // __ETL_LISTTEMPLATE_H__

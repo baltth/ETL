@@ -23,8 +23,8 @@ limitations under the License.
 #define __ETL_TEST_CONTAINERTESTER_H__
 
 #include <etl/etlSupport.h>
-#include <string>
 #include <iostream>
+#include <string>
 
 namespace ETL_NAMESPACE {
 namespace Test {
@@ -46,7 +46,7 @@ class ContainerTester {
 
     static bool enablePrint;
 
-  public:   // functions
+  public:  // functions
 
     explicit ContainerTester(int32_t v = 0) :
         value(v),
@@ -170,7 +170,6 @@ class ContainerTester {
     }
 
     std::string toString() const;
-
 };
 
 
@@ -186,8 +185,7 @@ inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
     return lhs.getValue() < rhs.getValue();
 }
 
-}
-}
+}  // namespace Test
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TEST_CONTAINERTESTER_H__ */
-
+#endif  // __ETL_TEST_CONTAINERTESTER_H__

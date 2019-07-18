@@ -37,7 +37,7 @@ class Exception : public std::exception {
 
     const char* const text;
 
-  public:   // functions
+  public:  // functions
 
     explicit Exception(const char* t) :
         text(t) {};
@@ -45,32 +45,28 @@ class Exception : public std::exception {
     virtual const char* what() const throw() {
         return text;
     }
-
 };
 
 
 class UnknownException : public Exception {
 
-  public:   // functions
+  public:  // functions
 
     UnknownException() :
         Exception("") {};
-
 };
 
 
 class OutOfRangeException : public Exception {
 
-  public:   // functions
+  public:  // functions
 
     OutOfRangeException() :
         Exception("Index out of range") {};
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
 #endif
 
-#endif /* __ETL_EXCEPTIONTYPES_H__ */
-
+#endif  // __ETL_EXCEPTIONTYPES_H__

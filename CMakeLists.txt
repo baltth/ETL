@@ -42,6 +42,8 @@ target_compile_options(etl PUBLIC --std=c++11 -Wall -O2 -g)
 
 add_executable(testEtl ${ETL_TEST_SRCS} ${ETL_TEST_CMN})
 target_link_libraries(testEtl etl)
+target_include_directories(testEtl PRIVATE ${ETL_TESTS_DIR})
 
 add_executable(etlInfo ${ETL_TESTS_DIR}/info.cpp ${ETL_TEST_CMN})
 target_link_libraries(etlInfo etl)
+target_include_directories(etlInfo PRIVATE ${ETL_TESTS_DIR})

@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_SET_H__
 #define __ETL_SET_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/SetTemplate.h>
-#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
+#include <etl/base/AAllocator.h>
+#include <etl/base/SetTemplate.h>
+#include <etl/etlSupport.h>
 
 #include <memory>
 
@@ -38,7 +38,7 @@ namespace Custom {
 template<class E, template<class> class A, class C = std::less<E>>
 class Set : public ETL_NAMESPACE::Set<E, C> {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename Base::Node Node;
@@ -48,7 +48,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Set() noexcept :
         Base(allocator) {};
@@ -100,10 +100,9 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Custom
 
 namespace Dynamic {
 
@@ -111,7 +110,7 @@ namespace Dynamic {
 template<class E, class C = std::less<E>>
 using Set = ETL_NAMESPACE::Custom::Set<E, std::allocator, C>;
 
-}
+}  // namespace Dynamic
 
 
 namespace Static {
@@ -122,16 +121,17 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
     static_assert(N > 0, "Invalid Etl::Static::Set size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Set() noexcept :
         Base(allocator) {};
@@ -183,10 +183,9 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Static
 
 namespace Pooled {
 
@@ -196,16 +195,17 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::Set size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Set() noexcept :
         Base(allocator) {};
@@ -257,10 +257,9 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
-}
+}  // namespace Pooled
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_SET_H__ */
+#endif  // __ETL_SET_H__

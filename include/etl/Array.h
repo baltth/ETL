@@ -22,8 +22,9 @@ limitations under the License.
 #ifndef __ETL_ARRAY_H__
 #define __ETL_ARRAY_H__
 
-#include <etl/etlSupport.h>
 #include <array>
+
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -33,5 +34,4 @@ using Array = std::array<T, N>;
 
 }
 
-#endif /* __ETL_ARRAY_H__ */
-
+#endif  // __ETL_ARRAY_H__

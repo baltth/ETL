@@ -22,13 +22,12 @@ limitations under the License.
 #ifndef __ETL_KEYCOMPARE_H__
 #define __ETL_KEYCOMPARE_H__
 
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/tools.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
-
 
 
 template<typename Comp>
@@ -55,11 +54,9 @@ struct KeyCompare {
     operator()(const Item& lhs, const Key& rhs) const {
         return Comp()(lhs.first, rhs);
     }
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_KEYCOMPARE_H__ */
-
+#endif  // __ETL_KEYCOMPARE_H__

@@ -24,8 +24,8 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 
-#include <memory>
 #include <limits>
+#include <memory>
 
 namespace ETL_NAMESPACE {
 
@@ -33,12 +33,12 @@ namespace ETL_NAMESPACE {
 template<class C>
 class AMemStrategy {
 
-  public:   // types
+  public:  // types
 
     using value_type = typename C::value_type;
     using size_type = typename C::size_type;
 
-  public:   // functions
+  public:  // functions
 
     virtual size_type getMaxCapacity() const noexcept = 0;
     virtual void reserveExactly(C& cont, size_type length) = 0;
@@ -47,16 +47,14 @@ class AMemStrategy {
     virtual void resize(C& cont, size_type length) = 0;
     virtual void resize(C& cont, size_type length, const value_type& ref) = 0;
     virtual void cleanup(C& cont) noexcept = 0;
-
 };
-
 
 
 /// Mem strategy with static size, allocated externally.
 template<class C>
 class StaticSized : public AMemStrategy<C> {
 
-  public:   // types
+  public:  // types
 
     using value_type = typename C::value_type;
     using size_type = typename C::size_type;
@@ -66,7 +64,7 @@ class StaticSized : public AMemStrategy<C> {
     void* const data;
     const size_type capacity;
 
-  public:   // functions
+  public:  // functions
 
     // No defult constructor;
 
@@ -95,15 +93,12 @@ class StaticSized : public AMemStrategy<C> {
     }
 
     void resize(C& cont, size_type length) final {
-        resizeWithInserter(cont, length, [](typename C::iterator pos) {
-            C::placeDefaultTo(pos);
-        });
+        resizeWithInserter(cont, length, [](typename C::iterator pos) { C::placeDefaultTo(pos); });
     }
 
     void resize(C& cont, size_type length, const value_type& ref) final {
-        resizeWithInserter(cont, length, [&ref](typename C::iterator pos) {
-            C::placeValueTo(pos, ref);
-        });
+        resizeWithInserter(
+            cont, length, [&ref](typename C::iterator pos) { C::placeValueTo(pos, ref); });
     }
 
   private:
@@ -111,7 +106,6 @@ class StaticSized : public AMemStrategy<C> {
     template<class INS>
     void resizeWithInserter(C& cont, size_type length, INS inserter);
     void setupData(C& cont, size_type length);
-
 };
 
 
@@ -155,12 +149,11 @@ void StaticSized<C>::setupData(C& cont, size_type length) {
 }
 
 
-
 /// Mem strategy with dynamic size, allocated with Allocator
 template<class C, class A>
 class DynamicSized : public AMemStrategy<C> {
 
-  public:   // types
+  public:  // types
 
     using value_type = typename C::value_type;
     using size_type = typename C::size_type;
@@ -173,7 +166,7 @@ class DynamicSized : public AMemStrategy<C> {
 
     A allocator;
 
-  public:   // functions
+  public:  // functions
 
     size_type getMaxCapacity() const noexcept final {
         return std::numeric_limits<size_type>::max();
@@ -188,15 +181,12 @@ class DynamicSized : public AMemStrategy<C> {
     void shrinkToFit(C& cont) noexcept final;
 
     void resize(C& cont, size_type length) final {
-        resizeWithInserter(cont, length, [](typename C::iterator pos) {
-            C::placeDefaultTo(pos);
-        });
+        resizeWithInserter(cont, length, [](typename C::iterator pos) { C::placeDefaultTo(pos); });
     }
 
     void resize(C& cont, size_type length, const value_type& ref) final {
-        resizeWithInserter(cont, length, [&ref](typename C::iterator pos) {
-            C::placeValueTo(pos, ref);
-        });
+        resizeWithInserter(
+            cont, length, [&ref](typename C::iterator pos) { C::placeValueTo(pos, ref); });
     }
 
     void cleanup(C& cont) noexcept final {
@@ -219,7 +209,6 @@ class DynamicSized : public AMemStrategy<C> {
     static size_type getRoundedLength(size_type length) noexcept {
         return (length + (RESIZE_STEP - 1)) & ~(RESIZE_STEP - 1);
     }
-
 };
 
 
@@ -310,7 +299,6 @@ void DynamicSized<C, A>::allocate(C& cont, size_type len) {
     }
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_MEMSTARTEGIES_H__ */
-
+#endif  // __ETL_MEMSTARTEGIES_H__

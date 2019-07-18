@@ -22,15 +22,15 @@ limitations under the License.
 #ifndef __ETL_POOLBASE_H__
 #define __ETL_POOLBASE_H__
 
-#include <etl/etlSupport.h>
 #include <etl/Proxy.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
 
 class PoolBase {
 
-  public:   // types
+  public:  // types
 
     struct FreeItem {
         FreeItem* next;
@@ -48,7 +48,7 @@ class PoolBase {
     uint32_t freeCnt;
     uint32_t nextFreeIx;
 
-  public:   // functions
+  public:  // functions
 
     explicit PoolBase(const GenericProxy& d) :
         data(d),
@@ -67,10 +67,8 @@ class PoolBase {
     // Non-copyable
     PoolBase(const PoolBase& other);
     PoolBase& operator=(const PoolBase& other);
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_POOLBASE_H__ */
-
+#endif  // __ETL_POOLBASE_H__

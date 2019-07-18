@@ -22,16 +22,16 @@ limitations under the License.
 #ifndef __ETL_TYPEDLISTBASE_H__
 #define __ETL_TYPEDLISTBASE_H__
 
-#include <etl/etlSupport.h>
 #include <etl/base/AListBase.h>
+#include <etl/etlSupport.h>
 
 #undef min
 #undef max
 
 #include <cstddef>
-#include <utility>
-#include <iterator>
 #include <functional>
+#include <iterator>
+#include <utility>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -40,7 +40,7 @@ namespace Detail {
 template<class T>
 class TypedListBase : protected AListBase {
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef value_type& reference;
@@ -52,14 +52,14 @@ class TypedListBase : protected AListBase {
 
     class Node : public AListBase::Node {
 
-      public:   // variables
+      public:  // variables
 
         T item;
 
-      public:   // functions
+      public:  // functions
 
         template<typename... Args>
-        Node(Args&& ... args) :
+        Node(Args&&... args) :
             item(std::forward<Args>(args)...) {};
 
         Node& operator=(const Node& other) = delete;
@@ -129,7 +129,6 @@ class TypedListBase : protected AListBase {
 
         explicit const_iterator(TypedListBase<T>::Node* n) noexcept :
             AListBase::Iterator(n) {};
-
     };
 
     class iterator : public AListBase::Iterator {
@@ -206,13 +205,12 @@ class TypedListBase : protected AListBase {
 
         explicit iterator(const AListBase::Iterator& it) noexcept :
             AListBase::Iterator(it) {};
-
     };
 
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  public:   // functions
+  public:  // functions
 
     TypedListBase() = default;
 
@@ -321,11 +319,9 @@ class TypedListBase : protected AListBase {
     static iterator convert(const_iterator it) noexcept {
         return iterator(it);
     }
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TYPEDLISTBASE_H__ */
-
+#endif  // __ETL_TYPEDLISTBASE_H__

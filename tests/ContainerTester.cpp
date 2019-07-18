@@ -41,4 +41,3 @@ std::string ContainerTester::toString() const {
     str << " Value " << value;
     return str.str();
 }
-

@@ -30,7 +30,7 @@ namespace Detail {
 
 class SingleChain {
 
-  public:   // types
+  public:  // types
 
     class Node {
 
@@ -43,14 +43,13 @@ class SingleChain {
 
         explicit Node(Node* n) :
             next(n) {};
-
     };
 
   private:  // variables
 
     Node frontNode;
 
-  public:   // functions
+  public:  // functions
 
     SingleChain() :
         frontNode() {};
@@ -93,11 +92,9 @@ class SingleChain {
     static void linkNodes(Node* a, Node* b) {
         a->next = b;
     }
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_SINGLECHAIN_H__ */
-
+#endif  // __ETL_SINGLECHAIN_H__

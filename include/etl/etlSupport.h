@@ -24,11 +24,11 @@ limitations under the License.
 
 #include <etl/langSupport.h>
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
-#include <stdexcept>    // For new overrides
 #include <iterator>
+#include <stdexcept>  // For new overrides
 
 
 #ifndef ETL_DISABLE_ASSERT
@@ -36,15 +36,15 @@ limitations under the License.
 #endif
 
 #ifndef ETL_NAMESPACE
-#define ETL_NAMESPACE       Etl
+#define ETL_NAMESPACE Etl
 #endif
 
 #ifndef ETL_DISABLE_HEAP
-#define ETL_DISABLE_HEAP    0
+#define ETL_DISABLE_HEAP 0
 #endif
 
 #ifndef ETL_DISABLE_ASSERT
-#define ETL_DISABLE_ASSERT  0
+#define ETL_DISABLE_ASSERT 0
 #endif
 
 
@@ -53,7 +53,7 @@ limitations under the License.
 #if ETL_DISABLE_ASSERT
 #define ETL_ASSERT(cond)
 #else
-#define ETL_ASSERT(cond)    assert(cond)
+#define ETL_ASSERT(cond) assert(cond)
 #endif
 
 
@@ -90,7 +90,7 @@ struct Matcher {
 
 template<typename T, typename V>
 struct MethodMatcher : Matcher<T> {
-    typedef  V(T::*Method)() const;
+    typedef V (T::*Method)() const;
     Method method;
     const V val;
     MethodMatcher(Method m, const V& v) noexcept :
@@ -104,7 +104,7 @@ struct MethodMatcher : Matcher<T> {
 
 template<typename T, typename V>
 struct FunctionMatcher : Matcher<T> {
-    typedef  V(*Func)(const T&);
+    typedef V (*Func)(const T&);
     Func func;
     const V val;
     FunctionMatcher(Func f, const V& v) noexcept :
@@ -152,7 +152,6 @@ struct IsIterator {
 };
 
 
-
 namespace Detail {
 
 template<typename T>
@@ -168,19 +167,18 @@ struct AlignmentOf {
 
     static const size_t value = sizeof(Aligned) - sizeof(Basic);
     static_assert(value > 0, "Error calculating alignment");
-
 };
 
-}
+}  // namespace Detail
 
-}
+}  // namespace ETL_NAMESPACE
 
 
 // Heap usage
 
 #if ETL_DISABLE_HEAP
 
-inline void* operator new (std::size_t count, const std::nothrow_t& tag) {
+inline void* operator new(std::size_t count, const std::nothrow_t& tag) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -190,7 +188,7 @@ inline void* operator new[](std::size_t count, const std::nothrow_t& tag) {
     return invalid_operator_new_call();
 }
 
-inline void* operator new (std::size_t) throw(std::bad_alloc) {
+inline void* operator new(std::size_t) throw(std::bad_alloc) {
     extern void* invalid_operator_new_call();
     return invalid_operator_new_call();
 }
@@ -200,7 +198,7 @@ inline void* operator new[](std::size_t) throw(std::bad_alloc) {
     return invalid_operator_new_call();
 }
 
-inline void operator delete (void* ptr, const std::nothrow_t& tag) {
+inline void operator delete(void* ptr, const std::nothrow_t& tag) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }
@@ -210,7 +208,7 @@ inline void operator delete[](void* ptr, const std::nothrow_t& tag) {
     invalid_operator_delete_call();
 }
 
-inline void operator delete (void* ptr) {
+inline void operator delete(void* ptr) {
     extern void invalid_operator_delete_call();
     invalid_operator_delete_call();
 }
@@ -222,5 +220,4 @@ inline void operator delete[](void* ptr) {
 
 #endif
 
-#endif /* __ETL_ETLSUPPORT_H__ */
-
+#endif // __ETL_ETLSUPPORT_H__

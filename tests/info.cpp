@@ -19,14 +19,14 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
 #include "ContainerTester.h"
+#include <catch2/catch.hpp>
 
-#include <etl/Vector.h>
 #include <etl/BufStr.h>
+#include <etl/Vector.h>
 
-#include <ctime>
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -122,8 +122,8 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
 
         CHECK(sum > 0);
 
-        std::cout << "Etl::BufStr << double: "
-                  << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+        std::cout << "Etl::BufStr << double: " << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms"
+                  << std::endl;
     }
 
     SECTION("with hex") {
@@ -144,8 +144,7 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
 
         CHECK(sum > 0);
 
-        std::cout << "Etl::BufStr << hex: "
-                  << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+        std::cout << "Etl::BufStr << hex: " << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms"
+                  << std::endl;
     }
-
 }

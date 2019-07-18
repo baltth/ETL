@@ -132,4 +132,3 @@ void FifoIndexing::setLength(uint32_t len) {
     readIx -= len;
     length = len;
 }
-

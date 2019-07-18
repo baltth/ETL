@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_TEST_COMPATIBILITYTESTS_H__
 #define __ETL_TEST_COMPATIBILITYTESTS_H__
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/etlSupport.h>
 
@@ -61,13 +61,11 @@ void testPartialSum() {
 
     CHECK(c.size() == 5);
 
-    static const int RES[] = {
-        1,
-        1 + 2,
-        1 + 2 + 3,
-        1 + 2 + 3 + 4,
-        1 + 2 + 3 + 4 + 5
-    };
+    static const int RES[] = {1,
+                              1 + 2,
+                              1 + 2 + 3,
+                              1 + 2 + 3 + 4,
+                              1 + 2 + 3 + 4 + 5};
 
     std::partial_sum(c.begin(), c.end(), std::back_inserter(res));
 
@@ -104,4 +102,4 @@ void testInnerProduct() {
 }
 
 
-#endif /* __ETL_TEST_COMPATIBILITYTESTS_H__ */
+#endif  // __ETL_TEST_COMPATIBILITYTESTS_H__

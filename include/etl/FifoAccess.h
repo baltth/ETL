@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_FIFOACCESS_H__
 #define __ETL_FIFOACCESS_H__
 
-#include <etl/etlSupport.h>
 #include <etl/Span.h>
-#include <etl/base/FifoIndexing.h>
 #include <etl/base/AFifoIterator.h>
+#include <etl/base/FifoIndexing.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -33,7 +33,7 @@ namespace ETL_NAMESPACE {
 template<class T>
 class FifoAccess : public FifoIndexing {
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef T& reference;
@@ -48,14 +48,13 @@ class FifoAccess : public FifoIndexing {
 
         iterator(const FifoAccess<value_type>* fifo, uint32_t ix) :
             FifoIterator<value_type>(const_cast<pointer>(fifo->data()), fifo, ix) {};
-
     };
 
   private:  // variables
 
     Span<T> proxy;
 
-  public:   // functions
+  public:  // functions
 
     explicit FifoAccess(Span<T> p) :
         FifoIndexing(p.size()),
@@ -104,7 +103,6 @@ class FifoAccess : public FifoIndexing {
   private:
 
     FifoAccess<T>();
-
 };
 
 
@@ -165,7 +163,6 @@ typename FifoAccess<T>::const_reference FifoAccess<T>::operator[](int32_t ix) co
     return proxy[ix];
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_FIFOACCESS_H__ */
-
+#endif  // __ETL_FIFOACCESS_H__

@@ -22,20 +22,20 @@ limitations under the License.
 #ifndef __ETL_AFIFOITERATOR_H__
 #define __ETL_AFIFOITERATOR_H__
 
-#include <etl/etlSupport.h>
 #include <etl/base/FifoIndexing.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
 
 class AFifoIterator {
 
-  protected: // variables
+  protected:  // variables
 
     uint32_t ix;
     const FifoIndexing* fifo;
 
-  public:   // functions
+  public:  // functions
 
     bool operator==(const AFifoIterator& other) const {
         return ((ix == other.ix) && (fifo == other.fifo));
@@ -90,7 +90,6 @@ class AFifoIterator {
     uint32_t getIndexFromFront(uint32_t ix) const {
         return fifo->getIndexFromFront(ix);
     }
-
 };
 
 
@@ -101,7 +100,7 @@ class FifoIterator : public AFifoIterator {
 
     T* data;
 
-  public:   // functions
+  public:  // functions
 
     FifoIterator(const FifoIterator& other) :
         AFifoIterator(other),
@@ -130,10 +129,8 @@ class FifoIterator : public AFifoIterator {
     inline T* get() const {
         return data + getIndexFromFront(ix);
     }
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_AFIFOITERATOR_H__ */
-
+#endif  // __ETL_AFIFOITERATOR_H__

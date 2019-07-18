@@ -92,4 +92,3 @@ void SingleChain::swap(SingleChain& other) {
         }
     }
 }
-

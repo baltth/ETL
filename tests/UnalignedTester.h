@@ -30,15 +30,13 @@ namespace Test {
 
 class __attribute__((packed)) UnalignedTester {
 
-  public:   // variables
+  public:  // variables
 
     uint32_t a;
     uint8_t b;
-
 };
 
-}
-}
+}  // namespace Test
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TEST_UNALIGNEDTESTER_H__ */
-
+#endif  // __ETL_TEST_UNALIGNEDTESTER_H__

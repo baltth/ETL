@@ -30,7 +30,7 @@ namespace Detail {
 
 class DoubleChain {
 
-  public:   // types
+  public:  // types
 
     class Node {
 
@@ -46,7 +46,6 @@ class DoubleChain {
         Node(Node* p, Node* n) noexcept :
             prev(p),
             next(n) {};
-
     };
 
   private:  // variables
@@ -54,7 +53,7 @@ class DoubleChain {
     Node frontNode;
     Node backNode;
 
-  public:   // functions
+  public:  // functions
 
     DoubleChain() :
         frontNode(nullptr, &backNode),
@@ -108,7 +107,7 @@ class DoubleChain {
     }
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_DOUBLECHAIN_H__ */
+#endif  // __ETL_DOUBLECHAIN_H__

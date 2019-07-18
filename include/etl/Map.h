@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_MAP_H__
 #define __ETL_MAP_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/MapTemplate.h>
-#include <etl/base/AAllocator.h>
 #include <etl/PoolAllocator.h>
+#include <etl/base/AAllocator.h>
+#include <etl/base/MapTemplate.h>
+#include <etl/etlSupport.h>
 
 #include <memory>
 
@@ -37,7 +37,7 @@ namespace Custom {
 template<class K, class E, template<class> class A, class C = std::less<K>>
 class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Map<K, E, C> Base;
     typedef typename Base::Node Node;
@@ -47,7 +47,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Map() noexcept :
         Base(allocator) {};
@@ -99,10 +99,9 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Custom
 
 
 namespace Dynamic {
@@ -111,7 +110,7 @@ namespace Dynamic {
 template<class K, class E, class C = std::less<K>>
 using Map = ETL_NAMESPACE::Custom::Map<K, E, std::allocator, C>;
 
-}
+}  // namespace Dynamic
 
 
 namespace Static {
@@ -122,16 +121,17 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Static::Map size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Map() noexcept :
         Base(allocator) {};
@@ -183,10 +183,9 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Static
 
 
 namespace Pooled {
@@ -197,16 +196,17 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::Map size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node> Allocator;
+    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
+        Allocator;
 
   private:  // variables
 
     mutable Allocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     Map() noexcept :
         Base(allocator) {};
@@ -258,12 +258,10 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
-
 };
 
-}
+}  // namespace Pooled
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_MAP_H__ */
-
+#endif  // __ETL_MAP_H__

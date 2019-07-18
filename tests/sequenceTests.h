@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_TEST_SEQUENCETESTS_H__
 #define __ETL_TEST_SEQUENCETESTS_H__
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/etlSupport.h>
 
@@ -228,4 +228,4 @@ void testReverseIterationBackward() {
     REQUIRE(rit == c.rbegin());
 }
 
-#endif /* __ETL_TEST_SEQUENCETESTS_H__ */
+#endif  // __ETL_TEST_SEQUENCETESTS_H__

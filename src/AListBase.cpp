@@ -72,4 +72,3 @@ void AListBase::splice(Iterator pos,
         }
     }
 }
-

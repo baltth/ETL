@@ -19,7 +19,7 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Fifo.h>
 #include <etl/FifoAccess.h>
@@ -303,6 +303,3 @@ TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic
 
     REQUIRE(fifo.getLength() == 0);
 }
-
-
-

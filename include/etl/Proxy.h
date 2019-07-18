@@ -31,20 +31,20 @@ namespace ETL_NAMESPACE {
 
 class GenericProxy {
 
-  protected: // variables
+  protected:  // variables
 
     void* data_;
     size_t size_;
     size_t itemSize;
 
-  public:   // functions
+  public:  // functions
 
     GenericProxy(size_t is, void* d, size_t s) noexcept :
         data_(d),
         size_(s),
         itemSize(is) {};
 
-    template<class C>   // cppcheck-suppress noExplicitConstructor
+    template<class C>  // cppcheck-suppress noExplicitConstructor
     GenericProxy(C& container) noexcept :
         data_(container.data()),
         size_(container.size()),
@@ -79,25 +79,24 @@ class GenericProxy {
     size_t getItemSize() const noexcept {
         return itemSize;
     }
-
 };
 
 
 template<typename T>
 class Proxy {
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef const T* const_pointer;
     typedef const T& const_reference;
 
-  protected: // variables
+  protected:  // variables
 
     const_pointer data_;
     size_t size_;
 
-  public:   // functions
+  public:  // functions
 
     Proxy(const_pointer d, size_t s) noexcept :
         data_(d),
@@ -129,25 +128,24 @@ class Proxy {
     const_reference operator[](size_t ix) const noexcept {
         return data_[ix];
     }
-
 };
 
 
 template<typename T>
 class MutableProxy {
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef T* pointer;
     typedef T& reference;
 
-  protected: // variables
+  protected:  // variables
 
     pointer data_;
     size_t size_;
 
-  public:   // functions
+  public:  // functions
 
     MutableProxy(pointer d, size_t s) noexcept :
         data_(d),
@@ -179,10 +177,8 @@ class MutableProxy {
     reference operator[](size_t ix) const noexcept {
         return data_[ix];
     }
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_PROXY_H__ */
-
+#endif  // __ETL_PROXY_H__

@@ -22,26 +22,26 @@ limitations under the License.
 #ifndef __ETL_SPAN_H__
 #define __ETL_SPAN_H__
 
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/tools.h>
 
+#include <array>
 #include <cstddef>
 #include <iterator>
-#include <array>
 
 namespace ETL_NAMESPACE {
 
 namespace Detail {
 
 template<class From, class To>
-struct EnableIfArrayDataConvertible : enable_if<std::is_convertible<From(*)[], To(*)[]>::value> {};
+struct EnableIfArrayDataConvertible :
+    enable_if<std::is_convertible<From (*)[], To (*)[]>::value> {};
 
 template<class From, class To>
 using EnableIfArrayDataConvertibleType = typename EnableIfArrayDataConvertible<From, To>::type;
 
-}
-
+}  // namespace Detail
 
 
 static const std::size_t dynamic_extent = -1;
@@ -50,7 +50,7 @@ static const std::size_t dynamic_extent = -1;
 template<class T, std::size_t Extent = dynamic_extent>
 class Span {
 
-  public:   // types
+  public:  // types
 
     using element_type = T;
     using value_type = remove_cv_t<T>;
@@ -74,7 +74,7 @@ class Span {
     pointer data_;
     std::size_t size_;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -94,7 +94,7 @@ class Span {
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>>
-    constexpr Span(element_type(&arr)[N]) noexcept :
+    constexpr Span(element_type (&arr)[N]) noexcept :
         data_(arr),
         size_(N) {};
 
@@ -114,14 +114,17 @@ class Span {
         data_(&std::get<0>(arr)),
         size_(N) {};
 
-    template<class Cont,
-             class = Detail::EnableIfArrayDataConvertibleType<typename Cont::value_type, element_type>>
+    template<
+        class Cont,
+        class = Detail::EnableIfArrayDataConvertibleType<typename Cont::value_type, element_type>>
     constexpr Span(Cont& container) :
         data_(container.data()),
         size_(container.size()) {};
 
-    template<class Cont,
-             class = Detail::EnableIfArrayDataConvertibleType<add_const_t<typename Cont::value_type>, element_type>>
+    template<
+        class Cont,
+        class = Detail::EnableIfArrayDataConvertibleType<add_const_t<typename Cont::value_type>,
+                                                         element_type>>
     constexpr Span(const Cont& container) :
         data_(container.data()),
         size_(container.size()) {};
@@ -237,7 +240,8 @@ class Span {
              std::size_t Cnt = dynamic_extent,
              class = enable_if_t<Cnt != dynamic_extent>>
     constexpr Span<element_type, Cnt> subspan() const {
-        static_assert((extent == dynamic_extent) || ((Offs + Cnt) <= extent), "Invalid subspan<offs, count>()");
+        static_assert((extent == dynamic_extent) || ((Offs + Cnt) <= extent),
+                      "Invalid subspan<offs, count>()");
         return Span<element_type, dynamic_extent>(data_ + Offs, Cnt);
     }
 
@@ -256,20 +260,19 @@ class Span {
         return Span<element_type, dynamic_extent>(data_ + Offs, size() - Offs);
     }
 
-    ETL_COND_CONSTEXPR Span<element_type, dynamic_extent> subspan(std::size_t offs,
-                                                                  std::size_t cnt = dynamic_extent) const {
+    ETL_COND_CONSTEXPR Span<element_type, dynamic_extent>
+    subspan(std::size_t offs,
+            std::size_t cnt = dynamic_extent) const {
         return Span<element_type, dynamic_extent>(data_ + offs,
                                                   (cnt == dynamic_extent) ? (size() - offs) : cnt);
     }
     /// \}
-
 };
 
 
 template<class T, std::size_t Extent>
 constexpr std::size_t Span<T, Extent>::extent;
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_SPAN_H__ */
-
+#endif  // __ETL_SPAN_H__

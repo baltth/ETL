@@ -22,14 +22,14 @@ limitations under the License.
 #ifndef __ETL_MULTIMAPTEMPLATE_H__
 #define __ETL_MULTIMAPTEMPLATE_H__
 
+#include <etl/base/KeyCompare.h>
+#include <etl/base/SortedList.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/SortedList.h>
-#include <etl/base/KeyCompare.h>
-#include <etl/base/tools.h>
 
-#include <utility>
 #include <functional>
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
@@ -37,7 +37,7 @@ namespace ETL_NAMESPACE {
 template<class K, class E, class C = std::less<K>>
 class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
-  public:   // types
+  public:  // types
 
     typedef K key_type;
     typedef E mapped_type;
@@ -61,7 +61,7 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
 
     typedef typename Base::size_type size_type;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -116,8 +116,7 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
     }
 
     template<class InputIt>
-    enable_if_t<!is_integral<InputIt>::value>
-    insert(InputIt first, InputIt last) {
+    enable_if_t<!is_integral<InputIt>::value> insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
             ++first;
@@ -133,7 +132,7 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
     }
 
     template<typename... Args>
-    inline iterator emplace(const K& k, Args&& ... args);
+    inline iterator emplace(const K& k, Args&&... args);
 
     void swap(MultiMap& other) {
         Base::swap(other);
@@ -183,7 +182,6 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
     void assign(const Cont& other) {
         assign(other.begin(), other.end());
     }
-
 };
 
 
@@ -231,7 +229,7 @@ auto MultiMap<K, E, C>::find(const K& k) const -> const_iterator {
 
 template<class K, class E, class C>
 template<typename... Args>
-auto MultiMap<K, E, C>::emplace(const K& k, Args&& ... args) -> iterator {
+auto MultiMap<K, E, C>::emplace(const K& k, Args&&... args) -> iterator {
 
     auto found = Base::findSortedPosition(k);
     found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);
@@ -276,7 +274,6 @@ void swap(MultiMap<K, E, C>& lhs, MultiMap<K, E, C>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_MULTIMAPTEMPLATE_H__ */
-
+#endif  // __ETL_MULTIMAPTEMPLATE_H__

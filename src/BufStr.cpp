@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#include <etl/BufStr.h>
 #include <etl/Array.h>
+#include <etl/BufStr.h>
 
 #include <cmath>
 #include <cstring>
@@ -30,21 +30,19 @@ using ETL_NAMESPACE::BufStr;
 
 namespace {
 
-const uint8_t DIGITS[] = {      /// \todo do something more elegant
+const uint8_t DIGITS[] = {  /// \todo do something more elegant
     3,
     5,
     10,
-    20
-};
+    20};
 
-const uint64_t DECADES[] = {    /// \todo do something more elegant
+const uint64_t DECADES[] = {  /// \todo do something more elegant
     UINT64_C(100),
     UINT64_C(10000),
     UINT64_C(1000000000),
-    UINT64_C(10000000000000000000)
-};
+    UINT64_C(10000000000000000000)};
 
-}
+}  // namespace
 
 const BufStr::EndlineT BufStr::Endl;
 
@@ -282,7 +280,7 @@ void BufStr::writeWithPadding(const char* str, uint32_t len, uint8_t padding) {
 
 void BufStr::pad(uint8_t num) {
 
-    for (uint8_t i = 0; i < num ; ++i) {
+    for (uint8_t i = 0; i < num; ++i) {
         putChar(' ');
     }
 }
@@ -357,4 +355,3 @@ BufStr& BufStr::putPointer(const void* val) {
 
     return *this;
 }
-

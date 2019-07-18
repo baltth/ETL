@@ -64,4 +64,3 @@ bool PoolBase::push(void* item) {
         return true;
     }
 }
-

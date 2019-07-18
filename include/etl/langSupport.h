@@ -23,25 +23,24 @@ limitations under the License.
 #define __ETL_LANGSUPPORT_H__
 
 #if (__cplusplus >= 201703L)
-#define ETL_HAS_CPP17   1
-#define ETL_HAS_CPP14   1
+#define ETL_HAS_CPP17 1
+#define ETL_HAS_CPP14 1
 #elif (__cplusplus >= 201402L)
-#define ETL_HAS_CPP17   0
-#define ETL_HAS_CPP14   1
+#define ETL_HAS_CPP17 0
+#define ETL_HAS_CPP14 1
 #elif (__cplusplus >= 201103L)
-#define ETL_HAS_CPP17   0
-#define ETL_HAS_CPP14   0
+#define ETL_HAS_CPP17 0
+#define ETL_HAS_CPP14 0
 #else
 #error "Deprecated"
 #endif
 
 #if (defined __GNUC__) && (__GNUC__ <= 5)
-#define ETL_FULL_CONSTEXPR  0
+#define ETL_FULL_CONSTEXPR 0
 #define ETL_COND_CONSTEXPR
 #else
-#define ETL_FULL_CONSTEXPR  1
-#define ETL_COND_CONSTEXPR  constexpr
+#define ETL_FULL_CONSTEXPR 1
+#define ETL_COND_CONSTEXPR constexpr
 #endif
 
-#endif /* __ETL_LANGSUPPORT_H__ */
-
+#endif  // __ETL_LANGSUPPORT_H__

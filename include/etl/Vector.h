@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_VECTOR_H__
 #define __ETL_VECTOR_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/VectorTemplate.h>
 #include <etl/base/MemStrategies.h>
+#include <etl/base/VectorTemplate.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -36,7 +36,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     static_assert(N > 0, "Invalid Etl::Static::Vector<> size");
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
@@ -46,7 +46,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     uint8_t data_[N * sizeof(T)];
     StaticSized<StrategyBase> strategy;
 
-  public:   // functions
+  public:  // functions
 
     Vector() noexcept :
         Base(strategy),
@@ -109,7 +109,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     ~Vector() {
         strategy.cleanup(*this);
     }
-
 };
 
 template<class T, size_t N>
@@ -130,7 +129,7 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
     this->insert(this->begin(), len, item);
 }
 
-}
+}  // namespace Static
 
 
 namespace Custom {
@@ -139,7 +138,7 @@ namespace Custom {
 template<class T, template<class> class A>
 class Vector : public ETL_NAMESPACE::Vector<T> {
 
-  public:   // types
+  public:  // types
 
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
@@ -149,7 +148,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     DynamicSized<StrategyBase, Allocator> strategy;
 
-  public:   // functions
+  public:  // functions
 
     Vector() :
         Base(strategy) {};
@@ -217,7 +216,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     void swap(Base& other) {
         return Base::swap(other);
     }
-
 };
 
 
@@ -243,7 +241,7 @@ void swap(Custom::Vector<T, A>& lhs, Custom::Vector<T, A>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace Custom
 
 
 namespace Dynamic {
@@ -252,9 +250,8 @@ namespace Dynamic {
 template<class T>
 using Vector = ETL_NAMESPACE::Custom::Vector<T, std::allocator>;
 
-}
+}  // namespace Dynamic
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_VECTOR_H__ */
-
+#endif  // __ETL_VECTOR_H__

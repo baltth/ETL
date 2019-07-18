@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_MEMORYPOOL_H__
 #define __ETL_MEMORYPOOL_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/PoolBase.h>
 #include <etl/Array.h>
+#include <etl/base/PoolBase.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -44,9 +44,9 @@ class MemoryPool {
     typedef uint64_t MinItemType;
 
     union ItemAlias {
-        MinItemType minItem;                            // for aliasing alignment and size of Minimal Item
-        uint8_t item[S];                                // for aliasing size of S
-        uint8_t freeItem[sizeof(PoolBase::FreeItem)];   // for aliasing size of PoolBase::FreeItem
+        MinItemType minItem;  // for aliasing alignment and size of Minimal Item
+        uint8_t item[S];      // for aliasing size of S
+        uint8_t freeItem[sizeof(PoolBase::FreeItem)];  // for aliasing size of PoolBase::FreeItem
     };
 
     static const size_t ITEMSIZE = sizeof(ItemAlias);
@@ -56,7 +56,7 @@ class MemoryPool {
     Array<ItemAlias, N> data;
     PoolBase base;
 
-  public:   // functions
+  public:  // functions
 
     MemoryPool() :
         data(),
@@ -87,10 +87,8 @@ class MemoryPool {
     uint32_t getCount() const {
         return capacity() - getFreeCount();
     }
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_MEMORYPOOL_H__ */
-
+#endif  // __ETL_MEMORYPOOL_H__

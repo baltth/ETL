@@ -51,8 +51,7 @@ struct HasValueType<T, typename TypeDefined<typename T::value_type>::type> : std
 
 template<class L,
          class R,
-         typename = enable_if_t<HasValueType<L>::value &&
-                                HasValueType<R>::value>,
+         typename = enable_if_t<HasValueType<L>::value && HasValueType<R>::value>,
          typename = enable_if_t<is_same<typename L::value_type, typename R::value_type>::value>>
 bool isEqual(const L& lhs, const R& rhs) {
 
@@ -78,8 +77,7 @@ bool isEqual(const L& lhs, const R& rhs) {
 
 template<class L,
          class R,
-         typename = enable_if_t<HasValueType<L>::value &&
-                                HasValueType<R>::value>,
+         typename = enable_if_t<HasValueType<L>::value && HasValueType<R>::value>,
          typename = enable_if_t<is_same<typename L::value_type, typename R::value_type>::value>>
 bool isLess(const L& lhs, const R& rhs) {
 
@@ -132,7 +130,7 @@ struct SizeDiff {
     }
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TOOLS_H__ */
+#endif  // __ETL_TOOLS_H__

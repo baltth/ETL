@@ -29,7 +29,7 @@ namespace Test {
 template<class T>
 class DummyAllocator {
 
-  public:   // types
+  public:  // types
 
     typedef T ItemType;
     static const uint32_t SIZE = 64;
@@ -40,7 +40,7 @@ class DummyAllocator {
     static uint32_t cnt;
     static uint32_t deleteCnt;
 
-  public:   // functions
+  public:  // functions
 
     T* allocate(size_t n) {
 
@@ -79,7 +79,6 @@ class DummyAllocator {
     static size_t max_size() {
         return SIZE;
     }
-
 };
 
 
@@ -92,8 +91,7 @@ uint32_t DummyAllocator<T>::cnt = 0;
 template<class T>
 uint32_t DummyAllocator<T>::deleteCnt = 0;
 
-}
-}
+}  // namespace Test
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TEST_DUMMYALLOCATOR_H__ */
-
+#endif  // __ETL_TEST_DUMMYALLOCATOR_H__

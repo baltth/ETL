@@ -22,14 +22,14 @@ limitations under the License.
 #ifndef __ETL_MAPTEMPLATE_H__
 #define __ETL_MAPTEMPLATE_H__
 
+#include <etl/base/KeyCompare.h>
+#include <etl/base/SortedList.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
-#include <etl/base/SortedList.h>
-#include <etl/base/KeyCompare.h>
-#include <etl/base/tools.h>
 
-#include <utility>
 #include <functional>
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
@@ -37,7 +37,7 @@ namespace ETL_NAMESPACE {
 template<class K, class E, class C = std::less<K>>
 class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare<C>> {
 
-  public:   // types
+  public:  // types
 
     typedef K key_type;
     typedef E mapped_type;
@@ -61,7 +61,7 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
 
     typedef typename Base::size_type size_type;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -128,8 +128,7 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
     }
 
     template<class InputIt>
-    enable_if_t<!is_integral<InputIt>::value>
-    insert(InputIt first, InputIt last) {
+    enable_if_t<!is_integral<InputIt>::value> insert(InputIt first, InputIt last) {
         while (first != last) {
             insert(*first);
             ++first;
@@ -145,7 +144,7 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
     }
 
     template<typename... Args>
-    inline std::pair<iterator, bool> emplace(const K& k, Args&& ... args);
+    inline std::pair<iterator, bool> emplace(const K& k, Args&&... args);
 
     std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
 
@@ -175,7 +174,6 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
     }
 
     iterator getItem(const K& k);
-
 };
 
 
@@ -250,7 +248,7 @@ auto Map<K, E, C>::getItem(const K& k) -> iterator {
 
 template<class K, class E, class C>
 template<typename... Args>
-auto Map<K, E, C>::emplace(const K& k, Args&& ... args) -> std::pair<iterator, bool> {
+auto Map<K, E, C>::emplace(const K& k, Args&&... args) -> std::pair<iterator, bool> {
 
     auto found = Base::findSortedPosition(k);
 
@@ -299,7 +297,6 @@ void swap(Map<K, E, C>& lhs, Map<K, E, C>& rhs) {
     lhs.swap(rhs);
 }
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_MAPTEMPLATE_H__ */
-
+#endif  // __ETL_MAPTEMPLATE_H__

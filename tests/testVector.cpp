@@ -19,15 +19,15 @@ limitations under the License.
 \endparblock
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <etl/Vector.h>
 
-#include "UnalignedTester.h"
 #include "ContainerTester.h"
-#include "sequenceTests.h"
-#include "compatibilityTests.h"
+#include "UnalignedTester.h"
 #include "comparisionTests.h"
+#include "compatibilityTests.h"
+#include "sequenceTests.h"
 
 using ETL_NAMESPACE::Test::UnalignedTester;
 using ETL_NAMESPACE::Test::ContainerTester;
@@ -696,7 +696,7 @@ void testVectorWithInitList() {
 
         SECTION("With double braces") {
 
-            VecT vec{{1, 2}};
+            VecT vec {{1, 2}};
 
             REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
@@ -705,7 +705,7 @@ void testVectorWithInitList() {
 
         SECTION("Uniform") {
 
-            VecT vec{1, 2};
+            VecT vec {1, 2};
 
             REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
@@ -826,9 +826,9 @@ void testVectorMove() {
         const auto copyCnt = ContainerTester::getCopyCount();
         const auto moveCnt = ContainerTester::getMoveCount();
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         VecT vec2(std::move(vec));
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
 
         REQUIRE(vec2.size() == size);
         REQUIRE(ContainerTester::getCopyCount() == copyCnt);
@@ -1140,7 +1140,6 @@ TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vec][dynamic][etl]") {
 }
 
 
-
 // Etl::Static::Vector tests --------------------------------------------------
 
 
@@ -1289,9 +1288,7 @@ TEST_CASE("Etl::Vector<> comparision", "[vector][etl]") {
         VecType lhs;
         VecType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.push_back(val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.push_back(val); };
 
         testComparision(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
@@ -1307,13 +1304,8 @@ TEST_CASE("Etl::Vector<> comparision", "[vector][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.push_back(val);
-        };
-
-        auto rInserter = [](RType& cont, int val) {
-            cont.push_back(val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.push_back(val); };
+        auto rInserter = [](RType& cont, int val) { cont.push_back(val); };
 
         testComparision(lhs,
                         rhs,
@@ -1349,4 +1341,3 @@ TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
 
     testInnerProduct<VecT, VecT>();
 }
-

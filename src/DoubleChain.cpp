@@ -132,4 +132,3 @@ void DoubleChain::swap(DoubleChain& other) noexcept {
         }
     }
 }
-

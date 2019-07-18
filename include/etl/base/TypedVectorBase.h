@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_TYPEDVECTORBASE_H__
 #define __ETL_TYPEDVECTORBASE_H__
 
-#include <etl/etlSupport.h>
 #include <etl/base/AVectorBase.h>
 #include <etl/base/tools.h>
+#include <etl/etlSupport.h>
 
 #if ETL_USE_EXCEPTIONS
 #include <etl/ExceptionTypes.h>
@@ -33,15 +33,17 @@ limitations under the License.
 #undef min
 #undef max
 
+#include <functional>
+#include <iterator>
 #include <new>
 #include <utility>
-#include <iterator>
-#include <functional>
 
 namespace ETL_NAMESPACE {
 
-template<class> class StaticSized;
-template<class, class> class DynamicSized;
+template<class>
+class StaticSized;
+template<class, class>
+class DynamicSized;
 
 namespace Detail {
 
@@ -50,9 +52,10 @@ template<class T>
 class TypedVectorBase : public AVectorBase {
 
     friend class StaticSized<TypedVectorBase>;
-    template<class, class> friend class DynamicSized;
+    template<class, class>
+    friend class DynamicSized;
 
-  public:   // types
+  public:  // types
 
     typedef T value_type;
     typedef value_type& reference;
@@ -77,7 +80,7 @@ class TypedVectorBase : public AVectorBase {
     template<class InputIt>
     class ContCreator;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Element access
     /// \{
@@ -205,17 +208,20 @@ class TypedVectorBase : public AVectorBase {
         return this->proxy;
     }
 
-    static void uninitializedMove(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_constructible<T>::value);
+    static void uninitializedMove(pointer src,
+                                  pointer dst,
+                                  size_type num) noexcept(is_nothrow_move_constructible<T>::value);
 
-    static void initializedMoveUp(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value);
+    static void initializedMoveUp(pointer src,
+                                  pointer dst,
+                                  size_type num) noexcept(is_nothrow_move_assignable<T>::value);
 
-    static void initializedMoveDown(pointer src, pointer dst, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value);
+    static void initializedMoveDown(pointer src,
+                                    pointer dst,
+                                    size_type num) noexcept(is_nothrow_move_assignable<T>::value);
 
-    static void assignDefaultTo(pointer ptr)
-    noexcept(is_nothrow_default_constructible<T>::value && is_nothrow_move_assignable<T>::value) {
+    static void assignDefaultTo(pointer ptr) noexcept(
+        is_nothrow_default_constructible<T>::value&& is_nothrow_move_assignable<T>::value) {
         *ptr = T();
     }
 
@@ -223,8 +229,8 @@ class TypedVectorBase : public AVectorBase {
         new (ptr) T();
     }
 
-    static void defaultValue(pointer ptr, bool place)
-    noexcept(noexcept(placeDefaultTo(ptr)) && noexcept(assignDefaultTo(ptr))) {
+    static void defaultValue(pointer ptr, bool place) noexcept(noexcept(placeDefaultTo(ptr))
+                                                               && noexcept(assignDefaultTo(ptr))) {
         if (place) {
             placeDefaultTo(ptr);
         } else {
@@ -232,16 +238,20 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void assignValueTo(pointer ptr, const_reference value) noexcept(is_nothrow_copy_assignable<T>::value) {
+    static void
+    assignValueTo(pointer ptr,
+                  const_reference value) noexcept(is_nothrow_copy_assignable<T>::value) {
         *ptr = value;
     }
 
-    static void placeValueTo(pointer ptr, const_reference value) noexcept(is_nothrow_copy_constructible<T>::value) {
+    static void
+    placeValueTo(pointer ptr,
+                 const_reference value) noexcept(is_nothrow_copy_constructible<T>::value) {
         new (ptr) T(value);
     }
 
-    static void copyValue(pointer ptr, const_reference value, bool place)
-    noexcept(noexcept(placeValueTo(ptr, value)) && noexcept(assignValueTo(ptr, value))) {
+    static void copyValue(pointer ptr, const_reference value, bool place) noexcept(
+        noexcept(placeValueTo(ptr, value)) && noexcept(assignValueTo(ptr, value))) {
         if (place) {
             placeValueTo(ptr, value);
         } else {
@@ -249,16 +259,20 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void assignValueTo(pointer ptr, value_type&& value) noexcept(is_nothrow_move_assignable<T>::value) {
+    static void assignValueTo(pointer ptr,
+                              value_type&& value) noexcept(is_nothrow_move_assignable<T>::value) {
         *ptr = std::move(value);
     }
 
-    static void placeValueTo(pointer ptr, value_type&& value) noexcept(is_nothrow_move_constructible<T>::value) {
+    static void placeValueTo(pointer ptr,
+                             value_type&& value) noexcept(is_nothrow_move_constructible<T>::value) {
         new (ptr) T(std::move(value));
     }
 
-    static void moveValue(pointer ptr, value_type&& value, bool place)
-    noexcept(noexcept(placeValueTo(ptr, std::move(value))) && noexcept(assignValueTo(ptr, std::move(value)))) {
+    static void moveValue(pointer ptr,
+                          value_type&& value,
+                          bool place) noexcept(noexcept(placeValueTo(ptr, std::move(value)))
+                                               && noexcept(assignValueTo(ptr, std::move(value)))) {
         if (place) {
             placeValueTo(ptr, std::move(value));
         } else {
@@ -266,13 +280,14 @@ class TypedVectorBase : public AVectorBase {
         }
     }
 
-    static void swapValues(reference lhs, reference rhs)
-    noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value) {
+    static void swapValues(reference lhs, reference rhs) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
         using std::swap;
         swap(lhs, rhs);
     }
 
-    static void destruct(iterator startPos, iterator endPos) noexcept(is_nothrow_destructible<T>::value);
+    static void destruct(iterator startPos,
+                         iterator endPos) noexcept(is_nothrow_destructible<T>::value);
 
   protected:
 
@@ -283,27 +298,29 @@ class TypedVectorBase : public AVectorBase {
         clear();
     }
 
-    void copyOperation(pointer dst, const_pointer src, size_type num)
-    noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T>::value);
+    void copyOperation(pointer dst, const_pointer src, size_type num) noexcept(
+        is_nothrow_copy_assignable<T>::value&& is_nothrow_copy_constructible<T>::value);
 
-    void moveOperation(pointer dst, pointer src, size_type num)
-    noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value);
+    void moveOperation(pointer dst, pointer src, size_type num) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
 
     template<class CR>
-    iterator insertOperation(const_iterator position, size_type num, const CR& creatorCall)
-    noexcept(noexcept(creatorCall(nullptr, 1, true)) &&
-             is_nothrow_move_assignable<T>::value &&
-             is_nothrow_move_constructible<T>::value);
+    iterator
+    insertOperation(const_iterator position,
+                    size_type num,
+                    const CR& creatorCall) noexcept(noexcept(creatorCall(nullptr, 1, true))
+                                                    && is_nothrow_move_assignable<T>::value
+                                                    && is_nothrow_move_constructible<T>::value);
 
-    void swapElements(TypedVectorBase& other)
-    noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value);
-
+    void swapElements(TypedVectorBase& other) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
 };
 
 
 template<class T>
-auto TypedVectorBase<T>::erase(iterator first, iterator last)
-noexcept(is_nothrow_move_assignable<T>::value) -> iterator {
+auto TypedVectorBase<T>::erase(iterator first,
+                               iterator last) noexcept(is_nothrow_move_assignable<T>::value)
+    -> iterator {
 
     int numToErase = last - first;
     iterator itAfterDeleted = first;
@@ -324,8 +341,8 @@ noexcept(is_nothrow_move_assignable<T>::value) -> iterator {
 
 
 template<class T>
-void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, size_type num)
-noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T>::value) {
+void TypedVectorBase<T>::copyOperation(pointer dst, const_pointer src, size_type num) noexcept(
+    is_nothrow_copy_assignable<T>::value&& is_nothrow_copy_constructible<T>::value) {
 
     pointer dataAlias = data();
 
@@ -334,7 +351,8 @@ noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T
         size_type totalNum = static_cast<size_type>(dst - dataAlias) + num;
 
         for (size_type i = 0; i < num; ++i) {
-            TypedVectorBase::copyValue(dst, src[i], (static_cast<size_type>(dst - dataAlias) >= this->size()));
+            TypedVectorBase::copyValue(
+                dst, src[i], (static_cast<size_type>(dst - dataAlias) >= this->size()));
             ++dst;
         }
 
@@ -346,20 +364,23 @@ noexcept(is_nothrow_copy_assignable<T>::value && is_nothrow_copy_constructible<T
 
 template<class T>
 template<class CR>
-auto TypedVectorBase<T>::insertOperation(const_iterator position,
-                                         size_type numToInsert,
-                                         const CR& creatorCall)
-noexcept(noexcept(creatorCall(nullptr, 1, true))&&
-         is_nothrow_move_assignable<T>::value &&
-         is_nothrow_move_constructible<T>::value) -> iterator {
+auto TypedVectorBase<T>::insertOperation(
+    const_iterator position,
+    size_type numToInsert,
+    const CR& creatorCall) noexcept(noexcept(creatorCall(nullptr, 1, true))
+                                    && is_nothrow_move_assignable<T>::value
+                                    && is_nothrow_move_constructible<T>::value) -> iterator {
 
     if (numToInsert > 0) {
 
         size_type distanceFromEnd = end() - position;
 
-        size_type uninitedCopyCnt = (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
-        size_type initedCopyCnt = (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
-        size_type uninitedInsertCnt = (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
+        size_type uninitedCopyCnt =
+            (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
+        size_type initedCopyCnt =
+            (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
+        size_type uninitedInsertCnt =
+            (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
         size_type initedInsertCnt = uninitedCopyCnt;
 
         pointer src = end() - uninitedCopyCnt;
@@ -390,8 +411,8 @@ noexcept(noexcept(creatorCall(nullptr, 1, true))&&
 
 
 template<class T>
-void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, size_type num)
-noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value) {
+void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, size_type num) noexcept(
+    is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
 
     pointer dataAlias = data();
 
@@ -411,11 +432,11 @@ noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T
 
 
 template<class T>
-void TypedVectorBase<T>::uninitializedMove(pointer src, pointer dst, size_type num)
-noexcept(is_nothrow_move_constructible<T>::value) {
+void TypedVectorBase<T>::uninitializedMove(pointer src, pointer dst, size_type num) noexcept(
+    is_nothrow_move_constructible<T>::value) {
 
     if (src != dst) {
-        for (int i = (num - 1); i >= 0; --i) {              // always moves upwards
+        for (int i = (num - 1); i >= 0; --i) {  // always moves upwards
             placeValueTo((dst + i), std::move(src[i]));
         }
     }
@@ -423,8 +444,8 @@ noexcept(is_nothrow_move_constructible<T>::value) {
 
 
 template<class T>
-void TypedVectorBase<T>::initializedMoveUp(pointer src, pointer dst, size_type num)
-noexcept(is_nothrow_move_assignable<T>::value) {
+void TypedVectorBase<T>::initializedMoveUp(pointer src, pointer dst, size_type num) noexcept(
+    is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
         for (int i = (num - 1); i >= 0; --i) {
@@ -435,8 +456,8 @@ noexcept(is_nothrow_move_assignable<T>::value) {
 
 
 template<class T>
-void TypedVectorBase<T>::initializedMoveDown(pointer src, pointer dst, size_type num)
-noexcept(is_nothrow_move_assignable<T>::value) {
+void TypedVectorBase<T>::initializedMoveDown(pointer src, pointer dst, size_type num) noexcept(
+    is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
         for (size_type i = 0; i < num; ++i) {
@@ -455,8 +476,8 @@ void TypedVectorBase<T>::clear() noexcept(is_nothrow_destructible<T>::value) {
 
 
 template<class T>
-void TypedVectorBase<T>::destruct(iterator startPos, iterator endPos)
-noexcept(is_nothrow_destructible<T>::value) {
+void TypedVectorBase<T>::destruct(iterator startPos,
+                                  iterator endPos) noexcept(is_nothrow_destructible<T>::value) {
 
     while (startPos < endPos) {
         startPos->~T();
@@ -466,8 +487,8 @@ noexcept(is_nothrow_destructible<T>::value) {
 
 
 template<class T>
-void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other)
-noexcept(is_nothrow_move_assignable<T>::value && is_nothrow_move_constructible<T>::value) {
+void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) noexcept(
+    is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
 
     const SizeDiff diff(*this, other);
 
@@ -519,7 +540,7 @@ template<typename T>
 class TypedVectorBase<T>::DefaultCreator {
   public:
     void operator()(pointer pos, size_type cnt, bool place) const
-    noexcept(noexcept(TypedVectorBase::defaultValue(pos, place))) {
+        noexcept(noexcept(TypedVectorBase::defaultValue(pos, place))) {
         for (size_type i = 0; i < cnt; ++i) {
             TypedVectorBase::defaultValue(pos + i, place);
         }
@@ -532,11 +553,12 @@ class TypedVectorBase<T>::CopyCreator {
 
   private:
     const_reference ref;
+
   public:
     explicit CopyCreator(const_reference refValue) noexcept :
         ref(refValue) {};
     void operator()(pointer pos, size_type cnt, bool place) const
-    noexcept(noexcept(TypedVectorBase::copyValue(pos, ref, place))) {
+        noexcept(noexcept(TypedVectorBase::copyValue(pos, ref, place))) {
         for (size_type i = 0; i < cnt; ++i) {
             TypedVectorBase::copyValue(pos + i, ref, place);
         }
@@ -551,6 +573,7 @@ class TypedVectorBase<T>::ContCreator {
     const InputIt first;
     mutable InputIt last;
     const size_type len;
+
   public:
     ContCreator(InputIt fst,
                 InputIt lst) noexcept :
@@ -561,7 +584,7 @@ class TypedVectorBase<T>::ContCreator {
         return len;
     }
     void operator()(pointer pos, size_type cnt, bool place) const
-    noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
+        noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
         for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
             if (first < last) {
                 --last;
@@ -570,8 +593,7 @@ class TypedVectorBase<T>::ContCreator {
         }
     }
 };
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_TYPEDVECTORBASE_H__ */
-
+#endif // __ETL_TYPEDVECTORBASE_H__

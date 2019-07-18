@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_AHASHTABLE_H__
 #define __ETL_AHASHTABLE_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/SingleChain.h>
 #include <etl/Proxy.h>
+#include <etl/base/SingleChain.h>
+#include <etl/etlSupport.h>
 
 #include <utility>
 
@@ -34,18 +34,18 @@ namespace Detail {
 
 class AHashTable {
 
-  public:   // types
+  public:  // types
 
     typedef std::size_t HashType;
 
     class Node : public SingleChain::Node {
         friend class AHashTable;
 
-      protected: // variables
+      protected:  // variables
 
         HashType hash;
 
-      protected: // functions
+      protected:  // functions
 
         Node() :
             SingleChain::Node(),
@@ -54,17 +54,16 @@ class AHashTable {
         Node(const SingleChain::Node& n, HashType h) :
             SingleChain::Node(n),
             hash(h) {};
-
     };
 
     class Iterator {
         friend class AHashTable;
 
-      protected: // variables
+      protected:  // variables
 
         AHashTable::Node* node;
 
-      public:   // functions
+      public:  // functions
 
         bool operator==(const Iterator& other) const {
             return (node == other.node);
@@ -83,12 +82,11 @@ class AHashTable {
 
         explicit Iterator(AHashTable::Node* n) :
             node(n) {};
-
     };
 
     typedef SingleChain::Node* BucketItem;
 
-  protected: // variables
+  protected:  // variables
 
     SingleChain chain;
     uint32_t size_;
@@ -96,7 +94,7 @@ class AHashTable {
     MutableProxy<BucketItem> buckets;
     BucketItem lastItem;
 
-  public:   // functions
+  public:  // functions
 
     AHashTable(BucketItem* b, uint32_t s) :
         size_(0U),
@@ -138,7 +136,7 @@ class AHashTable {
     const Node* find(HashType hash) const;
 
     std::pair<Node*, Node*> equalRange(HashType hash) {
-        std::pair<const Node*, const Node*> res = static_cast<const AHashTable*>(this)->equalRange(hash);
+        auto res = static_cast<const AHashTable*>(this)->equalRange(hash);
         return std::pair<Node*, Node*>(const_cast<Node*>(res.first), const_cast<Node*>(res.second));
     }
 
@@ -162,11 +160,9 @@ class AHashTable {
     AHashTable& operator=(AHashTable&& other) = delete;
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, uint32_t ix);
-
 };
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_AHASHTABLE_H__ */
-
+#endif  // __ETL_AHASHTABLE_H__

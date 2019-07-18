@@ -22,9 +22,9 @@ limitations under the License.
 #ifndef __ETL_POOLALLOCATOR_H__
 #define __ETL_POOLALLOCATOR_H__
 
-#include <etl/etlSupport.h>
 #include <etl/MemoryPool.h>
 #include <etl/base/AAllocator.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -39,7 +39,7 @@ class PoolAllocator : public AAllocator<T> {
 
     static_assert(N > 0, "Invalid pool size");
 
-  public:   // types
+  public:  // types
 
     typedef T ItemType;
     typedef T* PtrType;
@@ -48,7 +48,7 @@ class PoolAllocator : public AAllocator<T> {
 
     MemoryPool<sizeof(T), N> pool;
 
-  public:   // functions
+  public:  // functions
 
     size_t max_size() const noexcept override {
         return pool.capacity();
@@ -74,7 +74,6 @@ class PoolAllocator : public AAllocator<T> {
     const void* handle() const noexcept override {
         return &pool;
     }
-
 };
 
 
@@ -89,13 +88,13 @@ class CommonPoolAllocator : public AAllocator<T> {
 
     static_assert(N > 0, "Invalid pool size");
 
-  public:   // types
+  public:  // types
 
     typedef Etl::PoolAllocator<T, N> Allocator;
     typedef typename Allocator::ItemType ItemType;
     typedef typename Allocator::PtrType PtrType;
 
-  public:   // functions
+  public:  // functions
 
     size_t max_size() const noexcept override {
         return allocator().max_size();
@@ -123,24 +122,21 @@ class CommonPoolAllocator : public AAllocator<T> {
         static Allocator alloc;
         return alloc;
     }
-
 };
 
 
 template<uint32_t N>
 class PoolHelper {
 
-  public:   // types
+  public:  // types
 
     template<class T>
     class Allocator : public PoolAllocator<T, N> {};
 
     template<class T>
     class CommonAllocator : public CommonPoolAllocator<T, N> {};
-
 };
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif /* __ETL_POOLALLOCATOR_H__ */
-
+#endif  // __ETL_POOLALLOCATOR_H__
