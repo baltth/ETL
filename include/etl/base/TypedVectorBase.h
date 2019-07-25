@@ -33,6 +33,7 @@ limitations under the License.
 #undef min
 #undef max
 
+#include <cstddef>
 #include <functional>
 #include <iterator>
 #include <new>
@@ -421,7 +422,9 @@ void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, size_type num) 
         size_type totalNum = dst - dataAlias + num;
 
         for (size_type i = 0; i < num; ++i) {
-            moveValue(dst, std::move(src[i]), ((dst - dataAlias) >= this->size()));
+            moveValue(dst,
+                      std::move(src[i]),
+                      ((dst - dataAlias) >= static_cast<std::ptrdiff_t>(this->size())));
             ++dst;
         }
 
@@ -596,4 +599,4 @@ class TypedVectorBase<T>::ContCreator {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif // __ETL_TYPEDVECTORBASE_H__
+#endif  // __ETL_TYPEDVECTORBASE_H__
