@@ -173,7 +173,9 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
         assign(other.begin(), other.end());
     }
 
-    iterator getItem(const K& k);
+    iterator getItem(const K& k) {
+        return emplace(k, E()).first;
+    }
 };
 
 
@@ -232,21 +234,6 @@ auto Map<K, E, C>::find(const K& k) const -> const_iterator {
 
 
 template<class K, class E, class C>
-auto Map<K, E, C>::getItem(const K& k) -> iterator {
-
-    auto found = Base::findSortedPosition(k);
-
-    if (found.second == false) {
-        found.first = Base::emplaceTo(found.first, std::move(value_type(k, E())));
-    } else {
-        --found.first;
-    }
-
-    return found.first;
-}
-
-
-template<class K, class E, class C>
 template<typename... Args>
 auto Map<K, E, C>::emplace(const K& k, Args&&... args) -> std::pair<iterator, bool> {
 
@@ -254,6 +241,8 @@ auto Map<K, E, C>::emplace(const K& k, Args&&... args) -> std::pair<iterator, bo
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, k, std::forward<Args>(args)...);
+    } else {
+        --found.first;
     }
 
     found.second = !found.second;

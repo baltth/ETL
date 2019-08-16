@@ -196,6 +196,8 @@ auto Set<E, C>::emplace(Args&&... args) -> std::pair<iterator, bool> {
 
     if (found.second == false) {
         found.first = Base::emplaceTo(found.first, std::move(e));
+    } else {
+        --found.first;
     }
 
     found.second = !found.second;

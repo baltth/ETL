@@ -63,8 +63,17 @@ void testListBasic() {
     REQUIRE(list.size() == 3);
     REQUIRE(*it == 3);
 
+    it = list.emplace(list.end(), 4);
+    REQUIRE(list.size() == 4);
+    REQUIRE(*it == 4);
+
     list.pop_front();
     list.erase(list.begin());
+    list.pop_back();
+
+    REQUIRE(list.size() == 1);
+    REQUIRE_FALSE(list.empty());
+
     list.pop_back();
 
     REQUIRE(list.size() == 0);

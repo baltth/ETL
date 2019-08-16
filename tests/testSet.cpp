@@ -84,18 +84,59 @@ TEST_CASE("Etl::Dynamic::Set<> insert() test", "[set][etl]") {
 
     SECTION("second element") {
 
-        res = set.insert(2);
+        ResultType res2 = set.insert(2);
 
-        REQUIRE(res.second == true);
+        REQUIRE(res2.first != set.end());
+        REQUIRE(res2.second == true);
         REQUIRE(set.size() == 2);
-        REQUIRE(*(res.first) == 2);
+        REQUIRE(*(res2.first) == 2);
     }
 
     SECTION("insert() of existing shall fail") {
 
-        res = set.insert(1);
+        ResultType res2 = set.insert(1);
 
-        REQUIRE(res.second == false);
+        REQUIRE(res2.first != set.end());
+        REQUIRE(res2.second == false);
+        REQUIRE(set.size() == 1);
+    }
+}
+
+
+TEST_CASE("Etl::Dynamic::Set<> emplace() test", "[set][etl]") {
+
+    typedef Etl::Dynamic::Set<int> SetType;
+    typedef std::pair<SetType::iterator, bool> ResultType;
+
+    SetType set;
+
+    ResultType res = set.emplace(1);
+
+    REQUIRE(res.second == true);
+    REQUIRE(res.first != set.end());
+    REQUIRE(set.size() == 1);
+
+    SECTION("first element") {
+
+        REQUIRE(*(res.first) == 1);
+    }
+
+    SECTION("second element") {
+
+        ResultType res2 = set.emplace(2);
+
+        REQUIRE(res2.first != set.end());
+        REQUIRE(res2.second == true);
+        REQUIRE(set.size() == 2);
+        REQUIRE(*(res2.first) == 2);
+    }
+
+    SECTION("emplace() of existing shall fail") {
+
+        ResultType res2 = set.emplace(1);
+
+        REQUIRE(res2.first != set.end());
+        REQUIRE(res2.second == false);
         REQUIRE(set.size() == 1);
     }
 }

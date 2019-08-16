@@ -82,29 +82,73 @@ TEST_CASE("Etl::Dynamic::Map<> insert test", "[map][etl]") {
 
     SECTION("second element") {
 
-        res = map.insert(2, 2);
+        ResultType res2 = map.insert(2, 2);
 
-        REQUIRE(res.second == true);
+        REQUIRE(res2.first != map.end());
+        REQUIRE(res2.second == true);
         REQUIRE(map.size() == 2);
         REQUIRE(map[2] == 2);
     }
 
     SECTION("insert() of existing shall fail") {
 
-        res = map.insert(1, 3);
+        ResultType res2 = map.insert(1, 3);
 
-        REQUIRE(res.second == false);
+        REQUIRE(res2.first != map.end());
+        REQUIRE(res2.second == false);
         REQUIRE(map.size() == 1);
         REQUIRE(map[1] == 2);
     }
 
     SECTION("insert_or_assign() of existing shall overwrite") {
 
-        res = map.insert_or_assign(1, 3);
+        ResultType res2 = map.insert_or_assign(1, 3);
 
-        REQUIRE(res.second == false);
+        REQUIRE(res2.first != map.end());
+        REQUIRE(res2.second == false);
         REQUIRE(map.size() == 1);
         REQUIRE(map[1] == 3);
+    }
+}
+
+
+TEST_CASE("Etl::Dynamic::Map<> emplace test", "[map][etl]") {
+
+    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
+    typedef std::pair<MapType::iterator, bool> ResultType;
+
+    MapType map;
+
+    ResultType res = map.emplace(1, 2);
+
+    REQUIRE(res.second == true);
+    REQUIRE(res.first != map.end());
+    REQUIRE(map.size() == 1);
+
+    SECTION("first element") {
+
+        REQUIRE(res.first->first == 1);
+        REQUIRE(res.first->second == 2);
+    }
+
+    SECTION("second element") {
+
+        ResultType res2 = map.emplace(2, 2);
+
+        REQUIRE(res2.first != map.end());
+        REQUIRE(res2.second == true);
+        REQUIRE(map.size() == 2);
+        REQUIRE(map[2] == 2);
+    }
+
+    SECTION("emplace() of existing shall fail") {
+
+        ResultType res2 = map.emplace(1, 3);
+
+        REQUIRE(res2.first != map.end());
+        REQUIRE(res2.second == false);
+        REQUIRE(map.size() == 1);
+        REQUIRE(map[1] == 2);
     }
 }
 
