@@ -115,6 +115,18 @@ TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
         }
     }
 
+    SECTION("Enum serialization") {
+
+        bs << BufStr::Radix::HEX;
+        PRINT_DATA_NL;
+        REQUIRE(strcmp(data.begin(), "16") == 0);
+
+        bs.clear();
+        bs << BufStr::Radix::BIN;
+        PRINT_DATA_NL;
+        REQUIRE(strcmp(data.begin(), "2") == 0);
+    }
+
     SECTION("Pointer serialization") {
 
         static const size_t PTR_TETRADES = sizeof(void*) * 2;

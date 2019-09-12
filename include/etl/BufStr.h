@@ -166,6 +166,11 @@ class BufStr {
         return putFloat(data);
     }
 
+    template<typename T>
+    enable_if_t<is_enum<T>::value, BufStr&> operator<<(T data) {
+        return operator<<(static_cast<typename std::underlying_type<T>::type>(data));
+    }
+
     BufStr& operator<<(const void* data) {
         return putPointer(data);
     }
@@ -491,4 +496,4 @@ inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* 
     return bs.write(data);
 }
 
-#endif // __ETL_BUFSTR_H__
+#endif  // __ETL_BUFSTR_H__
