@@ -190,18 +190,15 @@ void testListLeak() {
 
     CHECK(ItemType::getObjectCount() == 0);
 
-    {
+    SECTION("basic ops") {
+
         ListT list;
 
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
-        list.push_back(ContainerTester(PATTERN));
+        for (int i = 0; i < 8; ++i) {
+            list.push_back(ContainerTester(PATTERN));
+        }
 
+        CHECK(list.size() == 8);
         CHECK(list.size() == ItemType::getObjectCount());
 
         list.pop_back();
@@ -209,6 +206,30 @@ void testListLeak() {
 
         list.erase(list.begin());
         REQUIRE(list.size() == ItemType::getObjectCount());
+    }
+
+    SECTION("copy") {
+
+        ListT list1;
+
+        for (int i = 0; i < 8; ++i) {
+            list1.push_back(ContainerTester(PATTERN));
+        }
+
+        ListT list2;
+
+        for (int i = 0; i < 3; ++i) {
+            list2.push_back(ContainerTester(PATTERN));
+        }
+
+        CHECK(list1.size() == 8);
+        CHECK(list2.size() == 3);
+        CHECK((list1.size() + list2.size()) == ItemType::getObjectCount());
+
+        list2 = list1;
+
+        CHECK(list2.size() == list1.size());
+        REQUIRE((list1.size() + list2.size()) == ItemType::getObjectCount());
     }
 
     REQUIRE(ItemType::getObjectCount() == 0);
@@ -236,6 +257,9 @@ TEST_CASE("Etl::Pooled::List<> leak test", "[list][etl]") {
     typedef Etl::Pooled::List<ItemType, 16> ListT;
 
     testListLeak<ListT>();
+
+    ListT l;
+    REQUIRE(l.getAllocator().size() == 0);
 }
 
 
