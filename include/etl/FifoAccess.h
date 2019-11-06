@@ -96,11 +96,9 @@ class FifoAccess {
     }
 
     void push(const_reference item);
+    void push(value_type&& item);
     value_type pop();
-
-    void drop() {
-        indexing.pop();
-    }
+    void drop();
 
     value_type getFromBack(uint32_t ix) const;
     value_type getFromFront(uint32_t ix) const;
@@ -170,10 +168,26 @@ void FifoAccess<T>::push(const_reference item) {
 
 
 template<class T>
+void FifoAccess<T>::push(value_type&& item) {
+
+    indexing.push();
+    span[indexing.getWriteIx()] = std::move(item);
+}
+
+
+template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::pop() {
 
     indexing.pop();
-    return span[indexing.getReadIx()];
+    return value_type {std::move(span[indexing.getReadIx()])};
+}
+
+
+template<class T>
+void FifoAccess<T>::drop() {
+
+    indexing.pop();
+    span[indexing.getReadIx()] = value_type {};
 }
 
 
