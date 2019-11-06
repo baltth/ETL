@@ -37,19 +37,19 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
     FifoType fifo;
 
     REQUIRE(fifo.capacity() == SIZE);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
     REQUIRE(fifo[0] == 1);
     REQUIRE(fifo[-1] == 2);
 
     REQUIRE(fifo.pop() == 1);
     REQUIRE(fifo.pop() == 2);
 
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 }
 
 
@@ -62,19 +62,19 @@ TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynam
     FifoType fifo(SIZE);
 
     REQUIRE(fifo.capacity() == SIZE);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
     REQUIRE(fifo[0] == 1);
     REQUIRE(fifo[-1] == 2);
 
     REQUIRE(fifo.pop() == 1);
     REQUIRE(fifo.pop() == 2);
 
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 }
 
 
@@ -87,19 +87,19 @@ TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static
     FifoType fifo(SIZE);
 
     REQUIRE(fifo.capacity() == SIZE);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
     REQUIRE(fifo[0] == 1);
     REQUIRE(fifo[-1] == 2);
 
     REQUIRE(fifo.pop() == 1);
     REQUIRE(fifo.pop() == 2);
 
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 }
 
 
@@ -117,7 +117,7 @@ TEST_CASE("Etl::Fifo<> element access", "[fifo][etl]") {
     fifo.push(4);
     fifo.push(5);
 
-    CHECK(fifo.getLength() == 5);
+    CHECK(fifo.size() == 5);
 
     REQUIRE(fifo[0] == 1);
     REQUIRE(fifo[4] == 5);
@@ -145,7 +145,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     fifo.push(2);
     fifo.push(3);
 
-    CHECK(fifo.getLength() == 3);
+    CHECK(fifo.size() == 3);
 
     int i = 0;
     for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
@@ -186,19 +186,19 @@ TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
     fifo.push(3);
     fifo.push(4);
 
-    CHECK(fifo.getLength() == SIZE);
+    CHECK(fifo.size() == SIZE);
     CHECK(fifo[0] == 1);
     CHECK(fifo[-1] == 4);
 
     fifo.push(5);
 
-    REQUIRE(fifo.getLength() == SIZE);
+    REQUIRE(fifo.size() == SIZE);
     REQUIRE(fifo[0] == 2);
     REQUIRE(fifo[-1] == 5);
 
     fifo.push(6);
 
-    REQUIRE(fifo.getLength() == SIZE);
+    REQUIRE(fifo.size() == SIZE);
     REQUIRE(fifo[0] == 3);
     REQUIRE(fifo[-1] == 6);
 
@@ -219,21 +219,21 @@ TEST_CASE("Etl::Fifo<> resize", "[fifo][etl]") {
     FifoType fifo;
 
     REQUIRE(fifo.capacity() == 0);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.setupFifo(SIZE1);
 
     REQUIRE(fifo.capacity() == SIZE1);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
-    CHECK(fifo.getLength() == 2);
+    CHECK(fifo.size() == 2);
 
     fifo.setupFifo(SIZE2);
 
     REQUIRE(fifo.capacity() == SIZE2);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 }
 
 
@@ -246,16 +246,16 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     FifoType fifo;
 
     CHECK(fifo.capacity() == SIZE);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
 
-    fifo.setEmpty();
+    fifo.clear();
 
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
     REQUIRE(fifo.empty());
 
     fifo.push(3);
@@ -263,17 +263,17 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
     fifo.push(5);
     fifo.push(6);
 
-    REQUIRE(fifo.getLength() == 4);
+    REQUIRE(fifo.size() == 4);
 
-    fifo.setLength(2);
+    fifo.resize(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
     REQUIRE(fifo[-1] == 6);
     REQUIRE(fifo[0] == 5);
 
-    fifo.setLength(6);
+    fifo.resize(6);
 
-    REQUIRE(fifo.getLength() == 6);
+    REQUIRE(fifo.size() == 6);
     REQUIRE(fifo[-1] == 6);
     REQUIRE(fifo[0] == 1);
 }
@@ -289,17 +289,17 @@ TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic
     Etl::FifoAccess<ItemType> fifo(array);
 
     REQUIRE(fifo.capacity() == SIZE);
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 
     fifo.push(1);
     fifo.push(2);
 
-    REQUIRE(fifo.getLength() == 2);
+    REQUIRE(fifo.size() == 2);
     REQUIRE(fifo[0] == 1);
     REQUIRE(fifo[-1] == 2);
 
     REQUIRE(fifo.pop() == 1);
     REQUIRE(fifo.pop() == 2);
 
-    REQUIRE(fifo.getLength() == 0);
+    REQUIRE(fifo.size() == 0);
 }

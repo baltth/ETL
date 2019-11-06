@@ -25,52 +25,50 @@ limitations under the License.
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 class AFifoIterator;
 
 
 class FifoIndexing {
-    friend class AFifoIterator;
 
   private:  // variables
 
-    uint32_t capacityVal;
-    uint32_t length;
+    uint32_t capacity_;
+    uint32_t length_;
 
     uint32_t writeIx;
     uint32_t readIx;
 
   public:  // functions
 
-    bool empty() const {
-        return (length == 0);
-    }
-
-    bool isFull() const {
-        return (length == capacityVal);
-    }
-
-    uint32_t getLength() const {
-        return length;
-    }
-
-    void setEmpty() {
-        setLength(0);
-    }
-
-    void setLength(uint32_t len);
-
-    uint32_t capacity() const {
-        return capacityVal;
-    }
-
-  protected:
-
     explicit FifoIndexing(uint32_t fifoSize) :
-        capacityVal(fifoSize) {
+        capacity_(fifoSize) {
 
         resetIndexes();
     };
+
+    bool empty() const {
+        return (length_ == 0);
+    }
+
+    uint32_t size() const {
+        return length_;
+    }
+
+    uint32_t capacity() const {
+        return capacity_;
+    }
+
+    void clear() {
+        setSize(0U);
+    }
+
+    void setSize(uint32_t len);
+
+    void setCapacity(uint32_t c) {
+        capacity_ = c;
+    }
 
     uint32_t getIndexFromFront(uint32_t ix) const;
     uint32_t getIndexFromBack(uint32_t ix) const;
@@ -79,10 +77,6 @@ class FifoIndexing {
     uint32_t previousIndex(uint32_t ix) const;
 
     void resetIndexes();
-
-    void setCapacity(uint32_t fifoSize) {
-        capacityVal = fifoSize;
-    }
 
     void push();
     void pop();
@@ -100,6 +94,7 @@ class FifoIndexing {
     uint32_t limitIndexForLength(uint32_t ix) const;
 };
 
+}  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
 #endif  // __ETL_FIFOINDEXING_H__

@@ -21,14 +21,14 @@ limitations under the License.
 
 #include <etl/base/FifoIndexing.h>
 
-using ETL_NAMESPACE::FifoIndexing;
+using ETL_NAMESPACE::Detail::FifoIndexing;
 
 
 void FifoIndexing::resetIndexes() {
 
     writeIx = capacity() - 1;
     readIx = writeIx;
-    length = 0;
+    length_ = 0;
 }
 
 
@@ -58,11 +58,11 @@ uint32_t FifoIndexing::getIndexFromBack(uint32_t ix) const {
 
 uint32_t FifoIndexing::limitIndexForLength(uint32_t ix) const {
 
-    if (ix >= length) {
-        if (length == 0) {
+    if (ix >= length_) {
+        if (length_ == 0) {
             ix = 0;
         } else {
-            ix = length - 1;
+            ix = length_ - 1;
         }
     }
 
@@ -99,36 +99,36 @@ void FifoIndexing::push() {
     uint32_t prevWriteIx = writeIx;
     writeIx = nextIndex(writeIx);
 
-    if ((prevWriteIx == readIx) && (length > 0)) {
+    if ((prevWriteIx == readIx) && (length_ > 0)) {
         readIx = writeIx;
-        length = capacityVal;
+        length_ = capacity();
     } else {
-        ++length;
+        ++length_;
     }
 }
 
 
 void FifoIndexing::pop() {
 
-    if (length > 0) {
+    if (length_ > 0) {
         readIx = nextIndex(readIx);
-        --length;
+        --length_;
     }
 }
 
 
-void FifoIndexing::setLength(uint32_t len) {
+void FifoIndexing::setSize(uint32_t len) {
 
-    if (len >= capacityVal) {
-        len = capacityVal - 1;
+    if (len >= capacity()) {
+        len = capacity() - 1;
     }
 
     if (len > writeIx) {
-        readIx = writeIx + capacityVal;
+        readIx = writeIx + capacity();
     } else {
         readIx = writeIx;
     }
 
     readIx -= len;
-    length = len;
+    length_ = len;
 }

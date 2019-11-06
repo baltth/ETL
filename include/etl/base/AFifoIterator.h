@@ -26,6 +26,7 @@ limitations under the License.
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 class AFifoIterator {
@@ -79,9 +80,9 @@ class AFifoIterator {
         return *this;
     }
 
-    AFifoIterator(const FifoIndexing* indexing, uint32_t index) :
+    AFifoIterator(const FifoIndexing& indexing, uint32_t index) :
         ix(index),
-        fifo(indexing) {};
+        fifo(&indexing) {};
 
     const FifoIndexing* getFifoIndexing() const {
         return fifo;
@@ -122,7 +123,7 @@ class FifoIterator : public AFifoIterator {
 
   protected:
 
-    FifoIterator<T>(T* data, const FifoIndexing* indexing, uint32_t index) :
+    FifoIterator<T>(T* data, const FifoIndexing& indexing, uint32_t index) :
         AFifoIterator(indexing, index),
         data(data) {};
 
@@ -131,6 +132,7 @@ class FifoIterator : public AFifoIterator {
     }
 };
 
+}  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
 #endif  // __ETL_AFIFOITERATOR_H__

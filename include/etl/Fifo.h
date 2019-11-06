@@ -46,8 +46,8 @@ template<class C>
 void Fifo<C>::setupFifo(uint32_t len) {
 
     C::resize(len);
-    FifoIndexing::setCapacity(C::size());
-    FifoIndexing::resetIndexes();
+    this->indexing.setCapacity(C::size());
+    this->indexing.resetIndexes();
 }
 
 

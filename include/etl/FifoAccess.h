@@ -31,7 +31,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class T>
-class FifoAccess : public FifoIndexing {
+class FifoAccess {
 
   public:  // types
 
@@ -41,39 +41,58 @@ class FifoAccess : public FifoIndexing {
     typedef T* pointer;
     typedef const T* const_pointer;
 
-    class iterator : public FifoIterator<value_type> {
+    class iterator : public Detail::FifoIterator<value_type> {
         friend class FifoAccess<value_type>;
 
       private:
 
         iterator(const FifoAccess<value_type>* fifo, uint32_t ix) :
-            FifoIterator<value_type>(const_cast<pointer>(fifo->data()), fifo, ix) {};
+            Detail::FifoIterator<value_type>(const_cast<pointer>(fifo->data()),
+                                             fifo->indexing,
+                                             ix) {};
     };
 
   private:  // variables
 
-    Span<T> proxy;
+    Detail::FifoIndexing indexing;
+    Span<T> span;
 
   public:  // functions
 
-    explicit FifoAccess(Span<T> p) :
-        FifoIndexing(p.size()),
-        proxy(p) {};
+    explicit FifoAccess(Span<T> s) :
+        indexing(s.size()),
+        span(s) {};
 
     template<class C>
     explicit FifoAccess(C& container) :
-        FifoIndexing(container.size()),
-        proxy(container) {};
+        indexing(container.size()),
+        span(container) {};
+
+    bool empty() const {
+        return indexing.empty();
+    }
+
+    uint32_t size() const {
+        return indexing.size();
+    }
 
     uint32_t capacity() const {
-        return FifoIndexing::capacity();
+        return indexing.capacity();
+    }
+
+    void clear() {
+        indexing.clear();
+    }
+
+    void resize(uint32_t s) {
+        indexing.setSize(s);
     }
 
     void push(const_reference item);
     value_type pop();
 
     void drop() {
-        FifoIndexing::pop();
+        indexing.pop();
     }
 
     value_type getFromBack(uint32_t ix) const;
@@ -87,7 +106,7 @@ class FifoAccess : public FifoIndexing {
     }
 
     iterator end() const {
-        return iteratorFor(getLength());
+        return iteratorFor(indexing.size());
     }
 
     iterator iteratorFor(uint32_t ix) const {
@@ -97,7 +116,7 @@ class FifoAccess : public FifoIndexing {
   protected:
 
     void* data() const {
-        return proxy.data();
+        return span.data();
     }
 
   private:
@@ -109,30 +128,30 @@ class FifoAccess : public FifoIndexing {
 template<class T>
 void FifoAccess<T>::push(const_reference item) {
 
-    FifoIndexing::push();
-    proxy[FifoIndexing::getWriteIx()] = item;
+    indexing.push();
+    span[indexing.getWriteIx()] = item;
 }
 
 
 template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::pop() {
 
-    FifoIndexing::pop();
-    return proxy[FifoIndexing::getReadIx()];
+    indexing.pop();
+    return span[indexing.getReadIx()];
 }
 
 
 template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::getFromBack(uint32_t ix) const {
 
-    return proxy[FifoIndexing::getIndexFromFront(ix)];
+    return span[indexing.getIndexFromFront(ix)];
 }
 
 
 template<class T>
 typename FifoAccess<T>::value_type FifoAccess<T>::getFromFront(uint32_t ix) const {
 
-    return proxy[FifoIndexing::getIndexFromBack(ix)];
+    return span[indexing.getIndexFromBack(ix)];
 }
 
 
@@ -141,12 +160,12 @@ typename FifoAccess<T>::reference FifoAccess<T>::operator[](int32_t ix) {
 
     if (ix < 0) {
         ix = -1 - ix;
-        ix = FifoIndexing::getIndexFromBack(ix);
+        ix = indexing.getIndexFromBack(ix);
     } else {
-        ix = FifoIndexing::getIndexFromFront(ix);
+        ix = indexing.getIndexFromFront(ix);
     }
 
-    return proxy[ix];
+    return span[ix];
 }
 
 
@@ -155,12 +174,12 @@ typename FifoAccess<T>::const_reference FifoAccess<T>::operator[](int32_t ix) co
 
     if (ix < 0) {
         ix = -1 - ix;
-        ix = FifoIndexing::getIndexFromBack(ix);
+        ix = indexing.getIndexFromBack(ix);
     } else {
-        ix = FifoIndexing::getIndexFromFront(ix);
+        ix = indexing.getIndexFromFront(ix);
     }
 
-    return proxy[ix];
+    return span[ix];
 }
 
 }  // namespace ETL_NAMESPACE

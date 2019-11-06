@@ -30,7 +30,7 @@ namespace ETL_NAMESPACE {
 
 
 template<class C>
-class FifoTemplate : protected C, public FifoIndexing {
+class FifoTemplate : protected C {
 
   public:  // types
 
@@ -40,35 +40,53 @@ class FifoTemplate : protected C, public FifoIndexing {
     typedef typename C::pointer pointer;
     typedef typename C::const_pointer const_pointer;
 
-    class iterator : public FifoIterator<value_type> {
+    class iterator : public Detail::FifoIterator<value_type> {
         friend class FifoTemplate<C>;
 
       private:
 
         iterator(const FifoTemplate<C>* fifo, uint32_t ix) :
-            FifoIterator<value_type>(const_cast<pointer>(fifo->data()), fifo, ix) {};
+            Detail::FifoIterator<value_type>(const_cast<pointer>(fifo->data()),
+                                             fifo->indexing,
+                                             ix) {};
     };
+
+  protected:  // variables
+
+    Detail::FifoIndexing indexing;
 
   public:  // functions
 
     template<typename... Args>
     explicit FifoTemplate<C>(Args... args) :
         C(args...),
-        FifoIndexing(C::size()) {};
+        indexing(C::size()) {};
 
     bool empty() const {
-        return FifoIndexing::empty();
+        return indexing.empty();
+    }
+
+    uint32_t size() const {
+        return indexing.size();
     }
 
     uint32_t capacity() const {
-        return FifoIndexing::capacity();
+        return indexing.capacity();
+    }
+
+    void clear() {
+        indexing.clear();
+    }
+
+    void resize(uint32_t s) {
+        indexing.setSize(s);
     }
 
     void push(const_reference item);
     value_type pop();
 
     void drop() {
-        FifoIndexing::pop();
+        indexing.pop();
     }
 
     value_type getFromBack(uint32_t ix) const;
@@ -82,7 +100,7 @@ class FifoTemplate : protected C, public FifoIndexing {
     }
 
     iterator end() const {
-        return iteratorFor(getLength());
+        return iteratorFor(indexing.size());
     }
 
     iterator iteratorFor(uint32_t ix) const {
@@ -94,30 +112,30 @@ class FifoTemplate : protected C, public FifoIndexing {
 template<class C>
 void FifoTemplate<C>::push(const_reference item) {
 
-    FifoIndexing::push();
-    C::operator[](FifoIndexing::getWriteIx()) = item;
+    indexing.push();
+    C::operator[](indexing.getWriteIx()) = item;
 }
 
 
 template<class C>
 typename FifoTemplate<C>::value_type FifoTemplate<C>::pop() {
 
-    FifoIndexing::pop();
-    return C::operator[](FifoIndexing::getReadIx());
+    indexing.pop();
+    return C::operator[](indexing.getReadIx());
 }
 
 
 template<class C>
 typename FifoTemplate<C>::value_type FifoTemplate<C>::getFromBack(uint32_t ix) const {
 
-    return C::operator[](FifoIndexing::getIndexFromFront(ix));
+    return C::operator[](indexing.getIndexFromFront(ix));
 }
 
 
 template<class C>
 typename FifoTemplate<C>::value_type FifoTemplate<C>::getFromFront(uint32_t ix) const {
 
-    return C::operator[](FifoIndexing::getIndexFromBack(ix));
+    return C::operator[](indexing.getIndexFromBack(ix));
 }
 
 
@@ -126,9 +144,9 @@ typename FifoTemplate<C>::reference FifoTemplate<C>::operator[](int32_t ix) {
 
     if (ix < 0) {
         ix = -1 - ix;
-        ix = FifoIndexing::getIndexFromBack(ix);
+        ix = indexing.getIndexFromBack(ix);
     } else {
-        ix = FifoIndexing::getIndexFromFront(ix);
+        ix = indexing.getIndexFromFront(ix);
     }
 
     return C::operator[](ix);
@@ -140,9 +158,9 @@ typename FifoTemplate<C>::const_reference FifoTemplate<C>::operator[](int32_t ix
 
     if (ix < 0) {
         ix = -1 - ix;
-        ix = FifoIndexing::getIndexFromBack(ix);
+        ix = indexing.getIndexFromBack(ix);
     } else {
-        ix = FifoIndexing::getIndexFromFront(ix);
+        ix = indexing.getIndexFromFront(ix);
     }
 
     return C::operator[](ix);
