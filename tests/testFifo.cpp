@@ -158,7 +158,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
     fifo.push(6);
 
     i = 0;
-    for (FifoType::iterator it = fifo.begin(); it != fifo.end(); ++it) {
+    for (FifoType::const_iterator it = fifo.cbegin(); it != fifo.cend(); ++it) {
         REQUIRE(*it == fifo[i]);
         ++i;
     }

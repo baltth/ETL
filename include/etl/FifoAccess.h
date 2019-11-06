@@ -35,21 +35,28 @@ class FifoAccess {
 
   public:  // types
 
-    typedef T value_type;
-    typedef T& reference;
-    typedef const T& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    using value_type = T;
+    using reference = T&;
+    using const_reference = const T&;
+    using pointer = T*;
+    using const_pointer = const T*;
 
     class iterator : public Detail::FifoIterator<value_type> {
         friend class FifoAccess<value_type>;
 
       private:
 
-        iterator(const FifoAccess<value_type>* fifo, uint32_t ix) :
-            Detail::FifoIterator<value_type>(const_cast<pointer>(fifo->data()),
-                                             fifo->indexing,
-                                             ix) {};
+        iterator(FifoAccess<value_type>& fifo, uint32_t ix) :
+            Detail::FifoIterator<value_type>(fifo.data(), fifo.indexing, ix) {};
+    };
+
+    class const_iterator : public Detail::FifoIterator<const value_type> {
+        friend class FifoAccess<value_type>;
+
+      private:
+
+        const_iterator(const FifoAccess<value_type>& fifo, uint32_t ix) :
+            Detail::FifoIterator<const value_type>(fifo.data(), fifo.indexing, ix) {};
     };
 
   private:  // variables
@@ -101,27 +108,56 @@ class FifoAccess {
     reference operator[](int32_t ix);
     const_reference operator[](int32_t ix) const;
 
-    iterator begin() const {
+    iterator begin() {
         return iteratorFor(0);
     }
 
-    iterator end() const {
+    const_iterator cbegin() {
+        return constIteratorFor(0);
+    }
+
+    const_iterator begin() const {
+        return constIteratorFor(0);
+    }
+
+    iterator end() {
         return iteratorFor(indexing.size());
     }
 
-    iterator iteratorFor(uint32_t ix) const {
-        return iterator(this, ix);
+    const_iterator cend() {
+        return constIteratorFor(indexing.size());
+    }
+
+    const_iterator end() const {
+        return constIteratorFor(indexing.size());
+    }
+
+    iterator iteratorFor(uint32_t ix) {
+        return iterator(*this, ix);
+    }
+
+    const_iterator constIteratorFor(uint32_t ix) const {
+        return const_iterator(*this, ix);
     }
 
   protected:
 
-    void* data() const {
+    FifoAccess<T>() :
+        indexing(0) {};
+
+    template<class C>
+    void setupFor(C& container) {
+        span = Span<T>(container);
+        indexing = Detail::FifoIndexing(container.size());
+    }
+
+    pointer data() {
         return span.data();
     }
 
-  private:
-
-    FifoAccess<T>();
+    const_pointer data() const {
+        return span.data();
+    }
 };
 
 

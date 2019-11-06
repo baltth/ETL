@@ -45,9 +45,7 @@ class Fifo : public FifoTemplate<C> {
 template<class C>
 void Fifo<C>::setupFifo(uint32_t len) {
 
-    C::resize(len);
-    this->indexing.setCapacity(C::size());
-    this->indexing.resetIndexes();
+    FifoTemplate<C>::setupFifo(len);
 }
 
 

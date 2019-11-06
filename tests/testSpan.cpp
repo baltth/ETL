@@ -32,8 +32,6 @@ namespace {
 constexpr char C_ARRAY[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 constexpr std::size_t SIZE = sizeof(C_ARRAY);
 
-constexpr std::initializer_list<char> INIT_LIST =
-    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 constexpr std::array<char, SIZE> ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
 }  // namespace
