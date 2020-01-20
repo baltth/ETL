@@ -24,25 +24,29 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/AHashTable.h>
+#include <etl/base/VectorTemplate.h>
+#include <etl/base/AAllocator.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
 
 
-template<class T>
+template<class T, class Hash>
 class UnorderedBase : protected AHashTable {
 
   public:   // types
 
-    typedef T value_type;
-    typedef T& reference;
-    typedef const T& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    using value_type = T;
+    using reference = T&;
+    using const_reference = const T&;
+    using pointer = T*;
+    using const_pointer = const T*;
 
-    typedef size_type AHashTable::size_type;
+    using AHashTable::size_type;
+    using AHashTable::Buckets;
 
     class Node : public AHashTable::Node {
+        //friend class UnorderedBase<T, Hash>;
 
       public:   // variables
 
@@ -54,18 +58,24 @@ class UnorderedBase : protected AHashTable {
         Node(Args&& ... args) :
             item(std::forward<Args>(args)...) {};
 
+      private:
+
+        void setHash(AHashTable::HashType h) {
+            hash = h;
+        }
+
     };
 
     class const_iterator : public AHashTable::Iterator {
-        friend class UnorderedBase<T>;
+        friend class UnorderedBase<T, Hash>;
 
       public:
 
-        typedef int difference_type;
-        typedef const T value_type;
-        typedef const T* pointer;
-        typedef const T& reference;
-        typedef std::forward_iterator_tag iterator_category;
+        using difference_type = int;
+        using value_type = const T;
+        using pointer = const T*;
+        using reference = const T&;
+        using iterator_category = std::forward_iterator_tag;
 
         const_iterator() :
             AHashTable::Iterator(nullptr) {};
@@ -77,11 +87,11 @@ class UnorderedBase : protected AHashTable {
             AHashTable::Iterator(it) {};
 
         const_reference operator*() const {
-            return static_cast<UnorderedBase<T>::Node*>(node)->item;
+            return static_cast<const UnorderedBase<T, Hash>::Node*>(node())->item;
         }
 
         const_pointer operator->() const {
-            return &(static_cast<UnorderedBase<T>::Node*>(node)->item);
+            return &(static_cast<const UnorderedBase<T, Hash>::Node*>(node())->item);
         }
 
         bool operator==(const const_iterator& other) const {
@@ -105,21 +115,21 @@ class UnorderedBase : protected AHashTable {
 
       private:
 
-        explicit const_iterator(UnorderedBase<T>::Node* n) :
+        explicit const_iterator(UnorderedBase<T, Hash>::Node* n) :
             AHashTable::Iterator(n) {};
 
     };
 
     class iterator : public AHashTable::Iterator {
-        friend class UnorderedBase<T>;
+        friend class UnorderedBase<T, Hash>;
 
       public:
 
-        typedef int difference_type;
-        typedef T value_type;
-        typedef T* pointer;
-        typedef T& reference;
-        typedef std::forward_iterator_tag iterator_category;
+        using difference_type = int;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::forward_iterator_tag;
 
         iterator() :
             AHashTable::Iterator(nullptr) {};
@@ -132,11 +142,11 @@ class UnorderedBase : protected AHashTable {
         }
 
         reference operator*() const {
-            return static_cast<UnorderedBase<T>::Node*>(this->node)->item;
+            return static_cast<UnorderedBase<T, Hash>::Node*>(node())->item;
         }
 
         pointer operator->() const {
-            return &(static_cast<UnorderedBase<T>::Node*>(this->node)->item);
+            return &(static_cast<UnorderedBase<T, Hash>::Node*>(node())->item);
         }
 
         bool operator==(const iterator& other) const {
@@ -168,7 +178,7 @@ class UnorderedBase : protected AHashTable {
 
       private:
 
-        explicit iterator(UnorderedBase<T>::Node* n) :
+        explicit iterator(UnorderedBase<T, Hash>::Node* n) :
             AHashTable::Iterator(n) {};
 
         explicit iterator(const AHashTable::Iterator& it) :
@@ -176,15 +186,33 @@ class UnorderedBase : protected AHashTable {
 
     };
 
+    using BucketImpl = ETL_NAMESPACE::Vector<AHashTable::BucketItem>;
+    using NodeAllocator = ETL_NAMESPACE::AAllocator<Node>;
+
+  protected: // variables
+
+    BucketImpl& buckets;
+    NodeAllocator& allocator;
+
   public:   // functions
 
-    UnorderedBase() = default;
+    /// \name Construction, destruction, assignment
+    /// \{
+    explicit UnorderedBase(BucketImpl& b, NodeAllocator& a) :
+        AHashTable(b),
+        buckets(b),
+        allocator(a) {};
 
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
 
     UnorderedBase(UnorderedBase&& other) = default;
     UnorderedBase& operator=(UnorderedBase&& other) = default;
+
+    ~UnorderedBase() {
+        clear();
+    }
+    /// \}
 
     /// \name Capacity
     /// \{
@@ -219,11 +247,81 @@ class UnorderedBase : protected AHashTable {
     }
     /// \}
 
+    /// \name Modifiers
+    /// \{
+    void clear() noexcept(NodeAllocator::NoexceptDestroy);
+    iterator erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy);
+    /// \}
+
   protected:
+
+    /// \name Lookup
+    /// \{
+    using AHashTable::equalHashRange;
+    using AHashTable::find;
+    /// \}
+
+    iterator insert(const_reference item) {
+        return emplace(item);
+    }
+
+    template<typename... Args >
+    iterator emplace(Args&&... args);
+
+    static iterator makeIt(AHashTable::Node* n) {
+        return iterator(static_cast<Node*>(n));
+    }
+
+    static const_iterator makeConstIt(AHashTable::Node* n) {
+        return const_iterator(static_cast<Node*>(n));
+    }
 
   private:
 
 };
+
+
+template<class T, class Hash>
+void UnorderedBase<T, Hash>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
+
+    auto it = begin();
+    while (it != end()) {
+        it = erase(it);
+    }
+}
+
+
+template<class T, class Hash>
+auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy) -> iterator {
+
+    auto next = pos;
+    ++next;
+
+    auto item = remove(*pos.node());
+    if (item != nullptr) {
+        NodeAllocator::destroy(static_cast<Node*>(item));
+        allocator.deallocate(static_cast<Node*>(item), 1U);
+    }
+
+    return next;
+}
+
+
+template<class T, class Hash>
+template<typename... Args >
+auto UnorderedBase<T, Hash>::emplace(Args&& ... args) -> iterator {
+
+    auto it = this->end();
+    auto inserted = allocator.allocate(1);
+    if (inserted != nullptr) {
+        NodeAllocator::construct(inserted, std::forward<Args>(args)...);
+        inserted->setHash(Hash()(inserted->item));
+        AHashTable::insert(*inserted);
+        it = iterator(inserted);
+    }
+
+    return it;
+}
 
 }
 }

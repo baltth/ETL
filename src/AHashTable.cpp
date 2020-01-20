@@ -27,16 +27,19 @@ using ETL_NAMESPACE::Detail::SingleChain;
 
 void AHashTable::insert(AHashTable::Node& item) {
 
+        ETL_ASSERT(buckets.data() != nullptr);
+        ETL_ASSERT(buckets.size() > 0U);
+    
     uint32_t ix = bucketOfHash(item.hash);
 
     if (buckets[ix] == nullptr) {
 
         buckets[ix] = lastItem;
         chain.insertAfter(buckets[ix], &item);
-        lastItem = buckets[ix].next;
+        lastItem = buckets[ix]->next;
 
     } else {
-        std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(hash, ix);
+        std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(item.hash, ix);
         chain.insertAfter(res.first, &item);
     }
 
@@ -44,7 +47,7 @@ void AHashTable::insert(AHashTable::Node& item) {
 }
 
 
-std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash, ix) {
+std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash, size_type ix) {
 
     ETL_ASSERT(bucketOfHash(hash) == ix);
     ETL_ASSERT(buckets[ix] != nullptr);
@@ -57,9 +60,9 @@ std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType has
 
     while ((!found) && (!end)) {
 
-        SinngleChain::Node* next = prev->next;
+        auto next = static_cast<Node*>(prev->next);
 
-        if ((next == nullptr) || (bucketOfHash(next) != ix)) {
+        if ((next == nullptr) || (bucketOfHash(next->hash) != ix)) {
             end = true;
         } else if (next->hash > hash) {
             end = true;
@@ -89,7 +92,7 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
     if (buckets[ix] == lastItem) {
         buckets[ix] = nullptr;
     } else {
-        const Node& next = static_cast<const Node&>(*(buckets[ix].next));
+        const Node& next = static_cast<const Node&>(*(buckets[ix]->next));
         if (bucketOfHash(next.hash) != ix) {
             buckets[ix] = nullptr;
         }
@@ -104,7 +107,7 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
 std::pair<SingleChain::Node*, std::uint32_t>
 AHashTable::findPrevious(AHashTable::Node& item) const {
 
-    uint32_t ix = bucketOfHash(item.hash);
+    auto ix = bucketOfHash(item.hash);
 
     ETL_ASSERT(buckets[ix] != nullptr);
 
@@ -121,15 +124,15 @@ AHashTable::findPrevious(AHashTable::Node& item) const {
 
 const AHashTable::Node* AHashTable::find(HashType hash) const {
 
-    const AHashTable::Node* res = nullptr;
-    uint32_t ix = bucketOfHash(hash);
+    const Node* res = nullptr;
+    auto ix = bucketOfHash(hash);
 
     if (buckets[ix] != nullptr) {
 
-        const Node* node = static_cast<const Node*>(buckets[ix].next);
+        auto node = static_cast<const Node*>(buckets[ix]->next);
 
-        while ((node->hash != hash) && (bucketOfHash(node.hash) == ix)) {
-            node = node->next;
+        while ((node->hash != hash) && (bucketOfHash(node->hash) == ix)) {
+            node = static_cast<const Node*>(node->next);
             ETL_ASSERT(node != nullptr);
         }
 
@@ -143,17 +146,18 @@ const AHashTable::Node* AHashTable::find(HashType hash) const {
 
 
 std::pair<const AHashTable::Node*, const AHashTable::Node*>
-AHashTable::equalRange(HashType hash) const {
+AHashTable::equalHashRange(HashType hash) const {
 
-    Node* rangeEnd = nullptr;
-    Node* rangeStart = find(hash);
+
+    const Node* rangeEnd = nullptr;
+    auto rangeStart = find(hash);
 
     if (rangeStart != nullptr) {
 
-        rangeEnd = rangeStart->next;
+        rangeEnd = static_cast<const Node*>(rangeStart->next);
 
-        while ((rangeEnd != nullptr) && (rangeEnd.hash == hash)) {
-            rangeEnd = rangeEnd->next;
+        while ((rangeEnd != nullptr) && (rangeEnd->hash == hash)) {
+            rangeEnd = static_cast<const Node*>(rangeEnd->next);
         }
     }
 
@@ -164,14 +168,15 @@ AHashTable::equalRange(HashType hash) const {
 std::uint32_t AHashTable::count(HashType hash) const {
 
     std::uint32_t cnt = 0U;
-    std::pair<const Node*, const Node*> res = equalRange(hash);
+    std::pair<const Node*, const Node*> res = equalHashRange(hash);
 
     if (res.first != nullptr) {
         while (res.first != res.second) {
             ++cnt;
-            res.first = res.first->next;
+            res.first = static_cast<const Node*>(res.first->next);
         }
     }
 
     return cnt;
 }
+

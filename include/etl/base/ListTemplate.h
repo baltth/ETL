@@ -160,7 +160,7 @@ class List : private Detail::TypedListBase<T> {
     /// \name Modifiers
     /// \{
 
-    void clear() noexcept(AllocatorBase::NoexceptDestroy);
+    inline void clear() noexcept(AllocatorBase::NoexceptDestroy);
 
     inline void push_front(const T& item);
     inline void push_back(const T& item);

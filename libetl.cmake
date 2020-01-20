@@ -14,6 +14,7 @@ list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/DoubleChain.cpp)
 list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/FifoIndexing.cpp)
 list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/PoolBase.cpp)
 list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/BufStr.cpp)
+list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/AHashTable.cpp)
 
 add_library(libetl STATIC ${ETL_SRCS})
 target_include_directories(libetl PUBLIC ${ETL_INCLUDE_DIR})
