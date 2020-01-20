@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <etl/etlSupport.h>
 #include <etl/base/SingleChain.h>
-#include <etl/Proxy.h>
+#include <etl/Span.h>
 
 #include <utility>
 
@@ -34,11 +34,10 @@ namespace Detail {
 
 class AHashTable {
 
-  public:  // types
+  public:   // types
 
-    typedef std::uint32_t size_type;
-
-    typedef std::size_t HashType;
+    using size_type = std::uint32_t;
+    using HashType = std::size_t;
 
     class Node : public SingleChain::Node {
         friend class AHashTable;
@@ -56,6 +55,7 @@ class AHashTable {
         Node(const SingleChain::Node& n, HashType h) :
             SingleChain::Node(n),
             hash(h) {};
+
     };
 
     class Iterator {
@@ -63,12 +63,12 @@ class AHashTable {
 
       protected:  // variables
 
-        AHashTable::Node* node;
+        AHashTable::Node* node_;
 
       public:  // functions
 
         bool operator==(const Iterator& other) const {
-            return (node == other.node);
+            return (node_ == other.node_);
         }
 
         bool operator!=(const Iterator& other) const {
@@ -76,34 +76,45 @@ class AHashTable {
         }
 
         Iterator& operator++() {
-            node = static_cast<AHashTable::Node*>(node->next);
+            node_ = static_cast<AHashTable::Node*>(node_->next);
             return *this;
         }
 
       protected:
 
         explicit Iterator(AHashTable::Node* n) :
-            node(n) {};
+            node_(n) {};
+
+        Node* node() {
+            return node_;
+        }
+
+        const Node* node() const {
+            return node_;
+        }
+
     };
 
-    typedef SingleChain::Node* BucketItem;
+    using BucketItem = SingleChain::Node*;
+    using Buckets = Span<BucketItem>;
 
   protected:  // variables
 
     SingleChain chain;
     size_type size_;
 
-    MutableProxy<BucketItem> buckets;
+    Buckets buckets;
     BucketItem lastItem;
 
-  public:  // functions
+  public:   // functions
 
-    AHashTable(BucketItem* b, size_type s) :
+    AHashTable() :
         size_(0U),
-        buckets(b, s),
-        lastItem(&chain.getFrontNode()) {
-        ETL_ASSERT(b != nullptr);
-        ETL_ASSERT(s > 0U);
+        lastItem(&chain.getFrontNode()) {};
+
+    explicit AHashTable(Buckets b) :
+        AHashTable() {
+        buckets = b;
     };
 
     AHashTable(const AHashTable& other) = delete;
@@ -145,19 +156,45 @@ class AHashTable {
 
     const Node* find(HashType hash) const;
 
-    std::pair<Node*, Node*> equalRange(HashType hash) {
-        auto res = static_cast<const AHashTable*>(this)->equalRange(hash);
+    std::pair<Node*, Node*> equalHashRange(HashType hash) {
+        std::pair<const Node*, const Node*> res = static_cast<const AHashTable*>(this)->equalHashRange(hash);
         return std::pair<Node*, Node*>(const_cast<Node*>(res.first), const_cast<Node*>(res.second));
     }
 
-    std::pair<const Node*, const Node*> equalRange(HashType hash) const;
+    std::pair<const Node*, const Node*> equalHashRange(HashType hash) const;
 
     size_type count(HashType hash) const;
 
     /// \}
 
     size_type bucketOfHash(HashType h) const {
+        ETL_ASSERT(buckets.size() > 0U);
         return (h % buckets.size());
+    }
+
+    void bind(Buckets b) {
+        ETL_ASSERT(empty());
+        buckets = b;
+    }
+
+    Buckets rehash(Buckets newBuckets) {
+
+        ETL_ASSERT(newBuckets.size() > 0U);
+
+        auto oldBuckets = buckets;
+        AHashTable rehashed(newBuckets);
+
+        while (!chain.isEmpty()) {
+
+            auto node = chain.removeAfter(&chain.getFrontNode());
+
+            ETL_ASSERT(node != nullptr);
+            rehashed.insert(static_cast<Node&>(*node));
+        }
+
+        *this = std::move(rehashed);
+
+        return oldBuckets;
     }
 
   private:

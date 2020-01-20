@@ -116,8 +116,7 @@ Vector<T, N>::Vector(uint32_t len) :
     Base(strategy),
     strategy(data_, N) {
 
-    typename Base::DefaultCreator dc;
-    this->insertWithCreator(this->begin(), len, dc);
+    this->insertDefault(this->cbegin(), len);
 }
 
 
@@ -126,7 +125,7 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
     Base(strategy),
     strategy(data_, N) {
 
-    this->insert(this->begin(), len, item);
+    this->insert(this->cbegin(), len, item);
 }
 
 }  // namespace Static
@@ -223,8 +222,7 @@ template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len) :
     Base(strategy) {
 
-    typename Base::DefaultCreator dc;
-    this->insertWithCreator(this->begin(), len, dc);
+    this->insertDefault(this->cbegin(), len);
 }
 
 
@@ -232,7 +230,7 @@ template<class T, template<class> class A>
 Vector<T, A>::Vector(uint32_t len, const T& item) :
     Base(strategy) {
 
-    this->insert(this->begin(), len, item);
+    this->insert(this->cbegin(), len, item);
 }
 
 
