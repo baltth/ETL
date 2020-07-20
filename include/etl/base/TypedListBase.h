@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_TYPEDLISTBASE_H__
 
 #include <etl/base/AListBase.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
 #undef min
@@ -78,14 +79,17 @@ class TypedListBase : protected AListBase {
         typedef const value_type& reference;
         typedef std::bidirectional_iterator_tag iterator_category;
 
-        const_iterator() :
+        const_iterator() noexcept :
             AListBase::Iterator(nullptr) {};
-
-        const_iterator(const const_iterator& it) :
-            AListBase::Iterator(it) {};
 
         explicit const_iterator(const AListBase::Iterator& it) noexcept :
             AListBase::Iterator(it) {};
+
+        const_iterator(const const_iterator& other) noexcept = default;
+        const_iterator& operator=(const const_iterator& other) & noexcept = default;
+        const_iterator(const_iterator&& other) noexcept = default;
+        const_iterator& operator=(const_iterator&& other) & noexcept = default;
+        ~const_iterator() noexcept = default;
 
         const_reference operator*() const noexcept {
             return static_cast<TypedListBase<T>::Node*>(node)->item;
@@ -142,11 +146,14 @@ class TypedListBase : protected AListBase {
         typedef value_type& reference;
         typedef std::bidirectional_iterator_tag iterator_category;
 
-        iterator() :
+        iterator() noexcept :
             AListBase::Iterator(nullptr) {};
 
-        iterator(const iterator& it) :
-            AListBase::Iterator(it) {};
+        iterator(const iterator& other) noexcept = default;
+        iterator& operator=(const iterator& other) & noexcept = default;
+        iterator(iterator&& other) noexcept = default;
+        iterator& operator=(iterator&& other) & noexcept = default;
+        ~iterator() noexcept = default;
 
         operator const_iterator() const noexcept {
             return const_iterator(*this);
@@ -319,6 +326,10 @@ class TypedListBase : protected AListBase {
     static iterator convert(const_iterator it) noexcept {
         return iterator(it);
     }
+
+    static_assert(NothrowContract<const_iterator>::value,
+                  "const_iterator violates nothrow contract");
+    static_assert(NothrowContract<iterator>::value, "iterator violates nothrow contract");
 };
 
 }  // namespace Detail

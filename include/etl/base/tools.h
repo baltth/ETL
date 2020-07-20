@@ -130,6 +130,27 @@ struct SizeDiff {
     }
 };
 
+
+template<class T>
+struct NothrowContract {
+
+    static constexpr bool nothrowIfDefaultConstructible =
+        std::is_nothrow_default_constructible<T>::value
+        || (!std::is_default_constructible<T>::value);
+
+    static constexpr bool nothrowIfMoveConstructible =
+        std::is_nothrow_move_constructible<T>::value || (!std::is_move_constructible<T>::value);
+
+    static constexpr bool nothrowIfMoveAssignable =
+        std::is_nothrow_move_assignable<T>::value || (!std::is_move_assignable<T>::value);
+
+    static constexpr bool nothrowIfDestructible =
+        std::is_nothrow_destructible<T>::value || (!std::is_destructible<T>::value);
+
+    static constexpr bool value = nothrowIfDefaultConstructible && nothrowIfMoveConstructible
+                                  && nothrowIfMoveAssignable && nothrowIfDestructible;
+};
+
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 

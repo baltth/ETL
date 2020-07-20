@@ -22,6 +22,7 @@ limitations under the License.
 #ifndef __ETL_DOUBLECHAIN_H__
 #define __ETL_DOUBLECHAIN_H__
 
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
@@ -39,7 +40,7 @@ class DoubleChain {
         Node* prev;
         Node* next;
 
-        Node() :
+        Node() noexcept :
             prev(nullptr),
             next(nullptr) {};
 
@@ -55,7 +56,7 @@ class DoubleChain {
 
   public:  // functions
 
-    DoubleChain() :
+    DoubleChain() noexcept :
         frontNode(nullptr, &backNode),
         backNode(&frontNode, nullptr) {};
 
@@ -65,7 +66,7 @@ class DoubleChain {
     DoubleChain(DoubleChain&& other) noexcept;
     DoubleChain& operator=(DoubleChain&& other) noexcept;
 
-    ~DoubleChain() = default;
+    ~DoubleChain() noexcept = default;
 
     bool isEmpty() const noexcept {
         return (frontNode.next == &backNode);
@@ -106,6 +107,11 @@ class DoubleChain {
         }
     }
 };
+
+static_assert(NothrowContract<DoubleChain::Node>::value,
+              "DoubleChain::Node violates nothrow contract");
+static_assert(NothrowContract<DoubleChain>::value,
+              "DoubleChain violates nothrow contract");
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

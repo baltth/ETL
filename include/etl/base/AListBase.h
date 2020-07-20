@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_ALISTBASE_H__
 
 #include <etl/base/DoubleChain.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
 #include <utility>
@@ -39,7 +40,7 @@ class AListBase {
 
       protected:
 
-        Node() = default;
+        Node() noexcept = default;
 
         explicit Node(const DoubleChain::Node& other) noexcept :
             DoubleChain::Node(other) {};
@@ -53,6 +54,13 @@ class AListBase {
         AListBase::Node* node;
 
       public:
+
+        Iterator() = delete;
+        Iterator(const Iterator& other) noexcept = default;
+        Iterator& operator=(const Iterator& other) & noexcept = default;
+        Iterator(Iterator&& other) noexcept = default;
+        Iterator& operator=(Iterator&& other) & noexcept = default;
+        ~Iterator() noexcept = default;
 
         bool operator==(const Iterator& other) const noexcept {
             return (node == other.node);
@@ -87,14 +95,14 @@ class AListBase {
 
   public:  // functions
 
-    AListBase() = default;
+    AListBase() noexcept = default;
 
     AListBase(const AListBase& other) = delete;
     AListBase& operator=(const AListBase& other) = delete;
 
-    AListBase(AListBase&& other) = default;
-    AListBase& operator=(AListBase&& other) = default;
-    ~AListBase() = default;
+    AListBase(AListBase&& other) noexcept = default;
+    AListBase& operator=(AListBase&& other) noexcept = default;
+    ~AListBase() noexcept = default;
 
     size_type size() const noexcept {
         return size_;
@@ -150,6 +158,13 @@ class AListBase {
                 Iterator last) noexcept;
     /// \}
 };
+
+static_assert(NothrowContract<AListBase::Node>::value,
+              "AListBase::Node violates nothrow contract");
+static_assert(NothrowContract<AListBase::Iterator>::value,
+              "AListBase::Iterator violates nothrow contract");
+static_assert(NothrowContract<AListBase>::value,
+              "AListBase violates nothrow contract");
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
