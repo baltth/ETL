@@ -102,6 +102,8 @@ class List : public ETL_NAMESPACE::List<T> {
     Allocator& getAllocator() const {
         return allocator;
     }
+
+    friend void swap(List& lhs, List& rhs);
 };
 
 }  // namespace Custom
@@ -112,6 +114,11 @@ namespace Dynamic {
 /// List with dynamic memory allocation using std::allocator.
 template<class T>
 using List = ETL_NAMESPACE::Custom::List<T, std::allocator>;
+
+template<class T>
+void swap(List<T>& lhs, List<T>& rhs) noexcept {
+    lhs.Detail::AListBase::swapNodeList(rhs);
+}
 
 }  // namespace Dynamic
 
@@ -131,7 +138,7 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
 
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
-        Allocator;
+      Allocator;
 
   private:  // variables
 
@@ -139,7 +146,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
   public:  // functions
 
-    List() :
+    List() noexcept :
         Base(allocator) {};
 
     List(const List& other) :
@@ -162,12 +169,12 @@ class List : public ETL_NAMESPACE::List<T> {
         return *this;
     }
 
-    List(List&& other) :
+    List(List&& other) noexcept :
         List() {
         operator=(std::move(other));
     }
 
-    List& operator=(List&& other) {
+    List& operator=(List&& other) noexcept {
         this->swap(other);
         return *this;
     }
@@ -209,7 +216,7 @@ class List : public ETL_NAMESPACE::List<T> {
     typedef typename Base::const_iterator const_iterator;
 
     typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
-        Allocator;
+      Allocator;
 
   private:  // variables
 
@@ -268,6 +275,12 @@ class List : public ETL_NAMESPACE::List<T> {
         return allocator;
     }
 };
+
+
+template<class T, uint32_t N>
+void swap(List<T, N>& lhs, List<T, N>& rhs) noexcept {
+    lhs.Detail::AListBase::swapNodeList(rhs);
+}
 
 }  // namespace Pooled
 }  // namespace ETL_NAMESPACE

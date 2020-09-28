@@ -226,6 +226,14 @@ class List : private Detail::TypedListBase<T> {
         return p;
     }
 
+    Node* createNode(T&& item) {
+        Node* p = allocator.allocate(1);
+        if (p != nullptr) {
+            allocator.construct(p, std::move(item));
+        }
+        return p;
+    }
+
     void deleteNode(Node* ptr) noexcept(AllocatorBase::NoexceptDestroy) {
         if (ptr) {
             allocator.destroy(ptr);
@@ -233,8 +241,12 @@ class List : private Detail::TypedListBase<T> {
         }
     }
 
-    Node* copyAndReplace(iterator& item, const T& value);
+    Node* replaceWithMoved(iterator& item, T&& value);
     void swapElements(List<T>& other);
+    void spliceElements(const_iterator pos,
+                        List& other,
+                        const_iterator first,
+                        const_iterator last);
 };
 
 
@@ -309,10 +321,10 @@ List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
 
 template<class T>
-auto List<T>::copyAndReplace(iterator& item, const T& value) -> Node* {
+auto List<T>::replaceWithMoved(iterator& item, T&& value) -> Node* {
 
     Node* removed = nullptr;
-    Node* newItem = createNode(value);
+    Node* newItem = createNode(std::move(value));
     if (newItem != nullptr) {
         removed = Base::replace(item, *newItem);
     }
@@ -327,12 +339,28 @@ void List<T>::splice(const_iterator pos,
                      const_iterator first,
                      const_iterator last) {
 
-    if (static_cast<Base*>(&other) != static_cast<Base*>(this)) {
-        iterator item = Base::convert(first);
-        while (item != last) {
-            insert(pos, *item);
-            item = other.erase(item);
+    if (this != &other) {
+        if (allocator.handle() == other.allocator.handle()) {
+            Detail::AListBase::splice(pos, other, first, last);
+        } else {
+            spliceElements(pos, other, first, last);
         }
+    }
+}
+
+
+template<class T>
+void List<T>::spliceElements(const_iterator pos,
+                             List<T>& other,
+                             const_iterator first,
+                             const_iterator last) {
+
+    CFF_ASSERT(static_cast<Base*>(&other) != static_cast<Base*>(this));
+
+    iterator item = Base::convert(first);
+    while (item != last) {
+        insert(pos, std::move(*item));
+        item = other.erase(item);
     }
 }
 
@@ -347,21 +375,15 @@ void List<T>::swapElements(List<T>& other) {
 
     for (uint32_t i = 0; i < diff.common; ++i) {
 
-        Node* removed = copyAndReplace(ownIt, *otherIt);
-        if (removed != nullptr) {
-            Node* otherRemoved = other.copyAndReplace(otherIt, removed->item);
-            deleteNode(removed);
-            other.deleteNode(otherRemoved);
-        }
-
+        swap(*ownIt, *otherIt);
         ++ownIt;
         ++otherIt;
     }
 
     if (diff.lGreaterWith > 0) {
-        other.splice(other.end(), *this, ownIt, this->end());
+        other.spliceElements(other.end(), *this, ownIt, this->end());
     } else if (diff.rGreaterWith > 0) {
-        this->splice(this->end(), other, otherIt, other.end());
+        this->spliceElements(this->end(), other, otherIt, other.end());
     }
 }
 
@@ -404,4 +426,4 @@ void swap(List<T>& lhs, List<T>& rhs) {
 
 }  // namespace ETL_NAMESPACE
 
-#endif // __ETL_LISTTEMPLATE_H__
+#endif  // __ETL_LISTTEMPLATE_H__

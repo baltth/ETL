@@ -34,6 +34,10 @@ limitations under the License.
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
 
+using ETL_NAMESPACE::Detail::NothrowContract;
+
+static_assert(NothrowContract<Etl::Static::List<int, 16U>>::value, "nothrow");
+
 
 template<class ListT>
 void testListBasic() {
@@ -870,8 +874,8 @@ TEST_CASE("Etl::List<> test cleanup", "[list][etl]") {
     typedef Etl::Custom::List<ContainerTester, DummyAllocator> ListT;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(ListT::Allocator::Allocator::getDeleteCount()
-          == ListT::Allocator::Allocator::getAllocCount());
+    CHECK(ListT::Allocator::Allocator::getDeleteCount() ==
+          ListT::Allocator::Allocator::getAllocCount());
 }
 
 
