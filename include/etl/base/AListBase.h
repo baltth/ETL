@@ -147,10 +147,6 @@ class AListBase {
         return static_cast<AListBase::Node*>(chain.remove(pos.node));
     }
 
-    void replace(Node& n1, Node& n2) noexcept {
-        chain.replace(&n1, &n2);
-    }
-
     void swapNodeList(AListBase& other) noexcept;
     void splice(Iterator pos,
                 AListBase& other,

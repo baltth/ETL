@@ -317,7 +317,7 @@ template<class T>
 template<typename... Args>
 auto Vector<T>::emplace(const_iterator position, Args&&... args) -> iterator {
 
-    return insertWithCreator(position, 1, [&args...](pointer item, size_type, bool place) {
+    return insertWithCreator(position, 1, [&](pointer item, size_type, bool place) {
         if (place) {
             new (item) T(args...);
         } else {

@@ -315,21 +315,14 @@ class TypedListBase : protected AListBase {
         return iterator(&node);
     }
 
-    Node* replace(iterator& it, Node& other) noexcept {
-        ETL_ASSERT(it.node != nullptr);
-        Node* removed = static_cast<TypedListBase::Node*>(it.node);
-        AListBase::replace(*it.node, other);
-        it.node = &other;
-        return removed;
-    }
-
     static iterator convert(const_iterator it) noexcept {
         return iterator(it);
     }
 
     static_assert(NothrowContract<const_iterator>::value,
                   "const_iterator violates nothrow contract");
-    static_assert(NothrowContract<iterator>::value, "iterator violates nothrow contract");
+    static_assert(NothrowContract<iterator>::value,
+                  "iterator violates nothrow contract");
 };
 
 }  // namespace Detail

@@ -34,6 +34,12 @@ limitations under the License.
 using ETL_NAMESPACE::Test::ContainerTester;
 using ETL_NAMESPACE::Test::DummyAllocator;
 
+using ETL_NAMESPACE::Detail::NothrowContract;
+
+static_assert(NothrowContract<Etl::Static::List<int, 16U>>::value,
+              "nothrow contract");
+static_assert(NothrowContract<Etl::Static::List<Etl::Static::List<int, 16U>, 8>>::value,
+              "nothrow contract");
 
 template<class ListT>
 void testListBasic() {
