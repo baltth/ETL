@@ -118,7 +118,7 @@ class BufStr {
 
   private:  // variables
 
-    Etl::Vector<char>& data;
+    ETL_NAMESPACE::Vector<char>& data;
     Format format;
 
   public:  // functions
@@ -182,7 +182,7 @@ class BufStr {
         return *this;
     }
 
-    const Etl::Vector<char>& getBuff() const {
+    const ETL_NAMESPACE::Vector<char>& getBuff() const {
         return data;
     }
 
@@ -294,7 +294,7 @@ class BufStr {
 
   protected:
 
-    explicit BufStr(Etl::Vector<char>& d) :
+    explicit BufStr(ETL_NAMESPACE::Vector<char>& d) :
         data(d) {};
 
     template<typename T>
@@ -376,7 +376,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   private:  // variables
 
-    Etl::Static::Vector<char, N> data;
+    ETL_NAMESPACE::Static::Vector<char, N> data;
 
   public:  // functions
 
@@ -391,19 +391,19 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         operator<<(other);
     };
 
-    explicit BufStr(const Etl::BufStr& other) :
+    explicit BufStr(const ETL_NAMESPACE::BufStr& other) :
         Base(data) {
         closeStr();
         operator<<(other);
     };
 
     BufStr& operator=(const BufStr& other) {
-        Etl::BufStr::operator=(other);
+        ETL_NAMESPACE::BufStr::operator=(other);
         return *this;
     }
 
-    BufStr& operator=(const Etl::BufStr& other) {
-        Etl::BufStr::operator=(other);
+    BufStr& operator=(const ETL_NAMESPACE::BufStr& other) {
+        ETL_NAMESPACE::BufStr::operator=(other);
         return *this;
     }
 
@@ -427,7 +427,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   private:  // variables
 
-    Etl::Dynamic::Vector<char> data;
+    ETL_NAMESPACE::Dynamic::Vector<char> data;
 
   public:  // functions
 
@@ -442,19 +442,19 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         operator<<(other);
     };
 
-    explicit BufStr(const Etl::BufStr& other) :
+    explicit BufStr(const ETL_NAMESPACE::BufStr& other) :
         Base(data) {
         closeStr();
         operator<<(other);
     };
 
     BufStr& operator=(const BufStr& other) {
-        Etl::BufStr::operator=(other);
+        ETL_NAMESPACE::BufStr::operator=(other);
         return *this;
     }
 
-    BufStr& operator=(const Etl::BufStr& other) {
-        Etl::BufStr::operator=(other);
+    BufStr& operator=(const ETL_NAMESPACE::BufStr& other) {
+        ETL_NAMESPACE::BufStr::operator=(other);
         return *this;
     }
 

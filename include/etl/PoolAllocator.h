@@ -90,7 +90,7 @@ class CommonPoolAllocator : public AAllocator<T> {
 
   public:  // types
 
-    typedef Etl::PoolAllocator<T, N> Allocator;
+    typedef ETL_NAMESPACE::PoolAllocator<T, N> Allocator;
     typedef typename Allocator::ItemType ItemType;
     typedef typename Allocator::PtrType PtrType;
 
