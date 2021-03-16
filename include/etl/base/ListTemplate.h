@@ -33,6 +33,28 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
+namespace Detail {
+
+/// Trait struct for customizing `List::swapTwo()` operations.
+/// The default implementation checks the standard contract of `swap()` function.
+/// Rationale: stdlib implementations may have inconsistent traits,
+/// e.g. with gcc 5 `std::is_move_assignable<std::pair<const K, E>>::value == true`
+/// This induces using `swap()` operation in certain situations, but that
+/// does not compile. This struct allows to force 'stealing' instead of
+/// swapping via specialization.
+template<typename T>
+struct UseSwapInList {
+    static constexpr bool value = is_move_constructible<T>::value && is_move_assignable<T>::value;
+};
+
+template<>
+template<class K, class E>
+struct UseSwapInList<std::pair<const K, E>> {
+    static constexpr bool value = false;
+};
+
+}  // namespace Detail
+
 
 template<class T>
 class List : private Detail::TypedListBase<T> {
@@ -254,8 +276,7 @@ class List : private Detail::TypedListBase<T> {
     /// Helper to perform non-trivial swap on two elements of different lists.
     /// This overload is used when `T` conforms the contract of a `swap` function.
     template<class U = T>
-    enable_if_t<std::is_move_constructible<U>::value && std::is_move_assignable<U>::value,
-                std::pair<iterator, iterator>>
+    enable_if_t<Detail::UseSwapInList<U>::value, std::pair<iterator, iterator>>
     swapTwo(iterator pos, List& other, iterator toSwap) {
         using std::swap;
         swap(*pos, *toSwap);
@@ -268,8 +289,7 @@ class List : private Detail::TypedListBase<T> {
     /// This overload is used when `T` does not conforms the contract of a `swap` function.
     /// The function uses no assignment, but expects capacity for one extra element on `this`.
     template<class U = T>
-    enable_if_t<!(std::is_move_constructible<U>::value && std::is_move_assignable<U>::value),
-                std::pair<iterator, iterator>>
+    enable_if_t<!Detail::UseSwapInList<U>::value, std::pair<iterator, iterator>>
     swapTwo(iterator pos, List& other, iterator toSwap) {
         auto otherPos = stealElement(pos, other, toSwap);
         pos = other.stealElement(otherPos, *this, pos);
