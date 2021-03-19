@@ -47,7 +47,6 @@ struct UseSwapInList {
     static constexpr bool value = is_move_constructible<T>::value && is_move_assignable<T>::value;
 };
 
-template<>
 template<class K, class E>
 struct UseSwapInList<std::pair<const K, E>> {
     static constexpr bool value = false;
