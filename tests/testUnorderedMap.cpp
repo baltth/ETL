@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <etl/Set.h>
 #include <etl/UnorderedMap.h>
 
 #include "ContainerTester.h"
@@ -31,19 +32,23 @@ using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[map][etl][basic]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl][basic]") {
 
     Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> map;
 
     REQUIRE(map.empty());
     REQUIRE(map.size() == 0);
 
-#if 0
     ContainerTester a(4);
     map.insert(std::make_pair(4, a));
 
     REQUIRE_FALSE(map.empty());
     REQUIRE(map.size() == 1);
+
+    REQUIRE(map.find(4) != map.end());
+    REQUIRE(map.find(4)->first == 4);
+    REQUIRE(map.find(4)->second.getValue() == a.getValue());
+
     REQUIRE(map[4].getValue() == a.getValue());
 
     map.insert(5, ContainerTester(-5));
@@ -59,18 +64,16 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[map][etl][basic]") {
     map.erase(5);
 
     REQUIRE(map.size() == 1);
-#endif
 }
 
-#if 0
-TEST_CASE("Etl::Dynamic::UnorderedMap<> insert test", "[map][etl]") {
+
+TEST_CASE("Etl::Dynamic::UnorderedMap<> insert test", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
-    typedef std::pair<MapType::iterator, bool> ResultType;
 
     MapType map;
 
-    ResultType res = map.insert(1, 2);
+    auto res = map.insert(1, 2);
 
     REQUIRE(res.second == true);
     REQUIRE(res.first != map.end());
@@ -111,7 +114,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> insert test", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> erase tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> erase tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
 
@@ -146,7 +149,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> erase tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> iteration tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> iteration tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
 
@@ -159,72 +162,23 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> iteration tests", "[map][etl]") {
 
     CHECK(map.size() == 4);
 
-    SECTION("forward") {
+    Etl::Dynamic::Set<int> seen;
 
-        MapType::iterator it = map.begin();
+    SECTION("with range for") {
 
-        REQUIRE(it->first == 1);
-        REQUIRE(it->second == -1);
+        for (auto& item : map) {
+            seen.insert(item.first);
+        }
 
-        ++it;
-
-        REQUIRE(it->first == 2);
-        REQUIRE(it->second == -2);
-    }
-
-    SECTION("backward") {
-
-        MapType::iterator it = map.end();
-
-        --it;
-
-        REQUIRE(it->first == 4);
-        REQUIRE(it->second == -4);
-
-        --it;
-
-        REQUIRE(it->first == 3);
-        REQUIRE(it->second == -3);
+        REQUIRE(seen.find(1) != seen.end());
+        REQUIRE(seen.find(2) != seen.end());
+        REQUIRE(seen.find(3) != seen.end());
+        REQUIRE(seen.find(4) != seen.end());
     }
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> element order", "[map][etl]") {
-
-    typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
-
-    MapType map;
-
-    map.insert(3, -3);
-    map.insert(1, -1);
-    map.insert(2, -2);
-    map.insert(4, -4);
-
-    CHECK(map.size() == 4);
-
-    MapType::iterator it = map.begin();
-
-    REQUIRE(it->first == 1);
-    REQUIRE(it->second == -1);
-
-    ++it;
-    REQUIRE(it->first == 2);
-    REQUIRE(it->second == -2);
-
-    ++it;
-    REQUIRE(it->first == 3);
-    REQUIRE(it->second == -3);
-
-    ++it;
-    REQUIRE(it->first == 4);
-    REQUIRE(it->second == -4);
-
-    ++it;
-    REQUIRE(it == map.end());
-}
-
-
-TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> MapType;
 
@@ -239,23 +193,23 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[map][etl]") {
 
     SECTION("write existing") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         map[4] = ContainerTester(-5);
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
 
         CAPTURE(map.find(4)->second.toString());
-        CAPTURE(ContainerTester(-5).toString())
+        CAPTURE(ContainerTester(-5).toString());
         REQUIRE(map.find(4)->second == ContainerTester(-5));
     }
 
     SECTION("write new") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         map[5] = ContainerTester(-5);
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
 
         CAPTURE(map.find(5)->second.toString());
-        CAPTURE(ContainerTester(-5).toString())
+        CAPTURE(ContainerTester(-5).toString());
         REQUIRE(map.find(5)->second == ContainerTester(-5));
     }
 
@@ -267,14 +221,15 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[map][etl]") {
 
     SECTION("read new - default insertion") {
 
-        //ContainerTester::enablePrint = true;
+        // ContainerTester::enablePrint = true;
         REQUIRE(map[5] == ContainerTester());
-        //ContainerTester::enablePrint = false;
+        // ContainerTester::enablePrint = false;
     }
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[map][etl]") {
+#if 0
+TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
 
@@ -325,9 +280,10 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[map][etl]") {
         REQUIRE(map2[4] == -4);
     }
 }
+#endif
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[map][etl]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> MapType;
     MapType map;
@@ -357,7 +313,8 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[map][etl]") {
+#if 0
+TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester, std::greater<int>> MapType;
     MapType map;
@@ -372,7 +329,7 @@ TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[map][etl]") {
+TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[unorderedmap][etl]") {
 
     typedef ContainerTester ItemType;
     typedef Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator> MapType;
@@ -399,11 +356,11 @@ TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::Pooled::UnorderedMap<> test", "[map][etl]") {
+TEST_CASE("Etl::Static::UnorderedMap<> test", "[unorderedmap][etl]") {
 
     static const uint32_t NUM = 16;
     typedef ContainerTester ItemType;
-    typedef Etl::Pooled::UnorderedMap<uint32_t, ItemType, NUM> MapType;
+    typedef Etl::Static::UnorderedMap<uint32_t, ItemType, NUM> MapType;
 
     MapType map;
 
@@ -437,19 +394,20 @@ TEST_CASE("Etl::Pooled::UnorderedMap<> test", "[map][etl]") {
 }
 
 
-TEST_CASE("Etl::UnorderedMap<> test cleanup", "[map][etl]") {
+TEST_CASE("Etl::UnorderedMap<> test cleanup", "[unorderedmap][etl]") {
 
     typedef Etl::Custom::UnorderedMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::Allocator::getDeleteCount() == MapType::Allocator::Allocator::getAllocCount());
+    CHECK(MapType::Allocator::Allocator::getDeleteCount()
+          == MapType::Allocator::Allocator::getAllocCount());
 }
 
 
 // Etl::UnorderedMap comparision tests ----------------------------------------------
 
 
-TEST_CASE("Etl::UnorderedMap<> comparision", "[map][etl]") {
+TEST_CASE("Etl::UnorderedMap<> comparision", "[unorderedmap][etl]") {
 
     SECTION("Etl::UnorderedMap<> vs Etl::UnorderedMap<>") {
 

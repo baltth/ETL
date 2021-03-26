@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_UNORDEREDBASE_H__
 #define __ETL_UNORDEREDBASE_H__
 
-#include <etl/etlSupport.h>
+#include <etl/base/AAllocator.h>
 #include <etl/base/AHashTable.h>
 #include <etl/base/VectorTemplate.h>
-#include <etl/base/AAllocator.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -34,7 +34,7 @@ namespace Detail {
 template<class T, class Hash>
 class UnorderedBase : protected AHashTable {
 
-  public:   // types
+  public:  // types
 
     using value_type = T;
     using reference = T&;
@@ -44,18 +44,19 @@ class UnorderedBase : protected AHashTable {
 
     using AHashTable::size_type;
     using AHashTable::Buckets;
+    using AHashTable::HashType;
 
     class Node : public AHashTable::Node {
-        //friend class UnorderedBase<T, Hash>;
+        friend class UnorderedBase<T, Hash>;
 
-      public:   // variables
+      public:  // variables
 
         T item;
 
-      public:   // functions
+      public:  // functions
 
         template<typename... Args>
-        Node(Args&& ... args) :
+        Node(Args&&... args) :
             item(std::forward<Args>(args)...) {};
 
       private:
@@ -63,7 +64,6 @@ class UnorderedBase : protected AHashTable {
         void setHash(AHashTable::HashType h) {
             hash = h;
         }
-
     };
 
     class const_iterator : public AHashTable::Iterator {
@@ -117,7 +117,6 @@ class UnorderedBase : protected AHashTable {
 
         explicit const_iterator(UnorderedBase<T, Hash>::Node* n) :
             AHashTable::Iterator(n) {};
-
     };
 
     class iterator : public AHashTable::Iterator {
@@ -183,18 +182,17 @@ class UnorderedBase : protected AHashTable {
 
         explicit iterator(const AHashTable::Iterator& it) :
             AHashTable::Iterator(it) {};
-
     };
 
     using BucketImpl = ETL_NAMESPACE::Vector<AHashTable::BucketItem>;
     using NodeAllocator = ETL_NAMESPACE::AAllocator<Node>;
 
-  protected: // variables
+  protected:  // variables
 
     BucketImpl& buckets;
     NodeAllocator& allocator;
 
-  public:   // functions
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -258,16 +256,25 @@ class UnorderedBase : protected AHashTable {
     /// \name Lookup
     /// \{
     using AHashTable::equalHashRange;
-    using AHashTable::find;
+
+    template<typename P>
+    iterator findExact(HashType hash, P predicate);
+
+    template<typename P>
+    const_iterator findExact(HashType hash, P predicate) const;
     /// \}
 
-    iterator insert(const_reference item) {
-        return emplace(item);
+    template<typename H>
+    iterator insert(H hasher, const_reference item) {
+        return emplace(std::move(hasher), item);
     }
 
-    template<typename... Args >
-    iterator emplace(Args&&... args);
+    template<typename H, typename... Args>
+    iterator emplace(H hasher, Args&&... args);
 
+
+    /// \name Utils
+    /// \{
     static iterator makeIt(AHashTable::Node* n) {
         return iterator(static_cast<Node*>(n));
     }
@@ -275,9 +282,9 @@ class UnorderedBase : protected AHashTable {
     static const_iterator makeConstIt(AHashTable::Node* n) {
         return const_iterator(static_cast<Node*>(n));
     }
+    /// \}
 
   private:
-
 };
 
 
@@ -292,7 +299,10 @@ void UnorderedBase<T, Hash>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
 
 
 template<class T, class Hash>
-auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy) -> iterator {
+auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy)
+    -> iterator {
+
+    ETL_ASSERT(pos != end());
 
     auto next = pos;
     ++next;
@@ -308,22 +318,71 @@ auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::Noexcep
 
 
 template<class T, class Hash>
-template<typename... Args >
-auto UnorderedBase<T, Hash>::emplace(Args&& ... args) -> iterator {
+template<typename P>
+auto UnorderedBase<T, Hash>::findExact(HashType hash, P predicate) -> iterator {
 
-    auto it = this->end();
+    auto range = this->equalHashRange(hash);
+    auto firstIt = this->makeIt(range.first);
+    auto secIt = this->makeIt(range.second);
+
+    bool found = false;
+    while ((!found) && (firstIt != secIt)) {
+        if (predicate(*firstIt)) {
+            found = true;
+        } else {
+            ++firstIt;
+        }
+    }
+
+    if (found) {
+        return firstIt;
+    } else {
+        return end();
+    }
+}
+
+
+template<class T, class Hash>
+template<typename C>
+auto UnorderedBase<T, Hash>::findExact(HashType hash, C predicate) const -> const_iterator {
+
+    auto range = this->equalHashRange(hash);
+    auto firstIt = this->makeConstIt(range.first);
+    auto secIt = this->makeConstIt(range.second);
+
+    bool found = false;
+    while ((!found) && (firstIt != secIt)) {
+        if (predicate(*firstIt)) {
+            found = true;
+        } else {
+            ++firstIt;
+        }
+    }
+
+    if (found) {
+        return firstIt;
+    } else {
+        return end();
+    }
+}
+
+
+template<class T, class Hash>
+template<typename H, typename... Args>
+auto UnorderedBase<T, Hash>::emplace(H hasher, Args&&... args) -> iterator {
+
     auto inserted = allocator.allocate(1);
     if (inserted != nullptr) {
         NodeAllocator::construct(inserted, std::forward<Args>(args)...);
-        inserted->setHash(Hash()(inserted->item));
+        inserted->setHash(hasher(inserted->item));
         AHashTable::insert(*inserted);
-        it = iterator(inserted);
+        return iterator {inserted};
+    } else {
+        return this->end();
     }
-
-    return it;
 }
 
-}
-}
+}  // namespace Detail
+}  // namespace ETL_NAMESPACE
 
 #endif /* __ETL_UNORDEREDBASE_H__ */

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class AHashTable {
             return node_;
         }
 
-        const Node* node() const {
+        Node* node() const {
             return node_;
         }
 
@@ -148,13 +148,13 @@ class AHashTable {
     void insert(Node& item);
     Node* remove(Node& item);
 
-    std::pair<SingleChain::Node*, size_type> findPrevious(Node& item) const;
+    std::pair<SingleChain::Node*, size_type> findPreviousOfNode(Node& item) const;
 
-    Node* find(HashType hash) {
-        return const_cast<Node*>(static_cast<const AHashTable*>(this)->find(hash));
+    Node* findNode(HashType hash) {
+        return const_cast<Node*>(static_cast<const AHashTable*>(this)->findNode(hash));
     }
 
-    const Node* find(HashType hash) const;
+    const Node* findNode(HashType hash) const;
 
     std::pair<Node*, Node*> equalHashRange(HashType hash) {
         std::pair<const Node*, const Node*> res = static_cast<const AHashTable*>(this)->equalHashRange(hash);
