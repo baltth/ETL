@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_UNORDEREDMAPTEMPLATE_H__
 #define __ETL_UNORDEREDMAPTEMPLATE_H__
 
-#include <etl/etlSupport.h>
+#include <etl/base/AAllocator.h>
 #include <etl/base/UnorderedBase.h>
 #include <etl/base/VectorTemplate.h>
-#include <etl/base/AAllocator.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -36,7 +36,7 @@ template<class K,
          class KE = std::equal_to<K>>
 class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
 
-  public:   // types
+  public:  // types
 
     using key_type = K;
     using mapped_type = E;
@@ -58,7 +58,15 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
 
     using size_type = typename Base::size_type;
 
-  public:   // functions
+  private:
+
+    struct KeyHasher {
+        typename Base::HashType operator()(const_reference val) {
+            return hasher()(val.first);
+        }
+    };
+
+  public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
@@ -80,6 +88,17 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
     using Base::empty;
     /// \}
 
+    /// \name Element access
+    /// \{
+    E& operator[](const K& k) {
+        return getItem(k)->second;
+    }
+
+    E& operator[](K&& k) {
+        return getItem(k)->second;
+    }
+    /// \}
+
     /// \name Iterators
     /// \{
     using Base::begin;
@@ -88,23 +107,57 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
     using Base::cend;
     /// \}
 
+    /// \name Lookup
+    /// \{
+    iterator find(const key_type& key) {
+        return this->findExact(
+            hasher()(key),
+            [&key](const value_type& item) { return key_equal()(key, item.first); });
+    }
+
+    const_iterator find(const key_type& key) const {
+        return this->findExact(
+            hasher()(key),
+            [&key](const value_type& item) { return key_equal()(key, item.first); });
+    }
+    /// \}
+
     /// \name Modifiers
     /// \{
     using Base::clear;
     using Base::erase;
 
-    std::pair<iterator, bool> insert(const value_type& val);
+    size_type erase(const key_type& k) {
+        auto found = find(k);
+        if (found != end()) {
+            erase(found);
+            return 1U;
+        } else {
+            return 0U;
+        }
+    }
 
-    //template<typename... Args>
-    //std::pair<iterator, bool> insert(Args&& ... args) {
-    //  return insert(value_type(args...));
-    //}
+    std::pair<iterator, bool> insert(const value_type& val) {
+        return emplace(val);
+    }
+
+    std::pair<iterator, bool> insert(const K& k, const E& e) {
+        return emplace(k, e);
+    }
+
+    template<typename... Args>
+    std::pair<iterator, bool> emplace(Args&&... args);
+
+    std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
     /// \}
 
   protected:
 
   private:
 
+    iterator getItem(const K& k) {
+        return emplace(k, E()).first;
+    }
 };
 
 
@@ -112,30 +165,39 @@ template<class K,
          class E,
          class H,
          class KE>
-auto UnorderedMap<K, E, H, KE>::insert(const value_type& val) -> std::pair<iterator, bool> {
+template<typename... Args>
+auto UnorderedMap<K, E, H, KE>::emplace(Args&&... args) -> std::pair<iterator, bool> {
 
-    auto hash = hasher()(val.first);
-    auto range = this->equalHashRange(hash);
-auto firstIt = this->makeConstIt(range.first);
-auto secIt = this->makeConstIt(range.second);
+    // note: this construction is suboptimal, to be corrected.
+    auto val = value_type(std::forward<Args>(args)...);
 
-    bool found = false;
-    while((!found) && (firstIt != secIt)) {
-      if(key_equal()(val.first, firstIt->first)) {
-        found = true;
-      } else {
-        ++firstIt;
-      }
-    }
-
-    if(!found) {
-      auto it = Base::insert(val);
-      return std::make_pair(it, (it != end()));
+    auto found = find(val.first);
+    if (found == end()) {
+        auto it = Base::emplace(KeyHasher(), std::move(val));
+        return std::make_pair(it, (it != end()));
     } else {
-      return std::make_pair(end(), false);
+        return std::make_pair(found, false);
     }
 }
 
+
+template<class K,
+         class E,
+         class H,
+         class KE>
+auto UnorderedMap<K, E, H, KE>::insert_or_assign(const K& k, const E& e)
+    -> std::pair<iterator, bool> {
+
+    auto found = find(k);
+    if (found == end()) {
+        auto it = Base::emplace(KeyHasher(), value_type(k, e));
+        return std::make_pair(it, (it != end()));
+    } else {
+        found->second = e;
+        return std::make_pair(found, false);
+    }
 }
+
+}  // namespace ETL_NAMESPACE
 
 #endif /* __ETL_UNORDEREDMAPTEMPLATE_H__ */
