@@ -22,9 +22,10 @@ limitations under the License.
 #ifndef __ETL_AHASHTABLE_H__
 #define __ETL_AHASHTABLE_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/SingleChain.h>
 #include <etl/Span.h>
+#include <etl/base/SingleChain.h>
+#include <etl/base/tools.h>
+#include <etl/etlSupport.h>
 
 #include <utility>
 
@@ -34,7 +35,7 @@ namespace Detail {
 
 class AHashTable {
 
-  public:   // types
+  public:  // types
 
     using size_type = std::uint32_t;
     using HashType = std::size_t;
@@ -55,7 +56,6 @@ class AHashTable {
         Node(const SingleChain::Node& n, HashType h) :
             SingleChain::Node(n),
             hash(h) {};
-
     };
 
     class Iterator {
@@ -92,7 +92,6 @@ class AHashTable {
         Node* node() const {
             return node_;
         }
-
     };
 
     using BucketItem = SingleChain::Node*;
@@ -106,7 +105,7 @@ class AHashTable {
     Buckets buckets;
     BucketItem lastItem;
 
-  public:   // functions
+  public:  // functions
 
     AHashTable() :
         size_(0U),
@@ -133,8 +132,6 @@ class AHashTable {
         return (size_ == 0U);
     }
 
-  protected:
-
     Iterator begin() const {
         return Iterator(static_cast<AHashTable::Node*>(chain.getFirst()));
     }
@@ -157,7 +154,7 @@ class AHashTable {
     const Node* findNode(HashType hash) const;
 
     std::pair<Node*, Node*> equalHashRange(HashType hash) {
-        std::pair<const Node*, const Node*> res = static_cast<const AHashTable*>(this)->equalHashRange(hash);
+        auto res = Detail::asConst(this)->equalHashRange(hash);
         return std::pair<Node*, Node*>(const_cast<Node*>(res.first), const_cast<Node*>(res.second));
     }
 
@@ -172,7 +169,7 @@ class AHashTable {
         return (h % buckets.size());
     }
 
-    void bind(Buckets b) {
+    void bindBuckets(Buckets b) {
         ETL_ASSERT(empty());
         buckets = b;
     }
@@ -200,7 +197,6 @@ class AHashTable {
   private:
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
-
 };
 
 }  // namespace Detail

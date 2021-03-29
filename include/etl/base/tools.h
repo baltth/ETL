@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -150,6 +150,31 @@ struct NothrowContract {
     static constexpr bool value = nothrowIfDefaultConstructible && nothrowIfMoveConstructible
                                   && nothrowIfMoveAssignable && nothrowIfDestructible;
 };
+
+
+template<typename S, typename T>
+struct CopyConst {
+    typedef T Type;
+};
+
+template<typename S, typename T>
+struct CopyConst<const S, T> {
+    typedef const T Type;
+};
+
+
+template<typename T>
+constexpr typename std::add_const<T>::type& asConst(T& t) noexcept {
+    return t;
+}
+
+template<typename T>
+constexpr typename std::add_const<T>::type* asConst(T* t) noexcept {
+    return t;
+}
+
+template<typename T>
+void asConst(const T&&) = delete;
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

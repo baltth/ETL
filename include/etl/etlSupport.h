@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ limitations under the License.
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
+//#include <functional>
 #include <iterator>
 #include <stdexcept>  // For new overrides
+#include <type_traits>
 
 
 #ifndef ETL_DISABLE_ASSERT
@@ -71,64 +72,8 @@ using std::size_t;
 
 // Utilities
 
-#ifndef NULLPTR
-#define NULLPTR nullptr
-#endif
-
-
 namespace ETL_NAMESPACE {
-
-
-template<typename T>
-struct Matcher {
-    virtual bool call(const T&) const noexcept = 0;
-    bool operator()(const T& item) const noexcept {
-        return this->call(item);
-    }
-};
-
-
-template<typename T, typename V>
-struct MethodMatcher : Matcher<T> {
-    typedef V (T::*Method)() const;
-    Method method;
-    const V val;
-    MethodMatcher(Method m, const V& v) noexcept :
-        method(m),
-        val(v) {};
-    bool call(const T& item) const noexcept override {
-        return ((item.*method)() == val);
-    }
-};
-
-
-template<typename T, typename V>
-struct FunctionMatcher : Matcher<T> {
-    typedef V (*Func)(const T&);
-    Func func;
-    const V val;
-    FunctionMatcher(Func f, const V& v) noexcept :
-        func(f),
-        val(v) {};
-    bool call(const T& item) const noexcept override {
-        return ((*func)(item) == val);
-    }
-};
-
-
-template<typename T>
-using MatchFunc = std::function<bool(const T&)>;
-
-
-template<typename S, typename T>
-struct CopyConst {
-    typedef T Type;
-};
-
-template<typename S, typename T>
-struct CopyConst<const S, T> {
-    typedef const T Type;
-};
+namespace Detail {
 
 
 template<typename T>
@@ -152,8 +97,6 @@ struct IsIterator {
 };
 
 
-namespace Detail {
-
 template<typename T>
 struct AlignmentOf {
 
@@ -170,7 +113,6 @@ struct AlignmentOf {
 };
 
 }  // namespace Detail
-
 }  // namespace ETL_NAMESPACE
 
 
@@ -220,4 +162,4 @@ inline void operator delete[](void* ptr) {
 
 #endif
 
-#endif // __ETL_ETLSUPPORT_H__
+#endif  // __ETL_ETLSUPPORT_H__
