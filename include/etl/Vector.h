@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -128,6 +128,12 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
     this->insert(this->cbegin(), len, item);
 }
 
+
+template<class T, size_t N>
+void swap(Static::Vector<T, N>& lhs, Static::Vector<T, N>& rhs) {
+    lhs.swap(rhs);
+}
+
 }  // namespace Static
 
 
@@ -207,13 +213,13 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     void swap(Vector& other) {
         if (&other != this) {
             Detail::AVectorBase::swapProxy(other);
-        } else {
-            Base::swap(other);
         }
     }
 
     void swap(Base& other) {
-        return Base::swap(other);
+        if (&other != this) {
+            Base::swap(other);
+        }
     }
 };
 
