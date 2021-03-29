@@ -56,6 +56,7 @@ class AHashTable {
         Node(const SingleChain::Node& n, HashType h) :
             SingleChain::Node(n),
             hash(h) {};
+
     };
 
     class Iterator {
@@ -92,6 +93,7 @@ class AHashTable {
         Node* node() const {
             return node_;
         }
+
     };
 
     using BucketItem = SingleChain::Node*;
@@ -105,7 +107,7 @@ class AHashTable {
     Buckets buckets;
     BucketItem lastItem;
 
-  public:  // functions
+  public:   // functions
 
     AHashTable() :
         size_(0U),
@@ -131,6 +133,8 @@ class AHashTable {
     bool empty() const {
         return (size_ == 0U);
     }
+
+  protected:
 
     Iterator begin() const {
         return Iterator(static_cast<AHashTable::Node*>(chain.getFirst()));
@@ -197,6 +201,7 @@ class AHashTable {
   private:
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
+
 };
 
 }  // namespace Detail

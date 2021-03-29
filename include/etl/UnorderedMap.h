@@ -22,10 +22,10 @@ limitations under the License.
 #ifndef __ETL_UNORDEREDMAP_H__
 #define __ETL_UNORDEREDMAP_H__
 
-#include <etl/etlSupport.h>
-#include <etl/base/UnorderedMapTemplate.h>
-#include <etl/Vector.h>
 #include <etl/PoolAllocator.h>
+#include <etl/Vector.h>
+#include <etl/base/UnorderedMapTemplate.h>
+#include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
 
@@ -35,7 +35,7 @@ namespace Custom {
 template<class K, class E, template<class> class A>
 class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
 
-  public:   // types
+  public:  // types
 
     using Base = ETL_NAMESPACE::UnorderedMap<K, E>;
     using Node = typename Base::Node;
@@ -48,21 +48,21 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
     BucketImpl buckets;
     mutable NodeAllocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     UnorderedMap() :
         Base(buckets, allocator),
         buckets(32) {
-          ETL_ASSERT(buckets.size() == 32);
-          this->bind(buckets);
-        };
+        ETL_ASSERT(buckets.size() == 32);
+        this->bindBuckets(buckets);
+    };
 
     ~UnorderedMap() {
         this->clear();
     }
 };
 
-}
+}  // namespace Custom
 
 
 namespace Dynamic {
@@ -71,7 +71,7 @@ namespace Dynamic {
 template<class K, class E>
 using UnorderedMap = ETL_NAMESPACE::Custom::UnorderedMap<K, E, std::allocator>;
 
-}
+}  // namespace Dynamic
 
 
 namespace Static {
@@ -79,11 +79,12 @@ namespace Static {
 template<class K, class E, std::size_t NN, std::size_t NB>
 class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
 
-  public:   // types
+  public:  // types
 
     using Base = ETL_NAMESPACE::UnorderedMap<K, E>;
 
-    using NodeAllocator = typename ETL_NAMESPACE::PoolHelper<NN>::template Allocator<typename Base::Node>;
+    using NodeAllocator =
+        typename ETL_NAMESPACE::PoolHelper<NN>::template Allocator<typename Base::Node>;
     using BucketImpl = Static::Vector<typename Base::BucketItem, NB>;
 
   private:  // variables
@@ -91,7 +92,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
     BucketImpl buckets;
     mutable NodeAllocator allocator;
 
-  public:   // functions
+  public:  // functions
 
     UnorderedMap() :
         Base(buckets, allocator) {};
@@ -99,12 +100,10 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
     ~UnorderedMap() {
         this->clear();
     }
-
 };
 
-}
+}  // namespace Static
 
-}
+}  // namespace ETL_NAMESPACE
 
-#endif // __ETL_UNORDEREDMAP_H__
-
+#endif  // __ETL_UNORDEREDMAP_H__

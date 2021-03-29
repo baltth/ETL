@@ -32,7 +32,7 @@ namespace Detail {
 
 
 template<class T, class Hash>
-class UnorderedBase : protected AHashTable {
+class UnorderedBase {
 
   public:  // types
 
@@ -42,9 +42,10 @@ class UnorderedBase : protected AHashTable {
     using pointer = T*;
     using const_pointer = const T*;
 
-    using AHashTable::size_type;
-    using AHashTable::Buckets;
-    using AHashTable::HashType;
+    using size_type = AHashTable::size_type;
+    using BucketItem = AHashTable::BucketItem;
+    using Buckets = AHashTable::Buckets;
+    using HashType = AHashTable::HashType;
 
     class Node : public AHashTable::Node {
         friend class UnorderedBase<T, Hash>;
@@ -191,15 +192,16 @@ class UnorderedBase : protected AHashTable {
 
     BucketImpl& buckets;
     NodeAllocator& allocator;
+    AHashTable hashTable;
 
   public:  // functions
 
     /// \name Construction, destruction, assignment
     /// \{
     explicit UnorderedBase(BucketImpl& b, NodeAllocator& a) :
-        AHashTable(b),
         buckets(b),
-        allocator(a) {};
+        allocator(a),
+        hashTable(b) {};
 
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
@@ -214,18 +216,23 @@ class UnorderedBase : protected AHashTable {
 
     /// \name Capacity
     /// \{
-    using AHashTable::size;
-    using AHashTable::empty;
+    size_type size() const {
+        return hashTable.size();
+    }
+
+    bool empty() const {
+        return hashTable.empty();
+    }
     /// \}
 
     /// \name Iterators
     /// \{
     iterator begin() {
-        return iterator(AHashTable::begin());
+        return iterator(hashTable.begin());
     }
 
     const_iterator begin() const {
-        return const_iterator(AHashTable::begin());
+        return const_iterator(hashTable.begin());
     }
 
     const_iterator cbegin() const {
@@ -233,11 +240,11 @@ class UnorderedBase : protected AHashTable {
     }
 
     iterator end() {
-        return iterator(AHashTable::end());
+        return iterator(hashTable.end());
     }
 
     const_iterator end() const {
-        return const_iterator(AHashTable::end());
+        return const_iterator(hashTable.end());
     }
 
     const_iterator cend() const {
@@ -253,15 +260,38 @@ class UnorderedBase : protected AHashTable {
 
   protected:
 
+    void bindBuckets(Buckets b) {
+        hashTable.bindBuckets(b);
+    }
+
     /// \name Lookup
     /// \{
-    using AHashTable::equalHashRange;
+    std::pair<iterator, iterator> equalHashRange(HashType hash) {
+        auto res = hashTable.equalHashRange(hash);
+        return {makeIt(res.first), makeIt(res.second)};
+    }
+
+    std::pair<const_iterator, const_iterator> equalHashRange(HashType hash) const {
+        auto res = hashTable.equalHashRange(hash);
+        return {makeConstIt(res.first), makeConstIt(res.second)};
+    }
 
     template<typename P>
-    iterator findExact(HashType hash, P predicate);
+    iterator findExact(HashType hash, P predicate) {
+        auto range = this->equalHashRange(hash);
+        auto it = findExactInRange(range.first, range.second, std::move(predicate));
+        return makeIt(it.node());
+    }
 
     template<typename P>
-    const_iterator findExact(HashType hash, P predicate) const;
+    const_iterator findExact(HashType hash, P predicate) const {
+        auto range = this->equalHashRange(hash);
+        return findExactInRange(range.first, range.second, std::move(predicate));
+    }
+
+    size_type count(HashType hash) const {
+        return hashTable.count(hash);
+    }
     /// \}
 
     template<typename H>
@@ -271,7 +301,6 @@ class UnorderedBase : protected AHashTable {
 
     template<typename H, typename... Args>
     iterator emplace(H hasher, Args&&... args);
-
 
     /// \name Utils
     /// \{
@@ -285,6 +314,9 @@ class UnorderedBase : protected AHashTable {
     /// \}
 
   private:
+
+    template<typename It, typename P>
+    const_iterator findExactInRange(It first, It end, P predicate) const;
 };
 
 
@@ -307,7 +339,7 @@ auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::Noexcep
     auto next = pos;
     ++next;
 
-    auto item = remove(*pos.node());
+    auto item = hashTable.remove(*pos.node());
     if (item != nullptr) {
         NodeAllocator::destroy(static_cast<Node*>(item));
         allocator.deallocate(static_cast<Node*>(item), 1U);
@@ -318,49 +350,21 @@ auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::Noexcep
 
 
 template<class T, class Hash>
-template<typename P>
-auto UnorderedBase<T, Hash>::findExact(HashType hash, P predicate) -> iterator {
-
-    auto range = this->equalHashRange(hash);
-    auto firstIt = this->makeIt(range.first);
-    auto secIt = this->makeIt(range.second);
+template<typename It, typename P>
+auto UnorderedBase<T, Hash>::findExactInRange(It first, It last, P predicate) const
+    -> const_iterator {
 
     bool found = false;
-    while ((!found) && (firstIt != secIt)) {
-        if (predicate(*firstIt)) {
+    while ((!found) && (first != last)) {
+        if (predicate(*first)) {
             found = true;
         } else {
-            ++firstIt;
+            ++first;
         }
     }
 
     if (found) {
-        return firstIt;
-    } else {
-        return end();
-    }
-}
-
-
-template<class T, class Hash>
-template<typename C>
-auto UnorderedBase<T, Hash>::findExact(HashType hash, C predicate) const -> const_iterator {
-
-    auto range = this->equalHashRange(hash);
-    auto firstIt = this->makeConstIt(range.first);
-    auto secIt = this->makeConstIt(range.second);
-
-    bool found = false;
-    while ((!found) && (firstIt != secIt)) {
-        if (predicate(*firstIt)) {
-            found = true;
-        } else {
-            ++firstIt;
-        }
-    }
-
-    if (found) {
-        return firstIt;
+        return first;
     } else {
         return end();
     }
@@ -375,7 +379,7 @@ auto UnorderedBase<T, Hash>::emplace(H hasher, Args&&... args) -> iterator {
     if (inserted != nullptr) {
         NodeAllocator::construct(inserted, std::forward<Args>(args)...);
         inserted->setHash(hasher(inserted->item));
-        AHashTable::insert(*inserted);
+        hashTable.insert(*inserted);
         return iterator {inserted};
     } else {
         return this->end();
