@@ -149,9 +149,24 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
     std::pair<iterator, bool> emplace(Args&&... args);
 
     std::pair<iterator, bool> insert_or_assign(const K& k, const E& e);
+
+    void swap(UnorderedMap& other) {
+        Base::swap(KeyHasher(), other);
+    }
     /// \}
 
   protected:
+
+    template<typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        this->clear();
+        insert(first, last);
+    }
+
+    template<class Cont>
+    void assign(const Cont& other) {
+        assign(other.begin(), other.end());
+    }
 
   private:
 

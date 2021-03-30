@@ -30,17 +30,17 @@ void AHashTable::insert(AHashTable::Node& item) {
     ETL_ASSERT(buckets.data() != nullptr);
     ETL_ASSERT(buckets.size() > 0U);
 
-    uint32_t ix = bucketOfHash(item.hash);
+    uint32_t ix = bucketIxOfHash(item.hash);
 
     if (buckets[ix] == nullptr) {
 
         buckets[ix] = lastItem;
-        chain.insertAfter(buckets[ix], &item);
+        chain_.insertAfter(buckets[ix], &item);
         lastItem = buckets[ix]->next;
 
     } else {
         std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(item.hash, ix);
-        chain.insertAfter(res.first, &item);
+        chain_.insertAfter(res.first, &item);
     }
 
     ++size_;
@@ -49,7 +49,7 @@ void AHashTable::insert(AHashTable::Node& item) {
 
 std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash, size_type ix) {
 
-    ETL_ASSERT(bucketOfHash(hash) == ix);
+    ETL_ASSERT(bucketIxOfHash(hash) == ix);
     ETL_ASSERT(buckets[ix] != nullptr);
 
     bool found = false;
@@ -62,7 +62,7 @@ std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType has
 
         auto next = static_cast<Node*>(prev->next);
 
-        if ((next == nullptr) || (bucketOfHash(next->hash) != ix)) {
+        if ((next == nullptr) || (bucketIxOfHash(next->hash) != ix)) {
             end = true;
         } else if (next->hash > hash) {
             end = true;
@@ -86,7 +86,7 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
         lastItem = prev.first;
     }
 
-    SingleChain::Node* removed = chain.removeAfter(prev.first);
+    SingleChain::Node* removed = chain_.removeAfter(prev.first);
 
     std::uint32_t ix = prev.second;
 
@@ -94,13 +94,13 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
         buckets[ix] = nullptr;
     } else {
         const Node& nextOfBucket = static_cast<const Node&>(*(buckets[ix]->next));
-        if (bucketOfHash(nextOfBucket.hash) != ix) {
+        if (bucketIxOfHash(nextOfBucket.hash) != ix) {
             buckets[ix] = nullptr;
         }
     }
 
     if (next != nullptr) {
-        auto nextIx = bucketOfHash(next->hash);
+        auto nextIx = bucketIxOfHash(next->hash);
         if (nextIx != ix) {
             // The next element of removed belongs to another bucket,
             // this means the next bucket pointer has to be corrected.
@@ -117,7 +117,7 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
 std::pair<SingleChain::Node*, std::uint32_t>
 AHashTable::findPreviousOfNode(AHashTable::Node& item) const {
 
-    auto ix = bucketOfHash(item.hash);
+    auto ix = bucketIxOfHash(item.hash);
 
     ETL_ASSERT(buckets[ix] != nullptr);
 
@@ -127,7 +127,7 @@ AHashTable::findPreviousOfNode(AHashTable::Node& item) const {
     while (prev->next != &item) {
         prev = prev->next;
         ETL_ASSERT(prev != nullptr);
-        ETL_ASSERT(bucketOfHash(static_cast<Node*>(prev)->hash) == ix);
+        ETL_ASSERT(bucketIxOfHash(static_cast<Node*>(prev)->hash) == ix);
     }
 
     return std::pair<SingleChain::Node*, std::uint32_t>(prev, ix);
@@ -137,13 +137,13 @@ AHashTable::findPreviousOfNode(AHashTable::Node& item) const {
 const AHashTable::Node* AHashTable::findNode(HashType hash) const {
 
     const Node* res = nullptr;
-    auto ix = bucketOfHash(hash);
+    auto ix = bucketIxOfHash(hash);
 
     if (buckets[ix] != nullptr) {
 
         auto node = static_cast<const Node*>(buckets[ix]->next);
 
-        while ((node->hash != hash) && (bucketOfHash(node->hash) == ix)) {
+        while ((node->hash != hash) && (bucketIxOfHash(node->hash) == ix)) {
             node = static_cast<const Node*>(node->next);
             ETL_ASSERT(node != nullptr);
         }

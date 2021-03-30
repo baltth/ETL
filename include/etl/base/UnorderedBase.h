@@ -198,7 +198,7 @@ class UnorderedBase {
 
     /// \name Construction, destruction, assignment
     /// \{
-    explicit UnorderedBase(BucketImpl& b, NodeAllocator& a) :
+    UnorderedBase(BucketImpl& b, NodeAllocator& a) :
         buckets(b),
         allocator(a),
         hashTable(b) {};
@@ -256,6 +256,19 @@ class UnorderedBase {
     /// \{
     void clear() noexcept(NodeAllocator::NoexceptDestroy);
     iterator erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy);
+
+    template<typename H>
+    void swap(H hasher, UnorderedBase& other) {
+        if (this != &other) {
+            if (allocator.handle() == other.allocator.handle()) {
+                hashTable.swapWithSources(buckets,
+                                          other.hashTable,
+                                          other.buckets);
+            } else {
+                swapElements(std::move(hasher), other);
+            }
+        }
+    }
     /// \}
 
   protected:
@@ -317,6 +330,51 @@ class UnorderedBase {
 
     template<typename It, typename P>
     const_iterator findExactInRange(It first, It end, P predicate) const;
+
+    template<typename H>
+    void swapElements(H hasher, UnorderedBase& other);
+
+    /// Helper to perform non-trivial swap on two elements of different containers.
+    /// This overload is used when `T` conforms the contract of a `swap` function.
+    template<typename H, typename U = T>
+    enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>>
+    swapTwo(H hasher, Node* own, UnorderedBase& other, Node* toSwap) {
+        using std::swap;
+        (void)other;
+        (void)hasher;
+        Node* nextOwn = static_cast<Node*>(own->next);
+        Node* nextToSwap = static_cast<Node*>(toSwap->next);
+        swap(own->item, toSwap->item);
+        hashTable.insert(own);
+        other.hashTable.insert(toSwap);
+        return std::make_pair(nextOwn, nextToSwap);
+    }
+
+    /// Helper to perform non-trivial swap on two elements of different containers.
+    /// This overload is used when `T` does not conforms the contract of a `swap` function.
+    /// The function uses no assignment, but expects capacity for one extra element on `this`.
+    template<typename H, class U = T>
+    enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>>
+    swapTwo(H hasher, Node* own, UnorderedBase& other, Node* toSwap) {
+        auto nextOther = stealElement(hasher, other, toSwap);
+        auto nextOwn = other.stealElement(hasher, *this, own);
+        return std::make_pair(nextOwn, nextOther);
+    }
+
+    template<typename H>
+    Node* stealElement(H hasher,
+                       UnorderedBase& other,
+                       Node* toSteal) {
+        Node* next = static_cast<Node*>(toSteal->next);
+        emplace(std::move(hasher), std::move(toSteal->item));
+        other.destroy(toSteal);
+        return next;
+    }
+
+    void destroy(Node* node) {
+        NodeAllocator::destroy(node);
+        allocator.deallocate(node, 1U);
+    }
 };
 
 
@@ -341,8 +399,7 @@ auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::Noexcep
 
     auto item = hashTable.remove(*pos.node());
     if (item != nullptr) {
-        NodeAllocator::destroy(static_cast<Node*>(item));
-        allocator.deallocate(static_cast<Node*>(item), 1U);
+        destroy(static_cast<Node*>(item));
     }
 
     return next;
@@ -385,6 +442,83 @@ auto UnorderedBase<T, Hash>::emplace(H hasher, Args&&... args) -> iterator {
         return this->end();
     }
 }
+
+
+template<class T, class Hash>
+template<typename H>
+void UnorderedBase<T, Hash>::swapElements(H hasher, UnorderedBase& other) {
+
+    auto origOwnSize = size();
+    auto origOwnBucketsSize = buckets.size();
+    auto origOtherSize = other.size();
+    auto origOtherBucketsSize = other.buckets.size();
+
+    if ((allocator.max_size() >= (origOtherSize + 1U))
+        && (other.allocator.max_size() >= (origOwnSize + 1U))) {
+
+        // Steal the chains to stack variables
+        SingleChain origOwnChain = std::move(hashTable.chain());
+        SingleChain origOtherChain = std::move(other.hashTable.chain());
+
+        ETL_ASSERT(hashTable.chain().isEmpty());
+        ETL_ASSERT(other.hashTable.chain().isEmpty());
+
+        // Resize and reset the buckets
+        auto setupBuckets = [](BucketImpl& buckets, size_type targetSize) {
+            if ((buckets.capacity() >= targetSize) && (buckets.size() < targetSize)) {
+                buckets.resize(targetSize);
+            }
+            for (auto& item : buckets) {
+                item = nullptr;
+            }
+        };
+
+        setupBuckets(buckets, origOtherBucketsSize);
+        setupBuckets(other.buckets, origOwnBucketsSize);
+
+        ETL_ASSERT((buckets.size() >= origOtherBucketsSize)
+                   || (buckets.size() == origOwnBucketsSize));
+        ETL_ASSERT((other.buckets.size() >= origOwnBucketsSize)
+                   || (other.buckets.size() == origOtherBucketsSize));
+
+        // Reset the hashTables
+        hashTable = AHashTable {buckets};
+        other.hashTable = AHashTable {other.buckets};
+
+        // Realloc and insert elements
+
+        Node* ownNode = static_cast<Node*>(origOwnChain.getFirst());
+        Node* otherNode = static_cast<Node*>(origOtherChain.getFirst());
+
+        const auto diff = sizeDiff(origOwnSize, origOtherSize);
+        for (uint32_t i = 0; i < diff.common; ++i) {
+
+            ETL_ASSERT(ownNode != nullptr);
+            ETL_ASSERT(otherNode != nullptr);
+
+            auto res = swapTwo(hasher, ownNode, other, otherNode);
+            ownNode = res.first;
+            otherNode = res.second;
+        }
+
+        auto stealRemaining = [&hasher](UnorderedBase& dest,
+                                        UnorderedBase& src,
+                                        Node* remaining) {
+            while (remaining != nullptr) {
+                remaining = dest.stealElement(hasher, src, remaining);
+            }
+        };
+
+        if (diff.lGreaterWith > 0) {
+            stealRemaining(other, *this, ownNode);
+        } else if (diff.rGreaterWith > 0) {
+            stealRemaining(*this, other, otherNode);
+        } else {
+            // NOP
+        }
+    }
+}
+
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

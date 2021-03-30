@@ -56,7 +56,6 @@ class AHashTable {
         Node(const SingleChain::Node& n, HashType h) :
             SingleChain::Node(n),
             hash(h) {};
-
     };
 
     class Iterator {
@@ -93,25 +92,24 @@ class AHashTable {
         Node* node() const {
             return node_;
         }
-
     };
 
     using BucketItem = SingleChain::Node*;
     using Buckets = Span<BucketItem>;
 
-  protected:  // variables
+  private:  // variables
 
-    SingleChain chain;
+    SingleChain chain_;
     size_type size_;
 
     Buckets buckets;
     BucketItem lastItem;
 
-  public:   // functions
+  public:  // functions
 
     AHashTable() :
         size_(0U),
-        lastItem(&chain.getFrontNode()) {};
+        lastItem(&chain_.getFrontNode()) {};
 
     explicit AHashTable(Buckets b) :
         AHashTable() {
@@ -121,8 +119,16 @@ class AHashTable {
     AHashTable(const AHashTable& other) = delete;
     AHashTable& operator=(const AHashTable& other) = delete;
 
-    AHashTable(AHashTable&& other) = default;
-    AHashTable& operator=(AHashTable&& other) = default;
+    AHashTable(AHashTable&& other) noexcept :
+        AHashTable() {
+        *this = std::move(other);
+    }
+
+    AHashTable& operator=(AHashTable&& other) noexcept {
+        steal(other);
+        other.reset();
+        return *this;
+    }
 
     ~AHashTable() = default;
 
@@ -134,10 +140,8 @@ class AHashTable {
         return (size_ == 0U);
     }
 
-  protected:
-
     Iterator begin() const {
-        return Iterator(static_cast<AHashTable::Node*>(chain.getFirst()));
+        return Iterator(static_cast<AHashTable::Node*>(chain_.getFirst()));
     }
 
     Iterator end() const {
@@ -168,9 +172,13 @@ class AHashTable {
 
     /// \}
 
-    size_type bucketOfHash(HashType h) const {
+    size_type bucketIxOfHash(HashType h) const {
         ETL_ASSERT(buckets.size() > 0U);
         return (h % buckets.size());
+    }
+
+    BucketItem& bucketOfHash(HashType h) const {
+        return buckets[bucketIxOfHash(h)];
     }
 
     void bindBuckets(Buckets b) {
@@ -178,31 +186,102 @@ class AHashTable {
         buckets = b;
     }
 
-    Buckets rehash(Buckets newBuckets) {
-
-        ETL_ASSERT(newBuckets.size() > 0U);
-
-        auto oldBuckets = buckets;
-        AHashTable rehashed(newBuckets);
-
-        while (!chain.isEmpty()) {
-
-            auto node = chain.removeAfter(&chain.getFrontNode());
-
-            ETL_ASSERT(node != nullptr);
-            rehashed.insert(static_cast<Node&>(*node));
-        }
-
-        *this = std::move(rehashed);
-
-        return oldBuckets;
+    Buckets getBuckets() const {
+        return buckets;
     }
+
+    SingleChain& chain() {
+        return chain_;
+    }
+
+    template<typename B>
+    void swapWithSources(B& ownBucketSource,
+                         AHashTable& other,
+                         B& otherBucketSource);
+
+    void consume(SingleChain& chain);
 
   private:
 
-    std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
+    void steal(AHashTable& other) noexcept {
+        chain_ = std::move(other.chain_);
+        size_ = other.size_;
+        buckets = other.buckets;
+        if (size_ == 0) {
+            lastItem = &chain_.getFrontNode();
+        } else {
+            lastItem = other.lastItem;
+        }
+    }
 
+    void reset() noexcept {
+        chain_ = SingleChain {};
+        size_ = 0;
+        buckets = Buckets {};
+        lastItem = &chain_.getFrontNode();
+    }
+
+    std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
 };
+
+
+inline void swap(AHashTable& lhs, AHashTable& rhs) {
+    AHashTable tmp {std::move(lhs)};
+    lhs = std::move(rhs);
+    rhs = std::move(tmp);
+}
+
+
+template<typename B>
+void AHashTable::swapWithSources(B& ownBucketSource,
+                                 AHashTable& other,
+                                 B& otherBucketSource) {
+
+    // swap the base
+    swap(*this, other);
+
+    // swap the bucket contents and rebind the buckets
+    ownBucketSource.swap(otherBucketSource);
+    buckets = Buckets {ownBucketSource};
+    other.buckets = Buckets {otherBucketSource};
+
+    // fix the incorrect 'front node' references in buckets
+    auto fixBucketOfFirst = [](AHashTable& table) {
+        if (!table.chain_.isEmpty()) {
+            auto* first = static_cast<const Node*>(table.chain_.getFirst());
+            ETL_ASSERT(first != nullptr);
+            auto& b = table.bucketOfHash(first->hash);
+            ETL_ASSERT(b != nullptr);
+            b = &table.chain_.getFrontNode();
+        }
+    };
+    fixBucketOfFirst(*this);
+    fixBucketOfFirst(other);
+}
+
+
+inline void AHashTable::consume(SingleChain& chain) {
+
+    while (!chain.isEmpty()) {
+
+        auto* node = chain.removeAfter(&chain.getFrontNode());
+
+        ETL_ASSERT(node != nullptr);
+        insert(static_cast<AHashTable::Node&>(*node));
+    }
+}
+
+
+inline AHashTable rehash(AHashTable& hashTable, AHashTable::Buckets newBuckets) {
+
+    ETL_ASSERT(newBuckets.size() > 0U);
+
+    AHashTable rehashed(newBuckets);
+    rehashed.consume(hashTable.chain());
+
+    return rehashed;
+}
+
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

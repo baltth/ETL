@@ -95,7 +95,11 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
   public:  // functions
 
     UnorderedMap() :
-        Base(buckets, allocator) {};
+        Base(buckets, allocator),
+        buckets(NB) {
+        ETL_ASSERT(buckets.size() == NB);
+        this->bindBuckets(buckets);
+    }
 
     ~UnorderedMap() {
         this->clear();

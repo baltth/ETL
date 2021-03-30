@@ -112,7 +112,8 @@ struct SizeDiff {
 };
 
 
-inline SizeDiff sizeDiff(size_t l, size_t r) {
+template<class L, class R>
+enable_if_t<is_integral<L>::value && is_integral<R>::value, SizeDiff> sizeDiff(L l, R r) {
 
     SizeDiff d {};
 
@@ -128,7 +129,8 @@ inline SizeDiff sizeDiff(size_t l, size_t r) {
 }
 
 template<class L, class R>
-SizeDiff sizeDiff(const L& l, const R& r) {
+enable_if_t<!(is_integral<L>::value && is_integral<R>::value), SizeDiff> sizeDiff(const L& l,
+                                                                                  const R& r) {
     return sizeDiff(l.size(), r.size());
 }
 
@@ -177,6 +179,25 @@ constexpr typename std::add_const<T>::type* asConst(T* t) noexcept {
 
 template<typename T>
 void asConst(const T&&) = delete;
+
+
+/// Trait struct for customizing e.g. `List::swapTwo()` operations.
+/// The default implementation checks the standard contract of `swap()` function.
+/// Rationale: stdlib implementations may have inconsistent traits,
+/// e.g. with gcc 5 `std::is_move_assignable<std::pair<const K, E>>::value == true`
+/// This induces using `swap()` operation in certain situations, but that
+/// does not compile. This struct allows to force 'stealing' instead of
+/// swapping via specialization.
+template<typename T>
+struct UseSwapInCont {
+    static constexpr bool value = is_move_constructible<T>::value && is_move_assignable<T>::value;
+};
+
+template<class K, class E>
+struct UseSwapInCont<std::pair<const K, E>> {
+    static constexpr bool value = false;
+};
+
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

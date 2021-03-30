@@ -228,10 +228,9 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[unorderedmap][etl]
 }
 
 
-#if 0
 TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[unorderedmap][etl]") {
 
-    typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
+    typedef Etl::Dynamic::UnorderedMap<int, int32_t> MapType;
 
     MapType map;
 
@@ -240,14 +239,17 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[unorderedmap][etl]") {
     map.insert(3, -3);
     map.insert(4, -4);
 
-    MapType map2;
+    SECTION("between Dynamic types") {
 
-    map2.insert(1, 1);
-    map2.insert(5, -5);
+        MapType map2;
 
-    CHECK(map.size() == 4);
-    CHECK(map2.size() == 2);
+        map2.insert(1, 1);
+        map2.insert(5, -5);
 
+        CHECK(map.size() == 4);
+        CHECK(map2.size() == 2);
+
+#if 0
     SECTION("copy assignment") {
 
         map2 = map;
@@ -265,22 +267,69 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[unorderedmap][etl]") {
         REQUIRE(map3[1] == map[1]);
         REQUIRE(map3[4] == map[4]);
     }
+#endif
 
-    SECTION("swap()") {
+        SECTION("swap()") {
 
-        map.swap(map2);
+            map.swap(map2);
+
+            REQUIRE(map2.size() == 4);
+            REQUIRE(map.size() == 2);
+
+            REQUIRE(map[1] == 1);
+            REQUIRE(map[5] == -5);
+
+            REQUIRE(map2[1] == -1);
+            REQUIRE(map2[4] == -4);
+        }
+    }
+
+    SECTION("between Dynamic ans Static types") {
+
+        using StaticMapType = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
+        StaticMapType map2;
+
+        map2.insert(1, 1);
+        map2.insert(5, -5);
+
+        CHECK(map.size() == 4);
+        CHECK(map2.size() == 2);
+
+#if 0
+    SECTION("copy assignment") {
+
+        map2 = map;
 
         REQUIRE(map2.size() == 4);
-        REQUIRE(map.size() == 2);
+        REQUIRE(map2[1] == map[1]);
+        REQUIRE(map2[4] == map[4]);
+    }
 
-        REQUIRE(map[1] == 1);
-        REQUIRE(map[5] == -5);
+    SECTION("copy constructor") {
 
-        REQUIRE(map2[1] == -1);
-        REQUIRE(map2[4] == -4);
+        MapType map3 = map;
+
+        REQUIRE(map3.size() == 4);
+        REQUIRE(map3[1] == map[1]);
+        REQUIRE(map3[4] == map[4]);
+    }
+#endif
+
+        SECTION("swap()") {
+
+            map.swap(map2);
+
+            REQUIRE(map2.size() == 4);
+            REQUIRE(map.size() == 2);
+
+            REQUIRE(map[1] == 1);
+            REQUIRE(map[5] == -5);
+
+            REQUIRE(map2[1] == -1);
+            REQUIRE(map2[4] == -4);
+        }
     }
 }
-#endif
 
 
 TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
