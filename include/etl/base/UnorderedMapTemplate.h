@@ -34,7 +34,7 @@ template<class K,
          class E,
          class H = std::hash<K>,
          class KE = std::equal_to<K>>
-class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
+class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
 
   public:  // types
 
@@ -50,7 +50,7 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>, H> {
     using pointer = value_type*;
     using const_pointer = const value_type*;
 
-    using Base = Detail::UnorderedBase<value_type, hasher>;
+    using Base = Detail::UnorderedBase<value_type>;
     using Node = typename Base::Node;
 
     using iterator = typename Base::iterator;

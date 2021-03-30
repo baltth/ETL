@@ -31,7 +31,7 @@ namespace ETL_NAMESPACE {
 namespace Detail {
 
 
-template<class T, class Hash>
+template<class T>
 class UnorderedBase {
 
   public:  // types
@@ -48,7 +48,7 @@ class UnorderedBase {
     using HashType = AHashTable::HashType;
 
     class Node : public AHashTable::Node {
-        friend class UnorderedBase<T, Hash>;
+        friend class UnorderedBase<T>;
 
       public:  // variables
 
@@ -68,7 +68,7 @@ class UnorderedBase {
     };
 
     class const_iterator : public AHashTable::Iterator {
-        friend class UnorderedBase<T, Hash>;
+        friend class UnorderedBase<T>;
 
       public:
 
@@ -88,11 +88,11 @@ class UnorderedBase {
             AHashTable::Iterator(it) {};
 
         const_reference operator*() const {
-            return static_cast<const UnorderedBase<T, Hash>::Node*>(node())->item;
+            return static_cast<const UnorderedBase<T>::Node*>(node())->item;
         }
 
         const_pointer operator->() const {
-            return &(static_cast<const UnorderedBase<T, Hash>::Node*>(node())->item);
+            return &(static_cast<const UnorderedBase<T>::Node*>(node())->item);
         }
 
         bool operator==(const const_iterator& other) const {
@@ -116,12 +116,12 @@ class UnorderedBase {
 
       private:
 
-        explicit const_iterator(UnorderedBase<T, Hash>::Node* n) :
+        explicit const_iterator(UnorderedBase<T>::Node* n) :
             AHashTable::Iterator(n) {};
     };
 
     class iterator : public AHashTable::Iterator {
-        friend class UnorderedBase<T, Hash>;
+        friend class UnorderedBase<T>;
 
       public:
 
@@ -142,11 +142,11 @@ class UnorderedBase {
         }
 
         reference operator*() const {
-            return static_cast<UnorderedBase<T, Hash>::Node*>(node())->item;
+            return static_cast<UnorderedBase<T>::Node*>(node())->item;
         }
 
         pointer operator->() const {
-            return &(static_cast<UnorderedBase<T, Hash>::Node*>(node())->item);
+            return &(static_cast<UnorderedBase<T>::Node*>(node())->item);
         }
 
         bool operator==(const iterator& other) const {
@@ -178,7 +178,7 @@ class UnorderedBase {
 
       private:
 
-        explicit iterator(UnorderedBase<T, Hash>::Node* n) :
+        explicit iterator(UnorderedBase<T>::Node* n) :
             AHashTable::Iterator(n) {};
 
         explicit iterator(const AHashTable::Iterator& it) :
@@ -378,8 +378,8 @@ class UnorderedBase {
 };
 
 
-template<class T, class Hash>
-void UnorderedBase<T, Hash>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
+template<class T>
+void UnorderedBase<T>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
 
     auto it = begin();
     while (it != end()) {
@@ -388,8 +388,8 @@ void UnorderedBase<T, Hash>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
 }
 
 
-template<class T, class Hash>
-auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy)
+template<class T>
+auto UnorderedBase<T>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy)
     -> iterator {
 
     ETL_ASSERT(pos != end());
@@ -406,10 +406,9 @@ auto UnorderedBase<T, Hash>::erase(iterator pos) noexcept(NodeAllocator::Noexcep
 }
 
 
-template<class T, class Hash>
+template<class T>
 template<typename It, typename P>
-auto UnorderedBase<T, Hash>::findExactInRange(It first, It last, P predicate) const
-    -> const_iterator {
+auto UnorderedBase<T>::findExactInRange(It first, It last, P predicate) const -> const_iterator {
 
     bool found = false;
     while ((!found) && (first != last)) {
@@ -428,9 +427,9 @@ auto UnorderedBase<T, Hash>::findExactInRange(It first, It last, P predicate) co
 }
 
 
-template<class T, class Hash>
+template<class T>
 template<typename H, typename... Args>
-auto UnorderedBase<T, Hash>::emplace(H hasher, Args&&... args) -> iterator {
+auto UnorderedBase<T>::emplace(H hasher, Args&&... args) -> iterator {
 
     auto inserted = allocator.allocate(1);
     if (inserted != nullptr) {
@@ -444,9 +443,9 @@ auto UnorderedBase<T, Hash>::emplace(H hasher, Args&&... args) -> iterator {
 }
 
 
-template<class T, class Hash>
+template<class T>
 template<typename H>
-void UnorderedBase<T, Hash>::swapElements(H hasher, UnorderedBase& other) {
+void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
 
     auto origOwnSize = size();
     auto origOwnBucketsSize = buckets.size();
@@ -486,7 +485,6 @@ void UnorderedBase<T, Hash>::swapElements(H hasher, UnorderedBase& other) {
         other.hashTable = AHashTable {other.buckets};
 
         // Realloc and insert elements
-
         Node* ownNode = static_cast<Node*>(origOwnChain.getFirst());
         Node* otherNode = static_cast<Node*>(origOtherChain.getFirst());
 
