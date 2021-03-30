@@ -106,29 +106,31 @@ bool isLess(const L& lhs, const R& rhs) {
 
 
 struct SizeDiff {
-
-    uint32_t common;
-    uint32_t lGreaterWith;
-    uint32_t rGreaterWith;
-
-    template<class L, class R>
-    SizeDiff(const L& l, const R& r) :
-        common(0),
-        lGreaterWith(0),
-        rGreaterWith(0) {
-
-        if (l.size() > r.size()) {
-
-            common = r.size();
-            lGreaterWith = l.size() - r.size();
-
-        } else {
-
-            common = l.size();
-            rGreaterWith = r.size() - l.size();
-        }
-    }
+    uint32_t common {0};
+    uint32_t lGreaterWith {0};
+    uint32_t rGreaterWith {0};
 };
+
+
+inline SizeDiff sizeDiff(size_t l, size_t r) {
+
+    SizeDiff d {};
+
+    if (l > r) {
+        d.common = r;
+        d.lGreaterWith = l - r;
+    } else {
+        d.common = l;
+        d.rGreaterWith = r - l;
+    }
+
+    return d;
+}
+
+template<class L, class R>
+SizeDiff sizeDiff(const L& l, const R& r) {
+    return sizeDiff(l.size(), r.size());
+}
 
 
 template<class T>

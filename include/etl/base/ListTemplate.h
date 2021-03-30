@@ -409,7 +409,7 @@ void List<T>::spliceElements(const_iterator pos,
 template<class T>
 void List<T>::swapElements(List<T>& other) {
 
-    const Detail::SizeDiff diff(*this, other);
+    const auto diff = sizeDiff(*this, other);
 
     iterator ownIt = this->begin();
     iterator otherIt = other.begin();

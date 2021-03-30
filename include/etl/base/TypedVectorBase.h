@@ -835,7 +835,7 @@ template<class T>
 void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) noexcept(
     is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
 
-    const SizeDiff diff(*this, other);
+    const auto diff = sizeDiff(*this, other);
 
     for (size_type i = 0; i < diff.common; ++i) {
         this->swapValues(this->operator[](i), other[i]);
