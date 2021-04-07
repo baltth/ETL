@@ -41,6 +41,9 @@ void AHashTable::insert(AHashTable::Node& item) {
     } else {
         std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(item.hash, ix);
         chain_.insertAfter(res.first, &item);
+        if (res.first == lastItem) {
+            lastItem = res.first->next;
+        }
     }
 
     ++size_;
@@ -143,12 +146,13 @@ const AHashTable::Node* AHashTable::findNode(HashType hash) const {
 
         auto node = static_cast<const Node*>(buckets[ix]->next);
 
-        while ((node->hash != hash) && (bucketIxOfHash(node->hash) == ix)) {
+        ETL_ASSERT(node != nullptr);
+
+        while ((node != nullptr) && (node->hash != hash) && (bucketIxOfHash(node->hash) == ix)) {
             node = static_cast<const Node*>(node->next);
-            ETL_ASSERT(node != nullptr);
         }
 
-        if (node->hash == hash) {
+        if ((node != nullptr) && (node->hash == hash)) {
             res = node;
         }
     }

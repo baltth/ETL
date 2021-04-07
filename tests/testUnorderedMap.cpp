@@ -361,6 +361,88 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
     }
 }
 
+TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap][etl]") {
+
+    static const size_t BUCKETS {16};
+    static const size_t MOD {BUCKETS};
+
+    typedef Etl::Static::UnorderedMap<int, int, 64, BUCKETS> MapType;
+    MapType map;
+
+    using Input = Etl::Dynamic::Set<int>;
+
+    auto fill = [](Input& input, int base) {
+        for (size_t i = 0; i < 5; ++i) {
+            input.insert(base + (i * MOD));
+        }
+    };
+
+    Input inBucket1;
+    fill(inBucket1, 1);
+    Input inBucket2;
+    fill(inBucket2, 2);
+    Input inBucket4;
+    fill(inBucket4, 4);
+
+    CHECK(map.hash_function()(34) == 34);
+
+    CHECK_FALSE(inBucket1.empty());
+    CHECK_FALSE(inBucket2.empty());
+    CHECK_FALSE(inBucket4.empty());
+
+    for (auto item : inBucket1) {
+        map.insert(item, -item);
+    }
+
+    for (auto item : inBucket2) {
+        map.insert(item, -item);
+    }
+
+    for (auto item : inBucket4) {
+        map.insert(item, -item);
+    }
+
+    CHECK(map.size() == (inBucket1.size() + inBucket2.size() + inBucket4.size()));
+
+    SECTION("bucket_size()") {
+
+#if 0
+        auto& ht = map.ht();
+        size_t cnt = 0;
+        ht.inspect([&cnt](size_t ix, const void* node) {
+            std::cout << "#" << cnt << " ix " << ix << " @ " << node << std::endl;
+            ++cnt;
+        });
+#endif
+
+        CHECK(map.bucket_size(0) == 0);
+        CHECK(map.bucket_size(1) == inBucket1.size());
+        CHECK(map.bucket_size(2) == inBucket2.size());
+        CHECK(map.bucket_size(3) == 0);
+        CHECK(map.bucket_size(4) == inBucket4.size());
+        CHECK(map.bucket_size(5) == 0);
+
+        REQUIRE(map.max_bucket_count() == BUCKETS);
+    }
+
+    SECTION("bucket iteration") {
+
+        auto checkBucket = [](const MapType& map, uint32_t ix, const Input& input) {
+            CAPTURE(ix);
+            CHECK(map.bucket_size(ix) == input.size());
+            auto it = map.begin(ix);
+            while (it != map.end(ix)) {
+                CAPTURE(it->first);
+                REQUIRE(input.find(it->first) != input.end());
+                ++it;
+            }
+        };
+
+        checkBucket(map, 1, inBucket1);
+        checkBucket(map, 2, inBucket2);
+        checkBucket(map, 4, inBucket4);
+    }
+}
 
 #if 0
 TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[unorderedmap][etl]") {

@@ -27,6 +27,7 @@ limitations under the License.
 #include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
+#include <limits>
 #include <utility>
 
 namespace ETL_NAMESPACE {
@@ -43,7 +44,7 @@ class AHashTable {
     class Node : public SingleChain::Node {
         friend class AHashTable;
 
-      protected:  // variables
+      public:  // variables
 
         HashType hash;
 
@@ -91,6 +92,63 @@ class AHashTable {
 
         Node* node() const {
             return node_;
+        }
+    };
+
+    class LocalIterator : protected Iterator {
+        friend class AHashTable;
+
+      public:  // types
+
+        static constexpr size_type INVALID_IX {std::numeric_limits<size_type>::max()};
+
+      protected:  // variables
+
+        size_type origIx;
+        mutable size_type ix;
+        size_type div;
+
+      public:  // functions
+
+        LocalIterator& operator++() {
+            Iterator::operator++();
+            if (node() != nullptr) {
+                ix = AHashTable::bucketIx(node()->hash, div);
+            } else {
+                ix = INVALID_IX;
+            }
+            return *this;
+        }
+
+        bool operator==(const LocalIterator& other) const;
+
+        bool operator!=(const LocalIterator& other) const {
+            return !this->operator==(other);
+        }
+
+      protected:
+
+        LocalIterator(AHashTable::Node* n, size_type ix, size_type d) :
+            Iterator(n),
+            origIx(ix),
+            ix((n != nullptr) ? ix : INVALID_IX),
+            div(d) {};
+
+        LocalIterator() :
+            LocalIterator(nullptr, 0, 1) {};
+
+      private:
+
+        bool inOrigBucket() const {
+            return ix == origIx;
+        }
+
+        bool isConstructedEnd() const {
+            return ix == INVALID_IX;
+        }
+
+        bool isEndOfIx(size_type ix) const {
+            return (ix == this->origIx) && isConstructedEnd();
         }
     };
 
@@ -172,9 +230,37 @@ class AHashTable {
 
     /// \}
 
+    /// \name Bucket interface
+    /// \{
+
+    LocalIterator begin(size_type ix) const;
+
+    LocalIterator end(size_type ix) const {
+        return LocalIterator {nullptr, ix, divisorForHash()};
+    }
+
+    size_type bucketSize(size_type ix) const {
+        size_type cnt = 0U;
+        auto it = begin(ix);
+        auto endIt = end(ix);
+        while (it != endIt) {
+            ++cnt;
+            ++it;
+        }
+        return cnt;
+    }
+
+    static size_type bucketIx(HashType h, size_type divisor) {
+        ETL_ASSERT(divisor > 0U);
+        return (h % divisor);
+    }
+
+    size_type divisorForHash() const {
+        return buckets.size();
+    }
+
     size_type bucketIxOfHash(HashType h) const {
-        ETL_ASSERT(buckets.size() > 0U);
-        return (h % buckets.size());
+        return bucketIx(h, divisorForHash());
     }
 
     BucketItem& bucketOfHash(HashType h) const {
@@ -189,6 +275,7 @@ class AHashTable {
     Buckets getBuckets() const {
         return buckets;
     }
+    /// \}
 
     SingleChain& chain() {
         return chain_;
@@ -200,6 +287,15 @@ class AHashTable {
                          B& otherBucketSource);
 
     void consume(SingleChain& chain);
+
+    template<typename I>
+    void inspect(I inspector) const {
+        auto* node = static_cast<const Node*>(chain_.getFirst());
+        while (node != nullptr) {
+            inspector(bucketIxOfHash(node->hash), node);
+            node = static_cast<const Node*>(node->next);
+        }
+    }
 
   private:
 
@@ -223,6 +319,37 @@ class AHashTable {
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);
 };
+
+
+inline bool AHashTable::LocalIterator::operator==(const LocalIterator& other) const {
+
+    if (origIx == other.origIx) {
+        if (inOrigBucket() && other.inOrigBucket()) {
+            return Iterator::operator==(other);
+        } else if ((!inOrigBucket()) && (other.isEndOfIx(origIx))) {
+            return true;
+        } else if (isEndOfIx(other.origIx) && (!other.inOrigBucket())) {
+            return true;
+        } else if ((!inOrigBucket()) && (!other.inOrigBucket())) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+
+inline AHashTable::LocalIterator AHashTable::begin(size_type ix) const {
+
+    if ((ix >= buckets.size()) || (buckets[ix] == nullptr)) {
+        return end(ix);
+    }
+
+    auto* first = buckets[ix]->next;
+    return LocalIterator {static_cast<Node*>(first), ix, divisorForHash()};
+}
 
 
 inline void swap(AHashTable& lhs, AHashTable& rhs) {

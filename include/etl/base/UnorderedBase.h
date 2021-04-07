@@ -95,13 +95,8 @@ class UnorderedBase {
             return &(static_cast<const UnorderedBase<T>::Node*>(node())->item);
         }
 
-        bool operator==(const const_iterator& other) const {
-            return AHashTable::Iterator::operator==(other);
-        }
-
-        bool operator!=(const const_iterator& other) const {
-            return !(operator==(other));
-        }
+        using AHashTable::Iterator::operator==;
+        using AHashTable::Iterator::operator!=;
 
         const_iterator& operator++() {
             AHashTable::Iterator::operator++();
@@ -149,21 +144,8 @@ class UnorderedBase {
             return &(static_cast<UnorderedBase<T>::Node*>(node())->item);
         }
 
-        bool operator==(const iterator& other) const {
-            return AHashTable::Iterator::operator==(other);
-        }
-
-        bool operator!=(const iterator& other) const {
-            return !(operator==(other));
-        }
-
-        bool operator==(const const_iterator& other) const {
-            return AHashTable::Iterator::operator==(other);
-        }
-
-        bool operator!=(const const_iterator& other) const {
-            return !(operator==(other));
-        }
+        using AHashTable::Iterator::operator==;
+        using AHashTable::Iterator::operator!=;
 
         iterator& operator++() {
             AHashTable::Iterator::operator++();
@@ -183,6 +165,100 @@ class UnorderedBase {
 
         explicit iterator(const AHashTable::Iterator& it) :
             AHashTable::Iterator(it) {};
+    };
+
+    class const_local_iterator : public AHashTable::LocalIterator {
+        friend class UnorderedBase<T>;
+
+      public:
+
+        using difference_type = int;
+        using value_type = const T;
+        using pointer = const T*;
+        using reference = const T&;
+        using iterator_category = std::forward_iterator_tag;
+
+        const_local_iterator() = default;
+
+        const_local_iterator(const const_local_iterator& it) :
+            AHashTable::LocalIterator(it) {};
+
+        explicit const_local_iterator(const AHashTable::LocalIterator& it) :
+            AHashTable::LocalIterator(it) {};
+
+        const_reference operator*() const {
+            return static_cast<const UnorderedBase<T>::Node*>(node())->item;
+        }
+
+        const_pointer operator->() const {
+            return &(static_cast<const UnorderedBase<T>::Node*>(node())->item);
+        }
+
+        using AHashTable::LocalIterator::operator==;
+        using AHashTable::LocalIterator::operator!=;
+
+        const_local_iterator& operator++() {
+            AHashTable::LocalIterator::operator++();
+            return *this;
+        }
+
+        const const_local_iterator operator++(int) {
+            const_local_iterator old = *this;
+            this->operator++();
+            return old;
+        }
+
+      private:
+
+        explicit const_local_iterator(UnorderedBase<T>::Node* n) :
+            AHashTable::LocalIterator(n) {};
+    };
+
+    class local_iterator : public AHashTable::LocalIterator {
+        friend class UnorderedBase<T>;
+
+      public:
+
+        using difference_type = int;
+        using value_type = const T;
+        using pointer = const T*;
+        using reference = const T&;
+        using iterator_category = std::forward_iterator_tag;
+
+        local_iterator() = default;
+
+        local_iterator(const local_iterator& it) :
+            AHashTable::LocalIterator(it) {};
+
+        explicit local_iterator(const AHashTable::LocalIterator& it) :
+            AHashTable::LocalIterator(it) {};
+
+        const_reference operator*() const {
+            return static_cast<const UnorderedBase<T>::Node*>(node())->item;
+        }
+
+        const_pointer operator->() const {
+            return &(static_cast<const UnorderedBase<T>::Node*>(node())->item);
+        }
+
+        using AHashTable::LocalIterator::operator==;
+        using AHashTable::LocalIterator::operator!=;
+
+        local_iterator& operator++() {
+            AHashTable::LocalIterator::operator++();
+            return *this;
+        }
+
+        const local_iterator operator++(int) {
+            local_iterator old = *this;
+            this->operator++();
+            return old;
+        }
+
+      private:
+
+        explicit local_iterator(UnorderedBase<T>::Node* n) :
+            AHashTable::LocalIterator(n) {};
     };
 
     using BucketImpl = ETL_NAMESPACE::Vector<AHashTable::BucketItem>;
@@ -271,6 +347,50 @@ class UnorderedBase {
     }
     /// \}
 
+    /// \name Bucket interface
+    /// \{
+
+    local_iterator begin(size_type ix) {
+        return local_iterator(hashTable.begin(ix));
+    }
+
+    const_local_iterator begin(size_type ix) const {
+        return const_local_iterator(hashTable.begin(ix));
+    }
+
+    const_local_iterator cbegin(size_type ix) const {
+        return this->begin(ix);
+    }
+
+    local_iterator end(size_type ix) {
+        return local_iterator(hashTable.end(ix));
+    }
+
+    const_local_iterator end(size_type ix) const {
+        return const_local_iterator(hashTable.end(ix));
+    }
+
+    const_local_iterator cend(size_type ix) const {
+        return this->end(ix);
+    }
+
+    size_type bucket_size(size_type ix) const {
+        return hashTable.bucketSize(ix);
+    }
+
+    size_type bucket_count() const {
+        return buckets.size();
+    }
+
+    size_type max_bucket_count() const {
+        return buckets.max_size();
+    }
+    /// \}
+
+    const AHashTable& ht() const {
+        return hashTable;
+    }
+
   protected:
 
     void bindBuckets(Buckets b) {
@@ -306,6 +426,10 @@ class UnorderedBase {
         return hashTable.count(hash);
     }
     /// \}
+
+    size_type bucketIx(HashType h) const {
+        return hashTable.bucketIxOfHash(h);
+    }
 
     template<typename H>
     iterator insert(H hasher, const_reference item) {

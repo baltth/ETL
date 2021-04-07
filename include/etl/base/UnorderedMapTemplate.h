@@ -107,6 +107,13 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     using Base::cend;
     /// \}
 
+    /// \name Bucket interface
+    /// \{
+    size_type bucket(const key_type& key) const {
+        return bucketIx(hasher()(key));
+    }
+    /// \}
+
     /// \name Lookup
     /// \{
     iterator find(const key_type& key) {
@@ -152,6 +159,18 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
 
     void swap(UnorderedMap& other) {
         Base::swap(KeyHasher(), other);
+    }
+    /// \}
+    
+    /// \name Observers
+    /// \{
+    
+    hasher hash_function() const {
+        return hasher();
+    }
+
+    key_equal key_eq() const {
+        return key_equal();
     }
     /// \}
 
