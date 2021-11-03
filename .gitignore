@@ -1,5 +1,5 @@
 build*
-doxygen
+doc/
 .vscode
 .refresh_cscope.sh
 .cleanup_ws.sh
