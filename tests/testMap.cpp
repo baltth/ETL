@@ -190,7 +190,7 @@ TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
 
 TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, int32_t> MapType;
 
     MapType map;
 
@@ -233,7 +233,7 @@ TEST_CASE("Etl::Dynamic::Map<> iteration tests", "[map][etl]") {
 
 TEST_CASE("Etl::Dynamic::Map<> element order", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, int32_t> MapType;
 
     MapType map;
 
@@ -318,7 +318,7 @@ TEST_CASE("Etl::Dynamic::Map<> association tests", "[map][etl]") {
 
 TEST_CASE("Etl::Dynamic::Map<> copy", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, int32_t> MapType;
 
     MapType map;
 

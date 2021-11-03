@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -969,8 +969,8 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
 
     ListT::iterator it = list.begin();
 
-    for (uint8_t i = 0; i < list.size(); ++i) {
-        REQUIRE(it->get() == i);
+    for (size_t i = 0; i < list.size(); ++i) {
+        REQUIRE(it->get() == static_cast<int>(i));
         ++it;
     }
 
@@ -984,8 +984,8 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     *it = std::ref(i0);
 
     it = list.begin();
-    for (uint8_t i = 0; i < list.size(); ++i) {
-        REQUIRE(it->get() == (list.size() - i - 1));
+    for (size_t i = 0; i < list.size(); ++i) {
+        REQUIRE(it->get() == static_cast<int>(list.size() - i - 1));
         ++it;
     }
 
