@@ -28,123 +28,85 @@ limitations under the License.
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <vector>
 
 using ETL_NAMESPACE::Test::ContainerTester;
 
 // Etl::Vector tests -----------------------------------------------------------
 
-TEST_CASE("Etl::Vector<> insert performance", "[vec][perf][etl]") {
+namespace {
+
+template<typename V>
+void testRandom(V& vec) {
 
     static const uint32_t CYCLES = 100000UL;
 
-    SECTION("with int32_t") {
+    for (size_t i = 0; i < CYCLES; ++i) {
 
-        typedef Etl::Static::Vector<int32_t, 128> VecT;
-
-        VecT vec;
-        vec.push_back(-2);
-        vec.push_back(-1);
-
-        std::clock_t start = std::clock();
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
-            vec.push_back(i);
-            VecT::iterator pos = vec.begin();
-            vec.insert(++pos, 40U, i + 1);
-            vec.push_front(i);
-            vec.erase(vec.end() - 42, vec.end());
-        }
-
-        std::clock_t end = std::clock();
-
-        CHECK(vec.size() == 2);
-
-        std::cout << "Etl::Static::Vector<int32_t> insertion: "
-                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
-    }
-
-    SECTION("with ContainerTester") {
-
-        typedef Etl::Static::Vector<ContainerTester, 128> VecT;
-
-        VecT vec;
-        vec.push_back(ContainerTester(-2));
-        vec.push_back(ContainerTester(-1));
-
-        std::clock_t start = std::clock();
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
-            vec.push_back(ContainerTester(i));
-            VecT::iterator pos = vec.begin();
-            vec.insert(++pos, 40U, ContainerTester(i + 1));
-            vec.push_front(ContainerTester(i));
-            vec.erase(vec.end() - 42, vec.end());
-        }
-
-        std::clock_t end = std::clock();
-
-        CHECK(vec.size() == 2);
-
-        std::cout << "Etl::Static::Vector<ContainerTester> insertion: "
-                  << ((end - start) * 1000.0 / CLOCKS_PER_SEC) << " ms" << std::endl;
+        vec.push_back(i);
+        auto pos = vec.begin();
+        vec.insert(++pos, 40U, i + 1);
+        vec.insert(vec.begin(), i);
+        vec.erase(vec.end() - 42, vec.end());
     }
 }
 
+TEST_CASE("Etl::Vector<> insert performance", "[vec][perf][etl]") {
+
+    typedef Etl::Static::Vector<int32_t, 128> SVec;
+
+    SVec sVec;
+    sVec.push_back(-2);
+    sVec.push_back(-1);
+
+    BENCHMARK("Static::Vector<int32_t>") {
+        testRandom(sVec);
+    };
+
+    typedef Etl::Dynamic::Vector<int32_t> DVec;
+
+    DVec dVec;
+    dVec.push_back(-2);
+    dVec.push_back(-1);
+
+    BENCHMARK("Dynamic::Vector<int32_t>") {
+        testRandom(dVec);
+    };
+
+    typedef std::vector<int32_t> StdVec;
+
+    StdVec stdVec;
+    stdVec.push_back(-2);
+    stdVec.push_back(-1);
+
+    BENCHMARK("std::vector<int32_t>") {
+        testRandom(stdVec);
+    };
+}
 
 // Etl::BufStr performance tests ---------------------------------------------
 
 
 TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
 
-    static const uint32_t CYCLES = 100000UL;
-
     typedef Etl::Static::BufStr<128> BufT;
 
-    SECTION("with double") {
-
-        std::clock_t sum = 0;
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
+    BENCHMARK_ADVANCED("with double")(Catch::Benchmark::Chronometer meter) {
+        double val = (std::rand() * 100.0 / RAND_MAX) - 50.0;
+        meter.measure([val] {
             BufT bs;
-            bs << i;
-
-            double val = (std::rand() * 100.0 / RAND_MAX) - 50.0;
-
-            std::clock_t start = std::clock();
             bs << val;
-            std::clock_t end = std::clock();
+        });
+    };
 
-            sum += (end - start);
-        }
-
-        CHECK(sum > 0);
-
-        std::cout << "Etl::BufStr << double: " << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms"
-                  << std::endl;
-    }
-
-    SECTION("with hex") {
-
-        std::clock_t sum = 0;
-
-        for (uint32_t i = 0; i < CYCLES; ++i) {
-
+    BENCHMARK_ADVANCED("with hex")(Catch::Benchmark::Chronometer meter) {
+        auto i = static_cast<uint32_t>(std::rand());
+        meter.measure([i] {
             BufT bs;
             bs << "0x";
-
-            std::clock_t start = std::clock();
             bs << Etl::BufStr::Hex(i, 10);
-            std::clock_t end = std::clock();
-
-            sum += (end - start);
-        }
-
-        CHECK(sum > 0);
-
-        std::cout << "Etl::BufStr << hex: " << (sum * 1000.0 / CLOCKS_PER_SEC) << " ms"
-                  << std::endl;
-    }
+        });
+    };
 }
+
+}  // namespace
