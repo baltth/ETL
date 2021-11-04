@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef __ETL_TEST_DUMMYALLOCATOR_H__
 #define __ETL_TEST_DUMMYALLOCATOR_H__
 
-namespace ETL_NAMESPACE {
+namespace Etl {
 namespace Test {
 
 
@@ -92,6 +92,6 @@ template<class T>
 uint32_t DummyAllocator<T>::deleteCnt = 0;
 
 }  // namespace Test
-}  // namespace ETL_NAMESPACE
+}  // namespace Etl
 
 #endif  // __ETL_TEST_DUMMYALLOCATOR_H__

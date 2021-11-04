@@ -27,8 +27,8 @@ limitations under the License.
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 
-using ETL_NAMESPACE::Test::ContainerTester;
-using ETL_NAMESPACE::Test::DummyAllocator;
+using Etl::Test::ContainerTester;
+using Etl::Test::DummyAllocator;
 
 
 TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {

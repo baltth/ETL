@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "UnalignedTester.h"
 
-using ETL_NAMESPACE::Test::UnalignedTester;
+using Etl::Test::UnalignedTester;
 
 
 TEST_CASE("Etl::Array<> basic test", "[array][etl][basic]") {

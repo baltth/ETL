@@ -26,7 +26,7 @@ limitations under the License.
 #include <iostream>
 #include <string>
 
-namespace ETL_NAMESPACE {
+namespace Etl {
 namespace Test {
 
 
@@ -186,6 +186,6 @@ inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
 }
 
 }  // namespace Test
-}  // namespace ETL_NAMESPACE
+}  // namespace Etl
 
 #endif  // __ETL_TEST_CONTAINERTESTER_H__

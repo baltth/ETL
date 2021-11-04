@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <sstream>
 
-using ETL_NAMESPACE::Test::ContainerTester;
+using Etl::Test::ContainerTester;
 
 
 uint32_t ContainerTester::objectCnt = 0;

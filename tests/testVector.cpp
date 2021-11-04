@@ -29,8 +29,8 @@ limitations under the License.
 #include "compatibilityTests.h"
 #include "sequenceTests.h"
 
-using ETL_NAMESPACE::Test::UnalignedTester;
-using ETL_NAMESPACE::Test::ContainerTester;
+using Etl::Test::UnalignedTester;
+using Etl::Test::ContainerTester;
 
 
 // Etl::Vector tests ----------------------------------------------------------

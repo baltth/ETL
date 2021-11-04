@@ -30,7 +30,7 @@ limitations under the License.
 #include <iostream>
 #include <vector>
 
-using ETL_NAMESPACE::Test::ContainerTester;
+using Etl::Test::ContainerTester;
 
 // Etl::Vector tests -----------------------------------------------------------
 

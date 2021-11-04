@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "ContainerTester.h"
 
-using ETL_NAMESPACE::Test::ContainerTester;
+using Etl::Test::ContainerTester;
 
 
 template<class FifoT>

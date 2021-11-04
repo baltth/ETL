@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <stdint.h>
 
-namespace ETL_NAMESPACE {
+namespace Etl {
 namespace Test {
 
 
@@ -37,6 +37,6 @@ class __attribute__((packed)) UnalignedTester {
 };
 
 }  // namespace Test
-}  // namespace ETL_NAMESPACE
+}  // namespace Etl
 
 #endif  // __ETL_TEST_UNALIGNEDTESTER_H__

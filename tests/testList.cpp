@@ -31,10 +31,10 @@ limitations under the License.
 #include "compatibilityTests.h"
 #include "sequenceTests.h"
 
-using ETL_NAMESPACE::Test::ContainerTester;
-using ETL_NAMESPACE::Test::DummyAllocator;
+using Etl::Test::ContainerTester;
+using Etl::Test::DummyAllocator;
 
-using ETL_NAMESPACE::Detail::NothrowContract;
+using Etl::Detail::NothrowContract;
 
 static_assert(NothrowContract<Etl::Static::List<int, 16U>>::value,
               "nothrow contract");
