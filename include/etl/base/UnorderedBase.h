@@ -276,10 +276,11 @@ class UnorderedBase {
     /// \name Construction, destruction, assignment
     /// \{
     UnorderedBase(BucketImpl& b, NodeAllocator& a) :
-        buckets(b),
-        allocator(a),
-        hashTable(b),
-        mlf {1.0} {};
+        buckets {b},  // Note: reference of buckets are stored here but...
+        allocator {a},
+        hashTable {},  // ...bucket binding for the hashTable is skipped intentionally as creating a
+                       // Span<> from a container would access uninitialized data of the container.
+        mlf {1.0f} {};
 
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
@@ -412,8 +413,8 @@ class UnorderedBase {
 
   protected:
 
-    void bindBuckets(Buckets b) {
-        hashTable.bindBuckets(b);
+    void bindOwnBuckets() {
+        hashTable.bindBuckets(buckets);
     }
 
     /// \name Lookup

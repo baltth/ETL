@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         Base(buckets, allocator),
         buckets(32) {
         ETL_ASSERT(buckets.size() == 32);
-        this->bindBuckets(buckets);
+        this->bindOwnBuckets();
     };
 
     ~UnorderedMap() {
@@ -98,7 +98,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         Base(buckets, allocator),
         buckets(NB) {
         ETL_ASSERT(buckets.size() == NB);
-        this->bindBuckets(buckets);
+        this->bindOwnBuckets();
     }
 
     ~UnorderedMap() {
