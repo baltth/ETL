@@ -175,7 +175,11 @@ class DynamicSized : public AMemStrategy<C> {
     void reserveExactly(C& cont, size_type length) final;
 
     void reserve(C& cont, size_type length) final {
-        reserveExactly(cont, getRoundedLength(length));
+        auto cap = cont.capacity();
+        if(length > cap) {
+            auto goal = std::max(length, 2U * cap);
+            reserveExactly(cont, getRoundedLength(goal));
+        }
     }
 
     void shrinkToFit(C& cont) noexcept final;
