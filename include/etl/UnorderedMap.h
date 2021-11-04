@@ -76,7 +76,7 @@ using UnorderedMap = ETL_NAMESPACE::Custom::UnorderedMap<K, E, std::allocator>;
 
 namespace Static {
 
-template<class K, class E, std::size_t NN, std::size_t NB>
+template<class K, class E, std::size_t NN, std::size_t NB = NN>
 class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
 
   public:  // types
@@ -99,6 +99,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         buckets(NB) {
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
+        this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     ~UnorderedMap() {

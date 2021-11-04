@@ -564,6 +564,26 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> hash policy tests", "[unorderedmap][etl]
 }
 
 
+TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") {
+
+    SECTION("with default number of buckets") {
+
+        Etl::Static::UnorderedMap<int, int, 55U> map;
+
+        REQUIRE(map.bucket_count() == 55U);
+        REQUIRE(map.max_load_factor() == Approx(1.0f));
+    }
+
+    SECTION("with custom number of buckets") {
+
+        Etl::Static::UnorderedMap<int, int, 55U, 11U> map;
+
+        REQUIRE(map.bucket_count() == 11U);
+        REQUIRE(map.max_load_factor() == Approx(5.0f));
+    }
+}
+
+
 #if 0
 TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[unorderedmap][etl]") {
 
