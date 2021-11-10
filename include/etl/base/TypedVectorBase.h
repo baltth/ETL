@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -573,26 +573,23 @@ template<class InputIt>
 class TypedVectorBase<T>::ContCreator {
 
   private:
-    const InputIt first;
+    mutable InputIt first;
     mutable InputIt last;
-    const size_type len;
 
   public:
     ContCreator(InputIt fst,
                 InputIt lst) noexcept :
         first(fst),
-        last(lst),
-        len((first < last) ? (last - first) : 0) {};
+        last(lst) {};
+
     size_type getLength() const noexcept {
-        return len;
+        return std::distance(first, last);
     }
     void operator()(pointer pos, size_type cnt, bool place) const
         noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
         for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
-            if (first < last) {
-                --last;
-                TypedVectorBase::copyValue(pos + i, *last, place);
-            }
+            --last;
+            TypedVectorBase::copyValue(pos + i, *last, place);
         }
     }
 };
