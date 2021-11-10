@@ -39,11 +39,16 @@ limitations under the License.
 #include <new>
 #include <utility>
 
+
+#ifndef ETL_VEC_INSERT_OP_DIR_UP
+#define ETL_VEC_INSERT_OP_DIR_UP 1
+#endif
+
 namespace ETL_NAMESPACE {
 
 template<class>
 class StaticSized;
-template<class, class>
+template<class, class, bool>
 class DynamicSized;
 
 namespace Detail {
@@ -211,17 +216,17 @@ class TypedVectorBase : public AVectorBase {
         return this->proxy;
     }
 
-    static void uninitializedMove(pointer src,
+    static void moveWithPlacement(pointer src,
                                   pointer dst,
                                   size_type num) noexcept(is_nothrow_move_constructible<T>::value);
 
-    static void initializedMoveUp(pointer src,
-                                  pointer dst,
-                                  size_type num) noexcept(is_nothrow_move_assignable<T>::value);
+    static void moveWithAssignment(pointer src,
+                                   pointer dst,
+                                   size_type num) noexcept(is_nothrow_move_assignable<T>::value);
 
-    static void initializedMoveDown(pointer src,
-                                    pointer dst,
-                                    size_type num) noexcept(is_nothrow_move_assignable<T>::value);
+    static void moveDown(pointer src,
+                         pointer dst,
+                         size_type num) noexcept(is_nothrow_move_assignable<T>::value);
 
     static void assignDefaultTo(pointer ptr) noexcept(
         is_nothrow_default_constructible<T>::value&& is_nothrow_move_assignable<T>::value) {
@@ -331,6 +336,13 @@ class TypedVectorBase : public AVectorBase {
                                                     && is_nothrow_move_assignable<T>::value
                                                     && is_nothrow_move_constructible<T>::value);
 
+    template<class CR>
+    iterator
+    insertOneOperation(const_iterator position,
+                       const CR& creatorCall) noexcept(noexcept(creatorCall(nullptr, true))
+                                                       && is_nothrow_move_assignable<T>::value
+                                                       && is_nothrow_move_constructible<T>::value);
+
     void swapElements(TypedVectorBase& other) noexcept(
         is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
 };
@@ -347,7 +359,7 @@ auto TypedVectorBase<T>::erase(iterator first,
     if (numToErase > 0) {
 
         size_type numToMove = end() - last;
-        initializedMoveDown(&*last, &*first, numToMove);
+        moveDown(&*last, &*first, numToMove);
 
         first += numToMove;
         destruct(first, end());
@@ -392,40 +404,112 @@ auto TypedVectorBase<T>::insertOperation(
 
     if (numToInsert > 0) {
 
-        size_type distanceFromEnd = end() - position;
+        // First case: insertion target range is subset of the original the b-e range
+        //
+        //             data             reserved (uninited)
+        // |aaaaaaaabbbbbbbbbbbbbbcccc|......................|
+        //             to insert
+        //          |+++++++++++++|
+        // Result:
+        // |aaaaaaaa|+++++++++++++|bbb|bbbbbbbbbcccc|........|
+        //                 |        |        |
+        //                 |        |       moved w placement
+        //                 |       moved w assignment
+        //                copied w assignment
+        //
+        // Second case: insertion target range overlaps the original end
+        //
+        //             data             reserved (uninited)
+        // |aaaaaaaaaaaaaaaaaaaabbbbbb|......................|
+        //                      |+++++++++++++|
+        //                         to insert
+        // Result:
+        // |aaaaaaaaaaaaaaaaaaaa|+++++|+++++++|bbbbb|........|
+        //                         |      |      |
+        //                         |      |     moved w placement
+        //                         |     copied w placement
+        //                        copied w assignment
 
-        size_type uninitedCopyCnt =
-            (distanceFromEnd >= numToInsert) ? numToInsert : distanceFromEnd;
-        size_type initedCopyCnt =
-            (distanceFromEnd >= numToInsert) ? (distanceFromEnd - numToInsert) : 0;
-        size_type uninitedInsertCnt =
-            (distanceFromEnd >= numToInsert) ? 0 : (numToInsert - distanceFromEnd);
-        size_type initedInsertCnt = uninitedCopyCnt;
+        auto distanceFromEnd = std::distance(position, cend());
+        bool overlapsEnd = (distanceFromEnd < numToInsert);
 
-        pointer src = end() - uninitedCopyCnt;
-        pointer dst = end() + numToInsert - uninitedCopyCnt;
+        size_type movePlacementCnt = overlapsEnd ? distanceFromEnd : numToInsert;
+        size_type moveAssignmentCnt = overlapsEnd ? 0 : (distanceFromEnd - numToInsert);
+        size_type copyPlacementCnt = overlapsEnd ? (numToInsert - distanceFromEnd) : 0;
+        size_type copyAssignmentCnt = movePlacementCnt;
 
-        uninitializedMove(src, dst, uninitedCopyCnt);
+        pointer src = end() - movePlacementCnt;
+        pointer dst = end() + numToInsert - movePlacementCnt;
 
-        src -= initedCopyCnt;
-        dst -= initedCopyCnt;
+        moveWithPlacement(src, dst, movePlacementCnt);
 
-        initializedMoveUp(src, dst, initedCopyCnt);
+        src -= moveAssignmentCnt;
+        dst -= moveAssignmentCnt;
 
-        if (uninitedInsertCnt > 0) {
-            dst -= uninitedInsertCnt;
-            creatorCall(dst, uninitedInsertCnt, true);
+        moveWithAssignment(src, dst, moveAssignmentCnt);
+
+        ETL_ASSERT((copyAssignmentCnt + copyPlacementCnt) == numToInsert);
+#if ETL_VEC_INSERT_OP_DIR_UP
+        dst -= (copyAssignmentCnt + copyPlacementCnt);
+
+        if (copyAssignmentCnt > 0) {
+            creatorCall(dst, copyAssignmentCnt, false);
+            dst += copyAssignmentCnt;
         }
 
-        if (initedInsertCnt > 0) {
-            dst -= initedInsertCnt;
-            creatorCall(dst, initedInsertCnt, false);
+        if (copyPlacementCnt > 0) {
+            creatorCall(dst, copyPlacementCnt, true);
+            dst += copyPlacementCnt;
+        }
+#else
+        if (copyPlacementCnt > 0) {
+            dst -= copyPlacementCnt;
+            creatorCall(dst, copyPlacementCnt, true);
         }
 
+        if (copyAssignmentCnt > 0) {
+            dst -= copyAssignmentCnt;
+            creatorCall(dst, copyAssignmentCnt, false);
+        }
+#endif
         proxy.setSize(size() + numToInsert);
     }
 
     return iterator(position);
+}
+
+
+template<class T>
+template<class CR>
+auto TypedVectorBase<T>::insertOneOperation(
+    const_iterator position,
+    const CR& creatorCall) noexcept(noexcept(creatorCall(nullptr, true))
+                                    && is_nothrow_move_assignable<T>::value
+                                    && is_nothrow_move_constructible<T>::value)
+    -> iterator {
+
+    size_type distanceFromEnd = std::distance(position, cend());
+
+    auto pos = reinterpret_cast<pointer>(const_cast<iterator>(position));
+
+    if (distanceFromEnd > 0) {
+        // When inserting to the middle...
+        pointer last = end() - 1U;
+        // ... move the last with placement
+        placeValueTo(end(), std::move(*last));
+        // ... move the others with assignment
+        pointer pos = const_cast<pointer>(position);
+        moveWithAssignment(pos, (pos + 1U), (distanceFromEnd - 1U));
+        // ... assign to the insertion point
+        creatorCall(pos, false);
+    } else {
+        // When inserting to the end
+        creatorCall(pos, true);
+    }
+
+    proxy.setSize(size() + 1U);
+
+    return iterator(pos);
 }
 
 
@@ -453,7 +537,7 @@ void TypedVectorBase<T>::moveOperation(pointer dst, pointer src, size_type num) 
 
 
 template<class T>
-void TypedVectorBase<T>::uninitializedMove(pointer src, pointer dst, size_type num) noexcept(
+void TypedVectorBase<T>::moveWithPlacement(pointer src, pointer dst, size_type num) noexcept(
     is_nothrow_move_constructible<T>::value) {
 
     if (src != dst) {
@@ -465,7 +549,7 @@ void TypedVectorBase<T>::uninitializedMove(pointer src, pointer dst, size_type n
 
 
 template<class T>
-void TypedVectorBase<T>::initializedMoveUp(pointer src, pointer dst, size_type num) noexcept(
+void TypedVectorBase<T>::moveWithAssignment(pointer src, pointer dst, size_type num) noexcept(
     is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
@@ -477,8 +561,9 @@ void TypedVectorBase<T>::initializedMoveUp(pointer src, pointer dst, size_type n
 
 
 template<class T>
-void TypedVectorBase<T>::initializedMoveDown(pointer src, pointer dst, size_type num) noexcept(
-    is_nothrow_move_assignable<T>::value) {
+void TypedVectorBase<T>::moveDown(pointer src,
+                                  pointer dst,
+                                  size_type num) noexcept(is_nothrow_move_assignable<T>::value) {
 
     if (src != dst) {
         for (size_type i = 0; i < num; ++i) {
@@ -604,12 +689,22 @@ class TypedVectorBase<T>::ContCreator {
     size_type getLength() const noexcept {
         return std::distance(first, last);
     }
+
     void operator()(pointer pos, size_type cnt, bool place) const
-        noexcept(noexcept(TypedVectorBase::copyValue(pos, *last, place))) {
+        noexcept(noexcept(TypedVectorBase::copyValue(pos, *first, place))) {
+#if ETL_VEC_INSERT_OP_DIR_UP
+        for (size_t i = 0; i < cnt; ++i) {
+            ETL_ASSERT(first != last);
+            TypedVectorBase::copyValue(pos + i, *first, place);
+            ++first;
+        }
+#else
         for (int32_t i = (static_cast<int32_t>(cnt) - 1); i >= 0; --i) {
+            ETL_ASSERT(first != last);
             --last;
             TypedVectorBase::copyValue(pos + i, *last, place);
         }
+#endif
     }
 };
 }  // namespace Detail

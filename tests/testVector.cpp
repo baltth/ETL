@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -146,13 +146,12 @@ TEST_CASE("Etl::Static::Vector<> iteration test", "[vec][static][etl][basic]") {
 template<class VecT>
 void testVectorInsertAndErase() {
 
+    SECTION("insert(const_iterator, uint32_t, const T&)") {
+    
     VecT vec(4, 0);
-
     CHECK(vec.size() == 4);
 
-    SECTION("insert(const_iterator, uint32_t, const T&)") {
-
-        typename VecT::iterator it = vec.begin() + 2;
+        auto it = vec.begin() + 2;
         it = vec.insert(it, 2);
         REQUIRE(vec[2] == 2);
         REQUIRE(vec.size() == 5);
@@ -183,37 +182,26 @@ void testVectorInsertAndErase() {
 
     SECTION("insert(const_iterator, InputIt, InputIt)") {
 
-        vec[0] = 1;
-        vec[1] = 2;
-        vec[2] = 3;
-        vec[3] = 4;
+        VecT vec = {1, 2, 3, 4};
+        CHECK(vec.size() == 4);
 
-        VecT vec2(1, 0);
-        CHECK(vec2.size() == 1);
+        VecT vec2 = {0, -1, -2, -3};
+        CHECK(vec2.size() == 4);
 
-        SECTION("Correct insert") {
+            auto last = vec.cend() - 1;
+            auto pos = vec2.end() - 1;
+            auto it = vec2.insert(pos, vec.cbegin(), last);
 
-            CHECK(vec.size() == 4);
-
-            typename VecT::const_iterator last = vec.cend() - 1;
-            typename VecT::iterator it = vec2.insert(vec2.end(), vec.cbegin(), last);
-
-            REQUIRE(vec2.size() == 4);
-            REQUIRE(it == &vec2[1]);
+            REQUIRE(vec2.size() == 7);
+            REQUIRE(it == &vec2[3]);
 
             REQUIRE(vec2[0] == 0);
-            REQUIRE(vec2[1] == 1);
-            REQUIRE(vec2[2] == 2);
-            REQUIRE(vec2[3] == 3);
-        }
-
-        SECTION("Invalid insert") {
-
-            typename VecT::iterator it = vec2.insert(vec2.end(), vec.cend(), vec.cbegin());
-
-            REQUIRE(vec2.size() == 1);
-            REQUIRE(it == vec2.end());
-        }
+            REQUIRE(vec2[1] == -1);
+            REQUIRE(vec2[2] == -2);
+            CHECK(vec2[3] == 1);
+            CHECK(vec2[4] == 2);
+            CHECK(vec2[5] == 3);
+            CHECK(vec2[6] == -3);
     }
 }
 

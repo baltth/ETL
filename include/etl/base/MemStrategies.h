@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_MEMSTARTEGIES_H__
 
 #include <etl/etlSupport.h>
+#include <etl/traitSupport.h>
 
 #include <limits>
 #include <memory>
@@ -47,6 +48,8 @@ class AMemStrategy {
     virtual void resize(C& cont, size_type length) = 0;
     virtual void resize(C& cont, size_type length, const value_type& ref) = 0;
     virtual void cleanup(C& cont) noexcept = 0;
+
+    const virtual void* handle() const noexcept = 0;
 };
 
 
@@ -101,6 +104,10 @@ class StaticSized : public AMemStrategy<C> {
             cont, length, [&ref](typename C::iterator pos) { C::placeValueTo(pos, ref); });
     }
 
+    const void* handle() const noexcept final {
+        return data;
+    }
+
   private:
 
     template<class INS>
@@ -150,7 +157,7 @@ void StaticSized<C>::setupData(C& cont, size_type length) {
 
 
 /// Mem strategy with dynamic size, allocated with Allocator
-template<class C, class A>
+template<class C, class A, bool UA = false>
 class DynamicSized : public AMemStrategy<C> {
 
   public:  // types
@@ -160,7 +167,7 @@ class DynamicSized : public AMemStrategy<C> {
 
     using Allocator = A;
 
-    static const size_type RESIZE_STEP = 8;
+    static constexpr bool UNIQUE_ALLOCATOR = UA;
 
   private:
 
@@ -176,7 +183,7 @@ class DynamicSized : public AMemStrategy<C> {
 
     void reserve(C& cont, size_type length) final {
         auto cap = cont.capacity();
-        if(length > cap) {
+        if (length > cap) {
             auto goal = std::max(length, 2U * cap);
             reserveExactly(cont, getRoundedLength(goal));
         }
@@ -198,7 +205,22 @@ class DynamicSized : public AMemStrategy<C> {
         deallocate(cont);
     }
 
+    const void* handle() const noexcept final {
+        return getHandle();
+    }
+
   private:
+
+    template<bool T = UNIQUE_ALLOCATOR>
+    enable_if_t<T, const void*> getHandle() const noexcept {
+        return &allocator;
+    }
+
+    template<bool T = UNIQUE_ALLOCATOR>
+    enable_if_t<!T, const void*> getHandle() const noexcept {
+        static const int h {};
+        return &h;
+    }
 
     template<class INS>
     void resizeWithInserter(C& cont, size_type length, INS inserter);
@@ -211,13 +233,14 @@ class DynamicSized : public AMemStrategy<C> {
     }
 
     static size_type getRoundedLength(size_type length) noexcept {
-        return (length + (RESIZE_STEP - 1)) & ~(RESIZE_STEP - 1);
+        static constexpr size_type ROUND_STEP = 8;
+        return (length + (ROUND_STEP - 1)) & ~(ROUND_STEP - 1);
     }
 };
 
 
-template<class C, class A>
-void DynamicSized<C, A>::reserveExactly(C& cont, size_type length) {
+template<class C, class A, bool UA>
+void DynamicSized<C, A, UA>::reserveExactly(C& cont, size_type length) {
 
     if (length > cont.capacity()) {
         reallocateAndCopyFor(cont, length);
@@ -225,8 +248,8 @@ void DynamicSized<C, A>::reserveExactly(C& cont, size_type length) {
 }
 
 
-template<class C, class A>
-void DynamicSized<C, A>::shrinkToFit(C& cont) noexcept {
+template<class C, class A, bool UA>
+void DynamicSized<C, A, UA>::shrinkToFit(C& cont) noexcept {
 
     if (cont.capacity() > cont.size()) {
         reallocateAndCopyFor(cont, cont.size());
@@ -234,9 +257,9 @@ void DynamicSized<C, A>::shrinkToFit(C& cont) noexcept {
 }
 
 
-template<class C, class A>
+template<class C, class A, bool UA>
 template<class INS>
-void DynamicSized<C, A>::resizeWithInserter(C& cont, size_type length, INS inserter) {
+void DynamicSized<C, A, UA>::resizeWithInserter(C& cont, size_type length, INS inserter) {
 
     using iterator = typename C::iterator;
 
@@ -262,8 +285,8 @@ void DynamicSized<C, A>::resizeWithInserter(C& cont, size_type length, INS inser
 }
 
 
-template<class C, class A>
-void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, size_type len) {
+template<class C, class A, bool UA>
+void DynamicSized<C, A, UA>::reallocateAndCopyFor(C& cont, size_type len) {
 
     auto oldData = cont.data();
     auto oldEnd = cont.end();
@@ -278,7 +301,7 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, size_type len) {
         if ((cont.data() != nullptr) && (numToCopy > 0)) {
 
             auto dataAlias = cont.data();
-            C::uninitializedMove(oldData, dataAlias, numToCopy);
+            C::moveWithPlacement(oldData, dataAlias, numToCopy);
         }
 
         C::destruct(oldData, oldEnd);
@@ -287,8 +310,8 @@ void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, size_type len) {
 }
 
 
-template<class C, class A>
-void DynamicSized<C, A>::allocate(C& cont, size_type len) {
+template<class C, class A, bool UA>
+void DynamicSized<C, A, UA>::allocate(C& cont, size_type len) {
 
     if (len > 0) {
         cont.getProxy().setData(allocator.allocate(len));

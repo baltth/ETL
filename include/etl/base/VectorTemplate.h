@@ -32,6 +32,7 @@ limitations under the License.
 #undef max
 
 #include <initializer_list>
+#include <iterator>
 #include <type_traits>
 #include <utility>
 
@@ -76,13 +77,19 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
     Vector& operator=(const Vector& other) {
         if (&other != this) {
+            this->clear();
+            this->reserve(other.size());
             assign(other.begin(), other.end());
         }
         return *this;
     }
 
     Vector& operator=(Vector&& other) {
-        this->replaceWith(std::move(other));
+        if (strategy.handle() == other.strategy.handle()) {
+            swap(other);
+        } else {
+            this->replaceWith(std::move(other));
+        }
         return *this;
     }
 
@@ -176,7 +183,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
     using Base::erase;
 
     iterator insert(const_iterator position, const_reference value) {
-        return insert(position, 1U, value);
+        return emplace(position, value);
     }
 
     iterator insert(const_iterator position, size_type num, const_reference value);
@@ -184,15 +191,17 @@ class Vector : protected Detail::TypedVectorBase<T> {
     template<typename InputIt>
     enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last) {
-        typename Base::template ContCreator<InputIt> cc(first, last);
-        return insertWithCreator(position, cc.getLength(), cc);
+        return insertRange(
+            position, first, last, typename std::iterator_traits<InputIt>::iterator_category {});
     }
 
     void insert(const_iterator position, std::initializer_list<T> initList) {
         insert(position, initList.begin(), initList.end());
     }
 
-    iterator insert(const_iterator position, T&& value);
+    iterator insert(const_iterator position, T&& value) {
+        return emplace(position, std::move(value));
+    }
 
     template<typename... Args>
     iterator emplace(const_iterator pos, Args&&... args);
@@ -218,12 +227,60 @@ class Vector : protected Detail::TypedVectorBase<T> {
     explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         strategy(s) {};
 
+    template<typename InputIt>
+    iterator
+    insertRange(const_iterator position, InputIt first, InputIt last, std::forward_iterator_tag) {
+        typename Base::template ContCreator<InputIt> cc {first, last};
+        return insertWithCreator(position, cc.getLength(), cc);
+    }
+
+    template<typename InputIt>
+    iterator
+    insertRange(const_iterator position, InputIt first, InputIt last, std::input_iterator_tag) {
+        iterator res {position};
+        bool insertedOne = false;
+        while (first != last) {
+            insert(position, *first);
+            ++position;
+            ++first;
+        }
+        return insertedOne ? ++res : res;
+    }
+
     template<class CR>
     iterator insertWithCreator(const_iterator position, size_type num, const CR& creatorCall);
-    iterator insertWithCreator(const_iterator position, size_type num, CreateFunc&& creatorCall);
 
     void replaceWith(Vector&& other);
+
+  private:
+
+    std::pair<bool, const_iterator> prepareForInsert(const_iterator position,
+                                                     size_type numToInsert);
 };
+
+
+template<class T>
+auto Vector<T>::prepareForInsert(const_iterator position, size_type numToInsert)
+    -> std::pair<bool, const_iterator> {
+
+    bool success = true;
+    if (numToInsert > 0) {
+
+        size_type requestedCapacity = Base::size() + numToInsert;
+
+        if (requestedCapacity > this->capacity()) {
+            size_type positionIx = position - this->begin();
+            this->reserve(requestedCapacity);
+            position = this->begin() + positionIx;
+        }
+
+        if (requestedCapacity > this->capacity()) {
+            success = false;
+        }
+    }
+
+    return {success, position};
+}
 
 
 template<class T>
@@ -233,17 +290,9 @@ auto Vector<T>::insertWithCreator(const_iterator position,
                                   const CR& creatorCall) -> iterator {
 
     if (numToInsert > 0) {
-
-        size_type requestedCapacity = Base::size() + numToInsert;
-
-        if (requestedCapacity > this->capacity()) {
-            auto positionIx = std::distance(this->cbegin(), position);
-            this->reserve(requestedCapacity);
-            position = this->getConstIterator(positionIx);
-        }
-
-        if (requestedCapacity <= this->capacity()) {
-            position = Base::insertOperation(position, numToInsert, creatorCall);
+        auto res = prepareForInsert(position, numToInsert);
+        if (res.first) {
+            position = Base::insertOperation(res.second, numToInsert, creatorCall);
         }
     }
 
@@ -255,7 +304,9 @@ template<class T>
 void Vector<T>::swap(Vector<T>& other) {
 
     if (&other != this) {
-        if ((this->max_size() >= other.size()) && (other.max_size() >= this->size())) {
+        if (strategy.handle() == other.strategy.handle()) {
+            Detail::AVectorBase::swapProxy(other);
+        } else if ((this->max_size() >= other.size()) && (other.max_size() >= this->size())) {
 
             this->reserve_exactly(other.size());
             other.reserve_exactly(this->size());
@@ -289,65 +340,35 @@ auto Vector<T>::insert(const_iterator position, size_type num, const_reference v
 
     return insertWithCreator(
         position, num, [this, &value](pointer item, size_type cnt, bool place) {
-            for (size_type i = 0; i < cnt; ++i) {
-                if (place) {
+            if (place) {
+                for (size_type i = 0; i < cnt; ++i) {
                     this->placeValueTo(item + i, value);
-                } else {
+                }
+            } else {
+                for (size_type i = 0; i < cnt; ++i) {
                     this->assignValueTo(item + i, value);
                 }
             }
         });
-}
-
-
-template<class T>
-auto Vector<T>::insert(const_iterator position, T&& value) -> iterator {
-
-    return insertWithCreator(position, 1, [this, &value](pointer item, size_type, bool place) {
-        if (place) {
-            this->placeValueTo(item, std::move(value));
-        } else {
-            this->assignValueTo(item, std::move(value));
-        }
-    });
-}
+}  // namespace ETL_NAMESPACE
 
 
 template<class T>
 template<typename... Args>
 auto Vector<T>::emplace(const_iterator position, Args&&... args) -> iterator {
 
-    return insertWithCreator(position, 1, [&args...](pointer item, size_type, bool place) {
-        if (place) {
-            new (item) T(args...);
-        } else {
-            *item = T(args...);
-        }
-    });
-}
-
-
-template<class T>
-auto Vector<T>::insertWithCreator(const_iterator position,
-                                  size_type numToInsert,
-                                  CreateFunc&& creatorCall) -> iterator {
-
-    if (numToInsert > 0) {
-
-        size_type requestedCapacity = Base::size() + numToInsert;
-
-        if (requestedCapacity > this->capacity()) {
-            auto positionIx = std::distance(this->cbegin(), position);
-            this->reserve(requestedCapacity);
-            position = this->getConstIterator(positionIx);
-        }
-
-        if (requestedCapacity <= this->capacity()) {
-            position = Base::insertOperation(position, numToInsert, creatorCall);
-        }
+    iterator result = const_cast<iterator>(position);
+    auto res = prepareForInsert(position, 1U);
+    if (res.first) {
+        result = Base::insertOneOperation(res.second, [&args...](pointer item, bool place) {
+            if (place) {
+                new (item) T(args...);
+            } else {
+                *item = T(args...);
+            }
+        });
     }
-
-    return iterator(position);
+    return result;
 }
 
 
@@ -602,4 +623,4 @@ void swap(Vector<T>& lhs, Vector<T>& rhs) {
 }  // namespace ETL_NAMESPACE
 
 
-#endif // __ETL_VECTORTEMPLATE_H__
+#endif  // __ETL_VECTORTEMPLATE_H__
