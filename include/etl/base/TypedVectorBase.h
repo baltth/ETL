@@ -343,6 +343,13 @@ class TypedVectorBase : public AVectorBase {
                                                        && is_nothrow_move_assignable<T>::value
                                                        && is_nothrow_move_constructible<T>::value);
 
+    template<typename InputIt>
+    iterator insertRangeOperation(const_iterator position, InputIt first, InputIt last) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
+
+    void swapNeighbourRanges(size_type toEndStart, size_type toMidStart) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
+
     void swapElements(TypedVectorBase& other) noexcept(
         is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
 };
@@ -510,6 +517,120 @@ auto TypedVectorBase<T>::insertOneOperation(
     proxy.setSize(size() + 1U);
 
     return iterator(pos);
+}
+
+
+template<class T>
+void TypedVectorBase<T>::swapNeighbourRanges(size_type toEndStart, size_type toMidStart) noexcept(
+    is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
+
+    if (empty()) {
+        return;
+    }
+
+    // Swap neighbour ranges on the end of the container.
+    //
+    //    original data    inserted to end
+    // |aaaaaaaaaabbbbbbbbccccccccc|
+    //            |       |
+    //            |      toMidStart
+    //           toEndStart
+
+    ETL_ASSERT(toMidStart >= toEndStart);
+    auto cntToEnd = toMidStart - toEndStart;
+    ETL_ASSERT(size() > toMidStart);
+    auto cntToMid = size() - toMidStart;
+
+    if ((cntToEnd == 0U) || (cntToMid == 0U)) {
+        return;
+    }
+
+    //   data[toMidStart] contains the first inserted element, to be moved to
+    // data[toEndStart]. This is moved to a temporary, then the free slot is filled
+    // with the element to be there etc. The end of the algorithm is to have
+    // data[toEndStart] as a free slot, to be filled with the temporary.
+    // The algorithm shall use cntToMid + cntToEnd steps.
+    //
+    // Goal      |aaaaaaCCCCCCCCBBB|
+    // Given     |aaaaaabbbcccccccc|
+    //                  |  |       |
+    //        cntToEnd >|--|<      |
+    //                  | >|-------|< cntToMid
+    //          toEndStart |
+    //                    toMidStart
+    //
+    // S#0       |aaaaaabbb ccScccc|  tmp: c
+    //                      __|        |  - make one empty with moving to a temporary,
+    //                     |           |    that will be the final position of 'S'
+    // S#1       |aaaaaabbbCcc ccSc|   |  - move 'S' to its final position ('C' after move),
+    //                                 |    find the next 'S' to insert to the free position ...
+    // S#2       |aaaaaabSbCccCcc c|   |  - the next item of I is always
+    //                                 |    ((I - toEndStart + cntToEnd) % (cntToEnd +
+    //                                 cntToMid)) + toEndStart
+    // S#3       |aaaaaab bCScCccBc|   |
+    // S#4       |aaaaaabCbC cCScBc|   |
+    // S#5       |aaaaaabCbCCcC cBS|   |
+    // S#6       |aaaaaabCSCCcCCcB |   |
+    // S#7       |aaaaaabC CCSCCcBB|   |
+    // S#8       |aaaaaabCCCC CCSBB|   |
+    // S#9       |aaaaaaSCCCCCCC BB|   |
+    // S#10      |aaaaaa CCCCCCCBBB|   | - ... until the destination of the first element is
+    //                  _______________|   reached.
+    //                  |
+    // S#11      |aaaaaaCCCCCCCCBBB|
+    //
+    // At this stage the reordering is complete only if
+    // cntToEnd and (cntToEnd + cntToMid) are coprimes (?????).
+    // In any other case the algorithm finishes with stepCnt < (cntToMid + cntToEnd).
+    // E.g. when cntToEnd == 4 and cntToMid == 6
+    //    |aabbbbcccccc|
+    //    |aabbbb cccSc|  tmp: c
+    // 1  |aabbSbCccc c|   |
+    // 2  |aabb bCcScBc|   |
+    // 3  |aaSbCbCc cBc|   |
+    // 4  |aa bCbCcBcBc|   |
+    // 5  |aaCbCbCcBcBc|---|
+    // In this case you have to repeat the whole sequence
+    // with on offset start position:
+    //    |aaCbCbC BcBS|  tmp: c
+    // 6  |aaCbCSCCBcB |   |
+    // 7  |aaCbC CCBSBB|   |
+    // 8  |aaCSCCCCB BB|   |
+    // 9  |aaC CCCCBBBB|   |
+    // 10 |aaCCCCCCBBBB|---|
+
+    auto d = data();
+
+    const size_type totalCnt = cntToMid + cntToEnd;
+    auto sourceOf = [toEndStart, cntToEnd, totalCnt](size_type dest) {
+        ETL_ASSERT(dest >= toEndStart);
+        return ((dest - toEndStart + cntToEnd) % totalCnt) + toEndStart;
+    };
+
+    size_type startSlot = toMidStart;
+    size_type steps = 0U;
+    while (steps < totalCnt) {
+
+        value_type tmp = std::move(d[startSlot]);
+        size_type freeSlot = startSlot;
+        auto sourceSlot = sourceOf(freeSlot);
+        size_type cnt = 0U;
+        while (sourceSlot != startSlot) {
+            d[freeSlot] = std::move(d[sourceSlot]);
+            freeSlot = sourceSlot;
+            sourceSlot = sourceOf(freeSlot);
+            ++cnt;
+            ETL_ASSERT(cnt < totalCnt);
+        }
+
+        d[freeSlot] = std::move(tmp);
+
+        ++startSlot;
+
+        ++cnt;
+        ETL_ASSERT((totalCnt % cnt) == 0U);
+        steps += cnt;
+    }
 }
 
 

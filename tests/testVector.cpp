@@ -147,9 +147,9 @@ template<class VecT>
 void testVectorInsertAndErase() {
 
     SECTION("insert(const_iterator, uint32_t, const T&)") {
-    
-    VecT vec(4, 0);
-    CHECK(vec.size() == 4);
+
+        VecT vec(4, 0);
+        CHECK(vec.size() == 4);
 
         auto it = vec.begin() + 2;
         it = vec.insert(it, 2);
@@ -188,20 +188,61 @@ void testVectorInsertAndErase() {
         VecT vec2 = {0, -1, -2, -3};
         CHECK(vec2.size() == 4);
 
-            auto last = vec.cend() - 1;
-            auto pos = vec2.end() - 1;
-            auto it = vec2.insert(pos, vec.cbegin(), last);
+        auto last = vec.cend() - 1;
+        auto pos = vec2.end() - 1;
+        auto it = vec2.insert(pos, vec.cbegin(), last);
 
-            REQUIRE(vec2.size() == 7);
-            REQUIRE(it == &vec2[3]);
+        REQUIRE(vec2.size() == 7);
+        REQUIRE(it == &vec2[3]);
 
-            REQUIRE(vec2[0] == 0);
-            REQUIRE(vec2[1] == -1);
-            REQUIRE(vec2[2] == -2);
-            CHECK(vec2[3] == 1);
-            CHECK(vec2[4] == 2);
-            CHECK(vec2[5] == 3);
-            CHECK(vec2[6] == -3);
+        REQUIRE(vec2[0] == 0);
+        REQUIRE(vec2[1] == -1);
+        REQUIRE(vec2[2] == -2);
+        CHECK(vec2[3] == 1);
+        CHECK(vec2[4] == 2);
+        CHECK(vec2[5] == 3);
+        CHECK(vec2[6] == -3);
+    }
+
+    SECTION("random insert(const_iterator, InputIt, InputIt)") {
+
+        static constexpr int LIMIT = 100;
+        int cntToInsert = GENERATE(take(3, random(0, LIMIT)));
+        int cntBefore = GENERATE(take(3, random(0, LIMIT)));
+
+        CAPTURE(cntToInsert);
+        CAPTURE(cntBefore);
+
+        static constexpr int BASE = 5U;
+        VecT dst(BASE, 0U);
+        for(int i = 0; i < cntBefore; ++i) {
+            dst.push_back(i + 1);
+        }
+
+        VecT src;
+        for (int i = 0; i < cntToInsert; ++i) {
+            src.push_back(-(i + 1));
+        }
+
+        CHECK(dst.size() == static_cast<size_t>(BASE + cntBefore));
+        CHECK(src.size() == static_cast<size_t>(cntToInsert));
+
+        auto pos = dst.begin() + BASE;
+        dst.insert(pos, src.begin(), src.end());
+
+        REQUIRE(dst.size() == static_cast<size_t>(BASE + cntBefore + cntToInsert));
+
+        for (int i = 0; i < BASE; ++i) {
+            REQUIRE(dst[i] == 0U);
+        }
+
+        for (int i = BASE; i < (BASE + cntToInsert); ++i) {
+            REQUIRE(dst[i] == -(i - BASE + 1));
+        }
+
+        for (int i = (BASE + cntToInsert); i < static_cast<int>(dst.size()); ++i) {
+            REQUIRE(dst[i] == (i - BASE - cntToInsert + 1));
+        }
     }
 }
 
@@ -216,7 +257,7 @@ TEST_CASE("Etl::Dynamic::Vector<> insert/erase test", "[vec][dynamic][etl]") {
 TEST_CASE("Etl::Static::Vector<> insert/erase test", "[vec][static][etl][basic]") {
 
     typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    typedef Etl::Static::Vector<ItemT, 256> VecT;
 
     testVectorInsertAndErase<VecT>();
 }

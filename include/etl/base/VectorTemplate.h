@@ -36,6 +36,10 @@ limitations under the License.
 #include <type_traits>
 #include <utility>
 
+#ifndef ETL_VEC_INSERT_WITH_SNR
+#define ETL_VEC_INSERT_WITH_SNR 0
+#endif
+
 namespace ETL_NAMESPACE {
 
 
@@ -230,21 +234,26 @@ class Vector : protected Detail::TypedVectorBase<T> {
     template<typename InputIt>
     iterator
     insertRange(const_iterator position, InputIt first, InputIt last, std::forward_iterator_tag) {
+#if ETL_VEC_INSERT_WITH_SNR
+        auto numToInsert = std::distance(first, last);
+        if (numToInsert > 0) {
+            auto res = prepareForInsert(position, numToInsert);
+            if (res.first) {
+                position = insertRangeWithSNR(res.second, first, last);
+            }
+        }
+
+        return iterator(position);
+#else
         typename Base::template ContCreator<InputIt> cc {first, last};
         return insertWithCreator(position, cc.getLength(), cc);
+#endif
     }
 
     template<typename InputIt>
     iterator
     insertRange(const_iterator position, InputIt first, InputIt last, std::input_iterator_tag) {
-        iterator res {position};
-        bool insertedOne = false;
-        while (first != last) {
-            insert(position, *first);
-            ++position;
-            ++first;
-        }
-        return insertedOne ? ++res : res;
+        return insertRangeWithSNR(position, first, last);
     }
 
     template<class CR>
@@ -256,6 +265,10 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
     std::pair<bool, const_iterator> prepareForInsert(const_iterator position,
                                                      size_type numToInsert);
+
+    template<typename InputIt>
+    iterator insertRangeWithSNR(const_iterator position, InputIt first, InputIt last) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
 };
 
 
@@ -297,6 +310,48 @@ auto Vector<T>::insertWithCreator(const_iterator position,
     }
 
     return iterator(position);
+}
+
+
+template<class T>
+template<typename InputIt>
+auto Vector<T>::insertRangeWithSNR(const_iterator position, InputIt first, InputIt last) noexcept(
+    is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) -> iterator {
+
+    // This algorithm inserts elements to the end of the container,
+    // then uses move operations to get the final element ordering.
+    // This method is used to insert a range with unknown length,
+    // its _sub-optimal_ when used in other scenarios.
+    //
+    //     original data
+    // |aaaaaaaaaabbbbbbbb|
+    //            |
+    //  to insert |cccccccc|
+    //
+    // 1) insert to end
+    // |aaaaaaaaaabbbbbbbb|cccccccc|
+    //
+    // 2) swap ranges
+    // |aaaaaaaaaacccccccccbbbbbbbb|
+
+    auto posIndex = std::distance(cbegin(), position);
+    size_type origSize = size();
+    ETL_ASSERT(origSize >= posIndex);
+
+    size_t cnt = 0;
+    while (first != last) {
+        // Insert to back
+        insert(end(), *first);
+        ++cnt;
+        ++first;
+    }
+
+    if ((cnt > 0U) && ((origSize + cnt) == size())) {
+        // Reorder to position.
+        Base::swapNeighbourRanges(posIndex, origSize);
+    }
+
+    return (cnt > 0) ? Base::getIterator(posIndex) : iterator(position);
 }
 
 
