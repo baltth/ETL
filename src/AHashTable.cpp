@@ -34,6 +34,11 @@ void AHashTable::insert(AHashTable::Node& item) {
 
     if (buckets[ix] == nullptr) {
 
+        if (lastItem == &chain_.getFrontNode()) {
+            ETL_ASSERT(size() == 0U);
+            frontBucketIx = ix;
+        }
+
         buckets[ix] = lastItem;
         chain_.insertAfter(buckets[ix], &item);
         lastItem = buckets[ix]->next;
@@ -87,6 +92,8 @@ std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType has
 
 AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
 
+    ETL_ASSERT(size() > 0U);
+
     auto* next = static_cast<Node*>(item.next);
     std::pair<SingleChain::Node*, std::uint32_t> prev = findPreviousOfNode(item);
 
@@ -113,6 +120,10 @@ AHashTable::Node* AHashTable::remove(AHashTable::Node& item) {
             // The next element of removed belongs to another bucket,
             // this means the next bucket pointer has to be corrected.
             buckets[nextIx] = prev.first;
+
+            if (prev.first == &chain_.getFrontNode()) {
+                frontBucketIx = nextIx;
+            }
         }
     }
 

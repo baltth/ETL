@@ -27,6 +27,8 @@ limitations under the License.
 #include <etl/base/VectorTemplate.h>
 #include <etl/etlSupport.h>
 
+#include <utility>
+
 namespace ETL_NAMESPACE {
 namespace Detail {
 
@@ -486,38 +488,27 @@ class UnorderedBase {
     template<typename H>
     void swapElements(H hasher, UnorderedBase& other);
 
-    /// Helper to perform non-trivial swap on two elements of different containers.
-    /// This overload is used when `T` conforms the contract of a `swap` function.
     template<typename H, typename U = T>
     enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>>
-    swapTwo(H hasher, Node* own, UnorderedBase& other, Node* toSwap) {
-        using std::swap;
-        (void)other;
-        (void)hasher;
-        Node* nextOwn = static_cast<Node*>(own->next);
-        Node* nextToSwap = static_cast<Node*>(toSwap->next);
-        swap(own->item, toSwap->item);
-        hashTable.insert(own);
-        other.hashTable.insert(toSwap);
-        return std::make_pair(nextOwn, nextToSwap);
-    }
+    swapN(H hasher,
+          Node* ownNode,
+          UnorderedBase& other,
+          Node* otherNode,
+          size_type n);
 
-    /// Helper to perform non-trivial swap on two elements of different containers.
-    /// This overload is used when `T` does not conforms the contract of a `swap` function.
-    /// The function uses no assignment, but expects capacity for one extra element on `this`.
-    template<typename H, class U = T>
+    template<typename H, typename U = T>
     enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>>
-    swapTwo(H hasher, Node* own, UnorderedBase& other, Node* toSwap) {
-        auto nextOther = stealElement(hasher, other, toSwap);
-        auto nextOwn = other.stealElement(hasher, *this, own);
-        return std::make_pair(nextOwn, nextOther);
-    }
+    swapN(H hasher,
+          Node* ownNode,
+          UnorderedBase& other,
+          Node* otherNode,
+          size_type n);
 
     template<typename H>
     Node* stealElement(H hasher,
                        UnorderedBase& other,
                        Node* toSteal) {
-        Node* next = static_cast<Node*>(toSteal->next);
+        auto* next = static_cast<Node*>(toSteal->next);
         emplace(std::move(hasher), std::move(toSteal->item));
         other.destroy(toSteal);
         return next;
@@ -614,8 +605,8 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
     auto origOtherSize = other.size();
     auto origOtherBucketsSize = other.buckets.size();
 
-    if ((allocator.max_size() >= (origOtherSize + 1U))
-        && (other.allocator.max_size() >= (origOwnSize + 1U))) {
+    if ((allocator.max_size() >= origOtherSize)
+        && (other.allocator.max_size() >= origOwnSize)) {
 
         // Steal the chains to stack variables
         SingleChain origOwnChain = std::move(hashTable.chain());
@@ -651,12 +642,8 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
         Node* otherNode = static_cast<Node*>(origOtherChain.getFirst());
 
         const auto diff = sizeDiff(origOwnSize, origOtherSize);
-        for (uint32_t i = 0; i < diff.common; ++i) {
-
-            ETL_ASSERT(ownNode != nullptr);
-            ETL_ASSERT(otherNode != nullptr);
-
-            auto res = swapTwo(hasher, ownNode, other, otherNode);
+        if (diff.common > 0U) {
+            auto res = swapN(hasher, ownNode, other, otherNode, diff.common);
             ownNode = res.first;
             otherNode = res.second;
         }
@@ -676,6 +663,95 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
         } else {
             // NOP
         }
+    }
+}
+
+
+/// Helper to perform non-trivial swap on N element pairs of different containers.
+/// This overload is used when `T` conforms the contract of a `swap` function.
+template<class T>
+template<typename H, typename U /* = T */>
+auto UnorderedBase<T>::swapN(H hasher,
+                             Node* ownNode,
+                             UnorderedBase& other,
+                             Node* otherNode,
+                             size_type n)
+    -> enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>> {
+
+    using std::swap;
+
+    auto swapTwo = [this, &other](Node* own, Node* toSwap) {
+        auto* nextOwn = static_cast<Node*>(own->next);
+        auto* nextToSwap = static_cast<Node*>(toSwap->next);
+        swap(own->item, toSwap->item);
+        hashTable.insert(own);
+        other.hashTable.insert(toSwap);
+        return std::make_pair(nextOwn, nextToSwap);
+    };
+
+    for (size_type i = 0; i < n; ++i) {
+        ETL_ASSERT(ownNode != nullptr);
+        ETL_ASSERT(otherNode != nullptr);
+
+        auto res = swapTwo(hasher, ownNode, other, otherNode);
+        ownNode = res.first;
+        otherNode = res.second;
+    }
+
+    return std::make_pair(ownNode, otherNode);
+}
+
+/// Helper to perform non-trivial swap on N element pairs of different containers.
+/// This overload is used when `T` does not conforms the contract of a `swap` function.
+/// The function uses no assignment, but expects capacity for one extra element on `this`.
+template<class T>
+template<typename H, typename U /* = T */>
+auto UnorderedBase<T>::swapN(H hasher,
+                             Node* ownNode,
+                             UnorderedBase& other,
+                             Node* otherNode,
+                             size_type n)
+    -> enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>> {
+
+    ETL_ASSERT(n > 0U);
+
+    auto swapTwo = [this, &hasher, &other](Node* own, Node* toSwap) {
+        auto nextOther = stealElement(hasher, other, toSwap);
+        auto nextOwn = other.stealElement(hasher, *this, own);
+        return std::make_pair(nextOwn, nextOther);
+    };
+
+    auto doSwap = [&swapTwo](Node* ownNode, Node* otherNode, size_type n) {
+        for (size_type i = 0; i < n; ++i) {
+            ETL_ASSERT(ownNode != nullptr);
+            ETL_ASSERT(otherNode != nullptr);
+            auto res = swapTwo(ownNode, otherNode);
+            ownNode = res.first;
+            otherNode = res.second;
+        }
+        return std::make_pair(ownNode, otherNode);
+    };
+
+    // As swapTwo() needs one empty slot in this,
+    // the algorithm is specialized when this is full.
+    if(size() == allocator.max_size()) {
+        // The first element is moved to a temporary to
+        // free its capacity ...
+        auto* firstNode = ownNode;
+        T tmp = std::move(ownNode->item);
+        ownNode = static_cast<Node*>(ownNode->next);
+        destroy(firstNode);
+        // ... then N - 1 swaps performed ...
+        auto res = doSwap(ownNode, otherNode, n - 1);
+        // ... then the last of other is stolen ...
+        res.second = stealElement(hasher, other, res.second);
+        // ... and finally the temporary is insterted to other
+        other.emplace(hasher, std::move(tmp));
+
+        return res;
+
+    } else {
+        return doSwap(ownNode, otherNode, n);
     }
 }
 

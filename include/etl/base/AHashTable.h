@@ -163,12 +163,14 @@ class AHashTable {
 
     Buckets buckets;
     BucketItem lastItem;
+    size_type frontBucketIx;
 
   public:  // functions
 
     AHashTable() :
-        size_(0U),
-        lastItem(&chain_.getFrontNode()) {};
+        size_ {0U},
+        lastItem {&chain_.getFrontNode()},
+        frontBucketIx {0U} {};
 
     explicit AHashTable(Buckets b) :
         AHashTable() {
@@ -294,6 +296,7 @@ class AHashTable {
         size_ = 0;
         buckets = Buckets {};
         lastItem = &chain_.getFrontNode();
+        frontBucketIx = 0U;
     }
 
     template<typename I>
@@ -319,6 +322,7 @@ class AHashTable {
         chain_ = std::move(other.chain_);
         size_ = other.size_;
         buckets = other.buckets;
+        frontBucketIx = other.frontBucketIx;
 
         // reassign lastItem
         if (size_ == 0) {
@@ -328,12 +332,7 @@ class AHashTable {
         }
 
         // reassign bucket of the front
-        for (size_t i = 0; i < buckets.size(); ++i) {
-            if (buckets[i] == &other.chain().getFrontNode()) {
-                buckets[i] = &chain_.getFrontNode();
-                break;
-            }
-        }
+        buckets[frontBucketIx] = &chain_.getFrontNode();
     }
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);

@@ -757,7 +757,8 @@ struct MapIteration {
 };
 
 
-TEST_CASE("Etl::UnorderedMap<int32_t, T> iteration performance", "[map][unorderedmap][iteration][etl]") {
+TEST_CASE("Etl::UnorderedMap<int32_t, T> iteration performance",
+          "[map][unorderedmap][iteration][etl]") {
 
     SECTION("T = int32_t") {
         SECTION("64 elements") {
@@ -795,5 +796,100 @@ TEST_CASE("Etl::UnorderedMap<int32_t, T> iteration performance", "[map][unordere
         }
     }
 }
+
+
+template<typename MAP>
+struct MapCopy {
+
+    template<typename M, typename INPUT>
+    void prepare(M& map, const INPUT& data) {
+        MapInsert<MAP>::insert(src, data);
+    };
+
+    template<typename M, typename INPUT>
+    void test(M& map, const INPUT& data) {
+        (void)data;
+        map = src;
+    }
+
+    template<typename M>
+    void reset(M& map) {
+        map.clear();
+    }
+
+    MAP src;
+};
+
+
+TEST_CASE("Etl::UnorderedMap<int32_t, T> copy performance", "[map][unorderedmap][copy][etl]") {
+
+    SECTION("T = int32_t") {
+        SECTION("64 elements") {
+            testMaps<int32_t, 64U, MapCopy>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<int32_t, 4096U, MapCopy>();
+        }
+    }
+
+    SECTION("T = ContainerTester") {
+        SECTION("64 elements") {
+            testMaps<ContainerTester, 64U, MapCopy>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<ContainerTester, 4096U, MapCopy>();
+        }
+    }
+}
+
+
+template<typename MAP>
+struct MapMove {
+
+    template<typename M, typename INPUT>
+    void prepare(M& map, const INPUT& data) {
+        MapInsert<MAP>::insert(src, data);
+    };
+
+    template<typename M, typename INPUT>
+    void test(M& map, const INPUT& data) {
+        (void)data;
+        map = std::move(src);
+    }
+
+    template<typename M>
+    void reset(M& map) {
+        src = std::move(map);
+    }
+
+    MAP src;
+};
+
+
+TEST_CASE("Etl::UnorderedMap<int32_t, T> move performance", "[map][unorderedmap][move][etl]") {
+
+    SECTION("T = int32_t") {
+        SECTION("64 elements") {
+            testMaps<int32_t, 64U, MapMove>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<int32_t, 4096U, MapMove>();
+        }
+    }
+
+    SECTION("T = ContainerTester") {
+        SECTION("64 elements") {
+            testMaps<ContainerTester, 64U, MapMove>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<ContainerTester, 4096U, MapMove>();
+        }
+    }
+}
+
 
 }  // namespace
