@@ -23,12 +23,17 @@ limitations under the License.
 #include <catch2/catch.hpp>
 
 #include <etl/BufStr.h>
+#include <etl/Map.h>
+#include <etl/Span.h>
+#include <etl/UnorderedMap.h>
 #include <etl/Vector.h>
 
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <list>
+#include <map>
+#include <unordered_map>
 #include <vector>
 
 #ifndef NDEBUG
@@ -519,6 +524,276 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
             bs << Etl::BufStr::Hex(i + 1U, 10);
         });
     };
+}
+
+
+// Etl::UnorderedMap performance tests ---------------------------------------------
+
+template<typename T, size_t N, template<typename> typename FUNC>
+void testMaps() {
+
+    Etl::Static::Vector<int32_t, N> input;
+    for (size_t i = 0; i < N; ++i) {
+        input.push_back(static_cast<int32_t>(std::rand()));
+    }
+
+#if 0
+    BENCHMARK_ADVANCED("Static::Map<int32_t, T>")(Catch::Benchmark::Chronometer meter) {
+        using M = Etl::Static::Map<int32_t, T, N>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+
+    BENCHMARK_ADVANCED("Dynamic::Map<int32_t, T>")(Catch::Benchmark::Chronometer meter) {
+        using M = Etl::Dynamic::Map<int32_t, T>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+
+    BENCHMARK_ADVANCED("std::map<int32_t, T>")(Catch::Benchmark::Chronometer meter) {
+        using M = std::map<int32_t, T>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+#endif
+
+    BENCHMARK_ADVANCED("Static::UnorderedMap<int32_t, T>")
+    (Catch::Benchmark::Chronometer meter) {
+        using M = Etl::Static::UnorderedMap<int32_t, T, N, N>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+
+    BENCHMARK_ADVANCED("Dynamic::UnorderedMap<int32_t, T>")
+    (Catch::Benchmark::Chronometer meter) {
+        using M = Etl::Dynamic::UnorderedMap<int32_t, T>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+
+    BENCHMARK_ADVANCED("std::unordered_map<int32_t, T>")
+    (Catch::Benchmark::Chronometer meter) {
+        using M = std::unordered_map<int32_t, T>;
+        M map;
+        FUNC<M> func;
+        func.prepare(map, input);
+        meter.measure([&map, &func, &input] {
+            func.test(map, input);
+            func.reset(map);
+        });
+    };
+}
+
+
+template<typename MAP>
+struct MapInsert {
+
+    template<typename M, typename INPUT>
+    void prepare(M& map, const INPUT& data) {};
+
+    template<typename M, typename INPUT>
+    void test(M& map, const INPUT& data) {
+        MapInsert::insert(map, data);
+    }
+
+    template<typename M, typename INPUT>
+    static void insert(M& map, const INPUT& data) {
+
+        for (auto item : data) {
+            map.insert(typename M::value_type {item, item});
+        }
+    }
+
+    template<typename M>
+    void reset(M& map) {
+        map.clear();
+    }
+};
+
+
+TEST_CASE("Etl::UnorderedMap<int32_t, T> insert performance", "[map][unorderedmap][insert][etl]") {
+
+    SECTION("T = int32_t") {
+        SECTION("64 elements") {
+            testMaps<int32_t, 64U, MapInsert>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<int32_t, 256U, MapInsert>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<int32_t, 1024U, MapInsert>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<int32_t, 4096U, MapInsert>();
+        }
+    }
+
+    SECTION("T = ContainerTester") {
+        SECTION("64 elements") {
+            testMaps<ContainerTester, 64U, MapInsert>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<ContainerTester, 256U, MapInsert>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<ContainerTester, 1024U, MapInsert>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<ContainerTester, 4096U, MapInsert>();
+        }
+    }
+}
+
+
+template<typename MAP>
+struct MapAccess {
+
+    template<typename M, typename INPUT>
+    void prepare(M& map, const INPUT& data) {
+        MapInsert<MAP>::insert(map, data);
+    };
+
+    template<typename M, typename INPUT>
+    void test(M& map, const INPUT& data) {
+        for (auto item : data) {
+            auto it = map.find(item);
+            (void)it;
+        }
+    }
+
+    template<typename M>
+    void reset(M& map) {}
+};
+
+
+TEST_CASE("Etl::UnorderedMap<int32_t, T> access performance", "[map][unorderedmap][access][etl]") {
+
+    SECTION("T = int32_t") {
+        SECTION("64 elements") {
+            testMaps<int32_t, 64U, MapAccess>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<int32_t, 256U, MapAccess>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<int32_t, 1024U, MapAccess>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<int32_t, 4096U, MapAccess>();
+        }
+    }
+
+    SECTION("T = ContainerTester") {
+        SECTION("64 elements") {
+            testMaps<ContainerTester, 64U, MapAccess>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<ContainerTester, 256U, MapAccess>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<ContainerTester, 1024U, MapAccess>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<ContainerTester, 4096U, MapAccess>();
+        }
+    }
+}
+
+
+template<typename MAP>
+struct MapIteration {
+
+    template<typename M, typename INPUT>
+    void prepare(M& map, const INPUT& data) {
+        MapInsert<MAP>::insert(map, data);
+    };
+
+    template<typename M, typename INPUT>
+    void test(M& map, const INPUT& data) {
+        for (auto& item : map) {
+            (void)item;
+        }
+    }
+
+    template<typename M>
+    void reset(M& map) {}
+};
+
+
+TEST_CASE("Etl::UnorderedMap<int32_t, T> iteration performance", "[map][unorderedmap][iteration][etl]") {
+
+    SECTION("T = int32_t") {
+        SECTION("64 elements") {
+            testMaps<int32_t, 64U, MapIteration>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<int32_t, 256U, MapIteration>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<int32_t, 1024U, MapIteration>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<int32_t, 4096U, MapIteration>();
+        }
+    }
+
+    SECTION("T = ContainerTester") {
+        SECTION("64 elements") {
+            testMaps<ContainerTester, 64U, MapIteration>();
+        }
+
+        SECTION("256 elements") {
+            testMaps<ContainerTester, 256U, MapIteration>();
+        }
+
+        SECTION("1024 elements") {
+            testMaps<ContainerTester, 1024U, MapIteration>();
+        }
+
+        SECTION("4096 elements") {
+            testMaps<ContainerTester, 4096U, MapIteration>();
+        }
+    }
 }
 
 }  // namespace
