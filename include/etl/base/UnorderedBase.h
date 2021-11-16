@@ -269,6 +269,7 @@ class UnorderedBase {
     BucketImpl& buckets;
     NodeAllocator& allocator;
     AHashTable hashTable;
+    float mlf;
 
   public:  // functions
 
@@ -277,7 +278,8 @@ class UnorderedBase {
     UnorderedBase(BucketImpl& b, NodeAllocator& a) :
         buckets(b),
         allocator(a),
-        hashTable(b) {};
+        hashTable(b),
+        mlf {1.0} {};
 
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
@@ -349,7 +351,6 @@ class UnorderedBase {
 
     /// \name Bucket interface
     /// \{
-
     local_iterator begin(size_type ix) {
         return local_iterator(hashTable.begin(ix));
     }
@@ -385,6 +386,24 @@ class UnorderedBase {
     size_type max_bucket_count() const {
         return buckets.max_size();
     }
+    /// \}
+
+    /// \name Hash policy
+    /// \{
+    float load_factor() const {
+        return static_cast<float>(size()) / bucket_count();
+    }
+
+    float max_load_factor() const {
+        return mlf;
+    }
+
+    void max_load_factor(float m) {
+        static constexpr float LF_MIN = 0.01f;
+        mlf = (m > LF_MIN) ? m : LF_MIN;
+    }
+
+    void rehash(size_type count);
     /// \}
 
     const AHashTable& ht() const {
@@ -499,6 +518,14 @@ class UnorderedBase {
         NodeAllocator::destroy(node);
         allocator.deallocate(node, 1U);
     }
+
+    void rehashForNextInsertOnDemand() {
+        auto rehashLimit = static_cast<size_t>(max_load_factor() * bucket_count());
+        if ((size() + 1U) > rehashLimit) {
+            // @todo add a better scaling logic
+            rehash(rehashLimit * 2U);
+        }
+    }
 };
 
 
@@ -554,6 +581,8 @@ auto UnorderedBase<T>::findExactInRange(It first, It last, P predicate) const ->
 template<class T>
 template<typename H, typename... Args>
 auto UnorderedBase<T>::emplace(H hasher, Args&&... args) -> iterator {
+
+    rehashForNextInsertOnDemand();
 
     auto inserted = allocator.allocate(1);
     if (inserted != nullptr) {
@@ -641,6 +670,31 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
     }
 }
 
+
+template<class T>
+void UnorderedBase<T>::rehash(size_type count) {
+
+    // Static::Vector<> buckets are not rehashed. This is detected by
+    // checking size() vs capacity() vs max_size()
+    if ((buckets.size() == buckets.capacity()) && (buckets.size() == buckets.max_size())) {
+        return;
+    }
+
+    // Checking and correcting the count according to
+    // https://en.cppreference.com/w/cpp/container/unordered_map/rehash
+    ETL_ASSERT(max_load_factor() > 0.0);
+    auto countLimit = static_cast<size_type>(size() / max_load_factor());
+    if (count < countLimit) {
+        count = countLimit;
+    }
+
+    buckets.reserve(count);
+    if (buckets.capacity() >= count) {
+        buckets.clear();
+        buckets.insert(buckets.begin(), count, nullptr);
+        hashTable = rehashTable(hashTable, buckets);
+    }
+}
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

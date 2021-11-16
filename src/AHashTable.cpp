@@ -38,13 +38,18 @@ void AHashTable::insert(AHashTable::Node& item) {
         chain_.insertAfter(buckets[ix], &item);
         lastItem = buckets[ix]->next;
 
+        ETL_ASSERT(lastItem == &item);
+
     } else {
+
         std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(item.hash, ix);
         chain_.insertAfter(res.first, &item);
         if (res.first == lastItem) {
             lastItem = res.first->next;
         }
     }
+
+    ETL_ASSERT(lastItem->next == nullptr);
 
     ++size_;
 }

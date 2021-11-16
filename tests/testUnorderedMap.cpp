@@ -409,7 +409,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap]
 #if 0
         auto& ht = map.ht();
         size_t cnt = 0;
-        ht.inspect([&cnt](size_t ix, const void* node) {
+        ht.inspectNodes([&cnt](size_t hash, size_t ix, const void* node) {
             std::cout << "#" << cnt << " ix " << ix << " @ " << node << std::endl;
             ++cnt;
         });
@@ -443,6 +443,126 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap]
         checkBucket(map, 4, inBucket4);
     }
 }
+
+
+TEST_CASE("Etl::Dynamic::UnorderedMap<> hash policy tests", "[unorderedmap][etl]") {
+
+    typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> MapType;
+    MapType map;
+
+    SECTION("max_load_factor()") {
+        REQUIRE(map.max_load_factor() == Approx(1.0));
+    }
+
+    SECTION("load_factor()") {
+
+        CHECK(map.empty());
+        REQUIRE(map.load_factor() == Approx(0.0));
+
+        map.insert(1, ContainerTester(-1));
+        CHECK(map.size() == 1U);
+        auto lf1 = map.load_factor();
+        REQUIRE(lf1 != Approx(0.0));
+
+        map.insert(2, ContainerTester(-1));
+        CHECK(map.size() == 2U);
+
+        auto lf2 = map.load_factor();
+        REQUIRE(lf2 > lf1);
+    }
+
+    SECTION("rehash()") {
+
+        map.insert(1, ContainerTester(-1));
+        map.insert(2, ContainerTester(-2));
+        map.insert(3, ContainerTester(-3));
+        map.insert(4, ContainerTester(-4));
+        CHECK(map.size() == 4U);
+        auto lf = map.load_factor();
+        REQUIRE(lf != Approx(0.0));
+
+        auto bc = map.bucket_count();
+        CHECK(lf > 0U);
+
+#if 0
+        auto bucketInspector = [](size_t ix, const void* b) {
+            using Etl::Detail::AHashTable;
+            auto bucket = static_cast<AHashTable::ConstBucketItem>(b);
+            std::cout << "#" << ix << " -> " << bucket;
+            if (bucket) {
+                std::cout << " -> " << bucket->next;
+            }
+            std::cout << std::endl;
+        };
+
+        auto nodeInspector = [](size_t hash, size_t ix, const void* node) {
+            std::cout << "h " << hash << " ix " << ix << " @ " << node << std::endl;
+        };
+
+        std::cout << "Original:" << std::endl;
+        map.ht().inspectBuckets(bucketInspector);
+        map.ht().inspectNodes(nodeInspector);
+#endif
+
+        SECTION("to greater bucket count") {
+
+            auto newBc = bc * 2U;
+            map.rehash(newBc);
+
+#if 0
+            std::cout << "After rehash():" << std::endl;
+            map.ht().inspectBuckets(bucketInspector);
+            map.ht().inspectNodes(nodeInspector);
+#endif
+
+            REQUIRE(map.size() == 4U);
+            REQUIRE(map.bucket_count() == newBc);
+            REQUIRE(map.load_factor() == Approx(lf / 2.0));
+        }
+
+        SECTION("to smaller bucket count") {
+
+            auto newBc = bc / 2U;
+            map.rehash(newBc);
+
+            REQUIRE(map.size() == 4U);
+            REQUIRE(map.bucket_count() == newBc);
+            REQUIRE(map.load_factor() == Approx(lf * 2.0));
+        }
+
+        SECTION("rehash(0)") {
+
+            map.rehash(0);
+
+            REQUIRE(map.size() == 4U);
+            REQUIRE(map.bucket_count() == 4U);
+            REQUIRE(map.load_factor() == Approx(map.max_load_factor()));
+        }
+    }
+
+    SECTION("insert() with rehashing") {
+
+        map.rehash(4U);
+
+        map.insert(1, ContainerTester(-1));
+        map.insert(2, ContainerTester(-2));
+        map.insert(3, ContainerTester(-3));
+        map.insert(4, ContainerTester(-4));
+        CHECK(map.size() == 4U);
+
+        auto bc = map.bucket_count();
+        CHECK(bc == 4U);
+        auto lf = map.load_factor();
+        CHECK(lf == Approx(1.0));
+
+        map.insert(5, ContainerTester(-5));
+        CHECK(map.size() == 5U);
+
+        REQUIRE(map.bucket_count() > bc);
+        REQUIRE(map.load_factor() < lf);
+    }
+}
+
 
 #if 0
 TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[unorderedmap][etl]") {
