@@ -57,6 +57,33 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         this->bindOwnBuckets();
     };
 
+    UnorderedMap(const UnorderedMap& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    explicit UnorderedMap(const Base& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    UnorderedMap& operator=(const UnorderedMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    using Base::operator=;
+
+    UnorderedMap(UnorderedMap&& other) :
+        UnorderedMap() {
+        operator=(std::move(other));
+    }
+
+    UnorderedMap& operator=(UnorderedMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
     ~UnorderedMap() {
         this->clear();
     }
@@ -100,6 +127,33 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
+    }
+
+    UnorderedMap(const UnorderedMap& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    explicit UnorderedMap(const Base& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    UnorderedMap& operator=(const UnorderedMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    using Base::operator=;
+
+    UnorderedMap(UnorderedMap&& other) :
+        UnorderedMap() {
+        operator=(std::move(other));
+    }
+
+    UnorderedMap& operator=(UnorderedMap&& other) {
+        this->swap(other);
+        return *this;
     }
 
     ~UnorderedMap() {

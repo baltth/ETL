@@ -228,106 +228,237 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> association tests", "[unorderedmap][etl]
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> copy", "[unorderedmap][etl]") {
+template<typename M1, typename M2, typename K>
+void assertEqualElement(const M1& m1, const M2& m2, const K& key) {
 
-    typedef Etl::Dynamic::UnorderedMap<int, int32_t> MapType;
+    REQUIRE(m1.find(key) != m1.end());
+    REQUIRE(m2.find(key) != m2.end());
+    REQUIRE(m1.find(key)->second == m2.find(key)->second);
+}
 
-    MapType map;
 
-    map.insert(1, -1);
-    map.insert(2, -2);
-    map.insert(3, -3);
-    map.insert(4, -4);
+template<typename M>
+void assertEqualMap(const M& m1, const M& m2) {
 
-    SECTION("between Dynamic types") {
+    REQUIRE(m1.size() == m2.size());
+    REQUIRE(m1.max_load_factor() == Approx(m2.max_load_factor()));
+    REQUIRE(m1.bucket_count() == m2.bucket_count());
+    REQUIRE(m1.load_factor() == Approx(m2.load_factor()));
 
-        MapType map2;
+    assertEqualElement(m1, m2, 1);
+    assertEqualElement(m1, m2, 4);
+}
 
-        map2.insert(1, 1);
-        map2.insert(5, -5);
 
-        CHECK(map.size() == 4);
-        CHECK(map2.size() == 2);
+template<typename M1, typename M2>
+void assertEqualMap(const M1& m1, const M2& m2) {
 
-#if 0
-    SECTION("copy assignment") {
+    REQUIRE(m1.size() == m2.size());
 
-        map2 = map;
+    assertEqualElement(m1, m2, 1);
+    assertEqualElement(m1, m2, 4);
+}
 
-        REQUIRE(map2.size() == 4);
-        REQUIRE(map2[1] == map[1]);
-        REQUIRE(map2[4] == map[4]);
+
+template<typename DST, typename SRC>
+void testCopy() {
+
+    SRC src;
+    src.insert(1, -1);
+    src.insert(2, -2);
+    src.insert(3, -3);
+    src.insert(4, -4);
+
+    CHECK(src.size() == 4);
+
+    SECTION("A {const B&}") {
+        DST other {src};
+        assertEqualMap(src, other);
     }
 
-    SECTION("copy constructor") {
-
-        MapType map3 = map;
-
-        REQUIRE(map3.size() == 4);
-        REQUIRE(map3[1] == map[1]);
-        REQUIRE(map3[4] == map[4]);
-    }
-#endif
-
-        SECTION("swap()") {
-
-            map.swap(map2);
-
-            REQUIRE(map2.size() == 4);
-            REQUIRE(map.size() == 2);
-
-            REQUIRE(map[1] == 1);
-            REQUIRE(map[5] == -5);
-
-            REQUIRE(map2[1] == -1);
-            REQUIRE(map2[4] == -4);
-        }
+    SECTION("A {const Base&}") {
+        DST other {static_cast<const typename SRC::Base&>(src)};
+        assertEqualMap(src, other);
     }
 
-    SECTION("between Dynamic ans Static types") {
-
-        using StaticMapType = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
-        StaticMapType map2;
-
-        map2.insert(1, 1);
-        map2.insert(5, -5);
-
-        CHECK(map.size() == 4);
-        CHECK(map2.size() == 2);
-
-#if 0
-    SECTION("copy assignment") {
-
-        map2 = map;
-
-        REQUIRE(map2.size() == 4);
-        REQUIRE(map2[1] == map[1]);
-        REQUIRE(map2[4] == map[4]);
+    SECTION("A = const B&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        other = src;
+        assertEqualMap(src, other);
     }
 
-    SECTION("copy constructor") {
-
-        MapType map3 = map;
-
-        REQUIRE(map3.size() == 4);
-        REQUIRE(map3[1] == map[1]);
-        REQUIRE(map3[4] == map[4]);
+    SECTION("A = const Base&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        other = static_cast<const typename SRC::Base&>(src);
+        assertEqualMap(src, other);
     }
-#endif
 
-        SECTION("swap()") {
+    SECTION("Base = const B&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        static_cast<typename DST::Base&>(other) = src;
+        assertEqualMap(src, other);
+    }
 
-            map.swap(map2);
+    SECTION("Base = const Base&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        static_cast<typename DST::Base&>(other) = static_cast<const typename SRC::Base&>(src);
+        assertEqualMap(src, other);
+    }
+}
 
-            REQUIRE(map2.size() == 4);
-            REQUIRE(map.size() == 2);
 
-            REQUIRE(map[1] == 1);
-            REQUIRE(map[5] == -5);
+TEST_CASE("Etl::UnorderedMap<> copy", "[unorderedmap][copy][etl]") {
 
-            REQUIRE(map2[1] == -1);
-            REQUIRE(map2[4] == -4);
-        }
+    using DM = Etl::Dynamic::UnorderedMap<int, int32_t>;
+    using SM = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
+
+    SECTION("D <- D") {
+        testCopy<DM, DM>();
+    }
+
+    SECTION("D <- S") {
+        testCopy<DM, SM>();
+    }
+
+    SECTION("S <- D") {
+        testCopy<SM, DM>();
+    }
+
+    SECTION("S <- S") {
+        testCopy<SM, SM>();
+    }
+}
+
+
+template<typename DST, typename SRC>
+void testMove() {
+
+    SRC src;
+    src.insert(1, -1);
+    src.insert(2, -2);
+    src.insert(3, -3);
+    src.insert(4, -4);
+
+    CHECK(src.size() == 4);
+
+    SRC srcAlias = src;
+    assertEqualMap(src, srcAlias);
+
+    SECTION("A {B&&}") {
+        DST other {std::move(src)};
+        assertEqualMap(srcAlias, other);
+    }
+
+    SECTION("A {Base&&}") {
+        DST other {std::move(static_cast<typename SRC::Base&>(src))};
+        assertEqualMap(srcAlias, other);
+    }
+
+    SECTION("A = B&&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        other = std::move(src);
+        assertEqualMap(srcAlias, other);
+    }
+
+    SECTION("A = Base&&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        other = std::move(static_cast<typename SRC::Base&>(src));
+        assertEqualMap(srcAlias, other);
+    }
+
+    SECTION("Base = B&&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        static_cast<typename DST::Base&>(other) = std::move(src);
+        assertEqualMap(srcAlias, other);
+    }
+
+    SECTION("Base = Base&&") {
+        DST other;
+        CHECK(other.empty());  // to avoid optimizations
+        static_cast<typename DST::Base&>(other) = std::move(static_cast<typename SRC::Base&>(src));
+        assertEqualMap(srcAlias, other);
+    }
+}
+
+
+TEST_CASE("Etl::UnorderedMap<> move", "[unorderedmap][move][etl]") {
+
+    using DM = Etl::Dynamic::UnorderedMap<int, int32_t>;
+    using SM = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
+
+    SECTION("D <- D") {
+        testMove<DM, DM>();
+    }
+
+    SECTION("D <- S") {
+        testMove<DM, SM>();
+    }
+
+    SECTION("S <- D") {
+        testMove<SM, DM>();
+    }
+
+    SECTION("S <- S") {
+        testMove<SM, SM>();
+    }
+}
+
+
+template<typename M1, typename M2>
+void testSwap() {
+
+    M1 src;
+    src.insert(1, -1);
+    src.insert(2, -2);
+    src.insert(3, -3);
+    src.insert(4, -4);
+
+    CHECK(src.size() == 4);
+
+    M2 other;
+    other.insert(1, 1);
+    other.insert(5, -5);
+    CHECK(other.size() == 2);
+
+    src.swap(other);
+
+    REQUIRE(other.size() == 4);
+    REQUIRE(src.size() == 2);
+
+    REQUIRE(src[1] == 1);
+    REQUIRE(src[5] == -5);
+
+    REQUIRE(other[1] == -1);
+    REQUIRE(other[4] == -4);
+}
+
+
+TEST_CASE("Etl::UnorderedMap<> swap", "[unorderedmap][etl]") {
+
+    using DM = Etl::Dynamic::UnorderedMap<int, int32_t>;
+    using SM = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
+
+    SECTION("D.swap(D)") {
+        testSwap<DM, DM>();
+    }
+
+    SECTION("D.swap(S)") {
+        testSwap<DM, SM>();
+    }
+
+    SECTION("S.swap(D)") {
+        testSwap<SM, DM>();
+    }
+
+    SECTION("S.swap(S)") {
+        testSwap<SM, SM>();
     }
 }
 

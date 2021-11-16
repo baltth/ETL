@@ -73,8 +73,18 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     UnorderedMap(typename Base::BucketImpl& b, typename Base::NodeAllocator& a) :
         Base(b, a) {};
 
-    UnorderedMap& operator=(const UnorderedMap& other);
-    UnorderedMap& operator=(UnorderedMap&& other);
+    UnorderedMap& operator=(const UnorderedMap& other) {
+        this->clear();  // @todo this could be optimized to reuse existing elements
+        this->max_load_factor(other.max_load_factor());
+        this->rehash(other.bucket_count());
+        insert(other.begin(), other.end());
+        return *this;
+    }
+
+    UnorderedMap& operator=(UnorderedMap&& other) {
+        swap(other);
+        return *this;
+    }
 
     UnorderedMap(const UnorderedMap& other) = delete;
     UnorderedMap(UnorderedMap&& other) = delete;
@@ -152,6 +162,14 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
         return emplace(k, e);
     }
 
+    template<typename InputIt>
+    enable_if_t<!is_integral<InputIt>::value, void> insert(InputIt first, InputIt last) {
+        while (first != last) {
+            emplace(*first);
+            ++first;
+        }
+    }
+
     template<typename... Args>
     std::pair<iterator, bool> emplace(Args&&... args);
 
@@ -161,10 +179,10 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
         Base::swap(KeyHasher(), other);
     }
     /// \}
-    
+
     /// \name Observers
     /// \{
-    
+
     hasher hash_function() const {
         return hasher();
     }

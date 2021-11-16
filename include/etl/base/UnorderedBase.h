@@ -111,8 +111,8 @@ class UnorderedBase {
 
       private:
 
-        explicit const_iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::Iterator(n) {};
+        explicit const_iterator(const UnorderedBase<T>::Node* n) :
+            AHashTable::Iterator(const_cast<UnorderedBase<T>::Node*>(n)) {};
     };
 
     class iterator : public AHashTable::Iterator {
@@ -405,6 +405,10 @@ class UnorderedBase {
     }
 
     void rehash(size_type count);
+
+    void reserve(size_type count) {
+        rehash(std::ceil(count / max_load_factor()));
+    }
     /// \}
 
     const AHashTable& ht() const {
@@ -467,6 +471,10 @@ class UnorderedBase {
 
     static const_iterator makeConstIt(AHashTable::Node* n) {
         return const_iterator(static_cast<Node*>(n));
+    }
+
+    static const_iterator makeConstIt(const AHashTable::Node* n) {
+        return const_iterator(static_cast<const Node*>(n));
     }
     /// \}
 
@@ -674,6 +682,10 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
 
 template<class T>
 void UnorderedBase<T>::rehash(size_type count) {
+
+    if (buckets.size() == count) {
+        return;
+    }
 
     // Static::Vector<> buckets are not rehashed. This is detected by
     // checking size() vs capacity() vs max_size()
