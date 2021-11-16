@@ -501,6 +501,7 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
         meter.measure([val] {
             BufT bs;
             bs << val;
+            bs << val + 1.0f;
         });
     };
 
@@ -510,6 +511,7 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
             BufT bs;
             bs << "0x";
             bs << Etl::BufStr::Hex(i, 10);
+            bs << Etl::BufStr::Hex(i + 1U, 10);
         });
     };
 }

@@ -383,7 +383,7 @@ void Vector<T>::replaceWith(Vector&& other) {
         this->reserve_exactly(other.size());
         if (this->capacity() >= other.size()) {
 
-            this->moveOperation(this->data(), other.data(), other.size());
+            this->moveFromOther(this->data(), other.data(), other.size());
             other.clear();
         }
     }
@@ -397,11 +397,11 @@ auto Vector<T>::insert(const_iterator position, size_type num, const_reference v
         position, num, [this, &value](pointer item, size_type cnt, bool place) {
             if (place) {
                 for (size_type i = 0; i < cnt; ++i) {
-                    this->placeValueTo(item + i, value);
+                    this->ops().placeValueTo(item + i, value);
                 }
             } else {
                 for (size_type i = 0; i < cnt; ++i) {
-                    this->assignValueTo(item + i, value);
+                    this->ops().assignValueTo(item + i, value);
                 }
             }
         });

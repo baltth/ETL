@@ -96,12 +96,13 @@ class StaticSized : public AMemStrategy<C> {
     }
 
     void resize(C& cont, size_type length) final {
-        resizeWithInserter(cont, length, [](typename C::iterator pos) { C::placeDefaultTo(pos); });
+        resizeWithInserter(
+            cont, length, [](typename C::iterator pos) { C::ops().placeDefaultTo(pos); });
     }
 
     void resize(C& cont, size_type length, const value_type& ref) final {
         resizeWithInserter(
-            cont, length, [&ref](typename C::iterator pos) { C::placeValueTo(pos, ref); });
+            cont, length, [&ref](typename C::iterator pos) { C::ops().placeValueTo(pos, ref); });
     }
 
     const void* handle() const noexcept final {
@@ -137,7 +138,7 @@ void StaticSized<C>::resizeWithInserter(C& cont, size_type length, INS inserter)
         } else if (length < cont.size()) {
 
             iterator newEnd = cont.data() + length;
-            C::destruct(newEnd, cont.end());
+            C::ops().destruct(newEnd, cont.end());
         }
 
         cont.getProxy().setSize(length);
@@ -192,12 +193,13 @@ class DynamicSized : public AMemStrategy<C> {
     void shrinkToFit(C& cont) noexcept final;
 
     void resize(C& cont, size_type length) final {
-        resizeWithInserter(cont, length, [](typename C::iterator pos) { C::placeDefaultTo(pos); });
+        resizeWithInserter(
+            cont, length, [](typename C::iterator pos) { C::ops().placeDefaultTo(pos); });
     }
 
     void resize(C& cont, size_type length, const value_type& ref) final {
         resizeWithInserter(
-            cont, length, [&ref](typename C::iterator pos) { C::placeValueTo(pos, ref); });
+            cont, length, [&ref](typename C::iterator pos) { C::ops().placeValueTo(pos, ref); });
     }
 
     void cleanup(C& cont) noexcept final {
@@ -278,7 +280,7 @@ void DynamicSized<C, A, UA>::resizeWithInserter(C& cont, size_type length, INS i
     } else if (length < cont.size()) {
 
         iterator newEnd = cont.data() + length;
-        C::destruct(newEnd, cont.end());
+        C::ops().destruct(newEnd, cont.end());
     }
 
     cont.getProxy().setSize(length);
@@ -301,10 +303,10 @@ void DynamicSized<C, A, UA>::reallocateAndCopyFor(C& cont, size_type len) {
         if ((cont.data() != nullptr) && (numToCopy > 0)) {
 
             auto dataAlias = cont.data();
-            C::moveWithPlacement(oldData, dataAlias, numToCopy);
+            C::ops().moveWithPlacement(oldData, dataAlias, numToCopy);
         }
 
-        C::destruct(oldData, oldEnd);
+        C::ops().destruct(oldData, oldEnd);
         allocator.deallocate(oldData, oldCapacity);
     }
 }
