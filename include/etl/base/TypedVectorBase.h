@@ -87,11 +87,13 @@ class TypedVectorBase : public AVectorBase {
     /// \{
 
     reference operator[](size_type ix) noexcept {
-        return *(static_cast<pointer>(getItemPointer(ix)));
+        ETL_ASSERT(ix < size());
+        return *getItemPointer(ix);
     }
 
     const_reference operator[](size_type ix) const noexcept {
-        return *(static_cast<const_pointer>(getItemPointer(ix)));
+        ETL_ASSERT(ix < size());
+        return *getConstItemPointer(ix);
     }
 
 #if ETL_USE_EXCEPTIONS
@@ -103,41 +105,41 @@ class TypedVectorBase : public AVectorBase {
 
     reference front() {
         ETL_ASSERT(!empty());
-        return *(static_cast<pointer>(getItemPointer(0)));
+        return *getItemPointer(0);
     }
 
     const_reference front() const {
         ETL_ASSERT(!empty());
-        return *(static_cast<const_pointer>(getItemPointer(0)));
+        return *getConstItemPointer(0);
     }
 
     reference back() {
         ETL_ASSERT(!empty());
-        return *(static_cast<pointer>(getItemPointer(size() - 1)));
+        return *getItemPointer(size() - 1U);
     }
 
     const_reference back() const {
         ETL_ASSERT(!empty());
-        return *(static_cast<const_pointer>(getItemPointer(size() - 1)));
+        return *getConstItemPointer(size() - 1U);
     }
 
     pointer data() noexcept {
-        return static_cast<pointer>(getItemPointer(0));
+        return getItemPointer(0);
     }
 
     const_pointer data() const noexcept {
-        return static_cast<const_pointer>(getItemPointer(0));
+        return getConstItemPointer(0);
     }
     /// \}
 
     /// \name Iterators
     /// \{
     iterator begin() noexcept {
-        return static_cast<iterator>(getItemPointer(0));
+        return getIterator(0);
     }
 
     const_iterator begin() const noexcept {
-        return static_cast<const_iterator>(getItemPointer(0));
+        return getConstIterator(0);
     }
 
     const_iterator cbegin() const noexcept {
@@ -145,11 +147,11 @@ class TypedVectorBase : public AVectorBase {
     }
 
     iterator end() noexcept {
-        return static_cast<iterator>(getItemPointer(size()));
+        return getIterator(size());
     }
 
     const_iterator end() const noexcept {
-        return static_cast<const_iterator>(getItemPointer(size()));
+        return getConstIterator(size());
     }
 
     const_iterator cend() const noexcept {
@@ -297,6 +299,22 @@ class TypedVectorBase : public AVectorBase {
 
     ~TypedVectorBase() noexcept(is_nothrow_destructible<T>::value) {
         clear();
+    }
+
+    pointer getItemPointer(uint32_t ix) noexcept {
+        return static_cast<pointer>(AVectorBase::getItemPointer(ix));
+    }
+
+    const_pointer getConstItemPointer(uint32_t ix) const noexcept {
+        return static_cast<const_pointer>(AVectorBase::getItemPointer(ix));
+    }
+
+    iterator getIterator(uint32_t ix) noexcept {
+        return static_cast<iterator>(getItemPointer(ix));
+    }
+
+    const_iterator getConstIterator(uint32_t ix) const noexcept {
+        return static_cast<const_iterator>(getConstItemPointer(ix));
     }
 
     void copyOperation(pointer dst, const_pointer src, size_type num) noexcept(
@@ -501,13 +519,14 @@ void TypedVectorBase<T>::swapElements(TypedVectorBase<T>& other) noexcept(
 
     if (diff.rGreaterWith > 0) {
 
-        this->moveOperation(&this->operator[](diff.common), &other[diff.common], diff.rGreaterWith);
+        this->moveOperation(getItemPointer(diff.common), &other[diff.common], diff.rGreaterWith);
         other.destruct(&other[diff.common], other.end());
         other.proxy.setSize(diff.common);
 
     } else if (diff.lGreaterWith > 0) {
 
-        other.moveOperation(&other[diff.common], &this->operator[](diff.common), diff.lGreaterWith);
+        other.moveOperation(
+            other.getItemPointer(diff.common), &this->operator[](diff.common), diff.lGreaterWith);
         this->destruct(&this->operator[](diff.common), this->end());
         this->proxy.setSize(diff.common);
     }

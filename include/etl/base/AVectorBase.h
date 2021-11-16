@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -86,8 +86,11 @@ class AVectorBase {
     }
     /// \}
 
-    /// \name Access
-    /// \{
+  protected:
+
+    explicit AVectorBase(size_t itemSize) noexcept :
+        proxy(itemSize) {};
+
     void* getItemPointer(uint32_t ix) noexcept {
         return proxy.getItemPointer(ix);
     }
@@ -95,12 +98,6 @@ class AVectorBase {
     const void* getItemPointer(uint32_t ix) const noexcept {
         return proxy.getItemPointer(ix);
     }
-    /// \}
-
-  protected:
-
-    explicit AVectorBase(size_t itemSize) noexcept :
-        proxy(itemSize) {};
 
     void swapProxy(AVectorBase& other) noexcept {
 

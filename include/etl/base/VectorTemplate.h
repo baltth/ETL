@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -237,9 +237,9 @@ auto Vector<T>::insertWithCreator(const_iterator position,
         size_type requestedCapacity = Base::size() + numToInsert;
 
         if (requestedCapacity > this->capacity()) {
-            size_type positionIx = position - this->begin();
+            auto positionIx = std::distance(this->cbegin(), position);
             this->reserve(requestedCapacity);
-            position = this->begin() + positionIx;
+            position = this->getConstIterator(positionIx);
         }
 
         if (requestedCapacity <= this->capacity()) {
@@ -337,10 +337,9 @@ auto Vector<T>::insertWithCreator(const_iterator position,
         size_type requestedCapacity = Base::size() + numToInsert;
 
         if (requestedCapacity > this->capacity()) {
-
-            size_type positionIx = position - this->begin();
+            auto positionIx = std::distance(this->cbegin(), position);
             this->reserve(requestedCapacity);
-            position = this->begin() + positionIx;
+            position = this->getConstIterator(positionIx);
         }
 
         if (requestedCapacity <= this->capacity()) {
@@ -436,11 +435,11 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     /// \{
 
     reference operator[](int32_t ix) noexcept {
-        return *(static_cast<pointer>(Base::getItemPointer(ix)));
+        return *(reinterpret_cast<pointer>(Base::getItemPointer(ix)));
     }
 
     const_reference operator[](int32_t ix) const noexcept {
-        return *(static_cast<const_pointer>(Base::getItemPointer(ix)));
+        return *(reinterpret_cast<const_pointer>(Base::getItemPointer(ix)));
     }
 
     reference front() {
