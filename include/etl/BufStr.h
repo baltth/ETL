@@ -215,17 +215,17 @@ class BufStr {
         return *this;
     }
 
-    BufStr& operator<<(DecModT mod) {
+    BufStr& operator<<(DecModT) {
         format.radix = DEC;
         return *this;
     }
 
-    BufStr& operator<<(HexModT mod) {
+    BufStr& operator<<(HexModT) {
         format.radix = HEX;
         return *this;
     }
 
-    BufStr& operator<<(BinModT mod) {
+    BufStr& operator<<(BinModT) {
         format.radix = BIN;
         return *this;
     }
@@ -251,7 +251,7 @@ class BufStr {
         return *this;
     }
 
-    BufStr& operator<<(DefaultModT mod) {
+    BufStr& operator<<(DefaultModT) {
         resetFormat();
         return *this;
     }

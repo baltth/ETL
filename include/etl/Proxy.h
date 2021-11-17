@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,13 +42,13 @@ class GenericProxy {
     GenericProxy(size_t is, void* d, size_t s) noexcept :
         data_(d),
         size_(s),
-        itemSize(is) {};
+        itemSize(is) {}
 
     template<class C>  // cppcheck-suppress noExplicitConstructor
     GenericProxy(C& container) noexcept :
         data_(container.data()),
         size_(container.size()),
-        itemSize(sizeof(typename C::value_type)) {};
+        itemSize(sizeof(typename C::value_type)) {}
 
     GenericProxy(const GenericProxy& other) = default;
     GenericProxy& operator=(const GenericProxy& other) = default;
@@ -100,12 +100,12 @@ class Proxy {
 
     Proxy(const_pointer d, size_t s) noexcept :
         data_(d),
-        size_(s) {};
+        size_(s) {}
 
     template<class C>
     Proxy(const C& container) noexcept :
         data_(container.data()),
-        size_(container.size()) {};
+        size_(container.size()) {}
 
     Proxy(const Proxy& other) = default;
     Proxy& operator=(const Proxy& other) = default;
@@ -149,12 +149,12 @@ class MutableProxy {
 
     MutableProxy(pointer d, size_t s) noexcept :
         data_(d),
-        size_(s) {};
+        size_(s) {}
 
     template<class C>
     MutableProxy(C& container) noexcept :
         data_(container.data()),
-        size_(container.size()) {};
+        size_(container.size()) {}
 
     MutableProxy(const MutableProxy& other) = default;
     MutableProxy& operator=(const MutableProxy& other) = default;
