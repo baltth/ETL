@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class FifoAccess {
       private:
 
         iterator(FifoAccess<value_type>& fifo, uint32_t ix) :
-            Detail::FifoIterator<value_type>(fifo.data(), fifo.indexing, ix) {};
+            Detail::FifoIterator<value_type>(fifo.data(), fifo.indexing, ix) {}
     };
 
     class const_iterator : public Detail::FifoIterator<const value_type> {
@@ -56,7 +56,7 @@ class FifoAccess {
       private:
 
         const_iterator(const FifoAccess<value_type>& fifo, uint32_t ix) :
-            Detail::FifoIterator<const value_type>(fifo.data(), fifo.indexing, ix) {};
+            Detail::FifoIterator<const value_type>(fifo.data(), fifo.indexing, ix) {}
     };
 
   private:  // variables
@@ -68,12 +68,12 @@ class FifoAccess {
 
     explicit FifoAccess(Span<T> s) :
         indexing(s.size()),
-        span(s) {};
+        span(s) {}
 
     template<class C>
     explicit FifoAccess(C& container) :
         indexing(container.size()),
-        span(container) {};
+        span(container) {}
 
     bool empty() const {
         return indexing.empty();
@@ -141,7 +141,7 @@ class FifoAccess {
   protected:
 
     FifoAccess<T>() :
-        indexing(0) {};
+        indexing(0) {}
 
     template<class C>
     void setupFor(C& container) {

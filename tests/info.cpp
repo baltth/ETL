@@ -42,7 +42,7 @@ using Etl::Test::ContainerTester;
 namespace {
 
 
-template<typename T, size_t N, template<typename M> typename FUNC>
+template<typename T, size_t N, template<typename M> class FUNC>
 void testVectorsGross() {
 
     BENCHMARK("Static::Vector<T>") {
@@ -71,7 +71,7 @@ void testVectorsGross() {
 }
 
 
-template<typename T, size_t N, template<typename M> typename FUNC>
+template<typename T, size_t N, template<typename M> class FUNC>
 void testVectorsNet() {
 
     BENCHMARK_ADVANCED("Static::Vector<T>")(Catch::Benchmark::Chronometer meter) {
@@ -109,7 +109,7 @@ void testVectorsNet() {
 }
 
 
-template<typename T, size_t N, template<typename M> typename FUNC>
+template<typename T, size_t N, template<typename M> class FUNC>
 void testVectorsByBase() {
 
     BENCHMARK_ADVANCED("Static::Vector<T>")(Catch::Benchmark::Chronometer meter) {
@@ -233,7 +233,10 @@ TEST_CASE("Etl::Vector<T> push back performance", "[vec][insert][etl]") {
 template<typename Dummy>
 struct VectorRandom {
     template<typename V>
-    void prepare(V& vec, size_t cyc) {};
+    void prepare(V& vec, size_t cyc) {
+        (void)vec;
+        (void)cyc;
+    };
 
     template<typename V>
     void test(V& vec, size_t cyc) {
@@ -275,6 +278,7 @@ struct VectorCopy {
 
     template<typename V>
     void prepare(V& vec, size_t cyc) {
+        (void)vec;
         VectorPushBack<VEC>().test(src, cyc);
         // to have at least one element
         vec.push_back(typename VEC::value_type {*src.begin()});
@@ -324,6 +328,7 @@ struct VectorMove {
 
     template<typename V>
     void prepare(V& vec, size_t cyc) {
+        (void)vec;
         VectorPushBack<VEC>().test(src, cyc);
         // to have at least one element
         vec.push_back(typename VEC::value_type {*src.begin()});

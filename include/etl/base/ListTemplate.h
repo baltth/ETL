@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -277,6 +277,7 @@ class List : private Detail::TypedListBase<T> {
     template<class U = T>
     enable_if_t<Detail::UseSwapInList<U>::value, std::pair<iterator, iterator>>
     swapTwo(iterator pos, List& other, iterator toSwap) {
+        (void)other;
         using std::swap;
         swap(*pos, *toSwap);
         ++pos;

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -83,20 +83,20 @@ class Span {
              class = enable_if_t<Dep || (extent == 0U) || (extent == dynamic_extent)>>
     constexpr Span() noexcept :
         data_(nullptr),
-        size_(0U) {};
+        size_(0U) {}
 
     constexpr Span(pointer ptr, index_type count) :
         data_(ptr),
-        size_(count) {};
+        size_(count) {}
 
     constexpr Span(pointer first, pointer last) :
-        Span(first, (last - first)) {};
+        Span(first, (last - first)) {}
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>>
     constexpr Span(element_type (&arr)[N]) noexcept :
         data_(arr),
-        size_(N) {};
+        size_(N) {}
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>,
@@ -104,7 +104,7 @@ class Span {
              class = Detail::EnableIfArrayDataConvertibleType<From, element_type>>
     constexpr Span(std::array<value_type, N>& arr) noexcept :
         data_(&std::get<0>(arr)),
-        size_(N) {};
+        size_(N) {}
 
     template<std::size_t N,
              class = enable_if_t<(extent == N) || (extent == dynamic_extent)>,
@@ -112,14 +112,14 @@ class Span {
              class = Detail::EnableIfArrayDataConvertibleType<From, element_type>>
     constexpr Span(const std::array<value_type, N>& arr) noexcept :
         data_(&std::get<0>(arr)),
-        size_(N) {};
+        size_(N) {}
 
     template<
         class Cont,
         class = Detail::EnableIfArrayDataConvertibleType<typename Cont::value_type, element_type>>
     constexpr Span(Cont& container) :
         data_(container.data()),
-        size_(container.size()) {};
+        size_(container.size()) {}
 
     template<
         class Cont,
@@ -127,7 +127,7 @@ class Span {
                                                          element_type>>
     constexpr Span(const Cont& container) :
         data_(container.data()),
-        size_(container.size()) {};
+        size_(container.size()) {}
 
     template<class U,
              std::size_t N,
@@ -135,7 +135,7 @@ class Span {
              class = Detail::EnableIfArrayDataConvertibleType<U, element_type>>
     constexpr Span(const Span<U, N>& other) noexcept :
         data_(other.data()),
-        size_(other.size()) {};
+        size_(other.size()) {}
 
     constexpr Span(const Span& other) noexcept = default;
     Span& operator=(const Span& other) noexcept = default;

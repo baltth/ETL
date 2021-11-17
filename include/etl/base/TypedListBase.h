@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class TypedListBase : protected AListBase {
 
         template<typename... Args>
         Node(Args&&... args) :
-            item(std::forward<Args>(args)...) {};
+            item(std::forward<Args>(args)...) {}
 
         Node& operator=(const Node& other) = delete;
         Node& operator=(Node&& other) = delete;
@@ -80,10 +80,10 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         const_iterator() noexcept :
-            AListBase::Iterator(nullptr) {};
+            AListBase::Iterator(nullptr) {}
 
         explicit const_iterator(const AListBase::Iterator& it) noexcept :
-            AListBase::Iterator(it) {};
+            AListBase::Iterator(it) {}
 
         const_iterator(const const_iterator& other) noexcept = default;
         const_iterator& operator=(const const_iterator& other) & noexcept = default;
@@ -132,7 +132,7 @@ class TypedListBase : protected AListBase {
       private:
 
         explicit const_iterator(TypedListBase<T>::Node* n) noexcept :
-            AListBase::Iterator(n) {};
+            AListBase::Iterator(n) {}
     };
 
     class iterator : public AListBase::Iterator {
@@ -147,7 +147,7 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         iterator() noexcept :
-            AListBase::Iterator(nullptr) {};
+            AListBase::Iterator(nullptr) {}
 
         iterator(const iterator& other) noexcept = default;
         iterator& operator=(const iterator& other) & noexcept = default;
@@ -208,10 +208,10 @@ class TypedListBase : protected AListBase {
       private:
 
         explicit iterator(TypedListBase<T>::Node* n) noexcept :
-            AListBase::Iterator(n) {};
+            AListBase::Iterator(n) {}
 
         explicit iterator(const AListBase::Iterator& it) noexcept :
-            AListBase::Iterator(it) {};
+            AListBase::Iterator(it) {}
     };
 
     typedef std::reverse_iterator<iterator> reverse_iterator;
