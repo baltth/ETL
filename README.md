@@ -1,5 +1,7 @@
 # ETL Template Library for C++
 
+![build](https://github.com/baltth/ETL/actions/workflows/main.yml/badge.svg)
+
 ## Introduction - Why do we need another xTL?
 
 ETL is a C++ template container library focused on embedded
