@@ -1,4 +1,4 @@
-name: CMake
+name: Build
 
 on:
   push:
@@ -47,3 +47,25 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./testEtl
 
+  build-clang:
+
+    env:
+      BUILD_TYPE: Release
+      CC: clang
+      CXX: clang++
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: egor-tensin/setup-clang@v1
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ./testEtl
