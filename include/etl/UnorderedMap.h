@@ -55,7 +55,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
         buckets(32) {
         ETL_ASSERT(buckets.size() == 32);
         this->bindOwnBuckets();
-    };
+    }
 
     UnorderedMap(const UnorderedMap& other) :
         UnorderedMap() {
@@ -73,6 +73,11 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
     }
 
     using Base::operator=;
+
+    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+        UnorderedMap() {
+        Base::operator=(initList);
+    }
 
     UnorderedMap(UnorderedMap&& other) :
         UnorderedMap() {
@@ -145,6 +150,11 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
     }
 
     using Base::operator=;
+
+    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+        UnorderedMap() {
+        Base::operator=(initList);
+    }
 
     UnorderedMap(UnorderedMap&& other) :
         UnorderedMap() {

@@ -463,6 +463,35 @@ TEST_CASE("Etl::UnorderedMap<> swap", "[unorderedmap][etl]") {
 }
 
 
+TEMPLATE_TEST_CASE("Etl::UnorderedMap<> with std::initializer_list<>",
+                   "[unorderedmap][etl]",
+                   (Etl::Dynamic::UnorderedMap<int, int>),
+                   (Etl::Static::UnorderedMap<int, int, 32U>)) {
+
+    std::initializer_list<std::pair<int, int>> init {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
+    auto test = [&init](const TestType& map) {
+        REQUIRE(map.size() == init.size());
+        for (auto& item : init) {
+            REQUIRE(map.find(item.first) != map.end());
+            REQUIRE(map.find(item.first)->second == item.second);
+        }
+    };
+
+    SECTION("M(std::initializer_list<>)") {
+        TestType map(init);
+        test(map);
+    }
+
+    SECTION("M = std::initializer_list<>") {
+        TestType map;
+        map.insert({1, -7});
+
+        map = init;
+        test(map);
+    }
+}
+
+
 TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> MapType;
