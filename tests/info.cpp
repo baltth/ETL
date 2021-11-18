@@ -146,7 +146,7 @@ struct VectorInsertToFront {
     template<typename V>
     void prepare(V& vec, size_t cyc) {
         vec.reserve(cyc);
-    };
+    }
 
     template<typename V>
     void test(V& vec, size_t cyc) {
@@ -193,7 +193,7 @@ struct VectorPushBack {
     template<typename V>
     void prepare(V& vec, size_t cyc) {
         vec.reserve(cyc);
-    };
+    }
 
     template<typename V>
     void test(V& vec, size_t cyc) {
@@ -241,7 +241,7 @@ struct VectorRandom {
     void prepare(V& vec, size_t cyc) {
         (void)vec;
         (void)cyc;
-    };
+    }
 
     template<typename V>
     void test(V& vec, size_t cyc) {
@@ -287,10 +287,11 @@ struct VectorCopy {
         VectorPushBack<VEC>().test(src, cyc);
         // to have at least one element
         vec.push_back(typename VEC::value_type {*src.begin()});
-    };
+    }
 
     template<typename V>
     void test(V& vec, size_t cyc) {
+        (void)cyc;
         vec = src;
     }
 
@@ -337,10 +338,11 @@ struct VectorMove {
         VectorPushBack<VEC>().test(src, cyc);
         // to have at least one element
         vec.push_back(typename VEC::value_type {*src.begin()});
-    };
+    }
 
     template<typename V>
     void test(V& vec, size_t cyc) {
+        (void)cyc;
         vec = std::move(src);
     }
 
@@ -529,7 +531,7 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
 
 // Etl::UnorderedMap performance tests ---------------------------------------------
 
-template<typename T, size_t N, template<typename> typename FUNC>
+template<typename T, size_t N, template<typename> class FUNC>
 void testMaps() {
 
     Etl::Static::Vector<int32_t, N> input;
@@ -614,7 +616,10 @@ template<typename MAP>
 struct MapInsert {
 
     template<typename M, typename INPUT>
-    void prepare(M& map, const INPUT& data) {};
+    void prepare(M& map, const INPUT& data) {
+        (void)map;
+        (void)data;
+    }
 
     template<typename M, typename INPUT>
     void test(M& map, const INPUT& data) {
@@ -682,7 +687,7 @@ struct MapAccess {
     template<typename M, typename INPUT>
     void prepare(M& map, const INPUT& data) {
         MapInsert<MAP>::insert(map, data);
-    };
+    }
 
     template<typename M, typename INPUT>
     void test(M& map, const INPUT& data) {
@@ -693,7 +698,9 @@ struct MapAccess {
     }
 
     template<typename M>
-    void reset(M& map) {}
+    void reset(M& map) {
+        (void)map;
+    }
 };
 
 
@@ -743,17 +750,20 @@ struct MapIteration {
     template<typename M, typename INPUT>
     void prepare(M& map, const INPUT& data) {
         MapInsert<MAP>::insert(map, data);
-    };
+    }
 
     template<typename M, typename INPUT>
     void test(M& map, const INPUT& data) {
+        (void)data;
         for (auto& item : map) {
             (void)item;
         }
     }
 
     template<typename M>
-    void reset(M& map) {}
+    void reset(M& map) {
+        (void)map;
+    }
 };
 
 
@@ -803,8 +813,9 @@ struct MapCopy {
 
     template<typename M, typename INPUT>
     void prepare(M& map, const INPUT& data) {
+        (void)map;
         MapInsert<MAP>::insert(src, data);
-    };
+    }
 
     template<typename M, typename INPUT>
     void test(M& map, const INPUT& data) {
@@ -850,8 +861,9 @@ struct MapMove {
 
     template<typename M, typename INPUT>
     void prepare(M& map, const INPUT& data) {
+        (void)map;
         MapInsert<MAP>::insert(src, data);
-    };
+    }
 
     template<typename M, typename INPUT>
     void test(M& map, const INPUT& data) {

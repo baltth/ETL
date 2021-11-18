@@ -60,7 +60,7 @@ class UnorderedBase {
 
         template<typename... Args>
         Node(Args&&... args) :
-            item(std::forward<Args>(args)...) {};
+            item(std::forward<Args>(args)...) {}
 
       private:
 
@@ -81,13 +81,13 @@ class UnorderedBase {
         using iterator_category = std::forward_iterator_tag;
 
         const_iterator() :
-            AHashTable::Iterator(nullptr) {};
+            AHashTable::Iterator(nullptr) {}
 
-        const_iterator(const const_iterator& it) :
-            AHashTable::Iterator(it) {};
-
+        const_iterator(const const_iterator& other) = default;
+        const_iterator& operator=(const const_iterator& other) = default;
+        
         explicit const_iterator(const AHashTable::Iterator& it) :
-            AHashTable::Iterator(it) {};
+            AHashTable::Iterator(it) {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -114,7 +114,7 @@ class UnorderedBase {
       private:
 
         explicit const_iterator(const UnorderedBase<T>::Node* n) :
-            AHashTable::Iterator(const_cast<UnorderedBase<T>::Node*>(n)) {};
+            AHashTable::Iterator(const_cast<UnorderedBase<T>::Node*>(n)) {}
     };
 
     class iterator : public AHashTable::Iterator {
@@ -129,10 +129,10 @@ class UnorderedBase {
         using iterator_category = std::forward_iterator_tag;
 
         iterator() :
-            AHashTable::Iterator(nullptr) {};
+            AHashTable::Iterator(nullptr) {}
 
-        iterator(const iterator& it) :
-            AHashTable::Iterator(it) {};
+        iterator(const iterator& other) = default;
+        iterator& operator=(const iterator& other) = default;
 
         operator const_iterator() const {
             return const_iterator(*this);
@@ -163,10 +163,10 @@ class UnorderedBase {
       private:
 
         explicit iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::Iterator(n) {};
+            AHashTable::Iterator(n) {}
 
         explicit iterator(const AHashTable::Iterator& it) :
-            AHashTable::Iterator(it) {};
+            AHashTable::Iterator(it) {}
     };
 
     class const_local_iterator : public AHashTable::LocalIterator {
@@ -183,10 +183,10 @@ class UnorderedBase {
         const_local_iterator() = default;
 
         const_local_iterator(const const_local_iterator& it) :
-            AHashTable::LocalIterator(it) {};
+            AHashTable::LocalIterator(it) {}
 
         explicit const_local_iterator(const AHashTable::LocalIterator& it) :
-            AHashTable::LocalIterator(it) {};
+            AHashTable::LocalIterator(it) {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -213,7 +213,7 @@ class UnorderedBase {
       private:
 
         explicit const_local_iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::LocalIterator(n) {};
+            AHashTable::LocalIterator(n) {}
     };
 
     class local_iterator : public AHashTable::LocalIterator {
@@ -230,10 +230,10 @@ class UnorderedBase {
         local_iterator() = default;
 
         local_iterator(const local_iterator& it) :
-            AHashTable::LocalIterator(it) {};
+            AHashTable::LocalIterator(it) {}
 
         explicit local_iterator(const AHashTable::LocalIterator& it) :
-            AHashTable::LocalIterator(it) {};
+            AHashTable::LocalIterator(it) {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -260,7 +260,7 @@ class UnorderedBase {
       private:
 
         explicit local_iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::LocalIterator(n) {};
+            AHashTable::LocalIterator(n) {}
     };
 
     using BucketImpl = ETL_NAMESPACE::Vector<AHashTable::BucketItem>;
@@ -282,7 +282,7 @@ class UnorderedBase {
         allocator {a},
         hashTable {},  // ...bucket binding for the hashTable is skipped intentionally as creating a
                        // Span<> from a container would access uninitialized data of the container.
-        mlf {1.0f} {};
+        mlf {1.0f} {}
 
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
