@@ -744,27 +744,11 @@ TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") 
 }
 
 
-#if 0
-TEST_CASE("Etl::UnorderedMap<> custom compare tests", "[unorderedmap][etl]") {
-
-    typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester, std::greater<int>> MapType;
-    MapType map;
-
-    map.insert(1, ContainerTester(-1));
-    map.insert(2, ContainerTester(-2));
-    map.insert(3, ContainerTester(-3));
-    map.insert(4, ContainerTester(-4));
-
-    CHECK(map.size() == 4);
-    REQUIRE(map.begin()->first == 4);
-}
-
-
 TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[unorderedmap][etl]") {
 
     typedef ContainerTester ItemType;
     typedef Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator> MapType;
-    typedef MapType::Allocator::Allocator AllocatorType;
+    typedef MapType::NodeAllocator::Allocator AllocatorType;
 
     AllocatorType::reset();
     CHECK(AllocatorType::getAllocCount() == 0);
@@ -830,11 +814,12 @@ TEST_CASE("Etl::UnorderedMap<> test cleanup", "[unorderedmap][etl]") {
     typedef Etl::Custom::UnorderedMap<uint32_t, ContainerTester, DummyAllocator> MapType;
 
     CHECK(ContainerTester::getObjectCount() == 0);
-    CHECK(MapType::Allocator::Allocator::getDeleteCount()
-          == MapType::Allocator::Allocator::getAllocCount());
+    CHECK(MapType::NodeAllocator::Allocator::getDeleteCount()
+          == MapType::NodeAllocator::Allocator::getAllocCount());
 }
 
 
+#if 0
 // Etl::UnorderedMap comparision tests ----------------------------------------------
 
 
