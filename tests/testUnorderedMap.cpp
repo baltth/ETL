@@ -519,6 +519,27 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
 
         REQUIRE(it == map.end());
     }
+
+    SECTION("equal_range(Key)") {
+
+        auto res = map.equal_range(3);
+
+        REQUIRE(res.first != map.end());
+        REQUIRE(res.first->first == 3);
+        REQUIRE(res.first->second == ContainerTester(-3));
+
+        REQUIRE(res.first != res.second);
+        ++res.first;
+        REQUIRE(res.first == res.second);
+    }
+
+    SECTION("equal_range(Key) non-existing") {
+
+        auto res = map.equal_range(7);
+
+        REQUIRE(res.first == map.end());
+        REQUIRE(res.second == map.end());
+    }
 }
 
 TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap][etl]") {

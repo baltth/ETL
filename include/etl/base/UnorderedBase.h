@@ -85,7 +85,7 @@ class UnorderedBase {
 
         const_iterator(const const_iterator& other) = default;
         const_iterator& operator=(const const_iterator& other) = default;
-        
+
         explicit const_iterator(const AHashTable::Iterator& it) :
             AHashTable::Iterator(it) {}
 
@@ -439,14 +439,32 @@ class UnorderedBase {
     iterator findExact(HashType hash, P predicate) {
         auto range = this->equalHashRange(hash);
         auto it = findExactInRange(range.first, range.second, std::move(predicate));
-        return makeIt(it.node());
+        if (it != range.second) {
+            return makeIt(it);
+        } else {
+            return end();
+        }
     }
 
     template<typename P>
     const_iterator findExact(HashType hash, P predicate) const {
         auto range = this->equalHashRange(hash);
-        return findExactInRange(range.first, range.second, std::move(predicate));
+        auto it = findExactInRange(range.first, range.second, std::move(predicate));
+        if (it != range.second) {
+            return it;
+        } else {
+            return end();
+        }
     }
+
+    template<typename P>
+    std::pair<iterator, iterator> findRange(HashType hash, P predicate) {
+        auto res = const_cast<const UnorderedBase*>(this)->findRange(hash, predicate);
+        return std::make_pair(makeIt(res.first), makeIt(res.second));
+    }
+
+    template<typename P>
+    std::pair<const_iterator, const_iterator> findRange(HashType hash, P predicate) const;
 
     size_type count(HashType hash) const {
         return hashTable.count(hash);
@@ -471,6 +489,10 @@ class UnorderedBase {
         return iterator(static_cast<Node*>(n));
     }
 
+    static iterator makeIt(AHashTable::Iterator it) {
+        return iterator(it);
+    }
+
     static const_iterator makeConstIt(AHashTable::Node* n) {
         return const_iterator(static_cast<Node*>(n));
     }
@@ -478,12 +500,17 @@ class UnorderedBase {
     static const_iterator makeConstIt(const AHashTable::Node* n) {
         return const_iterator(static_cast<const Node*>(n));
     }
+
+    static const_iterator makeConstIt(AHashTable::Iterator it) {
+        return const_iterator(it);
+    }
+
     /// \}
 
   private:
 
     template<typename It, typename P>
-    const_iterator findExactInRange(It first, It end, P predicate) const;
+    const_iterator findExactInRange(It first, It last, P predicate) const;
 
     template<typename H>
     void swapElements(H hasher, UnorderedBase& other);
@@ -570,11 +597,28 @@ auto UnorderedBase<T>::findExactInRange(It first, It last, P predicate) const ->
         }
     }
 
-    if (found) {
-        return first;
-    } else {
-        return end();
+    return first;
+}
+
+
+template<class T>
+template<typename P>
+auto UnorderedBase<T>::findRange(HashType hash, P predicate) const
+    -> std::pair<const_iterator, const_iterator> {
+
+    auto hr = this->equalHashRange(hash);
+    auto firstFound = findExactInRange(hr.first, hr.second, predicate);
+    if (firstFound != hr.second) {
+
+        auto next = firstFound;
+        ++next;
+        auto endPred = [&predicate](const value_type& item) { return !predicate(item); };
+        auto lastFound = findExactInRange(next, hr.second, endPred);
+
+        return std::make_pair(firstFound, lastFound);
     }
+
+    return std::make_pair(end(), end());
 }
 
 
@@ -605,8 +649,7 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
     auto origOtherSize = other.size();
     auto origOtherBucketsSize = other.buckets.size();
 
-    if ((allocator.max_size() >= origOtherSize)
-        && (other.allocator.max_size() >= origOwnSize)) {
+    if ((allocator.max_size() >= origOtherSize) && (other.allocator.max_size() >= origOwnSize)) {
 
         // Steal the chains to stack variables
         SingleChain origOwnChain = std::move(hashTable.chain());
@@ -734,7 +777,7 @@ auto UnorderedBase<T>::swapN(H hasher,
 
     // As swapTwo() needs one empty slot in this,
     // the algorithm is specialized when this is full.
-    if(size() == allocator.max_size()) {
+    if (size() == allocator.max_size()) {
         // The first element is moved to a temporary to
         // free its capacity ...
         auto* firstNode = ownNode;

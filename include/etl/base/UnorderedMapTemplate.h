@@ -131,6 +131,8 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
 
     /// \name Lookup
     /// \{
+    using Base::count;
+
     iterator find(const key_type& key) {
         return this->findExact(
             hasher()(key),
@@ -142,6 +144,19 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
             hasher()(key),
             [&key](const value_type& item) { return key_equal()(key, item.first); });
     }
+
+    std::pair<iterator, iterator> equal_range(const K& key) {
+        return this->findRange(
+            hasher()(key),
+            [&key](const value_type& item) { return key_equal()(key, item.first); });
+    }
+
+    std::pair<const_iterator, const_iterator> equal_range(const K& key) const {
+        return this->findRange(
+            hasher()(key),
+            [&key](const value_type& item) { return key_equal()(key, item.first); });
+    }
+
     /// \}
 
     /// \name Modifiers
