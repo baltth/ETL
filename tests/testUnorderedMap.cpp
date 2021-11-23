@@ -840,7 +840,6 @@ TEST_CASE("Etl::UnorderedMap<> test cleanup", "[unorderedmap][etl]") {
 }
 
 
-#if 0
 // Etl::UnorderedMap comparision tests ----------------------------------------------
 
 
@@ -854,11 +853,9 @@ TEST_CASE("Etl::UnorderedMap<> comparision", "[unorderedmap][etl]") {
         MapType lhs;
         MapType rhs;
 
-        auto inserter = [](Base& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto inserter = [](Base& cont, int val) { cont.emplace(val, val); };
 
-        testComparision(static_cast<Base&>(lhs),
+        testEquivalence(static_cast<Base&>(lhs),
                         static_cast<Base&>(rhs),
                         inserter,
                         inserter);
@@ -872,18 +869,12 @@ TEST_CASE("Etl::UnorderedMap<> comparision", "[unorderedmap][etl]") {
         LType lhs;
         RType rhs;
 
-        auto lInserter = [](LType& cont, int val) {
-            cont.emplace(val, val);
-        };
+        auto lInserter = [](LType& cont, int val) { cont.emplace(val, val); };
+        auto rInserter = [](RType& cont, int val) { cont.emplace(val, val); };
 
-        auto rInserter = [](RType& cont, int val) {
-            cont.emplace(val, val);
-        };
-
-        testComparision(lhs,
+        testEquivalence(lhs,
                         rhs,
                         lInserter,
                         rInserter);
     }
 }
-#endif

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,9 +69,6 @@ void testComparision(L& lhs,
                      LI lInserter,
                      RI rInserter) {
 
-    assertEqual(lhs, lhs);
-    assertEqual(rhs, rhs);
-
     CHECK(lhs.empty());
     CHECK(rhs.empty());
 
@@ -105,6 +102,54 @@ void testComparision(L& lhs,
 
     assertLess(lhs, rhs);
     assertGreater(rhs, lhs);
+}
+
+
+template<class L, class R, class LI, class RI>
+void testEquivalence(L& lhs,
+                     R& rhs,
+                     LI lInserter,
+                     RI rInserter) {
+
+    auto eq = [&lhs, &rhs]() {
+        REQUIRE(lhs == rhs);
+        REQUIRE(rhs == lhs);
+        REQUIRE_FALSE(lhs != rhs);
+        REQUIRE_FALSE(rhs != lhs);
+    };
+
+    auto neq = [&lhs, &rhs]() {
+        REQUIRE_FALSE(lhs == rhs);
+        REQUIRE_FALSE(rhs == lhs);
+        REQUIRE(lhs != rhs);
+        REQUIRE(rhs != lhs);
+    };
+
+    CHECK(lhs.empty());
+    CHECK(rhs.empty());
+
+    eq();
+
+    rInserter(rhs, 1);
+    neq();
+    rInserter(rhs, 2);
+    neq();
+    lInserter(lhs, 1);
+    neq();
+    lInserter(lhs, 2);
+
+    eq();
+
+    lInserter(lhs, 3);
+    neq();
+    rInserter(rhs, 4);
+    lInserter(lhs, 5);
+    rInserter(rhs, 5);
+    neq();
+    lInserter(lhs, 4);
+    rInserter(rhs, 3);
+
+    eq();
 }
 
 #endif  // __ETL_TEST_COMPARISIONTESTS_H__

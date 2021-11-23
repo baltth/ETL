@@ -230,6 +230,32 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     iterator getItem(const K& k) {
         return emplace(k, E()).first;
     }
+
+    friend bool operator==(const UnorderedMap& lhs, const UnorderedMap& rhs) {
+
+        if (lhs.size() != rhs.size()) {
+            return false;
+        }
+        if (lhs.empty()) {
+            return true;
+        }
+
+        auto lIt = lhs.begin();
+        while (lIt != lhs.end()) {
+            auto rIt = rhs.find(lIt->first);
+            if ((rIt != rhs.end()) && (lIt->second == rIt->second)) {
+                ++lIt;
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    friend bool operator!=(const UnorderedMap& lhs, const UnorderedMap& rhs) {
+        return !(lhs == rhs);
+    }
 };
 
 
