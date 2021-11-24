@@ -256,6 +256,10 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     friend bool operator!=(const UnorderedMap& lhs, const UnorderedMap& rhs) {
         return !(lhs == rhs);
     }
+
+    friend void swap(UnorderedMap& lhs, UnorderedMap& rhs) {
+        lhs.swap(rhs);
+    }
 };
 
 

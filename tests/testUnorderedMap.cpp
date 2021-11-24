@@ -412,7 +412,7 @@ TEST_CASE("Etl::UnorderedMap<> move", "[unorderedmap][move][etl]") {
 
 
 template<typename M1, typename M2>
-void testSwap() {
+void testSwapOp(std::function<void(M1&, M2&)> swapFunc) {
 
     M1 src;
     src.insert(1, -1);
@@ -427,7 +427,7 @@ void testSwap() {
     other.insert(5, -5);
     CHECK(other.size() == 2);
 
-    src.swap(other);
+    swapFunc(src, other);
 
     REQUIRE(other.size() == 4);
     REQUIRE(src.size() == 2);
@@ -439,25 +439,39 @@ void testSwap() {
     REQUIRE(other[4] == -4);
 }
 
+template<typename M1, typename M2>
+void testSwap() {
+
+    SECTION("lhs.swap(rhs)") {
+        auto memberSwap = [](M1& lhs, M2& rhs) { lhs.swap(rhs); };
+        testSwapOp<M1, M2>(memberSwap);
+    }
+
+    SECTION("swap(lhs, rhs)") {
+        auto standaloneSwap = [](M1& lhs, M2& rhs) { swap(lhs, rhs); };
+        testSwapOp<M1, M2>(standaloneSwap);
+    }
+}
+
 
 TEST_CASE("Etl::UnorderedMap<> swap", "[unorderedmap][etl]") {
 
     using DM = Etl::Dynamic::UnorderedMap<int, int32_t>;
     using SM = Etl::Static::UnorderedMap<int, int32_t, 64U, 16U>;
 
-    SECTION("D.swap(D)") {
+    SECTION("D with D") {
         testSwap<DM, DM>();
     }
 
-    SECTION("D.swap(S)") {
+    SECTION("D with S") {
         testSwap<DM, SM>();
     }
 
-    SECTION("S.swap(D)") {
+    SECTION("S with D") {
         testSwap<SM, DM>();
     }
 
-    SECTION("S.swap(S)") {
+    SECTION("S with S") {
         testSwap<SM, SM>();
     }
 }
