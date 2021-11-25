@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <etl/List.h>
 #include <etl/Vector.h>
 
 #include "ContainerTester.h"
@@ -243,6 +244,29 @@ void testVectorInsertAndErase() {
         for (int i = (BASE + cntToInsert); i < static_cast<int>(dst.size()); ++i) {
             REQUIRE(dst[i] == (i - BASE - cntToInsert + 1));
         }
+    }
+
+    SECTION("insert(const_iterator, InputIt, InputIt) with foreign InputIt") {
+
+        Etl::Array<typename VecT::value_type, 4U> in = {1, 2, 3, 4};
+
+        VecT vec;
+        vec.push_back(0);
+        CHECK(vec.size() == 1);
+
+        CHECK(in.size() == 4);
+
+        auto last = in.cend();
+        --last;
+        auto it = vec.insert(vec.end(), in.cbegin(), last);
+
+        REQUIRE(vec.size() == 4);
+        REQUIRE(it == &vec[1]);
+
+        REQUIRE(vec[0] == 0);
+        REQUIRE(vec[1] == 1);
+        REQUIRE(vec[2] == 2);
+        REQUIRE(vec[3] == 3);
     }
 }
 

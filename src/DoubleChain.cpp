@@ -24,20 +24,6 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::DoubleChain;
 
 
-DoubleChain::DoubleChain(DoubleChain&& other) noexcept {
-
-    setEmpty();
-    swap(other);
-}
-
-
-DoubleChain& DoubleChain::operator=(DoubleChain&& other) noexcept {
-
-    swap(other);
-    return *this;
-}
-
-
 void DoubleChain::insertAfter(Node* pos, Node* node) noexcept {
 
     ETL_ASSERT(pos != nullptr);

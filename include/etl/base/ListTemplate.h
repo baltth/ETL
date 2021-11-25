@@ -33,27 +33,6 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
-namespace Detail {
-
-/// Trait struct for customizing `List::swapTwo()` operations.
-/// The default implementation checks the standard contract of `swap()` function.
-/// Rationale: stdlib implementations may have inconsistent traits,
-/// e.g. with gcc 5 `std::is_move_assignable<std::pair<const K, E>>::value == true`
-/// This induces using `swap()` operation in certain situations, but that
-/// does not compile. This struct allows to force 'stealing' instead of
-/// swapping via specialization.
-template<typename T>
-struct UseSwapInList {
-    static constexpr bool value = is_move_constructible<T>::value && is_move_assignable<T>::value;
-};
-
-template<class K, class E>
-struct UseSwapInList<std::pair<const K, E>> {
-    static constexpr bool value = false;
-};
-
-}  // namespace Detail
-
 
 template<class T>
 class List : private Detail::TypedListBase<T> {
@@ -160,7 +139,7 @@ class List : private Detail::TypedListBase<T> {
     /// \name Modifiers
     /// \{
 
-    void clear() noexcept(AllocatorBase::NoexceptDestroy);
+    inline void clear() noexcept(AllocatorBase::NoexceptDestroy);
 
     inline void push_front(const T& item);
     inline void push_back(const T& item);
@@ -275,7 +254,7 @@ class List : private Detail::TypedListBase<T> {
     /// Helper to perform non-trivial swap on two elements of different lists.
     /// This overload is used when `T` conforms the contract of a `swap` function.
     template<class U = T>
-    enable_if_t<Detail::UseSwapInList<U>::value, std::pair<iterator, iterator>>
+    enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<iterator, iterator>>
     swapTwo(iterator pos, List& other, iterator toSwap) {
         (void)other;
         using std::swap;
@@ -289,7 +268,7 @@ class List : private Detail::TypedListBase<T> {
     /// This overload is used when `T` does not conforms the contract of a `swap` function.
     /// The function uses no assignment, but expects capacity for one extra element on `this`.
     template<class U = T>
-    enable_if_t<!Detail::UseSwapInList<U>::value, std::pair<iterator, iterator>>
+    enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<iterator, iterator>>
     swapTwo(iterator pos, List& other, iterator toSwap) {
         auto otherPos = stealElement(pos, other, toSwap);
         pos = other.stealElement(otherPos, *this, pos);
@@ -409,7 +388,7 @@ void List<T>::spliceElements(const_iterator pos,
 template<class T>
 void List<T>::swapElements(List<T>& other) {
 
-    const Detail::SizeDiff diff(*this, other);
+    const auto diff = sizeDiff(*this, other);
 
     iterator ownIt = this->begin();
     iterator otherIt = other.begin();

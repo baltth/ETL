@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2021 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -106,29 +106,33 @@ bool isLess(const L& lhs, const R& rhs) {
 
 
 struct SizeDiff {
-
-    uint32_t common;
-    uint32_t lGreaterWith;
-    uint32_t rGreaterWith;
-
-    template<class L, class R>
-    SizeDiff(const L& l, const R& r) :
-        common(0),
-        lGreaterWith(0),
-        rGreaterWith(0) {
-
-        if (l.size() > r.size()) {
-
-            common = r.size();
-            lGreaterWith = l.size() - r.size();
-
-        } else {
-
-            common = l.size();
-            rGreaterWith = r.size() - l.size();
-        }
-    }
+    uint32_t common {0};
+    uint32_t lGreaterWith {0};
+    uint32_t rGreaterWith {0};
 };
+
+
+template<class L, class R>
+enable_if_t<is_integral<L>::value && is_integral<R>::value, SizeDiff> sizeDiff(L l, R r) {
+
+    SizeDiff d {};
+
+    if (l > r) {
+        d.common = r;
+        d.lGreaterWith = l - r;
+    } else {
+        d.common = l;
+        d.rGreaterWith = r - l;
+    }
+
+    return d;
+}
+
+template<class L, class R>
+enable_if_t<!(is_integral<L>::value && is_integral<R>::value), SizeDiff> sizeDiff(const L& l,
+                                                                                  const R& r) {
+    return sizeDiff(l.size(), r.size());
+}
 
 
 template<class T>
@@ -150,6 +154,50 @@ struct NothrowContract {
     static constexpr bool value = nothrowIfDefaultConstructible && nothrowIfMoveConstructible
                                   && nothrowIfMoveAssignable && nothrowIfDestructible;
 };
+
+
+template<typename S, typename T>
+struct CopyConst {
+    typedef T Type;
+};
+
+template<typename S, typename T>
+struct CopyConst<const S, T> {
+    typedef const T Type;
+};
+
+
+template<typename T>
+constexpr typename std::add_const<T>::type& asConst(T& t) noexcept {
+    return t;
+}
+
+template<typename T>
+constexpr typename std::add_const<T>::type* asConst(T* t) noexcept {
+    return t;
+}
+
+template<typename T>
+void asConst(const T&&) = delete;
+
+
+/// Trait struct for customizing e.g. `List::swapTwo()` operations.
+/// The default implementation checks the standard contract of `swap()` function.
+/// Rationale: stdlib implementations may have inconsistent traits,
+/// e.g. with gcc 5 `std::is_move_assignable<std::pair<const K, E>>::value == true`
+/// This induces using `swap()` operation in certain situations, but that
+/// does not compile. This struct allows to force 'stealing' instead of
+/// swapping via specialization.
+template<typename T>
+struct UseSwapInCont {
+    static constexpr bool value = is_move_constructible<T>::value && is_move_assignable<T>::value;
+};
+
+template<class K, class E>
+struct UseSwapInCont<std::pair<const K, E>> {
+    static constexpr bool value = false;
+};
+
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

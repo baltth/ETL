@@ -259,6 +259,11 @@ class Vector : protected Detail::TypedVectorBase<T> {
     template<class CR>
     iterator insertWithCreator(const_iterator position, size_type num, const CR& creatorCall);
 
+    iterator insertDefault(const_iterator position, size_type num) {
+        typename Base::DefaultCreator dc;
+        return insertWithCreator(position, num, dc);
+    }
+
     void replaceWith(Vector&& other);
 
   private:
@@ -434,7 +439,7 @@ template class Vector<const void*>;
 
 
 template<class T>
-class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
+class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
 
   public:  // types
 
@@ -449,7 +454,7 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    typedef Vector<typename CopyConst<T, void>::Type*> Base;
+    typedef Vector<typename Detail::CopyConst<T, void>::Type*> Base;
     typedef typename Base::StrategyBase StrategyBase;
 
     typedef typename Base::size_type size_type;
@@ -535,11 +540,11 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
     }
 
     pointer data() noexcept {
-        return static_cast<pointer>(Base::data());
+        return reinterpret_cast<pointer>(Base::data());
     }
 
     const_pointer data() const noexcept {
-        return static_cast<pointer>(Base::data());
+        return reinterpret_cast<const_pointer>(Base::data());
     }
     /// \}
 
@@ -636,6 +641,27 @@ class Vector<T*> : public Vector<typename CopyConst<T, void>::Type*> {
 
     explicit Vector(AMemStrategy<StrategyBase>& s) noexcept :
         Base(s) {};
+
+    template<class CR>
+    iterator insertWithCreator(const_iterator position, size_type num, const CR& creatorCall) {
+        return reinterpret_cast<iterator>(
+            Base::insertWithCreator(reinterpret_cast<typename Base::const_iterator>(position),
+                                    num,
+                                    creatorCall));
+    }
+
+    iterator insertWithCreator(const_iterator position, size_type num, CreateFunc&& creatorCall) {
+        return reinterpret_cast<iterator>(
+            Base::insertWithCreator(reinterpret_cast<typename Base::const_iterator>(position),
+                                    num,
+                                    creatorCall));
+    }
+
+    iterator insertDefault(const_iterator position, size_type num) {
+        return reinterpret_cast<iterator>(
+            Base::insertDefault(reinterpret_cast<typename Base::const_iterator>(position),
+                                num));
+    }
 };
 
 
