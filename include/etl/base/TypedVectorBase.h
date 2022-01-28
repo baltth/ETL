@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -441,8 +441,9 @@ struct NonTrivialElementOps {
         new (ptr) T();
     }
 
-    void defaultValue(pointer ptr, bool place) noexcept(noexcept(placeDefaultTo(ptr))
-                                                        && noexcept(assignDefaultTo(ptr))) {
+    void defaultValue(pointer ptr,
+                      bool place) noexcept((is_nothrow_move_assignable<T>::value)
+                                           && is_nothrow_move_constructible<T>::value) {
         if (place) {
             placeDefaultTo(ptr);
         } else {
@@ -461,7 +462,7 @@ struct NonTrivialElementOps {
     }
 
     void copyValue(pointer ptr, const_reference value, bool place) noexcept(
-        noexcept(placeValueTo(ptr, value)) && noexcept(assignValueTo(ptr, value))) {
+        (is_nothrow_move_assignable<T>::value) && is_nothrow_move_constructible<T>::value) {
         if (place) {
             placeValueTo(ptr, value);
         } else {
@@ -481,8 +482,8 @@ struct NonTrivialElementOps {
 
     void moveValue(pointer ptr,
                    value_type&& value,
-                   bool place) noexcept(noexcept(placeValueTo(ptr, std::move(value)))
-                                        && noexcept(assignValueTo(ptr, std::move(value)))) {
+                   bool place) noexcept((is_nothrow_move_assignable<T>::value)
+                                        && is_nothrow_move_constructible<T>::value) {
         if (place) {
             placeValueTo(ptr, std::move(value));
         } else {
@@ -493,7 +494,8 @@ struct NonTrivialElementOps {
     void moveOperation(pointer src,
                        pointer dst,
                        size_type num,
-                       bool place) noexcept(noexcept(moveValue(dst, std::move(src[0]), place))) {
+                       bool place) noexcept((is_nothrow_move_assignable<T>::value)
+                                            && is_nothrow_move_constructible<T>::value) {
         for (size_type i = 0; i < num; ++i) {
             moveValue(dst, std::move(src[i]), place);
             ++dst;
