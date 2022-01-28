@@ -53,8 +53,8 @@ void consume(Etl::Vector<int>& items) {
 
 It provides
 
-- _Array, Vector, List, Map, MultiMap, Set, Span_ types
-  - and some extra like a lightweight stream to buffer
+- _Vector, List, Map, MultiMap, Set, UnorderedMap, Span_ types
+  - and some extra like a lightweight stream-to-buffer utility
 - interfaces and behavioral concepts mostly compatible
   with _STL_ - it works as a drop-in replacement for
   most use cases
@@ -65,7 +65,47 @@ It provides
 It's important to note that _ETL is not a standard compliant
 STL implementation_ and it will never be.
 
+### Allocation
+
+There are four specific allocation strategies available for the containers:
+- `Static` strategy defines the storage along with the _actual instance_ with
+  a parametrized element number
+- `Pooled` strategy defines a common pool for the _parametrized container type_.
+  This actually means that all `Etl::Pooled::List<int, 32U>` instances will use
+  the same pool, but it's independent of the pool for `Etl::Pooled::List<int, 48U>`
+  instances.
+- `Custom` strategy allows to use an `std::allocator`-compliant allocator
+- `Dynamic` strategy uses `std::allocator`
+
+### Containers
+
+ETL provides the following containers:
+- `Vector`
+- `List`
+- `Map`
+- `MultiMap`
+- `Set`
+- `UnorderedMap`
+- `Array` as an alias to `std::array`
+
+`UnorderedMultiMap` and `UnorderedSet` will be added soon.
+
+> Note: `Deque` and `MultiSet` and `UnorderedMultiSet` may be added later
+> but handled as low priority.
+
+All containers can be used with all strategies except
+- `Vector` and `UnorderedMap` using only `Static`, `Dynamic` and `Custom`
+- `Array` as it's fixed size...
+
+### Utilities
+
+- `Span` is just like `std::span`, backported to C++11
+- `MemoryPool` is a general-purpose pool for fixed-size raw memory
+- `BufStr` is a `char` buffer with stream-like interface
+- `Fifo` and `FifoAccess` are container adaptors for circular
+  buffer use
+
 ---
 
 More info coming soon. Check out and try it until then,
-pull requests are welcome.
+_pull requests are welcome_.
