@@ -630,7 +630,7 @@ struct MapInsert {
     static void insert(M& map, const INPUT& data) {
 
         for (auto item : data) {
-            map.insert(typename M::value_type {item, item});
+            map.insert(typename M::value_type {item, typename M::mapped_type {item}});
         }
     }
 
