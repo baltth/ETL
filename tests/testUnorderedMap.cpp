@@ -481,7 +481,8 @@ TEST_CASE("Etl::UnorderedMap<> swap", "[unorderedmap][etl]") {
 TEMPLATE_TEST_CASE("Etl::UnorderedMap<> with std::initializer_list<>",
                    "[unorderedmap][etl]",
                    (Etl::Dynamic::UnorderedMap<int, int>),
-                   (Etl::Static::UnorderedMap<int, int, 32U>)) {
+                   (Etl::Static::UnorderedMap<int, int, 32U>),
+                   (Etl::Pooled::UnorderedMap<int, int, 32U>)) {
 
     std::initializer_list<std::pair<int, int>> init {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
     auto test = [&init](const TestType& map) {
@@ -507,10 +508,13 @@ TEMPLATE_TEST_CASE("Etl::UnorderedMap<> with std::initializer_list<>",
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
+TEMPLATE_TEST_CASE("Etl::UnorderedMap<> search tests",
+                   "[unorderedmap][etl]",
+                   (Etl::Dynamic::UnorderedMap<int, ContainerTester>),
+                   (Etl::Static::UnorderedMap<int, ContainerTester, 32U>),
+                   (Etl::Pooled::UnorderedMap<int, ContainerTester, 32U>)) {
 
-    typedef Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> MapType;
-    MapType map;
+    TestType map;
 
     map.insert(1, ContainerTester(-1));
     map.insert(2, ContainerTester(-2));
@@ -521,7 +525,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
 
     SECTION("find(Key)") {
 
-        MapType::iterator it = map.find(3);
+        auto it = map.find(3);
 
         REQUIRE(it != map.end());
         REQUIRE(it->first == 3);
@@ -530,7 +534,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
 
     SECTION("find(Key) non-existing") {
 
-        MapType::iterator it = map.find(7);
+        auto it = map.find(7);
 
         REQUIRE(it == map.end());
     }
@@ -557,13 +561,16 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> search tests", "[unorderedmap][etl]") {
     }
 }
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap][etl]") {
+
+TEMPLATE_TEST_CASE("Etl::UnorderedMap<> bucket interface tests",
+                   "[unorderedmap][etl]",
+                   (Etl::Static::UnorderedMap<int, int, 64U, 16U>),
+                   (Etl::Pooled::UnorderedMap<int, int, 64U, 16U>)) {
 
     static const size_t BUCKETS {16};
     static const size_t MOD {BUCKETS};
 
-    typedef Etl::Static::UnorderedMap<int, int, 64, BUCKETS> MapType;
-    MapType map;
+    TestType map;
 
     using Input = Etl::Dynamic::Set<int>;
 
@@ -623,7 +630,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> bucket interface tests", "[unorderedmap]
 
     SECTION("bucket iteration") {
 
-        auto checkBucket = [](const MapType& map, uint32_t ix, const Input& input) {
+        auto checkBucket = [](const TestType& map, uint32_t ix, const Input& input) {
             CAPTURE(ix);
             CHECK(map.bucket_size(ix) == input.size());
             auto it = map.begin(ix);
