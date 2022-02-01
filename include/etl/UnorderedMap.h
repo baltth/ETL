@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,12 +32,17 @@ namespace ETL_NAMESPACE {
 namespace Custom {
 
 /// UnorderedMap with custom allocator.
-template<class K, class E, template<class> class A>
-class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
+template<class K,
+         class E,
+         template<class>
+         class A,
+         class H = std::hash<K>,
+         class KE = std::equal_to<K>>
+class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
   public:  // types
 
-    using Base = ETL_NAMESPACE::UnorderedMap<K, E>;
+    using Base = ETL_NAMESPACE::UnorderedMap<K, E, H, KE>;
     using Node = typename Base::Node;
 
     using BucketImpl = Custom::Vector<typename Base::BucketItem, A>;
@@ -100,20 +105,31 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
 namespace Dynamic {
 
 /// UnorderedMap with dynamic memory allocation using std::allocator.
-template<class K, class E>
-using UnorderedMap = ETL_NAMESPACE::Custom::UnorderedMap<K, E, std::allocator>;
+template<class K,
+         class E,
+         class H = std::hash<K>,
+         class KE = std::equal_to<K>>
+using UnorderedMap = ETL_NAMESPACE::Custom::UnorderedMap<K, E, std::allocator, H, KE>;
 
 }  // namespace Dynamic
 
 
 namespace Static {
 
-template<class K, class E, std::size_t NN, std::size_t NB = NN>
-class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E> {
+template<class K,
+         class E,
+         std::size_t NN,
+         std::size_t NB = NN,
+         class H = std::hash<K>,
+         class KE = std::equal_to<K>>
+class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
+
+    static_assert(NN > 0, "Invalid Etl::Static::UnorderedMap size");
+    static_assert(NB > 0, "Invalid Etl::Static::UnorderedMap size");
 
   public:  // types
 
-    using Base = ETL_NAMESPACE::UnorderedMap<K, E>;
+    using Base = ETL_NAMESPACE::UnorderedMap<K, E, H, KE>;
 
     using NodeAllocator =
         typename ETL_NAMESPACE::PoolHelper<NN>::template Allocator<typename Base::Node>;

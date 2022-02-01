@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl][basic]
 
     REQUIRE(map.empty());
     REQUIRE(map.size() == 0);
+    REQUIRE(map.max_size() == static_cast<uint32_t>(std::allocator<uint32_t>().max_size()));
 
     ContainerTester a(4);
     map.insert(std::make_pair(4, a));
@@ -765,6 +766,7 @@ TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") 
 
         Etl::Static::UnorderedMap<int, int, 55U> map;
 
+        REQUIRE(map.max_size() == 55U);
         REQUIRE(map.bucket_count() == 55U);
         REQUIRE(map.max_load_factor() == Approx(1.0f));
     }
@@ -773,6 +775,7 @@ TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") 
 
         Etl::Static::UnorderedMap<int, int, 55U, 11U> map;
 
+        REQUIRE(map.max_size() == 55U);
         REQUIRE(map.bucket_count() == 11U);
         REQUIRE(map.max_load_factor() == Approx(5.0f));
     }
