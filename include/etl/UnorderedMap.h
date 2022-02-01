@@ -124,6 +124,9 @@ template<class K,
          class KE = std::equal_to<K>>
 class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
+    static_assert(NN > 0, "Invalid Etl::Static::UnorderedMap size");
+    static_assert(NB > 0, "Invalid Etl::Static::UnorderedMap size");
+
   public:  // types
 
     using Base = ETL_NAMESPACE::UnorderedMap<K, E, H, KE>;
