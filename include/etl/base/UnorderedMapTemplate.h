@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -101,6 +101,7 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     /// \{
     using Base::size;
     using Base::empty;
+    using Base::max_size;
     /// \}
 
     /// \name Element access

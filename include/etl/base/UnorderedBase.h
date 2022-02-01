@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -303,6 +303,10 @@ class UnorderedBase {
 
     bool empty() const {
         return hashTable.empty();
+    }
+
+    size_type max_size() const {
+        return allocator.max_size();
     }
     /// \}
 
