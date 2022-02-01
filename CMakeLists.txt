@@ -9,8 +9,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND ETL_COMPILE_OPTIONS -Wall -Wextra -pedantic -O2 -g)
-list(APPEND ETL_CONFIG ETL_USE_EXCEPTIONS=0)
+# Interface library for compile flags and configuration
+add_library(libetl-compile-if INTERFACE)
+target_compile_options(libetl-compile-if INTERFACE -Wall -Wextra -pedantic -O2 -g)
+target_compile_definitions(libetl-compile-if INTERFACE ETL_USE_EXCEPTIONS=0)
 
 include(${PROJECT_SOURCE_DIR}/libetl.cmake)
 include(${PROJECT_SOURCE_DIR}/etl-tests.cmake)
