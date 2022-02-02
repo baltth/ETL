@@ -189,6 +189,82 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
 }  // namespace Static
 
+
+namespace Pooled {
+
+template<class K,
+         class E,
+         std::size_t NN,
+         std::size_t NB = NN,
+         class H = std::hash<K>,
+         class KE = std::equal_to<K>>
+class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
+
+    static_assert(NN > 0, "Invalid Etl::Pooled::UnorderedMap size");
+    static_assert(NB > 0, "Invalid Etl::Pooled::UnorderedMap size");
+
+  public:  // types
+
+    using Base = ETL_NAMESPACE::UnorderedMap<K, E, H, KE>;
+
+    using NodeAllocator =
+        typename ETL_NAMESPACE::PoolHelper<NN>::template CommonAllocator<typename Base::Node>;
+    using BucketImpl = Static::Vector<typename Base::BucketItem, NB>;
+
+  private:  // variables
+
+    BucketImpl buckets;
+    mutable NodeAllocator allocator;
+
+  public:  // functions
+
+    UnorderedMap() :
+        Base(buckets, allocator),
+        buckets(NB) {
+        ETL_ASSERT(buckets.size() == NB);
+        this->bindOwnBuckets();
+        this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
+    }
+
+    UnorderedMap(const UnorderedMap& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    explicit UnorderedMap(const Base& other) :
+        UnorderedMap() {
+        Base::operator=(other);
+    }
+
+    UnorderedMap& operator=(const UnorderedMap& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    using Base::operator=;
+
+    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+        UnorderedMap() {
+        Base::operator=(initList);
+    }
+
+    UnorderedMap(UnorderedMap&& other) :
+        UnorderedMap() {
+        operator=(std::move(other));
+    }
+
+    UnorderedMap& operator=(UnorderedMap&& other) {
+        this->swap(other);
+        return *this;
+    }
+
+    ~UnorderedMap() {
+        this->clear();
+    }
+};
+
+}  // namespace Pooled
+
 }  // namespace ETL_NAMESPACE
 
 #endif  // __ETL_UNORDEREDMAP_H__
