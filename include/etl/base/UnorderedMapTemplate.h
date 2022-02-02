@@ -126,7 +126,7 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
     /// \name Bucket interface
     /// \{
     size_type bucket(const key_type& key) const {
-        return bucketIx(hasher()(key));
+        return this->bucketIx(hasher()(key));
     }
     /// \}
 

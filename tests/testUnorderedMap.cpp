@@ -607,6 +607,10 @@ TEMPLATE_TEST_CASE("Etl::UnorderedMap<> bucket interface tests",
 
     CHECK(map.size() == (inBucket1.size() + inBucket2.size() + inBucket4.size()));
 
+    SECTION("bucket()") {
+        REQUIRE(map.bucket(*inBucket1.begin()) != map.bucket(*inBucket2.begin()));
+    }
+
     SECTION("bucket_size()") {
 
 #if 0
