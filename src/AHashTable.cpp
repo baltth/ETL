@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,18 @@ void AHashTable::insert(AHashTable::Node& item) {
     ETL_ASSERT(buckets.data() != nullptr);
     ETL_ASSERT(buckets.size() > 0U);
 
+    // Buckets point to the previous node of the first element
+    // in the bucket:
+    // Bx------   By-------   Bz  Bv------
+    //        |   |       |   |   |
+    // -->X-->X-->Y-->Y-->Y-->Z-->V-->V-->
+    //        |           |   |
+    //        |           |   buckets[v]
+    //        buckets[y]  buckets[z]
+    //
+    // This induces additional corrections when inserting or removing
+    // to the last position of a bucket.
+
     uint32_t ix = bucketIxOfHash(item.hash);
 
     if (buckets[ix] == nullptr) {
@@ -48,9 +60,23 @@ void AHashTable::insert(AHashTable::Node& item) {
     } else {
 
         std::pair<SingleChain::Node*, bool> res = getPreviousInBucket(item.hash, ix);
-        chain_.insertAfter(res.first, &item);
-        if (res.first == lastItem) {
-            lastItem = res.first->next;
+        auto* prev = res.first;
+        ETL_ASSERT(prev != nullptr);
+
+        chain_.insertAfter(prev, &item);
+        if (prev == lastItem) {
+            lastItem = prev->next;
+        }
+
+        // When inserting after the last element of bucket `By`,
+        // `buckets[z]` has to be corrected to the new last element.
+
+        if (item.next != nullptr) {
+            auto& nextNode = static_cast<const Node&>(*item.next);
+            auto nextIx = bucketIxOfHash(nextNode.hash);
+            if (nextIx != ix) {
+                buckets[nextIx] = &item;
+            }
         }
     }
 
@@ -60,7 +86,8 @@ void AHashTable::insert(AHashTable::Node& item) {
 }
 
 
-std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash, size_type ix) {
+std::pair<SingleChain::Node*, bool> AHashTable::getPreviousInBucket(HashType hash,
+                                                                    size_type ix) {
 
     ETL_ASSERT(bucketIxOfHash(hash) == ix);
     ETL_ASSERT(buckets[ix] != nullptr);

@@ -31,6 +31,8 @@ limitations under the License.
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 
+namespace {
+
 
 TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl][basic]") {
 
@@ -906,3 +908,56 @@ TEST_CASE("Etl::UnorderedMap<> comparision", "[unorderedmap][etl]") {
                         rInserter);
     }
 }
+
+
+SCENARIO("Etl::UnorderedMap<> stability issues", "[unorderedmap][etl][stab]") {
+
+    // These test scenarios were extracted from large scale use with random data.
+
+    SECTION("S1 - insertion after the last element of an in-chain bucket") {
+
+        using M = Etl::Static::UnorderedMap<uint32_t, uint32_t, 10000U>;
+        M map;
+
+#if 0
+        auto inspect =
+            [&map](uint32_t n) {
+                std::cout << "#" << n << std::endl;
+                auto& ht = map.ht();
+                ht.inspectBuckets([](size_t ix, const void* b) {
+                    using Etl::Detail::AHashTable;
+                    auto bucket = static_cast<AHashTable::ConstBucketItem>(b);
+                    if (bucket) {
+                        std::cout << "#" << ix << " -> " << bucket;
+                        std::cout << " -> " << bucket->next << std::endl;
+                    }
+                });
+                ht.inspectNodes([](size_t hash, size_t ix, const void* node) {
+                    std::cout << "h " << hash << " ix " << ix << " @ " << node << std::endl;
+                });
+            };
+#else
+        auto inspect = [](uint32_t) {};
+#endif
+
+        uint32_t v0 = 52150UL;
+        map.insert(std::make_pair(v0, v0));
+        inspect(1U);
+        uint32_t v1 = 992433UL;
+        map.insert(std::make_pair(v1, v1));
+        inspect(2U);
+        uint32_t v2 = 1441182150UL;
+        map.insert(std::make_pair(v2, v2));
+        inspect(3U);
+
+        CAPTURE(map.bucket(v0));
+        CAPTURE(map.bucket(v1));
+        CAPTURE(map.bucket(v2));
+        REQUIRE(map.size() == 3U);
+        REQUIRE(map.find(v0) != map.end());
+        REQUIRE(map.find(v1) != map.end());
+        REQUIRE(map.find(v2) != map.end());
+    }
+}
+
+}  // namespace
