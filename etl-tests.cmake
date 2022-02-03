@@ -18,6 +18,7 @@ list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testFifo.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testPool.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testBufStr.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testSpan.cpp)
+list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testComplexScenarios.cpp)
 
 add_executable(testEtl ${ETL_TEST_SRCS} ${ETL_TEST_CMN})
 target_link_libraries(testEtl PRIVATE libetl)
