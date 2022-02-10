@@ -62,6 +62,15 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./testEtl
 
+    - name: Coverage
+      if: ${{ matrix.build-type == 'Release' }}
+      run: |
+        pip install gcovr
+        LINE_COV=$(./tools/coverage_val.sh -l build)
+        BRANCH_COV=$(./tools/coverage_val.sh -b build)
+        echo "line coverage: $LINE_COV%"
+        echo "branch coverage: $BRANCH_COV%"
+
   build-clang:
 
     env:
