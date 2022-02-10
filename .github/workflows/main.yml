@@ -31,7 +31,7 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j2
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -47,6 +47,7 @@ jobs:
 
     env:
       BUILD_TYPE: ${{ matrix.build-type }}
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     steps:
     - uses: actions/checkout@v2
@@ -67,6 +68,7 @@ jobs:
       BUILD_TYPE: Release
       CC: clang
       CXX: clang++
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     runs-on: ubuntu-latest
 
