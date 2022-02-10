@@ -798,7 +798,7 @@ TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") 
 TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[unorderedmap][etl]") {
 
     typedef ContainerTester ItemType;
-    typedef Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator> MapType;
+    typedef Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator, DummyAllocator> MapType;
     typedef MapType::NodeAllocator::Allocator AllocatorType;
 
     AllocatorType::reset();
