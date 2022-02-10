@@ -71,6 +71,18 @@ jobs:
         echo "line coverage: $LINE_COV%"
         echo "branch coverage: $BRANCH_COV%"
 
+        STATUS_URL="https://api.github.com/repos/baltth/ETL/statuses/${COMMIT_SHA}"
+        curl --url "$STATUS_URL" \
+        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+        --header 'content-type: application/json' \
+        -X POST \
+        --data "{\"state\":\"success\", \"description\":\"LC $LINE_COV% BC $BRANCH_COV%\", \"context\":\"coverage\"}"
+
+      env:
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+        PULL_NUMBER: ${{ github.event.pull_request.number }}
+        RUN_ID: ${{ github.run_id }}
+
   build-clang:
 
     env:
