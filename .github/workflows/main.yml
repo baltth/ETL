@@ -31,7 +31,7 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j2
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -47,6 +47,7 @@ jobs:
 
     env:
       BUILD_TYPE: ${{ matrix.build-type }}
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     steps:
     - uses: actions/checkout@v2
@@ -61,12 +62,34 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./testEtl
 
+    - name: Coverage
+      if: ${{ matrix.build-type == 'Release' }}
+      run: |
+        pip install gcovr
+        LINE_COV=$(./tools/coverage_val.sh -l build)
+        BRANCH_COV=$(./tools/coverage_val.sh -b build)
+        echo "line coverage: $LINE_COV%"
+        echo "branch coverage: $BRANCH_COV%"
+
+        STATUS_URL="https://api.github.com/repos/baltth/ETL/statuses/${COMMIT_SHA}"
+        curl --url "$STATUS_URL" \
+        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+        --header 'content-type: application/json' \
+        -X POST \
+        --data "{\"state\":\"success\", \"description\":\"LC $LINE_COV% BC $BRANCH_COV%\", \"context\":\"coverage\"}"
+
+      env:
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+        PULL_NUMBER: ${{ github.event.pull_request.number }}
+        RUN_ID: ${{ github.run_id }}
+
   build-clang:
 
     env:
       BUILD_TYPE: Release
       CC: clang
       CXX: clang++
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     runs-on: ubuntu-latest
 
