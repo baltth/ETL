@@ -24,15 +24,17 @@ limitations under the License.
 #include <etl/Map.h>
 #include <etl/Set.h>
 #include <etl/UnorderedMap.h>
+#include <etl/UnorderedSet.h>
 
 #include <iostream>
 #include <random>
+#include <set>
 
 namespace {
 
-Etl::Dynamic::Set<uint32_t> getInput(size_t n) {
+std::set<uint32_t> getInput(size_t n) {
 
-    Etl::Dynamic::Set<uint32_t> res;
+    std::set<uint32_t> res;
 
     std::mt19937 mt;
     for (uint32_t i = 0; i < n; ++i) {
@@ -43,7 +45,7 @@ Etl::Dynamic::Set<uint32_t> getInput(size_t n) {
 }
 
 
-void validateInput(const Etl::Set<uint32_t>& input) {
+void validateInput(const std::set<uint32_t>& input) {
 
     REQUIRE_FALSE(input.empty());
     uint32_t prev = *input.begin();
@@ -55,7 +57,7 @@ void validateInput(const Etl::Set<uint32_t>& input) {
 
 
 template<typename C, size_t N>
-void testRandomContent() {
+void testRandomMapContent() {
 
     auto input = getInput(N);
 
@@ -113,7 +115,7 @@ void testRandomContent() {
 }
 
 
-TEMPLATE_TEST_CASE("Random content",
+TEMPLATE_TEST_CASE("Random content - maps",
                    "[set][unorderedmap][map][etl][complex]",
                    (Etl::Static::UnorderedMap<uint32_t, uint32_t, 10000U, 1000U>),
                    (Etl::Pooled::UnorderedMap<uint32_t, uint32_t, 10000U, 1000U>),
@@ -122,13 +124,87 @@ TEMPLATE_TEST_CASE("Random content",
 
     SECTION("with 100 elements") {
         static const size_t N = 100U;
-        testRandomContent<TestType, N>();
+        testRandomMapContent<TestType, N>();
     }
 
     SECTION("with 10000 elements") {
         static const size_t N = 10000U;
-        testRandomContent<TestType, N>();
+        testRandomMapContent<TestType, N>();
     }
 }
 
+template<typename C, size_t N>
+void testRandomSetContent() {
+
+    auto input = getInput(N);
+
+    CAPTURE(input.size());
+    validateInput(input);
+
+    size_t cnt {0U};
+    C set;
+    for (auto& item : input) {
+        ++cnt;
+        CAPTURE(cnt);
+        CAPTURE(item);
+
+        auto inserted = set.insert(item);
+        REQUIRE(inserted.second);
+        REQUIRE(inserted.first != set.end());
+        REQUIRE(*inserted.first == item);
+
+        REQUIRE(set.size() == cnt);
+
+        auto it = set.find(item);
+        REQUIRE(it == inserted.first);
+
+        auto secondTry = set.insert(item);
+        REQUIRE_FALSE(secondTry.second);
+        REQUIRE(set.size() == cnt);
+    }
+
+    REQUIRE(set.size() == input.size());
+
+    cnt = 0U;
+    for (auto& item : input) {
+        ++cnt;
+        CAPTURE(cnt);
+        CAPTURE(item);
+
+        auto it = set.find(item);
+        REQUIRE(it != set.end());
+        REQUIRE(*it == item);
+    }
+
+    cnt = 0U;
+    for (auto& item : input) {
+        ++cnt;
+        CAPTURE(cnt);
+        CAPTURE(item);
+
+        set.erase(item);
+        REQUIRE(set.size() == (N - cnt));
+    }
+
+    REQUIRE(set.empty());
+}
+
+
+TEMPLATE_TEST_CASE("Random content - sets",
+                   "[set][unorderedset][etl][complex]",
+                   (Etl::Static::UnorderedSet<uint32_t, 10000U, 1000U>),
+                   (Etl::Pooled::UnorderedSet<uint32_t, 10000U, 1000U>),
+                   (Etl::Static::Set<uint32_t, 10000U>),
+                   (Etl::Pooled::Set<uint32_t, 10000U>)) {
+
+    SECTION("with 100 elements") {
+        static const size_t N = 100U;
+        testRandomSetContent<TestType, N>();
+    }
+
+    SECTION("with 10000 elements") {
+        static const size_t N = 10000U;
+        testRandomSetContent<TestType, N>();
+    }
+}
 }  // namespace
