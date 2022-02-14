@@ -725,14 +725,15 @@ auto UnorderedBase<T>::swapN(H hasher,
                              size_type n)
     -> enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>> {
 
+    (void)hasher;
     using std::swap;
 
     auto swapTwo = [this, &other](Node* own, Node* toSwap) {
         auto* nextOwn = static_cast<Node*>(own->next);
         auto* nextToSwap = static_cast<Node*>(toSwap->next);
         swap(own->item, toSwap->item);
-        hashTable.insert(own);
-        other.hashTable.insert(toSwap);
+        hashTable.insert(*own);
+        other.hashTable.insert(*toSwap);
         return std::make_pair(nextOwn, nextToSwap);
     };
 
@@ -740,7 +741,7 @@ auto UnorderedBase<T>::swapN(H hasher,
         ETL_ASSERT(ownNode != nullptr);
         ETL_ASSERT(otherNode != nullptr);
 
-        auto res = swapTwo(hasher, ownNode, other, otherNode);
+        auto res = swapTwo(ownNode, otherNode);
         ownNode = res.first;
         otherNode = res.second;
     }
