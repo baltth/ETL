@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_TEST_CONTAINERTESTER_H__
 
 #include <etl/etlSupport.h>
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -188,5 +189,17 @@ inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
 
 }  // namespace Test
 }  // namespace Etl
+
+
+namespace std {
+
+template<>
+struct hash<Etl::Test::ContainerTester> {
+    size_t operator()(Etl::Test::ContainerTester const& val) const noexcept {
+        return hash<int32_t> {}(val.getValue());
+    }
+};
+
+}  // namespace std
 
 #endif  // __ETL_TEST_CONTAINERTESTER_H__

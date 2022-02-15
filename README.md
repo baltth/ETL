@@ -53,7 +53,7 @@ void consume(Etl::Vector<int>& items) {
 
 It provides
 
-- _Vector, List, Map, MultiMap, Set, UnorderedMap, Span_ types
+- _Vector, List, Map, MultiMap, Set, UnorderedMap, UnorderedSet, Span_ types
   - and some extra like a lightweight stream-to-buffer utility
 - interfaces and behavioral concepts mostly compatible
   with _STL_ - it works as a drop-in replacement for
@@ -86,15 +86,16 @@ ETL provides the following containers:
 - `MultiMap`
 - `Set`
 - `UnorderedMap`
+- `UnorderedSet`
 - `Array` as an alias to `std::array`
 
-`UnorderedMultiMap` and `UnorderedSet` will be added soon.
+`UnorderedMultiMap` will be added soon.
 
 > Note: `Deque` and `MultiSet` and `UnorderedMultiSet` may be added later
 > but handled as low priority.
 
 All containers can be used with all strategies except
-- `Vector` and `UnorderedMap` using only `Static`, `Dynamic` and `Custom`
+- `Vector` using only `Static`, `Dynamic` and `Custom`
 - `Array` as it's fixed size...
 
 ### Utilities
