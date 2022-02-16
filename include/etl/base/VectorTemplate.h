@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -520,7 +520,7 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
     }
 
     const_reference operator[](int32_t ix) const noexcept {
-        return *(reinterpret_cast<const_pointer>(Base::getItemPointer(ix)));
+        return *(reinterpret_cast<const_pointer>(Base::getConstItemPointer(ix)));
     }
 
     reference front() {

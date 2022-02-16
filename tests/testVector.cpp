@@ -216,7 +216,7 @@ void testVectorInsertAndErase() {
 
         static constexpr int BASE = 5U;
         Vec dst(BASE, 0U);
-        for(int i = 0; i < cntBefore; ++i) {
+        for (int i = 0; i < cntBefore; ++i) {
             dst.push_back(i + 1);
         }
 
@@ -1393,4 +1393,30 @@ TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
     using Vec = Etl::Dynamic::Vector<Item>;
 
     testInnerProduct<Vec, Vec>();
+}
+
+
+TEST_CASE("Etl::Vector<> stability issues", "[vec][etl][stab]") {
+
+    SECTION("S1 - Vector<const T*>") {
+
+        using Vec = Etl::Dynamic::Vector<const int*>;
+
+        Etl::Array<int, 8U> nums = {0, 1, 2, 3, 4, 5, 6, 7};
+
+        Vec vec;
+        for (auto& item : nums) {
+            vec.push_front(&item);
+        }
+
+        auto verify = [](const Vec& vec) {
+            // Note: the actual issue was a compile error related to
+            // indexing a `const Vector<const T*>&`.
+            for (size_t i = 0; i < vec.size(); ++i) {
+                REQUIRE(*vec[i] >= 0);
+            }
+        };
+
+        verify(vec);
+    }
 }
