@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2021 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ using Etl::Test::ContainerTester;
 // Etl::Vector tests ----------------------------------------------------------
 
 
-template<class VecT>
+template<class Vec>
 void testVectorBasic() {
 
-    VecT vec;
+    Vec vec;
 
     REQUIRE(vec.empty());
     REQUIRE(vec.size() == 0);
@@ -59,7 +59,7 @@ void testVectorBasic() {
     REQUIRE_FALSE(vec.empty());
     REQUIRE(vec.size() == 2);
 
-    typename VecT::iterator it = vec.begin();
+    typename Vec::iterator it = vec.begin();
     REQUIRE(*it == 1);
     REQUIRE(vec[0] == *it);
 
@@ -77,79 +77,79 @@ void testVectorBasic() {
 
 TEST_CASE("Etl::Dynamic::Vector<> basic test", "[vec][dynamic][etl][basic]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorBasic<VecT>();
+    testVectorBasic<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> basic test", "[vec][static][etl][basic]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorBasic<VecT>();
+    testVectorBasic<Vec>();
 }
 
 
 TEST_CASE("Etl::Dynamic::Vector<> push/pop test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testBackAccess<VecT>();
-    testFrontAccess<VecT>();
+    testBackAccess<Vec>();
+    testFrontAccess<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> push/pop test", "[vec][static][etl][basic]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testBackAccess<VecT>();
-    testFrontAccess<VecT>();
+    testBackAccess<Vec>();
+    testFrontAccess<Vec>();
 }
 
 
 TEST_CASE("Etl::Dynamic::Vector<> iteration test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
     SECTION("iterator") {
-        testIterationForward<VecT>();
-        testIterationBackward<VecT>();
+        testIterationForward<Vec>();
+        testIterationBackward<Vec>();
     }
 
     SECTION("reverse_iterator") {
-        testReverseIterationForward<VecT>();
-        testReverseIterationBackward<VecT>();
+        testReverseIterationForward<Vec>();
+        testReverseIterationBackward<Vec>();
     }
 }
 
 TEST_CASE("Etl::Static::Vector<> iteration test", "[vec][static][etl][basic]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
     SECTION("iterator") {
-        testIterationForward<VecT>();
-        testIterationBackward<VecT>();
+        testIterationForward<Vec>();
+        testIterationBackward<Vec>();
     }
 
     SECTION("reverse_iterator") {
-        testReverseIterationForward<VecT>();
-        testReverseIterationBackward<VecT>();
+        testReverseIterationForward<Vec>();
+        testReverseIterationBackward<Vec>();
     }
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorInsertAndErase() {
 
     SECTION("insert(const_iterator, uint32_t, const T&)") {
 
-        VecT vec(4, 0);
+        Vec vec(4, 0);
         CHECK(vec.size() == 4);
 
         auto it = vec.begin() + 2;
@@ -183,10 +183,10 @@ void testVectorInsertAndErase() {
 
     SECTION("insert(const_iterator, InputIt, InputIt)") {
 
-        VecT vec = {1, 2, 3, 4};
+        Vec vec = {1, 2, 3, 4};
         CHECK(vec.size() == 4);
 
-        VecT vec2 = {0, -1, -2, -3};
+        Vec vec2 = {0, -1, -2, -3};
         CHECK(vec2.size() == 4);
 
         auto last = vec.cend() - 1;
@@ -215,12 +215,12 @@ void testVectorInsertAndErase() {
         CAPTURE(cntBefore);
 
         static constexpr int BASE = 5U;
-        VecT dst(BASE, 0U);
+        Vec dst(BASE, 0U);
         for(int i = 0; i < cntBefore; ++i) {
             dst.push_back(i + 1);
         }
 
-        VecT src;
+        Vec src;
         for (int i = 0; i < cntToInsert; ++i) {
             src.push_back(-(i + 1));
         }
@@ -248,9 +248,9 @@ void testVectorInsertAndErase() {
 
     SECTION("insert(const_iterator, InputIt, InputIt) with foreign InputIt") {
 
-        Etl::Array<typename VecT::value_type, 4U> in = {1, 2, 3, 4};
+        Etl::Array<typename Vec::value_type, 4U> in = {1, 2, 3, 4};
 
-        VecT vec;
+        Vec vec;
         vec.push_back(0);
         CHECK(vec.size() == 1);
 
@@ -272,59 +272,59 @@ void testVectorInsertAndErase() {
 
 TEST_CASE("Etl::Dynamic::Vector<> insert/erase test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorInsertAndErase<VecT>();
+    testVectorInsertAndErase<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> insert/erase test", "[vec][static][etl][basic]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 256> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 256>;
 
-    testVectorInsertAndErase<VecT>();
+    testVectorInsertAndErase<Vec>();
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorAssignment() {
 
-    typedef typename VecT::value_type ItemT;
+    typedef typename Vec::value_type Item;
 
     static const int PATTERN1 = 123;
     static const int PATTERN2 = 321;
 
-    VecT vec1(4, ContainerTester(PATTERN1));
-    VecT vec2(8, ContainerTester(PATTERN2));
+    Vec vec1(4, ContainerTester(PATTERN1));
+    Vec vec2(8, ContainerTester(PATTERN2));
 
     CHECK(vec1[0] != vec2[0]);
     CHECK(vec1.size() != vec2.size());
 
-    REQUIRE(ItemT::getObjectCount() == (vec1.size() + vec2.size()));
+    REQUIRE(Item::getObjectCount() == (vec1.size() + vec2.size()));
 
     vec1 = vec2;
 
     REQUIRE(vec1[0] == vec2[0]);
     REQUIRE(vec1.begin() != vec2.begin());
     REQUIRE(vec1.size() == vec2.size());
-    REQUIRE(ItemT::getObjectCount() == (2 * vec2.size()));
+    REQUIRE(Item::getObjectCount() == (2 * vec2.size()));
 }
 
 TEST_CASE("Etl::Dynamic::Vector<> assignment test", "[vec][dynamic][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorAssignment<VecT>();
+    testVectorAssignment<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> assignment test", "[vec][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorAssignment<VecT>();
+    testVectorAssignment<Vec>();
 }
 
 
@@ -433,10 +433,10 @@ void testVectorSwap() {
 
 TEST_CASE("Etl::Dynamic::Vector<> swap test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorSwap<VecT, VecT>();
+    testVectorSwap<Vec, Vec>();
 
     SECTION("Swap is no-copy") {
 
@@ -461,25 +461,25 @@ TEST_CASE("Etl::Dynamic::Vector<> swap test", "[vec][dynamic][etl]") {
 
 TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
     SECTION("Same capacity") {
-        testVectorSwap<VecT, VecT>();
+        testVectorSwap<Vec, Vec>();
     }
 
     SECTION("Different capacity") {
 
-        typedef Etl::Static::Vector<ItemT, 24> VecT2;
+        typedef Etl::Static::Vector<Item, 24> VecT2;
 
-        testVectorSwap<VecT, VecT2>();
+        testVectorSwap<Vec, VecT2>();
     }
 
     SECTION("Capacity boundaries") {
 
-        typedef Etl::Static::Vector<ItemT, 4> VecT2;
+        typedef Etl::Static::Vector<Item, 4> VecT2;
 
-        VecT vec1(4, 1);
+        Vec vec1(4, 1);
         VecT2 vec2;
 
         CHECK(vec1.size() == vec2.max_size());
@@ -538,53 +538,53 @@ TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorLeak() {
 
-    typedef typename VecT::value_type ItemT;
+    typedef typename Vec::value_type Item;
 
     static const int PATTERN = 123;
 
-    CHECK(ItemT::getObjectCount() == 0);
-    if (ItemT::getObjectCount() == 0) {
+    CHECK(Item::getObjectCount() == 0);
+    if (Item::getObjectCount() == 0) {
 
-        VecT vec(8, ContainerTester(PATTERN));
-        CHECK(vec.size() == ItemT::getObjectCount());
+        Vec vec(8, ContainerTester(PATTERN));
+        CHECK(vec.size() == Item::getObjectCount());
 
         vec.pop_back();
-        REQUIRE(vec.size() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == Item::getObjectCount());
 
         vec.erase(vec.begin());
-        REQUIRE(vec.size() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == Item::getObjectCount());
 
         vec.erase((vec.begin() + 1), (vec.begin() + 3));
-        REQUIRE(vec.size() == ItemT::getObjectCount());
+        REQUIRE(vec.size() == Item::getObjectCount());
     }
 
-    REQUIRE(ItemT::getObjectCount() == 0);
+    REQUIRE(Item::getObjectCount() == 0);
 }
 
 TEST_CASE("Etl::Dynamic::Vector<> leak test", "[vec][dynamic][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorLeak<VecT>();
+    testVectorLeak<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> leak test", "[vec][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorLeak<VecT>();
+    testVectorLeak<Vec>();
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorWithPtrItem() {
 
-    VecT vec;
+    Vec vec;
 
     REQUIRE(vec.size() == 0);
 
@@ -601,7 +601,7 @@ void testVectorWithPtrItem() {
 
     REQUIRE(vec.size() == 2);
 
-    typename VecT::iterator it = vec.begin();
+    typename Vec::iterator it = vec.begin();
     REQUIRE(*it == &a);
     REQUIRE(vec[0] == *it);
 
@@ -621,18 +621,18 @@ TEST_CASE("Etl::Dynamic::Vector<T*> test", "[vec][dynamic][etl][basic]") {
 
     SECTION("for T*") {
 
-        typedef int* ItemT;
-        typedef Etl::Dynamic::Vector<ItemT> VecT;
+        typedef int* Item;
+        using Vec = Etl::Dynamic::Vector<Item>;
 
-        testVectorWithPtrItem<VecT>();
+        testVectorWithPtrItem<Vec>();
     }
 
     SECTION("for const T*") {
 
-        typedef const int* ItemT;
-        typedef Etl::Dynamic::Vector<ItemT> VecT;
+        typedef const int* Item;
+        using Vec = Etl::Dynamic::Vector<Item>;
 
-        testVectorWithPtrItem<VecT>();
+        testVectorWithPtrItem<Vec>();
     }
 }
 
@@ -640,27 +640,27 @@ TEST_CASE("Etl::Static::Vector<T*> test", "[vec][static][etl][basic]") {
 
     SECTION("for T*") {
 
-        typedef int* ItemT;
-        typedef Etl::Static::Vector<ItemT, 16> VecT;
+        typedef int* Item;
+        using Vec = Etl::Static::Vector<Item, 16>;
 
-        testVectorWithPtrItem<VecT>();
+        testVectorWithPtrItem<Vec>();
     }
 
     SECTION("for const T*") {
 
-        typedef const int* ItemT;
-        typedef Etl::Static::Vector<ItemT, 16> VecT;
+        typedef const int* Item;
+        using Vec = Etl::Static::Vector<Item, 16>;
 
-        testVectorWithPtrItem<VecT>();
+        testVectorWithPtrItem<Vec>();
     }
 }
 
 
 TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> SVecT;
-    typedef Etl::Dynamic::Vector<ItemT> DVecT;
+    using Item = ContainerTester;
+    using SVecT = Etl::Static::Vector<Item, 16>;
+    using DVecT = Etl::Dynamic::Vector<Item>;
 
     static const int PATTERN_S = 123;
     static const int PATTERN_D = 321;
@@ -671,7 +671,7 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
     CHECK(sVec[0] != dVec[0]);
     CHECK(sVec.size() != dVec.size());
 
-    REQUIRE(ItemT::getObjectCount() == (sVec.size() + dVec.size()));
+    REQUIRE(Item::getObjectCount() == (sVec.size() + dVec.size()));
 
     SECTION("S = D assignment") {
 
@@ -679,7 +679,7 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
 
         REQUIRE(sVec[0] == dVec[0]);
         REQUIRE(sVec.size() == dVec.size());
-        REQUIRE(ItemT::getObjectCount() == (2 * dVec.size()));
+        REQUIRE(Item::getObjectCount() == (2 * dVec.size()));
     }
 
     SECTION("D = S assignment") {
@@ -688,7 +688,7 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
 
         REQUIRE(dVec[0] == sVec[0]);
         REQUIRE(dVec.size() == sVec.size());
-        REQUIRE(ItemT::getObjectCount() == (2 * sVec.size()));
+        REQUIRE(Item::getObjectCount() == (2 * sVec.size()));
     }
 
     SECTION("S(D) construction") {
@@ -733,14 +733,14 @@ TEST_CASE("Vector<> - Static-Dynamic interop test", "[vec][static][dynamic][etl]
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorWithInitList() {
 
     SECTION("Construct") {
 
         SECTION("With paren") {
 
-            VecT vec({1, 2});
+            Vec vec({1, 2});
 
             REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
@@ -749,7 +749,7 @@ void testVectorWithInitList() {
 
         SECTION("With double braces") {
 
-            VecT vec {{1, 2}};
+            Vec vec {{1, 2}};
 
             REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
@@ -758,7 +758,7 @@ void testVectorWithInitList() {
 
         SECTION("Uniform") {
 
-            VecT vec {1, 2};
+            Vec vec {1, 2};
 
             REQUIRE(vec.size() == 2);
             REQUIRE(vec[0] == 1);
@@ -768,7 +768,7 @@ void testVectorWithInitList() {
 
     SECTION("Assign") {
 
-        VecT vec({4, 5, 6, 7});
+        Vec vec({4, 5, 6, 7});
         CHECK(vec.size() == 4);
 
         SECTION("Empty") {
@@ -791,28 +791,28 @@ void testVectorWithInitList() {
 
 TEST_CASE("Etl::Dynamic::Vector<> with std::initializer_list<>", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorWithInitList<VecT>();
+    testVectorWithInitList<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> with std::initializer_list<>", "[vec][static][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorWithInitList<VecT>();
+    testVectorWithInitList<Vec>();
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorEmplace() {
 
     auto moveCnt = ContainerTester::getMoveCount();
     auto copyCnt = ContainerTester::getCopyCount();
 
-    VecT vec;
+    Vec vec;
 
     SECTION("emplace_back()") {
 
@@ -849,25 +849,25 @@ void testVectorEmplace() {
 
 TEST_CASE("Etl::Dynamic::Vector<> emplace test", "[vec][dynamic][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorEmplace<VecT>();
+    testVectorEmplace<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> emplace test", "[vec][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorEmplace<VecT>();
+    testVectorEmplace<Vec>();
 }
 
 
-template<class VecT>
+template<class Vec>
 void testVectorMove() {
 
-    VecT vec;
+    Vec vec;
     vec.push_back(ContainerTester(-1));
     vec.push_back(ContainerTester(-2));
     vec.push_back(ContainerTester(-3));
@@ -880,7 +880,7 @@ void testVectorMove() {
         const auto moveCnt = ContainerTester::getMoveCount();
 
         // ContainerTester::enablePrint = true;
-        VecT vec2(std::move(vec));
+        Vec vec2(std::move(vec));
         // ContainerTester::enablePrint = false;
 
         REQUIRE(vec2.size() == size);
@@ -892,7 +892,7 @@ void testVectorMove() {
 
     SECTION("Move assignment") {
 
-        VecT vec2(2, ContainerTester(10));
+        Vec vec2(2, ContainerTester(10));
 
         CHECK(vec2.size() != size);
 
@@ -911,18 +911,18 @@ void testVectorMove() {
 
 TEST_CASE("Etl::Dynamic::Vector<> move test", "[vec][dynamic][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testVectorMove<VecT>();
+    testVectorMove<Vec>();
 }
 
 TEST_CASE("Etl::Static::Vector<> move test", "[vec][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Static::Vector<ItemT, 16> VecT;
+    using Item = ContainerTester;
+    using Vec = Etl::Static::Vector<Item, 16>;
 
-    testVectorMove<VecT>();
+    testVectorMove<Vec>();
 }
 
 
@@ -967,9 +967,9 @@ void testVectorAssignToBase(Etl::Vector<T>& dst) {
 
 TEST_CASE("Etl::Vector<> assignment to base", "[vec][dynamic][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> DVecT;
-    typedef Etl::Static::Vector<ItemT, 16U> SVecT;
+    using Item = ContainerTester;
+    using DVecT = Etl::Dynamic::Vector<Item>;
+    using SVecT = Etl::Static::Vector<Item, 16U>;
 
     SECTION("Assigning to Etl::Dynamic::Vector<>") {
 
@@ -999,10 +999,10 @@ TEST_CASE("Etl::Vector<> assignment to base", "[vec][dynamic][static][etl]") {
 }
 
 
-template<class VecT, class T = typename VecT::value_type>
+template<class Vec, class T = typename Vec::value_type>
 void testVectorAssignFromBase(Etl::Vector<T>&& src) {
 
-    VecT dst;
+    Vec dst;
 
     const auto size = src.size();
     CHECK(size >= 3);
@@ -1038,9 +1038,9 @@ void testVectorAssignFromBase(Etl::Vector<T>&& src) {
 
 TEST_CASE("Etl::Vector<> assignment from base", "[vec][dynamic][static][etl]") {
 
-    typedef ContainerTester ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> DVecT;
-    typedef Etl::Static::Vector<ItemT, 16U> SVecT;
+    using Item = ContainerTester;
+    using DVecT = Etl::Dynamic::Vector<Item>;
+    using SVecT = Etl::Static::Vector<Item, 16U>;
 
     SECTION("Assigning from Etl::Dynamic::Vector<>") {
 
@@ -1087,10 +1087,10 @@ TEST_CASE("Vector<> test cleanup", "[vec][static][dynamic][etl]") {
 
 TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    VecT vec;
+    Vec vec;
 
     REQUIRE(vec.size() == 0);
     REQUIRE(vec.capacity() == 0);
@@ -1135,27 +1135,27 @@ TEST_CASE("Etl::Dynamic::Vector<> size/capacity test", "[vec][dynamic][etl]") {
 
 TEST_CASE("Etl::Dynamic::Vector<> constructor test", "[vec][dynamic][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    static const ItemT INIT_VALUE = 123;
+    static const Item INIT_VALUE = 123;
 
-    VecT vec1;
+    Vec vec1;
     REQUIRE(vec1.size() == 0);
     REQUIRE(vec1.capacity() == 0);
 
-    VecT vec2(4);
+    Vec vec2(4);
     REQUIRE(vec2.size() == 4);
     REQUIRE(vec2.capacity() >= 4);
 
     CAPTURE(INIT_VALUE);
-    VecT vec3(4, INIT_VALUE);
+    Vec vec3(4, INIT_VALUE);
     REQUIRE(vec3.size() == 4);
     REQUIRE(vec3.capacity() >= 4);
     REQUIRE(vec3[0] == INIT_VALUE);
     REQUIRE(vec3[3] == INIT_VALUE);
 
-    VecT vec4(vec3);
+    Vec vec4(vec3);
     REQUIRE(vec4.size() == vec3.size());
     REQUIRE(vec4.capacity() >= vec4.size());
     REQUIRE(vec4[0] == INIT_VALUE);
@@ -1168,12 +1168,12 @@ TEST_CASE("Etl::Dynamic::Vector<> constructor test", "[vec][dynamic][etl]") {
 TEST_CASE("Etl::Dynamic::Vector<> exceptions", "[vec][dynamic][etl]") {
 
     static const uint32_t COUNT = 16;
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    VecT vec(COUNT);
+    Vec vec(COUNT);
 
-    ItemT val;
+    Item val;
     CHECK_NOTHROW(val = vec[0]);
     CHECK_NOTHROW(val = vec[COUNT - 1]);
 
@@ -1200,12 +1200,12 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]
 
     static const uint32_t CAPACITY = 16;
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, CAPACITY> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, CAPACITY>;
 
     CAPTURE(CAPACITY);
 
-    VecT vec;
+    Vec vec;
 
     REQUIRE(vec.size() == 0);
     REQUIRE(vec.capacity() == CAPACITY);
@@ -1252,10 +1252,10 @@ TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
 
     static const uint32_t CAPACITY = 4;
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, CAPACITY> VecT;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, CAPACITY>;
 
-    VecT vec;
+    Vec vec;
 
     vec.insert(vec.begin(), 4, 1);
 
@@ -1272,22 +1272,22 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]")
     static const uint32_t CAPACITY = 16;
     static const uint32_t CAPACITY4 = 20;
 
-    typedef int ItemT;
-    typedef Etl::Static::Vector<ItemT, CAPACITY> VecT;
-    typedef Etl::Static::Vector<ItemT, CAPACITY4> VecT4;
+    using Item = int;
+    using Vec = Etl::Static::Vector<Item, CAPACITY>;
+    typedef Etl::Static::Vector<Item, CAPACITY4> VecT4;
 
-    static const ItemT INIT_VALUE = 123;
+    static const Item INIT_VALUE = 123;
 
-    VecT vec1;
+    Vec vec1;
     REQUIRE(vec1.size() == 0);
     REQUIRE(vec1.capacity() == CAPACITY);
 
-    VecT vec2(4);
+    Vec vec2(4);
     REQUIRE(vec2.size() == 4);
     REQUIRE(vec2.capacity() == CAPACITY);
 
     CAPTURE(INIT_VALUE);
-    VecT vec3(4, INIT_VALUE);
+    Vec vec3(4, INIT_VALUE);
     REQUIRE(vec3.size() == 4);
     REQUIRE(vec3.capacity() == CAPACITY);
     REQUIRE(vec3[0] == INIT_VALUE);
@@ -1295,7 +1295,7 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]")
 
     SECTION("Copy from same size") {
 
-        VecT vec4(vec3);
+        Vec vec4(vec3);
         REQUIRE(vec4.size() == vec3.size());
         REQUIRE(vec4.capacity() == CAPACITY);
         REQUIRE(vec4[0] == vec3[0]);
@@ -1312,7 +1312,7 @@ TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]")
         REQUIRE(vec4[3] == vec3[3]);
         REQUIRE(vec4.begin() != vec3.begin());
 
-        VecT vec5(vec4);
+        Vec vec5(vec4);
         REQUIRE(vec5.size() == vec4.size());
         REQUIRE(vec5.capacity() == CAPACITY);
         REQUIRE(vec5[0] == vec4[0]);
@@ -1373,24 +1373,24 @@ TEST_CASE("Etl::Vector<> comparision", "[vector][etl]") {
 
 TEST_CASE("Etl::Vector<> with std::accumulate()", "[vec][comp][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testAccumulate<VecT>();
+    testAccumulate<Vec>();
 }
 
 TEST_CASE("Etl::Vector<> with std::partial_sum()", "[vec][comp][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testPartialSum<VecT>();
+    testPartialSum<Vec>();
 }
 
 TEST_CASE("Etl::Vector<> with std::inner_product()", "[vec][comp][etl]") {
 
-    typedef int ItemT;
-    typedef Etl::Dynamic::Vector<ItemT> VecT;
+    using Item = int;
+    using Vec = Etl::Dynamic::Vector<Item>;
 
-    testInnerProduct<VecT, VecT>();
+    testInnerProduct<Vec, Vec>();
 }
