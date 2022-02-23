@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2021 Balazs Toth.
+Copyright 2019-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -194,10 +194,12 @@ class AHashTable {
     ~AHashTable() = default;
 
     size_type size() const {
+        ETL_ASSERT((size_ == 0) == (begin() == end()));
         return size_;
     }
 
     bool empty() const {
+        ETL_ASSERT((size_ == 0) == (begin() == end()));
         return (size_ == 0U);
     }
 
@@ -332,7 +334,9 @@ class AHashTable {
         }
 
         // reassign bucket of the front
-        buckets[frontBucketIx] = &chain_.getFrontNode();
+        if (size_ > 0) {
+            buckets[frontBucketIx] = &chain_.getFrontNode();
+        }
     }
 
     std::pair<SingleChain::Node*, bool> getPreviousInBucket(HashType hash, size_type ix);

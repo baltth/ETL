@@ -32,11 +32,12 @@ limitations under the License.
 
 namespace {
 
+std::mt19937 mt;
+
 std::set<uint32_t> getInput(size_t n) {
 
     std::set<uint32_t> res;
 
-    std::mt19937 mt;
     for (uint32_t i = 0; i < n; ++i) {
         res.insert(mt());
     }
@@ -56,16 +57,21 @@ void validateInput(const std::set<uint32_t>& input) {
 }
 
 
-template<typename C, size_t N>
-void testRandomMapContent() {
+template<typename C>
+typename C::const_iterator selectRandomElement(const C& cont) {
+    CHECK(cont.size() > 1U);
+    auto dist = std::uniform_int_distribution<> {0,
+                                                 static_cast<int>(cont.size()) - 1};
+    auto it = cont.begin();
+    std::advance(it, dist(mt));
+    return it;
+}
 
-    auto input = getInput(N);
+template<typename I, typename C>
+void testMapFill(I& input, C& map) {
 
-    CAPTURE(input.size());
-    validateInput(input);
+    size_t cnt {map.size()};
 
-    size_t cnt {0U};
-    C map;
     for (auto& item : input) {
         ++cnt;
         CAPTURE(cnt);
@@ -86,10 +92,12 @@ void testRandomMapContent() {
         REQUIRE_FALSE(secondTry.second);
         REQUIRE(map.size() == cnt);
     }
+}
 
-    REQUIRE(map.size() == input.size());
+template<typename I, typename C>
+void testMapFind(I& input, C& map) {
 
-    cnt = 0U;
+    size_t cnt = 0U;
     for (auto& item : input) {
         ++cnt;
         CAPTURE(cnt);
@@ -100,49 +108,104 @@ void testRandomMapContent() {
         REQUIRE(it->first == item);
         REQUIRE(it->second == item);
     }
+}
 
-    cnt = 0U;
-    for (auto& item : input) {
-        ++cnt;
-        CAPTURE(cnt);
-        CAPTURE(item);
+template<typename I, typename C>
+void testRemove(I& input, C& map, size_t n) {
 
-        map.erase(item);
-        REQUIRE(map.size() == (N - cnt));
+    auto origSize = map.size();
+    CHECK(origSize > n);
+
+    for (size_t i = 1; i <= n; ++i) {
+        CAPTURE(i);
+
+        auto it = selectRandomElement(input);
+        CHECK(it != input.end());
+        CAPTURE(*it);
+
+        map.erase(*it);
+        REQUIRE(map.size() == (origSize - i));
+
+        input.erase(it);
     }
 
-    REQUIRE(map.empty());
+    REQUIRE(input.size() == map.size());
+}
+
+template<typename I, typename C>
+void testMapRemoveAndAdd(I& input, C& map, size_t n) {
+
+    testRemove(input, map, n);
+
+    auto newInput = getInput(n);
+    testMapFill(newInput, map);
+
+    input.insert(newInput.begin(), newInput.end());
+    REQUIRE(input.size() == map.size());
 }
 
 
-TEMPLATE_TEST_CASE("Random content - maps",
-                   "[set][unorderedmap][map][etl][complex]",
-                   (Etl::Static::UnorderedMap<uint32_t, uint32_t, 10000U, 1000U>),
-                   (Etl::Pooled::UnorderedMap<uint32_t, uint32_t, 10000U, 1000U>),
-                   (Etl::Static::Map<uint32_t, uint32_t, 10000U>),
-                   (Etl::Pooled::Map<uint32_t, uint32_t, 10000U>)) {
-
-    SECTION("with 100 elements") {
-        static const size_t N = 100U;
-        testRandomMapContent<TestType, N>();
-    }
-
-    SECTION("with 10000 elements") {
-        static const size_t N = 10000U;
-        testRandomMapContent<TestType, N>();
-    }
-}
-
-template<typename C, size_t N>
-void testRandomSetContent() {
+template<typename C, size_t N, size_t NRA>
+void testRandomMapContent() {
 
     auto input = getInput(N);
 
     CAPTURE(input.size());
     validateInput(input);
 
-    size_t cnt {0U};
-    C set;
+    C map;
+    testMapFill(input, map);
+
+    REQUIRE(map.size() == input.size());
+    testMapFind(input, map);
+
+    for (size_t i = 0; i < NRA; ++i) {
+        testMapRemoveAndAdd(input, map, static_cast<size_t>(N * 0.6));
+    }
+
+    map.clear();
+    REQUIRE(map.empty());
+
+    testMapFill(input, map);
+    testRemove(input, map, input.size() - 1U);
+
+    CHECK(input.size() == 1U);
+    REQUIRE(map.size() == 1U);
+    REQUIRE(map.find(*input.begin()) != map.end());
+}
+
+
+TEMPLATE_TEST_CASE("Random content - unordered maps",
+                   "[set][unorderedmap][etl][complex]",
+                   (Etl::Static::UnorderedMap<uint32_t, uint32_t, 10000U, 100U>),
+                   (Etl::Pooled::UnorderedMap<uint32_t, uint32_t, 10000U, 100U>)) {
+
+    SECTION("with 100 elements") {
+        testRandomMapContent<TestType, 100U, 10U>();
+    }
+
+    SECTION("with 10000 elements") {
+        testRandomMapContent<TestType, 10000U, 3U>();
+    }
+}
+
+
+TEMPLATE_TEST_CASE("Random content - maps",
+                   "[set][map][etl][complex]",
+                   (Etl::Static::Map<uint32_t, uint32_t, 10000U>),
+                   (Etl::Pooled::Map<uint32_t, uint32_t, 10000U>)) {
+
+    SECTION("with 100 elements") {
+        testRandomMapContent<TestType, 100U, 10U>();
+    }
+}
+
+
+template<typename I, typename C>
+void testSetFill(I& input, C& set) {
+
+    size_t cnt {set.size()};
+
     for (auto& item : input) {
         ++cnt;
         CAPTURE(cnt);
@@ -162,10 +225,12 @@ void testRandomSetContent() {
         REQUIRE_FALSE(secondTry.second);
         REQUIRE(set.size() == cnt);
     }
+}
 
-    REQUIRE(set.size() == input.size());
+template<typename I, typename C>
+void testSetFind(I& input, C& set) {
 
-    cnt = 0U;
+    size_t cnt = 0U;
     for (auto& item : input) {
         ++cnt;
         CAPTURE(cnt);
@@ -175,36 +240,55 @@ void testRandomSetContent() {
         REQUIRE(it != set.end());
         REQUIRE(*it == item);
     }
+}
 
-    cnt = 0U;
-    for (auto& item : input) {
-        ++cnt;
-        CAPTURE(cnt);
-        CAPTURE(item);
+template<typename C, size_t N>
+void testRandomSetContent() {
 
-        set.erase(item);
-        REQUIRE(set.size() == (N - cnt));
-    }
+    auto input = getInput(N);
 
+    CAPTURE(input.size());
+    validateInput(input);
+
+    C set;
+    testSetFill(input, set);
+
+    REQUIRE(set.size() == input.size());
+
+    testSetFind(input, set);
+
+    set.clear();
     REQUIRE(set.empty());
+
+    testSetFill(input, set);
+    testRemove(input, set, input.size() - 1U);
+
+    CHECK(input.size() == 1U);
+    REQUIRE(set.size() == 1U);
+    REQUIRE(set.find(*input.begin()) != set.end());
 }
 
 
-TEMPLATE_TEST_CASE("Random content - sets",
+TEMPLATE_TEST_CASE("Random content - unordered sets",
                    "[set][unorderedset][etl][complex]",
-                   (Etl::Static::UnorderedSet<uint32_t, 10000U, 1000U>),
-                   (Etl::Pooled::UnorderedSet<uint32_t, 10000U, 1000U>),
-                   (Etl::Static::Set<uint32_t, 10000U>),
-                   (Etl::Pooled::Set<uint32_t, 10000U>)) {
-
+                   (Etl::Static::UnorderedSet<uint32_t, 10000U, 100U>),
+                   (Etl::Pooled::UnorderedSet<uint32_t, 10000U, 100U>)) {
     SECTION("with 100 elements") {
-        static const size_t N = 100U;
-        testRandomSetContent<TestType, N>();
+        testRandomSetContent<TestType, 100U>();
     }
 
     SECTION("with 10000 elements") {
-        static const size_t N = 10000U;
-        testRandomSetContent<TestType, N>();
+        testRandomSetContent<TestType, 10000U>();
     }
 }
+
+TEMPLATE_TEST_CASE("Random content - sets",
+                   "[set][etl][complex]",
+                   (Etl::Static::Set<uint32_t, 10000U>),
+                   (Etl::Pooled::Set<uint32_t, 10000U>)) {
+    SECTION("with 100 elements") {
+        testRandomSetContent<TestType, 100U>();
+    }
+}
+
 }  // namespace
