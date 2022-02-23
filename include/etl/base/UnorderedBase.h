@@ -291,7 +291,9 @@ class UnorderedBase {
     UnorderedBase& operator=(UnorderedBase&& other) = default;
 
     ~UnorderedBase() {
-        clear();
+        // The container shall be empty at his stage
+        ETL_ASSERT(empty());
+        ETL_ASSERT(begin() == end());
     }
     /// \}
 
@@ -567,6 +569,14 @@ void UnorderedBase<T>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
     while (it != end()) {
         it = erase(it);
     }
+
+#if ETL_ASSERTIONS_ON
+    ETL_ASSERT(empty());
+    auto buckets = hashTable.getBuckets();
+    for (auto& b : buckets) {
+        ETL_ASSERT(b == nullptr);
+    }
+#endif
 }
 
 

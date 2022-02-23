@@ -169,6 +169,7 @@ AHashTable::findPreviousOfNode(AHashTable::Node& item) const {
 
     SingleChain::Node* prev = buckets[ix];
     ETL_ASSERT(prev != nullptr);
+    ETL_ASSERT(prev->next != nullptr);
 
     while (prev->next != &item) {
         prev = prev->next;

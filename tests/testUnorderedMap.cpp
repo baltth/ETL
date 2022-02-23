@@ -152,6 +152,52 @@ TEST_CASE("Etl::Dynamic::UnorderedMap<> erase tests", "[unorderedmap][etl]") {
 }
 
 
+TEST_CASE("Etl::Dynamic::UnorderedMap<> clear tests", "[unorderedmap][etl]") {
+
+    typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
+
+    auto testClear = [](MapType& map) {
+        CHECK_FALSE(map.empty());
+
+        map.clear();
+
+        REQUIRE(map.empty());
+        REQUIRE(map.find(2) == map.end());
+
+        auto bucketInspector = [](size_t ix, const void* b) {
+            CAPTURE(ix);
+            REQUIRE(b == nullptr);
+        };
+
+        auto nodeInspector = [](size_t hash, size_t ix, const void* node) {
+            (void)hash;
+            (void)ix;
+            (void)node;
+            REQUIRE(false);
+        };
+
+        map.ht().inspectBuckets(bucketInspector);
+        map.ht().inspectNodes(nodeInspector);
+    };
+
+    MapType map;
+
+    map.insert(1, -1);
+    map.insert(2, -2);
+    map.insert(3, -3);
+    map.insert(4, -4);
+
+    {
+        MapType m2 {map};
+        MapType m3;
+        m3.swap(m2);
+        testClear(m3);
+    }
+
+    testClear(map);
+}
+
+
 TEST_CASE("Etl::Dynamic::UnorderedMap<> iteration tests", "[unorderedmap][etl]") {
 
     typedef Etl::Dynamic::UnorderedMap<int, uint32_t> MapType;
@@ -981,6 +1027,31 @@ SCENARIO("Etl::UnorderedMap<> stability issues", "[unorderedmap][etl][stab]") {
         }
 
         REQUIRE(map.size() == 191U);
+    }
+
+    SECTION("S3 - buckets when swapping") {
+
+        using M1 = Etl::Dynamic::UnorderedMap<uint32_t, uint32_t>;
+        using M2 = Etl::Static::UnorderedMap<uint32_t, uint32_t, 32U, 7U>;
+
+        M1 m1;
+        M2 m2;
+        m2.swap(m1);
+
+        auto bucketInspector = [](size_t ix, const void* b) {
+            CAPTURE(ix);
+            REQUIRE(b == nullptr);
+        };
+
+        auto nodeInspector = [](size_t hash, size_t ix, const void* node) {
+            (void)hash;
+            (void)ix;
+            (void)node;
+            REQUIRE(false);
+        };
+
+        m2.ht().inspectBuckets(bucketInspector);
+        m2.ht().inspectNodes(nodeInspector);
     }
 }
 

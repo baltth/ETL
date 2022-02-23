@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -52,9 +52,20 @@ limitations under the License.
 // Assertions
 
 #if ETL_DISABLE_ASSERT
+
 #define ETL_ASSERT(cond)
+#define ETL_ASSERTIONS_ON 0
+
 #else
+
 #define ETL_ASSERT(cond) assert(cond)
+
+#ifdef NDEBUG
+#define ETL_ASSERTIONS_ON 0
+#else
+#define ETL_ASSERTIONS_ON 1
+#endif
+
 #endif
 
 

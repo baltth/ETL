@@ -77,6 +77,7 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
         this->clear();  // @todo this could be optimized to reuse existing elements
         this->max_load_factor(other.max_load_factor());
         this->rehash(other.bucket_count());
+        ETL_ASSERT(this->empty());
         insert(other.begin(), other.end());
         return *this;
     }
