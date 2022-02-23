@@ -104,6 +104,12 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     ~UnorderedSet() {
         this->clear();
     }
+
+  private:
+
+    friend void swap(UnorderedSet& lhs, Base& rhs) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Custom
@@ -203,6 +209,12 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     ~UnorderedSet() {
         this->clear();
     }
+
+  private:
+
+    friend void swap(UnorderedSet& lhs, Base& rhs) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Static
@@ -283,6 +295,12 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
 
     ~UnorderedSet() {
         this->clear();
+    }
+
+  private:
+
+    friend void swap(UnorderedSet& lhs, Base& rhs) {
+        lhs.swap(rhs);
     }
 };
 

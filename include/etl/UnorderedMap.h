@@ -42,8 +42,7 @@ template<class K,
          class E,
          template<class>
          class NA,
-         template<class>
-         class BA = NA,
+         template<class> class BA = NA,
          class H = std::hash<K>,
          class KE = std::equal_to<K>>
 class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
@@ -106,6 +105,12 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     ~UnorderedMap() {
         this->clear();
+    }
+
+  private:
+
+    friend void swap(UnorderedMap& lhs, Base& rhs) {
+        lhs.swap(rhs);
     }
 };
 
@@ -211,6 +216,12 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     ~UnorderedMap() {
         this->clear();
     }
+
+  private:
+
+    friend void swap(UnorderedMap& lhs, Base& rhs) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Static
@@ -293,6 +304,12 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     ~UnorderedMap() {
         this->clear();
+    }
+
+  private:
+
+    friend void swap(UnorderedMap& lhs, Base& rhs) {
+        lhs.swap(rhs);
     }
 };
 
