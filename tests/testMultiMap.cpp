@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,13 +23,16 @@ limitations under the License.
 
 #include <etl/MultiMap.h>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
+using Etl::Test::AtScopeEnd;
 
+namespace {
 
 TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl][basic]") {
 
@@ -430,15 +433,20 @@ TEST_CASE("Etl::MultiMap<> custom compare tests", "[multimap][etl]") {
 
 TEST_CASE("Etl::Custom::MultiMap<> allocator test", "[multimap][etl]") {
 
-    typedef ContainerTester ItemType;
-    typedef Etl::Custom::MultiMap<uint32_t, ItemType, DummyAllocator> MapType;
-    typedef MapType::Allocator::Allocator AllocatorType;
+    using ItemType = ContainerTester;
+    using MapType = Etl::Custom::MultiMap<uint32_t, ItemType, DummyAllocator>;
+    using AllocatorType = MapType::Allocator::Allocator;
 
-    AllocatorType::reset();
+    auto end = AtScopeEnd([]() {
+        REQUIRE(AllocatorType::getDeleteCount() == AllocatorType::getAllocCount());
+        AllocatorType::reset();
+    });
+
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
 
     MapType map;
+    REQUIRE(AllocatorType::getAllocCount() == 0);
     map.insert(5, ContainerTester(-5));
 
     MapType::iterator it = map.begin();
@@ -540,3 +548,5 @@ TEST_CASE("Etl::MultiMap<> comparision", "[multimap][etl]") {
                         rInserter);
     }
 }
+
+}  // namespace

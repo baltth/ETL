@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2021 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ limitations under the License.
 
 #include <memory>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
@@ -33,6 +34,7 @@ limitations under the License.
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
+using Etl::Test::AtScopeEnd;
 
 using Etl::Detail::NothrowContract;
 
@@ -40,6 +42,8 @@ static_assert(NothrowContract<Etl::Static::List<int, 16U>>::value,
               "nothrow contract");
 static_assert(NothrowContract<Etl::Static::List<Etl::Static::List<int, 16U>, 8>>::value,
               "nothrow contract");
+
+namespace {
 
 template<class ListT>
 void testListBasic() {
@@ -735,15 +739,20 @@ TEST_CASE("Etl::Pooled::List<>::splice() test", "[list][etl]") {
 
 TEST_CASE("Etl::Custom::List<> allocator test", "[list][etl]") {
 
-    typedef ContainerTester ItemType;
-    typedef Etl::Custom::List<ItemType, DummyAllocator> ListT;
-    typedef ListT::Allocator::Allocator AllocatorType;
+    using ItemType = ContainerTester;
+    using ListT = Etl::Custom::List<ItemType, DummyAllocator>;
+    using AllocatorType = ListT::Allocator::Allocator;
 
-    AllocatorType::reset();
+    auto end = AtScopeEnd([]() {
+        REQUIRE(AllocatorType::getDeleteCount() == AllocatorType::getAllocCount());
+        AllocatorType::reset();
+    });
+
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
 
     ListT list;
+    REQUIRE(AllocatorType::getAllocCount() == 0);
     list.push_back(ContainerTester(1));
 
     ListT::iterator it = list.begin();
@@ -992,3 +1001,5 @@ TEST_CASE("Etl::List<reference_wrapper<T>> tests", "[list][comp][etl]") {
     list.back().get() = -1;
     REQUIRE(i0 == -1);
 }
+
+}  // namespace

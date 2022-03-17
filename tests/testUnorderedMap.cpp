@@ -24,12 +24,14 @@ limitations under the License.
 #include <etl/Set.h>
 #include <etl/UnorderedMap.h>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
+using Etl::Test::AtScopeEnd;
 
 namespace {
 
@@ -843,28 +845,35 @@ TEST_CASE("Etl::Static::UnorderedMap<> parameter tests", "[unorderedmap][etl]") 
 
 TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[unorderedmap][etl]") {
 
-    typedef ContainerTester ItemType;
-    typedef Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator, DummyAllocator> MapType;
-    typedef MapType::NodeAllocator::Allocator AllocatorType;
+    using ItemType = ContainerTester;
+    using MapType = Etl::Custom::UnorderedMap<uint32_t, ItemType, DummyAllocator, DummyAllocator>;
+    using NodeAllocatorType = MapType::NodeAllocator::Allocator;
+    using BucketAllocatorType = MapType::BucketImpl::Allocator;
 
-    AllocatorType::reset();
-    CHECK(AllocatorType::getAllocCount() == 0);
-    CHECK(AllocatorType::getDeleteCount() == 0);
+    auto end = AtScopeEnd([]() {
+        NodeAllocatorType::reset();
+        BucketAllocatorType::reset();
+    });
+    
+    CHECK(NodeAllocatorType::getAllocCount() == 0);
+    CHECK(NodeAllocatorType::getDeleteCount() == 0);
+    CHECK(BucketAllocatorType::getAllocCount() == 0);
+    CHECK(BucketAllocatorType::getDeleteCount() == 0);
 
     MapType map;
     map.insert(5, ContainerTester(-5));
 
     MapType::iterator it = map.begin();
-    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
+    REQUIRE(it.operator->() == &(NodeAllocatorType::ptrOfAllocation(0)->item));
 
     map.insert(6, ContainerTester(-6));
     ++it;
-    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
+    REQUIRE(it.operator->() == &(NodeAllocatorType::ptrOfAllocation(1)->item));
 
-    CHECK(AllocatorType::getDeleteCount() == 0);
+    CHECK(NodeAllocatorType::getDeleteCount() == 0);
 
     map.erase(5);
-    REQUIRE(AllocatorType::getDeleteCount() == 1);
+    REQUIRE(NodeAllocatorType::getDeleteCount() == 1);
 }
 
 

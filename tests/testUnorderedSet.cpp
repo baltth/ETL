@@ -24,12 +24,14 @@ limitations under the License.
 #include <etl/Set.h>
 #include <etl/UnorderedSet.h>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
+using Etl::Test::AtScopeEnd;
 
 
 TEST_CASE("Etl::Dynamic::UnorderedSet<> basic test", "[unorderedset][etl][basic]") {
@@ -394,26 +396,36 @@ TEST_CASE("Etl::Custom::UnorderedSet<> allocator test", "[unorderedset][etl]") {
 
     using ItemType = ContainerTester;
     using SetType = Etl::Custom::UnorderedSet<ItemType, DummyAllocator>;
-    using AllocatorType = SetType::NodeAllocator::Allocator;
+    using NodeAllocatorType = SetType::NodeAllocator::Allocator;
+    using BucketAllocatorType = SetType::BucketImpl::Allocator;
 
-    AllocatorType::reset();
-    CHECK(AllocatorType::getAllocCount() == 0);
-    CHECK(AllocatorType::getDeleteCount() == 0);
+    auto end = AtScopeEnd([]() {
+        NodeAllocatorType::reset();
+        BucketAllocatorType::reset();
+    });
+
+    CHECK(NodeAllocatorType::getAllocCount() == 0);
+    CHECK(NodeAllocatorType::getDeleteCount() == 0);
+    CHECK(BucketAllocatorType::getAllocCount() == 0);
+    CHECK(BucketAllocatorType::getDeleteCount() == 0);
 
     SetType set;
+    CHECK(BucketAllocatorType::getAllocCount() > 0);
+    CHECK(NodeAllocatorType::getDeleteCount() == 0);
+
     set.insert(ContainerTester(5));
 
     SetType::iterator it = set.begin();
-    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(0)->item));
+    REQUIRE(it.operator->() == &(NodeAllocatorType::ptrOfAllocation(0)->item));
 
     set.insert(ContainerTester(6));
     ++it;
-    REQUIRE(it.operator->() == &(AllocatorType::ptrOfAllocation(1)->item));
+    REQUIRE(it.operator->() == &(NodeAllocatorType::ptrOfAllocation(1)->item));
 
-    CHECK(AllocatorType::getDeleteCount() == 0);
+    CHECK(NodeAllocatorType::getDeleteCount() == 0);
 
     set.erase(ContainerTester(5));
-    REQUIRE(AllocatorType::getDeleteCount() == 1);
+    REQUIRE(NodeAllocatorType::getDeleteCount() == 1);
 }
 
 

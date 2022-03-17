@@ -24,7 +24,9 @@ limitations under the License.
 #include <etl/List.h>
 #include <etl/Vector.h>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
+#include "DummyAllocator.h"
 #include "UnalignedTester.h"
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
@@ -32,7 +34,9 @@ limitations under the License.
 
 using Etl::Test::UnalignedTester;
 using Etl::Test::ContainerTester;
+using Etl::Test::AtScopeEnd;
 
+namespace {
 
 // Etl::Vector tests ----------------------------------------------------------
 
@@ -1328,6 +1332,30 @@ TEST_CASE("Etl::Static::Vector<> test cleanup", "[vec][static][etl]") {
 }
 
 
+// Etl::Custom::Vector tests -----------------------------------------------
+
+TEST_CASE("Etl::Custom::Vector<> allocation tests", "[vec][custom][etl]") {
+
+    using Etl::Test::DummyAllocator;
+    using VecType = Etl::Custom::Vector<void*, DummyAllocator>;
+    using AllocatorType = VecType::Allocator;
+
+    auto end = AtScopeEnd([]() {
+        REQUIRE(AllocatorType::getDeleteCount() == AllocatorType::getAllocCount());
+        AllocatorType::reset();
+    });
+
+    CHECK(AllocatorType::getAllocCount() == 0);
+    CHECK(AllocatorType::getDeleteCount() == 0);
+
+    VecType v(32U);
+
+    REQUIRE(v.size() == 32U);
+
+    REQUIRE(AllocatorType::getAllocCount() == 32);
+}
+
+
 // Etl::Vector comparision tests -------------------------------------------
 
 
@@ -1420,3 +1448,5 @@ TEST_CASE("Etl::Vector<> stability issues", "[vec][etl][stab]") {
         verify(vec);
     }
 }
+
+}  // namespace
