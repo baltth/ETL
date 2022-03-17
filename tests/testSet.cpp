@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,13 +23,16 @@ limitations under the License.
 
 #include <etl/Set.h>
 
+#include "AtScopeEnd.h"
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
+using Etl::Test::AtScopeEnd;
 
+namespace {
 
 TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
 
@@ -348,15 +351,20 @@ TEST_CASE("Etl::Set<> custom compare tests", "[set][etl]") {
 
 TEST_CASE("Etl::Custom::Set<> allocator test", "[set][etl]") {
 
-    typedef ContainerTester ItemType;
-    typedef Etl::Custom::Set<ItemType, DummyAllocator> SetType;
-    typedef SetType::Allocator::Allocator AllocatorType;
+    using ItemType = ContainerTester;
+    using SetType = Etl::Custom::Set<ItemType, DummyAllocator>;
+    using AllocatorType = SetType::Allocator::Allocator;
 
-    AllocatorType::reset();
+    auto end = AtScopeEnd([]() {
+        REQUIRE(AllocatorType::getDeleteCount() == AllocatorType::getAllocCount());
+        AllocatorType::reset();
+    });
+
     CHECK(AllocatorType::getAllocCount() == 0);
     CHECK(AllocatorType::getDeleteCount() == 0);
 
     SetType set;
+    REQUIRE(AllocatorType::getAllocCount() == 0);
     set.insert(ContainerTester(5));
 
     SetType::iterator it = set.begin();
@@ -460,3 +468,5 @@ TEST_CASE("Etl::Set<> comparision", "[set][etl]") {
                         rInserter);
     }
 }
+
+}  // namespace
