@@ -86,10 +86,9 @@ ETL provides the following containers:
 - `MultiMap`
 - `Set`
 - `UnorderedMap`
+- `UnorderedMultiMap`
 - `UnorderedSet`
 - `Array` as an alias to `std::array`
-
-`UnorderedMultiMap` will be added soon.
 
 > Note: `Deque` and `MultiSet` and `UnorderedMultiSet` may be added later
 > but handled as low priority.
