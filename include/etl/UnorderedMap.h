@@ -88,7 +88,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     using Base::operator=;
 
-    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+    UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
         UnorderedMap() {
         Base::operator=(initList);
     }
@@ -198,7 +198,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     using Base::operator=;
 
-    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+    UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
         UnorderedMap() {
         Base::operator=(initList);
     }
@@ -287,7 +287,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     using Base::operator=;
 
-    UnorderedMap(std::initializer_list<std::pair<K, E>> initList) :
+    UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
         UnorderedMap() {
         Base::operator=(initList);
     }

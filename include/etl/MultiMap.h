@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -83,12 +83,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+    MultiMap(std::initializer_list<typename Base::value_type> initList) :
         MultiMap() {
         operator=(initList);
     }
 
-    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    MultiMap& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -167,12 +167,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+    MultiMap(std::initializer_list<typename Base::value_type> initList) :
         MultiMap() {
         operator=(initList);
     }
 
-    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    MultiMap& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -242,12 +242,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(std::initializer_list<std::pair<K, E>> initList) :
+    MultiMap(std::initializer_list<typename Base::value_type> initList) :
         MultiMap() {
         operator=(initList);
     }
 
-    MultiMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    MultiMap& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -82,12 +82,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(std::initializer_list<std::pair<K, E>> initList) :
+    Map(std::initializer_list<typename Base::value_type> initList) :
         Map() {
         operator=(initList);
     }
 
-    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    Map& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -166,12 +166,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(std::initializer_list<std::pair<K, E>> initList) :
+    Map(std::initializer_list<typename Base::value_type> initList) :
         Map() {
         operator=(initList);
     }
 
-    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    Map& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }
@@ -241,12 +241,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(std::initializer_list<std::pair<K, E>> initList) :
+    Map(std::initializer_list<typename Base::value_type> initList) :
         Map() {
         operator=(initList);
     }
 
-    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    Map& operator=(std::initializer_list<typename Base::value_type> initList) {
         Base::operator=(initList);
         return *this;
     }

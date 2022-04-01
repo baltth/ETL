@@ -296,8 +296,9 @@ void assertEqualMap(const M& m1, const M& m2) {
     REQUIRE(m1.bucket_count() == m2.bucket_count());
     REQUIRE(m1.load_factor() == Approx(m2.load_factor()));
 
-    assertEqualElement(m1, m2, 1);
-    assertEqualElement(m1, m2, 4);
+    for (auto& item : m1) {
+        assertEqualElement(m1, m2, item.first);
+    }
 }
 
 
@@ -306,8 +307,9 @@ void assertEqualMap(const M1& m1, const M2& m2) {
 
     REQUIRE(m1.size() == m2.size());
 
-    assertEqualElement(m1, m2, 1);
-    assertEqualElement(m1, m2, 4);
+    for (auto& item : m1) {
+        assertEqualElement(m1, m2, item.first);
+    }
 }
 
 
@@ -534,7 +536,7 @@ TEMPLATE_TEST_CASE("Etl::UnorderedMap<> with std::initializer_list<>",
                    (Etl::Static::UnorderedMap<int, int, 32U>),
                    (Etl::Pooled::UnorderedMap<int, int, 32U>)) {
 
-    std::initializer_list<std::pair<int, int>> init {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
+    std::initializer_list<typename TestType::value_type> init {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
     auto test = [&init](const TestType& map) {
         REQUIRE(map.size() == init.size());
         for (auto& item : init) {
@@ -854,7 +856,7 @@ TEST_CASE("Etl::Custom::UnorderedMap<> allocator test", "[unorderedmap][etl]") {
         NodeAllocatorType::reset();
         BucketAllocatorType::reset();
     });
-    
+
     CHECK(NodeAllocatorType::getAllocCount() == 0);
     CHECK(NodeAllocatorType::getDeleteCount() == 0);
     CHECK(BucketAllocatorType::getAllocCount() == 0);
