@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ class Map : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCompare
         return *this;
     }
 
-    Map& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    Map& operator=(std::initializer_list<value_type> initList) {
         assign(initList);
         return *this;
     }

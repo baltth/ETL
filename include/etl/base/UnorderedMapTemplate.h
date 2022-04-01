@@ -87,7 +87,7 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
         return *this;
     }
 
-    UnorderedMap& operator=(std::initializer_list<std::pair<K, E>> initList) {
+    UnorderedMap& operator=(std::initializer_list<value_type> initList) {
         assign(initList);
         return *this;
     }
