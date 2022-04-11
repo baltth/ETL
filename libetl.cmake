@@ -1,4 +1,4 @@
-# libetl definition
+# etl definition
 
 if(NOT DEFINED ETL_INCLUDE_DIR)
     set(ETL_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -16,11 +16,14 @@ list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/PoolBase.cpp)
 list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/BufStr.cpp)
 list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/AHashTable.cpp)
 
-add_library(libetl STATIC ${ETL_SRCS})
-target_include_directories(libetl PUBLIC ${ETL_INCLUDE_DIR})
-if(TARGET libetl-compile-if)
-    target_link_libraries(libetl PUBLIC libetl-compile-if)
+add_library(etl STATIC ${ETL_SRCS})
+target_include_directories(etl PUBLIC ${ETL_INCLUDE_DIR})
+target_compile_definitions(etl PUBLIC ETL_USE_EXCEPTIONS=0)
+set_target_properties(etl PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
+
+if(TARGET etl-if)
+    target_link_libraries(etl PRIVATE etl-if)
 endif()
-if(TARGET libetl-prv-compile-if)
-    target_link_libraries(libetl PRIVATE libetl-prv-compile-if)
-endif()
+
+install(TARGETS etl)
+install(DIRECTORY ${ETL_INCLUDE_DIR}/etl DESTINATION include)
