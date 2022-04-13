@@ -158,7 +158,7 @@ TEST_CASE("Etl::Dynamic::Map<> emplace test", "[map][etl]") {
 
 TEST_CASE("Etl::Dynamic::Map<> erase tests", "[map][etl]") {
 
-    typedef Etl::Dynamic::Map<int, uint32_t> MapType;
+    typedef Etl::Dynamic::Map<int, int32_t> MapType;
 
     MapType map;
 
