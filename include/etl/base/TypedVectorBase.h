@@ -595,7 +595,7 @@ auto TypedVectorBase<T>::insertOperation(
         //                        copied w assignment
 
         auto distanceFromEnd = std::distance(position, cend());
-        bool overlapsEnd = (distanceFromEnd < numToInsert);
+        bool overlapsEnd = (distanceFromEnd < static_cast<std::ptrdiff_t>(numToInsert));
 
         size_type movePlacementCnt = overlapsEnd ? distanceFromEnd : numToInsert;
         size_type moveAssignmentCnt = overlapsEnd ? 0 : (distanceFromEnd - numToInsert);
