@@ -40,11 +40,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     typedef ETL_NAMESPACE::Vector<T> Base;
     typedef typename Base::StrategyBase StrategyBase;
+    using Strategy = StaticSized<StrategyBase>;
 
   private:  // variables
 
     uint8_t data_[N * sizeof(T)];
-    StaticSized<StrategyBase> strategy;
+    Strategy strategy;
 
   public:  // functions
 
@@ -79,10 +80,10 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-    Vector(Vector&& other) :
+    Vector(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) :
         Base(strategy),
         strategy(data_, N) {
-        operator=(std::move(other));
+        moveAssignSameType(std::move(other));
     }
 
     Vector(std::initializer_list<T> initList) :
@@ -91,8 +92,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(initList);
     }
 
-    Vector& operator=(Vector&& other) {
-        Base::operator=(std::move(other));
+    Vector& operator=(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) {
+        moveAssignSameType(std::move(other));
         return *this;
     }
 
@@ -108,6 +109,19 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     ~Vector() {
         strategy.cleanup(*this);
+    }
+
+  private:
+
+    void moveAssignSameType(Vector&& other) noexcept(
+        noexcept(Detail::NothrowContract<T>::nothrowIfMovable)) {
+        if (&other != this) {
+            ETL_ASSERT(this->max_size() >= other.size());
+            this->reserve_exactly(other.size());
+            ETL_ASSERT(this->capacity() >= other.size());
+            this->moveFromOther(this->data(), other.data(), other.size());
+            other.clear();
+        }
     }
 };
 

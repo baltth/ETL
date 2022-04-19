@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,9 +71,9 @@ class StaticSized : public AMemStrategy<C> {
 
   public:  // functions
 
-    // No defult constructor;
+    StaticSized() = delete;
 
-    StaticSized(void* d, size_type c) :
+    StaticSized(void* d, size_type c) noexcept :
         data(d),
         capacity(c) {};
 

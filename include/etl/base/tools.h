@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -151,8 +151,9 @@ struct NothrowContract {
     static constexpr bool nothrowIfDestructible =
         std::is_nothrow_destructible<T>::value || (!std::is_destructible<T>::value);
 
-    static constexpr bool value = nothrowIfDefaultConstructible && nothrowIfMoveConstructible
-                                  && nothrowIfMoveAssignable && nothrowIfDestructible;
+    static constexpr bool nothrowIfMovable = nothrowIfMoveConstructible && nothrowIfMoveAssignable;
+    static constexpr bool value =
+        nothrowIfDefaultConstructible && nothrowIfMovable && nothrowIfDestructible;
 };
 
 
