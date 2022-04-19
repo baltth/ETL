@@ -40,6 +40,8 @@ namespace {
 
 static_assert(Etl::Detail::NothrowContract<Etl::Static::Vector<int, 32U>>::value,
               "Etl::Static::Vector<int, N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::Vector<int>>::value,
+              "Etl::Dynamic::Vector<int, N> violates nothrow contract");
 
 // Etl::Vector tests ----------------------------------------------------------
 
