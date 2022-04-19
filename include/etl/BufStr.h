@@ -396,11 +396,14 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::BufStr Base;
+    static_assert(N > 0U, "Invalid size for Static::BufStr");
+
+    using Base = ETL_NAMESPACE::BufStr;
+    using Data = ETL_NAMESPACE::Static::Vector<char, N>;
 
   private:  // variables
 
-    ETL_NAMESPACE::Static::Vector<char, N> data;
+    Data data;
 
   public:  // functions
 
@@ -414,17 +417,17 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         this->operator=(other);
     };
 
-    BufStr& operator=(const BufStr& other) {
+    BufStr& operator=(const BufStr& other) & {
         Base::operator=(other);
         return *this;
     }
 
-    BufStr(BufStr&& other) :
-        BufStr() {
+    BufStr(BufStr&& other) noexcept(noexcept(BufStr().operator=(std::move(other)))) :
+        Base(data) {
         this->operator=(std::move(other));
     };
 
-    BufStr& operator=(BufStr&& other) {
+    BufStr& operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<Data>::value) {
         // Direct move of members allow propagation of
         // noexcept properties of the data container type
         data = std::move(other.data);
@@ -467,11 +470,12 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::BufStr Base;
+    using Base = ETL_NAMESPACE::BufStr;
+    using Data = ETL_NAMESPACE::Dynamic::Vector<char>;
 
   private:  // variables
 
-    ETL_NAMESPACE::Dynamic::Vector<char> data;
+    Data data;
 
   public:  // functions
 
@@ -485,17 +489,21 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         this->operator=(other);
     }
 
-    BufStr& operator=(const BufStr& other) {
+    BufStr& operator=(const BufStr& other) & {
         Base::operator=(other);
         return *this;
     }
 
-    BufStr(BufStr&& other) :
-        BufStr() {
-        this->operator=(std::move(other));
-    };
+    BufStr(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) :
+        Base(data) {
+        // Direct move of members allow propagation of
+        // noexcept properties of the data container type
+        data = std::move(other.data);
+        setFormat(other.getFormat());
+    }
 
-    BufStr& operator=(BufStr&& other) {
+    BufStr&
+    operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) {
         // Direct move of members allow propagation of
         // noexcept properties of the data container type
         data = std::move(other.data);

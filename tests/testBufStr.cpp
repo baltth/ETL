@@ -37,8 +37,10 @@ limitations under the License.
 
 namespace {
 
-// static_assert(Etl::Detail::NothrowContract<Etl::Static::BufStr<32U>>::value,
-//              "Etl::Static::BufStr<N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Static::BufStr<32U>>::value,
+              "Etl::Static::BufStr<N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::BufStr>::nothrowIfMovable,
+              "Etl::Dynamic::BufStr<N> violates nothrow contract");
 
 
 TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
