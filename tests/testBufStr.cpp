@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,6 +34,13 @@ limitations under the License.
 #define PRINT_DATA
 #define PRINT_DATA_NL
 #endif
+
+namespace {
+
+static_assert(Etl::Detail::NothrowContract<Etl::Static::BufStr<32U>>::value,
+              "Etl::Static::BufStr<N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::BufStr>::nothrowIfMovable,
+              "Etl::Dynamic::BufStr<N> violates nothrow contract");
 
 
 TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
@@ -348,54 +355,100 @@ TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
     }
 }
 
+TEMPLATE_TEST_CASE("Etl::BufStr() - copy/move",
+                   "[bufstr][etl]",
+                   Etl::Static::BufStr<43>,
+                   Etl::Static::BufStr<45>,
+                   Etl::Dynamic::BufStr) {
 
-TEST_CASE("Etl::BufStr() - copy/assignment", "[bufstr][etl]") {
+    using BS = Etl::Static::BufStr<43>;
+    using BD = Etl::Dynamic::BufStr;
 
-    using Etl::BufStr;
+    const char TEST_STR[] = "testString";
 
-    Etl::Static::BufStr<43> bs1("testString");
-    Etl::Static::BufStr<43> bs2(bs1);
-    Etl::Static::BufStr<44> bs3(bs1);
-    Etl::Static::BufStr<45> bs4("2nd testString");
-    Etl::Static::BufStr<45> bs5 = bs4;
-    Etl::Static::BufStr<46> bs6;
-    Etl::Dynamic::BufStr bs7;
+    auto checkCopy = [](const Etl::BufStr& dst, const Etl::BufStr& src) {
+        CAPTURE(dst.cStr());
+        CAPTURE(src.cStr());
+        REQUIRE(dst.cStr() != src.cStr());
+        REQUIRE(strcmp(dst.cStr(), src.cStr()) == 0);
+    };
 
-    REQUIRE(bs2.cStr() != bs1.cStr());
-    CAPTURE(bs2.cStr());
-    CAPTURE(bs1.cStr());
-    REQUIRE(strcmp(bs2.cStr(), bs1.cStr()) == 0);
+    SECTION("B(const B&)") {
+        SECTION("from Static") {
+            BS src(TEST_STR);
+            TestType dst(src);
+            checkCopy(dst, src);
+        }
 
-    REQUIRE(bs3.cStr() != bs1.cStr());
-    CAPTURE(bs3.cStr());
-    CAPTURE(bs1.cStr());
-    REQUIRE(strcmp(bs3.cStr(), bs1.cStr()) == 0);
+        SECTION("from Dynamic") {
+            BD src(TEST_STR);
+            TestType dst(src);
+            checkCopy(dst, src);
+        }
+    }
 
-    bs2 = bs4;
+    SECTION("B=(const B&)") {
+        SECTION("from Static") {
+            BS src(TEST_STR);
+            TestType dst;
+            CHECK(dst.empty());
+            dst = src;
+            checkCopy(dst, src);
+        }
 
-    REQUIRE(bs2.cStr() != bs4.cStr());
-    CAPTURE(bs2.cStr());
-    CAPTURE(bs4.cStr());
-    REQUIRE(strcmp(bs2.cStr(), bs4.cStr()) == 0);
+        SECTION("from Dynamic") {
+            BD src(TEST_STR);
+            TestType dst;
+            CHECK(dst.empty());
+            dst = src;
+            checkCopy(dst, src);
+        }
+    }
 
-    REQUIRE(bs5.cStr() != bs4.cStr());
-    CAPTURE(bs5.cStr());
-    CAPTURE(bs4.cStr());
-    REQUIRE(strcmp(bs5.cStr(), bs4.cStr()) == 0);
+    auto checkMove = [&TEST_STR](const Etl::BufStr& dst, const Etl::BufStr& src) {
+        CAPTURE(dst.cStr());
+        CAPTURE(src.cStr());
+        REQUIRE(dst.cStr() != src.cStr());
+        REQUIRE(strcmp(dst.cStr(), TEST_STR) == 0);
+    };
 
-    bs6 = bs4;
+    SECTION("B(B&&)") {
+        SECTION("from Static") {
+            BS src(TEST_STR);
+            CHECK_FALSE(src.empty());
+            TestType dst(std::move(src));
+            checkMove(dst, src);
+        }
 
-    REQUIRE(bs6.cStr() != bs4.cStr());
-    CAPTURE(bs6.cStr());
-    CAPTURE(bs4.cStr());
-    REQUIRE(strcmp(bs6.cStr(), bs4.cStr()) == 0);
+        SECTION("from Dynamic") {
+            BD src(TEST_STR);
+            CHECK_FALSE(src.empty());
+            TestType dst(std::move(src));
+            checkMove(dst, src);
+        }
+    }
 
-    bs7 = bs4;
+    SECTION("B=(B&&)") {
+        SECTION("from Static") {
+            BS src(TEST_STR);
+            CHECK_FALSE(src.empty());
 
-    REQUIRE(bs7.cStr() != bs4.cStr());
-    CAPTURE(bs7.cStr());
-    CAPTURE(bs4.cStr());
-    REQUIRE(strcmp(bs7.cStr(), bs4.cStr()) == 0);
+            TestType dst("DD");
+            CHECK_FALSE(dst.empty());
+            dst = std::move(src);
+            checkMove(dst, src);
+        }
+
+        SECTION("from Dynamic") {
+            BD src(TEST_STR);
+            CHECK_FALSE(src.empty());
+
+            TestType dst("DD");
+            CHECK_FALSE(dst.empty());
+            dst = std::move(src);
+            checkMove(dst, src);
+        }
+    }
 }
 
 
@@ -408,3 +461,5 @@ TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
     REQUIRE(bs.size() == 16);
     REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
 }
+
+}  // namespace

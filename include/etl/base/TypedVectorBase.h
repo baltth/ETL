@@ -23,6 +23,7 @@ limitations under the License.
 #define __ETL_TYPEDVECTORBASE_H__
 
 #include <etl/base/AVectorBase.h>
+#include <etl/base/MemStrategies_fwd.h>
 #include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
@@ -46,11 +47,6 @@ limitations under the License.
 
 namespace ETL_NAMESPACE {
 
-template<class>
-class StaticSized;
-template<class, class, bool>
-class DynamicSized;
-
 namespace Detail {
 
 template<class>
@@ -62,7 +58,7 @@ template<class T>
 class TypedVectorBase : public AVectorBase {
 
     friend class StaticSized<TypedVectorBase>;
-    template<class, class, bool>
+    template<class, class>
     friend class DynamicSized;
 
   public:  // types

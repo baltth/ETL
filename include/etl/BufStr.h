@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ limitations under the License.
 #include <etl/Vector.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
+
+#include <utility>
 
 namespace ETL_NAMESPACE {
 
@@ -94,15 +96,10 @@ class BufStr {
     };
 
     struct Format {
-        Radix radix;
-        uint8_t fill;
-        uint8_t precision;
-        uint8_t padding;
-        Format() :
-            radix(DEC),
-            fill(1),
-            precision(3),
-            padding(1) {};
+        Radix radix {DEC};
+        uint8_t fill {1U};
+        uint8_t precision {3U};
+        uint8_t padding {1U};
     };
 
     struct FormatSaver {
@@ -123,9 +120,23 @@ class BufStr {
 
   public:  // functions
 
-    BufStr& operator=(const BufStr& other) {
-        clear();
-        return operator<<(other);
+    BufStr() noexcept = delete;
+    BufStr(const BufStr& other) = delete;
+    BufStr(BufStr&& other) noexcept = delete;
+    ~BufStr() = default;
+
+    BufStr& operator=(const BufStr& other) & {
+        data = other.data;
+        format = other.format;
+        closeStrOnDemand();
+        return *this;
+    }
+
+    BufStr& operator=(BufStr&& other) & {
+        data = std::move(other.data);
+        format = std::move(other.format);
+        closeStrOnDemand();
+        return *this;
     }
 
     /// \name Data interface
@@ -182,19 +193,19 @@ class BufStr {
         return *this;
     }
 
-    const ETL_NAMESPACE::Vector<char>& getBuff() const {
+    const ETL_NAMESPACE::Vector<char>& getBuff() const noexcept {
         return data;
     }
 
-    const char* cStr() const {
+    const char* cStr() const noexcept {
         return data.begin();
     }
 
-    uint32_t size() const {
+    uint32_t size() const noexcept {
         return data.size() ? (data.size() - 1) : 0;
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return (size() == 0);
     }
 
@@ -208,10 +219,9 @@ class BufStr {
     /// \{
     template<typename T>
     BufStr& operator<<(IntFormatSpec<T> data) {
-        Format f = format;
+        FormatSaver fs {*this};
         format.radix = data.radix;
         *this << Fill(data.fill) << data.val;
-        format = f;
         return *this;
     }
 
@@ -275,26 +285,34 @@ class BufStr {
         format = Format();
     }
 
-    Radix getRadix() const {
+    void setFormat(Format f) {
+        format = f;
+    }
+
+    Format getFormat() const noexcept {
+        return format;
+    }
+
+    Radix getRadix() const noexcept {
         return format.radix;
     }
 
-    uint8_t getFill() const {
+    uint8_t getFill() const noexcept {
         return format.fill;
     }
 
-    uint8_t getPrecision() const {
+    uint8_t getPrecision() const noexcept {
         return format.precision;
     }
 
-    uint8_t getPadding() const {
+    uint8_t getPadding() const noexcept {
         return format.padding;
     }
     /// \}
 
   protected:
 
-    explicit BufStr(ETL_NAMESPACE::Vector<char>& d) :
+    explicit BufStr(ETL_NAMESPACE::Vector<char>& d) noexcept :
         data(d) {};
 
     template<typename T>
@@ -357,6 +375,12 @@ class BufStr {
         data.pop_back();
     }
 
+    void closeStrOnDemand() {
+        if (data.empty() || (data.back() != '\0')) {
+            data.push_back('\0');
+        }
+    }
+
     void insertOp(const char* str, uint32_t len) {
         data.insert(data.end(), str, (str + len));
     }
@@ -372,44 +396,67 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::BufStr Base;
+    static_assert(N > 0U, "Invalid size for Static::BufStr");
+
+    using Base = ETL_NAMESPACE::BufStr;
+    using Data = ETL_NAMESPACE::Static::Vector<char, N>;
 
   private:  // variables
 
-    ETL_NAMESPACE::Static::Vector<char, N> data;
+    Data data;
 
   public:  // functions
 
-    BufStr() :
+    BufStr() noexcept :
         Base(data) {
         closeStr();
     }
 
     BufStr(const BufStr& other) :
-        Base(data) {
-        closeStr();
-        operator<<(other);
+        BufStr() {
+        this->operator=(other);
     };
 
-    explicit BufStr(const ETL_NAMESPACE::BufStr& other) :
-        Base(data) {
-        closeStr();
-        operator<<(other);
-    };
-
-    BufStr& operator=(const BufStr& other) {
-        ETL_NAMESPACE::BufStr::operator=(other);
+    BufStr& operator=(const BufStr& other) & {
+        Base::operator=(other);
         return *this;
     }
 
-    BufStr& operator=(const ETL_NAMESPACE::BufStr& other) {
-        ETL_NAMESPACE::BufStr::operator=(other);
+    BufStr(BufStr&& other) noexcept(noexcept(BufStr().operator=(std::move(other)))) :
+        Base(data) {
+        this->operator=(std::move(other));
+    };
+
+    BufStr& operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<Data>::value) {
+        // Direct move of members allow propagation of
+        // noexcept properties of the data container type
+        data = std::move(other.data);
+        setFormat(other.getFormat());
+        return *this;
+    }
+
+    explicit BufStr(const Base& other) :
+        BufStr() {
+        this->operator=(other);
+    };
+
+    BufStr& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    explicit BufStr(Base&& other) :
+        BufStr() {
+        this->operator=(std::move(other));
+    };
+
+    BufStr& operator=(Base&& other) {
+        Base::operator=(std::move(other));
         return *this;
     }
 
     explicit BufStr(const char* str) :
-        Base(data) {
-        closeStr();
+        BufStr() {
         write(str);
     }
 };
@@ -423,11 +470,12 @@ class BufStr : public ETL_NAMESPACE::BufStr {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::BufStr Base;
+    using Base = ETL_NAMESPACE::BufStr;
+    using Data = ETL_NAMESPACE::Dynamic::Vector<char>;
 
   private:  // variables
 
-    ETL_NAMESPACE::Dynamic::Vector<char> data;
+    Data data;
 
   public:  // functions
 
@@ -437,30 +485,54 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     }
 
     BufStr(const BufStr& other) :
-        Base(data) {
-        closeStr();
-        operator<<(other);
-    };
+        BufStr() {
+        this->operator=(other);
+    }
 
-    explicit BufStr(const ETL_NAMESPACE::BufStr& other) :
-        Base(data) {
-        closeStr();
-        operator<<(other);
-    };
-
-    BufStr& operator=(const BufStr& other) {
-        ETL_NAMESPACE::BufStr::operator=(other);
+    BufStr& operator=(const BufStr& other) & {
+        Base::operator=(other);
         return *this;
     }
 
-    BufStr& operator=(const ETL_NAMESPACE::BufStr& other) {
-        ETL_NAMESPACE::BufStr::operator=(other);
+    BufStr(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) :
+        Base(data) {
+        // Direct move of members allow propagation of
+        // noexcept properties of the data container type
+        data = std::move(other.data);
+        setFormat(other.getFormat());
+    }
+
+    BufStr&
+    operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) {
+        // Direct move of members allow propagation of
+        // noexcept properties of the data container type
+        data = std::move(other.data);
+        setFormat(other.getFormat());
+        return *this;
+    }
+
+    explicit BufStr(const Base& other) :
+        BufStr() {
+        this->operator=(other);
+    };
+
+    BufStr& operator=(const Base& other) {
+        Base::operator=(other);
+        return *this;
+    }
+
+    explicit BufStr(Base&& other) :
+        BufStr() {
+        this->operator=(std::move(other));
+    };
+
+    BufStr& operator=(Base&& other) {
+        Base::operator=(std::move(other));
         return *this;
     }
 
     explicit BufStr(const char* str) :
-        Base(data) {
-        closeStr();
+        BufStr() {
         write(str);
     }
 };

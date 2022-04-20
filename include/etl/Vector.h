@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,13 +38,14 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Vector<T> Base;
-    typedef typename Base::StrategyBase StrategyBase;
+    using Base = ETL_NAMESPACE::Vector<T>;
+    using StrategyBase = typename Base::StrategyBase;
+    using Strategy = StaticSized<StrategyBase>;
 
   private:  // variables
 
     uint8_t data_[N * sizeof(T)];
-    StaticSized<StrategyBase> strategy;
+    Strategy strategy;
 
   public:  // functions
 
@@ -79,10 +80,10 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-    Vector(Vector&& other) :
+    Vector(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) :
         Base(strategy),
         strategy(data_, N) {
-        operator=(std::move(other));
+        moveAssignSameType(std::move(other));
     }
 
     Vector(std::initializer_list<T> initList) :
@@ -91,8 +92,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(initList);
     }
 
-    Vector& operator=(Vector&& other) {
-        Base::operator=(std::move(other));
+    Vector& operator=(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) {
+        moveAssignSameType(std::move(other));
         return *this;
     }
 
@@ -108,6 +109,19 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
     ~Vector() {
         strategy.cleanup(*this);
+    }
+
+  private:
+
+    void moveAssignSameType(Vector&& other) noexcept(
+        noexcept(Detail::NothrowContract<T>::nothrowIfMovable)) {
+        if (&other != this) {
+            ETL_ASSERT(this->max_size() >= other.size());
+            this->reserve_exactly(other.size());
+            ETL_ASSERT(this->capacity() >= other.size());
+            this->moveFromOther(this->data(), other.data(), other.size());
+            other.clear();
+        }
     }
 };
 
@@ -145,17 +159,18 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Vector<T> Base;
-    typedef typename Base::StrategyBase StrategyBase;
-    typedef A<typename StrategyBase::value_type> Allocator;
+    using Base = ETL_NAMESPACE::Vector<T>;
+    using StrategyBase = typename Base::StrategyBase;
+    using Allocator = A<typename StrategyBase::value_type>;
+    using Strategy = DynamicSized<StrategyBase, Allocator>;
 
   private:  // variables
 
-    DynamicSized<StrategyBase, Allocator> strategy;
+    Strategy strategy;
 
   public:  // functions
 
-    Vector() :
+    Vector() noexcept :
         Base(strategy) {};
 
     explicit Vector(uint32_t len);
@@ -181,9 +196,9 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         return *this;
     }
 
-    Vector(Vector&& other) :
+    Vector(Vector&& other) noexcept(noexcept(Vector().swap(other))) :
         Base(strategy) {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
     Vector(std::initializer_list<T> initList) :
@@ -191,7 +206,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         operator=(initList);
     }
 
-    Vector& operator=(Vector&& other) {
+    Vector& operator=(Vector&& other) noexcept(noexcept(Vector().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -210,9 +225,9 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         strategy.cleanup(*this);
     }
 
-    void swap(Vector& other) {
+    void swap(Vector& other) noexcept(noexcept(Vector().swapSameType(other))) {
         if (&other != this) {
-            Detail::AVectorBase::swapProxy(other);
+            swapSameType(other);
         }
     }
 
@@ -220,6 +235,19 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         if (&other != this) {
             Base::swap(other);
         }
+    }
+
+  private:
+
+    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    enable_if_t<UA, void> swapSameType(Vector& other) {
+        Base::swap(other);
+    }
+
+    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    enable_if_t<!UA, void>
+    swapSameType(Vector& other) noexcept(noexcept(Vector().Detail::AVectorBase::swapProxy(other))) {
+        Detail::AVectorBase::swapProxy(other);
     }
 };
 
@@ -241,7 +269,7 @@ Vector<T, A>::Vector(uint32_t len, const T& item) :
 
 
 template<class T, template<class> class A>
-void swap(Custom::Vector<T, A>& lhs, Custom::Vector<T, A>& rhs) {
+void swap(Custom::Vector<T, A>& lhs, Custom::Vector<T, A>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
     lhs.swap(rhs);
 }
 

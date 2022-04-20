@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ limitations under the License.
 #ifndef __ETL_MEMSTARTEGIES_H__
 #define __ETL_MEMSTARTEGIES_H__
 
+#include <etl/base/MemStrategies_fwd.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
 
@@ -71,9 +72,9 @@ class StaticSized : public AMemStrategy<C> {
 
   public:  // functions
 
-    // No defult constructor;
+    StaticSized() = delete;
 
-    StaticSized(void* d, size_type c) :
+    StaticSized(void* d, size_type c) noexcept :
         data(d),
         capacity(c) {};
 
@@ -159,8 +160,14 @@ void StaticSized<C>::setupData(C& cont, size_type length) {
 }
 
 
+template<class A>
+struct DynamicAllocatorTraits {
+    static constexpr bool UNIQUE_ALLOCATOR = false;
+};
+
+
 /// Mem strategy with dynamic size, allocated with Allocator
-template<class C, class A, bool UA = false>
+template<class C, class A>
 class DynamicSized : public AMemStrategy<C> {
 
   public:  // types
@@ -170,7 +177,7 @@ class DynamicSized : public AMemStrategy<C> {
 
     using Allocator = A;
 
-    static constexpr bool UNIQUE_ALLOCATOR = UA;
+    static constexpr bool UNIQUE_ALLOCATOR = DynamicAllocatorTraits<A>::UNIQUE_ALLOCATOR;
 
   private:
 
@@ -243,8 +250,8 @@ class DynamicSized : public AMemStrategy<C> {
 };
 
 
-template<class C, class A, bool UA>
-void DynamicSized<C, A, UA>::reserveExactly(C& cont, size_type length) {
+template<class C, class A>
+void DynamicSized<C, A>::reserveExactly(C& cont, size_type length) {
 
     if (length > cont.capacity()) {
         reallocateAndCopyFor(cont, length);
@@ -252,8 +259,8 @@ void DynamicSized<C, A, UA>::reserveExactly(C& cont, size_type length) {
 }
 
 
-template<class C, class A, bool UA>
-void DynamicSized<C, A, UA>::shrinkToFit(C& cont) noexcept {
+template<class C, class A>
+void DynamicSized<C, A>::shrinkToFit(C& cont) noexcept {
 
     if (cont.capacity() > cont.size()) {
         reallocateAndCopyFor(cont, cont.size());
@@ -261,9 +268,9 @@ void DynamicSized<C, A, UA>::shrinkToFit(C& cont) noexcept {
 }
 
 
-template<class C, class A, bool UA>
+template<class C, class A>
 template<class INS>
-void DynamicSized<C, A, UA>::resizeWithInserter(C& cont, size_type length, INS inserter) {
+void DynamicSized<C, A>::resizeWithInserter(C& cont, size_type length, INS inserter) {
 
     using iterator = typename C::iterator;
 
@@ -289,8 +296,8 @@ void DynamicSized<C, A, UA>::resizeWithInserter(C& cont, size_type length, INS i
 }
 
 
-template<class C, class A, bool UA>
-void DynamicSized<C, A, UA>::reallocateAndCopyFor(C& cont, size_type len) {
+template<class C, class A>
+void DynamicSized<C, A>::reallocateAndCopyFor(C& cont, size_type len) {
 
     auto oldData = cont.data();
     auto oldEnd = cont.end();
@@ -314,8 +321,8 @@ void DynamicSized<C, A, UA>::reallocateAndCopyFor(C& cont, size_type len) {
 }
 
 
-template<class C, class A, bool UA>
-void DynamicSized<C, A, UA>::allocate(C& cont, size_type len) {
+template<class C, class A>
+void DynamicSized<C, A>::allocate(C& cont, size_type len) {
 
     if (len > 0) {
         cont.getProxy().setData(allocator.allocate(len));
