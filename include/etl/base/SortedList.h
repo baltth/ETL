@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,22 +36,27 @@ class SortedList {
 
   public:  // types
 
-    using Cont = List<T>;
+    class Cont : public List<T> {
+      public:
+        using List<T>::List;
+        using List<T>::operator=;
+        using List<T>::swapNodeList;
+    };
 
-    typedef typename Cont::value_type value_type;
-    typedef typename Cont::reference reference;
-    typedef typename Cont::const_reference const_reference;
-    typedef typename Cont::pointer pointer;
-    typedef typename Cont::const_pointer const_pointer;
+    using value_type = typename Cont::value_type;
+    using reference = typename Cont::reference;
+    using const_reference = typename Cont::const_reference;
+    using pointer = typename Cont::pointer;
+    using const_pointer = typename Cont::const_pointer;
 
-    typedef typename Cont::iterator iterator;
-    typedef typename Cont::const_iterator const_iterator;
-    typedef typename Cont::reverse_iterator reverse_iterator;
-    typedef typename Cont::const_reverse_iterator const_reverse_iterator;
+    using iterator = typename Cont::iterator;
+    using const_iterator = typename Cont::const_iterator;
+    using reverse_iterator = typename Cont::reverse_iterator;
+    using const_reverse_iterator = typename Cont::const_reverse_iterator;
 
-    typedef typename Cont::size_type size_type;
+    using size_type = typename Cont::size_type;
 
-    typedef typename Cont::Node Node;
+    using Node = typename Cont::Node;
 
   protected:  // variables
 
@@ -136,6 +141,11 @@ class SortedList {
         list.swap(other.list);
     }
     /// \}
+
+    void swapNodeList(SortedList& other) noexcept(
+        noexcept(std::declval<Cont>().swapNodeList(other.list))) {
+        list.swapNodeList(other.list);
+    }
 
   protected:
 

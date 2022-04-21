@@ -217,9 +217,10 @@ class List : private Detail::TypedListBase<T> {
 
     /// \}
 
-protected:
+  protected:
 
-    void swapNodeList(List& other) noexcept(noexcept(std::declval<List>().Detail::AListBase::swapNodeList(other))) {
+    void swapNodeList(List& other) noexcept(
+        noexcept(std::declval<List>().Detail::AListBase::swapNodeList(other))) {
         Detail::AListBase::swapNodeList(other);
     }
 

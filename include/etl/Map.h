@@ -39,9 +39,9 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef typename Base::Node Node;
-    typedef typename AllocatorTraits<Node, A>::Type Allocator;
+    using Base = ETL_NAMESPACE::Map<K, E, C>;
+    using Node = typename Base::Node;
+    using Allocator = typename AllocatorTraits<Node, A>::Type;
 
   private:  // variables
 
@@ -72,12 +72,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(Map&& other) :
+    Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
         Map() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Map& operator=(Map&& other) {
+    Map& operator=(Map&& other) noexcept(noexcept(Map().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -98,6 +98,24 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(Map& other) noexcept {
+        static_assert(noexcept(Map().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!Allocator::UNIQUE_ALLOCATOR,
+                      "Allocator should use UNIQUE_ALLOCATOR == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Map& lhs, Map& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -123,9 +141,9 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::Map<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>;
 
   private:  // variables
 
@@ -156,12 +174,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(Map&& other) :
+    Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
         Map() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Map& operator=(Map&& other) {
+    Map& operator=(Map&& other) noexcept(noexcept(Map().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -182,6 +200,25 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(Map& other) noexcept(
+        noexcept(Detail::NothrowContract<typename Base::value_type>::nothrowIfMovable)) {
+        // Note: this operation is noexcept when T can be moved 'noexceptly',
+        // however lower level functions are not annotated with noexcept qualifier.
+        static_assert(Allocator::UNIQUE_ALLOCATOR,
+                      "Allocator should use UNIQUE_ALLOCATOR == true");
+        if (&other != this) {
+            Base::swap(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Map& lhs, Map& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -198,10 +235,9 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Map<K, E, C> Base;
-    typedef
-        typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>
-            Allocator;
+    using Base = ETL_NAMESPACE::Map<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>;
 
   private:  // variables
 
@@ -232,12 +268,12 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
         return *this;
     }
 
-    Map(Map&& other) :
+    Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
         Map() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Map& operator=(Map&& other) {
+    Map& operator=(Map&& other) noexcept(noexcept(Map().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -258,6 +294,24 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(Map& other) noexcept {
+        static_assert(noexcept(Map().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!Allocator::UNIQUE_ALLOCATOR,
+                      "Allocator should use UNIQUE_ALLOCATOR == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Map& lhs, Map& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
