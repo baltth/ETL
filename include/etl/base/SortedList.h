@@ -129,11 +129,11 @@ class SortedList {
         return list.crend();
     }
 
-    void clear() noexcept(Cont::AllocatorBase::NoexceptDestroy) {
+    void clear() noexcept(Cont::AllocatorBase::noexceptDestroy) {
         list.clear();
     }
 
-    iterator erase(iterator pos) noexcept(Cont::AllocatorBase::NoexceptDestroy) {
+    iterator erase(iterator pos) noexcept(Cont::AllocatorBase::noexceptDestroy) {
         return list.erase(pos);
     }
 

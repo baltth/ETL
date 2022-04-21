@@ -93,7 +93,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
@@ -177,7 +177,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
@@ -252,7 +252,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 

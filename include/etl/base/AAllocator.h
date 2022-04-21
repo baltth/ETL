@@ -41,7 +41,7 @@ class AAllocator {
     typedef T ItemType;
     typedef T* PtrType;
 
-    static constexpr bool NoexceptDestroy = std::is_nothrow_destructible<T>::value;
+    static constexpr bool noexceptDestroy = std::is_nothrow_destructible<T>::value;
 
   public:  // functions
 
@@ -66,7 +66,7 @@ class AAllocator {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 
-    static void destroy(PtrType ptr) noexcept(NoexceptDestroy) {
+    static void destroy(PtrType ptr) noexcept(noexceptDestroy) {
         ptr->~ItemType();
     }
 };
@@ -87,7 +87,7 @@ class AllocatorWrapper : public AAllocator<T> {
 
     using Allocator = A<T>;
 
-    static constexpr bool UNIQUE_ALLOCATOR = false;
+    static constexpr bool uniqueAllocator = false;
 
   public:  // functions
 
@@ -123,11 +123,11 @@ class AllocatorWrapper : public AAllocator<T> {
 template<class T, template<class> class A>
 struct AllocatorTraits {
 
-    static constexpr bool IS_CHILD_OF_AALLOCATOR = std::is_base_of<AAllocator<T>, A<T>>::value;
-    static constexpr bool UNIQUE_ALLOCATOR =
-        IS_CHILD_OF_AALLOCATOR ? A<T>::UNIQUE_ALLOCATOR : false;
+    static constexpr bool isChildOfAAllocator = std::is_base_of<AAllocator<T>, A<T>>::value;
+    static constexpr bool uniqueAllocator =
+        isChildOfAAllocator ? A<T>::uniqueAllocator : false;
     using Type =
-        typename std::conditional<IS_CHILD_OF_AALLOCATOR, A<T>, AllocatorWrapper<T, A>>::type;
+        typename std::conditional<isChildOfAAllocator, A<T>, AllocatorWrapper<T, A>>::type;
 };
 
 

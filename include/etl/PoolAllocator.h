@@ -44,7 +44,7 @@ class PoolAllocator : public AAllocator<T> {
     using ItemType = T;
     using PtrType = T*;
 
-    static constexpr bool UNIQUE_ALLOCATOR = true;
+    static constexpr bool uniqueAllocator = true;
 
   private:  // variables
 
@@ -96,7 +96,7 @@ class CommonPoolAllocator : public AAllocator<T> {
     using ItemType = typename Allocator::ItemType;
     using PtrType = typename Allocator::PtrType;
 
-    static constexpr bool UNIQUE_ALLOCATOR = false;
+    static constexpr bool uniqueAllocator = false;
 
   public:  // functions
 

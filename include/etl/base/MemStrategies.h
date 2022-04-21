@@ -161,8 +161,8 @@ void StaticSized<C>::setupData(C& cont, size_type length) {
 
 
 template<class A>
-struct DynamicAllocatorTraits {
-    static constexpr bool UNIQUE_ALLOCATOR = false;
+struct DynamicStrategyTraits {
+    static constexpr bool uniqueAllocator = false;
 };
 
 
@@ -177,7 +177,7 @@ class DynamicSized : public AMemStrategy<C> {
 
     using Allocator = A;
 
-    static constexpr bool UNIQUE_ALLOCATOR = DynamicAllocatorTraits<A>::UNIQUE_ALLOCATOR;
+    static constexpr bool uniqueAllocator = DynamicStrategyTraits<A>::uniqueAllocator;
 
   private:
 
@@ -222,12 +222,12 @@ class DynamicSized : public AMemStrategy<C> {
 
   private:
 
-    template<bool T = UNIQUE_ALLOCATOR>
+    template<bool T = uniqueAllocator>
     enable_if_t<T, const void*> getHandle() const noexcept {
         return &allocator;
     }
 
-    template<bool T = UNIQUE_ALLOCATOR>
+    template<bool T = uniqueAllocator>
     enable_if_t<!T, const void*> getHandle() const noexcept {
         static const int h {};
         return &h;

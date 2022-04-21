@@ -88,7 +88,7 @@ class List : private Detail::TypedListBase<T> {
     List(const List& other) = delete;
     List(List&& other) = delete;
 
-    ~List() noexcept(AllocatorBase::NoexceptDestroy) {
+    ~List() noexcept(AllocatorBase::noexceptDestroy) {
         clear();
     }
 
@@ -139,16 +139,16 @@ class List : private Detail::TypedListBase<T> {
     /// \name Modifiers
     /// \{
 
-    inline void clear() noexcept(AllocatorBase::NoexceptDestroy);
+    inline void clear() noexcept(AllocatorBase::noexceptDestroy);
 
     inline void push_front(const T& item);
     inline void push_back(const T& item);
 
-    void pop_front() noexcept(AllocatorBase::NoexceptDestroy) {
+    void pop_front() noexcept(AllocatorBase::noexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
     }
 
-    void pop_back() noexcept(AllocatorBase::NoexceptDestroy) {
+    void pop_back() noexcept(AllocatorBase::noexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
@@ -179,7 +179,7 @@ class List : private Detail::TypedListBase<T> {
         return emplace(this->end(), std::forward<Args>(args)...);
     }
 
-    iterator erase(iterator pos) noexcept(AllocatorBase::NoexceptDestroy) {
+    iterator erase(iterator pos) noexcept(AllocatorBase::noexceptDestroy) {
         iterator next = pos;
         ++next;
         deleteNode(static_cast<Node*>(Detail::AListBase::remove(pos)));
@@ -242,7 +242,7 @@ class List : private Detail::TypedListBase<T> {
         return p;
     }
 
-    void deleteNode(Node* ptr) noexcept(AllocatorBase::NoexceptDestroy) {
+    void deleteNode(Node* ptr) noexcept(AllocatorBase::noexceptDestroy) {
         if (ptr) {
             allocator.destroy(ptr);
             allocator.deallocate(ptr, 1);
@@ -292,7 +292,7 @@ class List : private Detail::TypedListBase<T> {
 
 
 template<class T>
-void List<T>::clear() noexcept(AllocatorBase::NoexceptDestroy) {
+void List<T>::clear() noexcept(AllocatorBase::noexceptDestroy) {
 
     while (Base::size() > 0) {
         pop_back();

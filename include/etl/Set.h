@@ -93,7 +93,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
@@ -176,7 +176,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
@@ -250,7 +250,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 

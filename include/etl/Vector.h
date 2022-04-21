@@ -239,12 +239,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
   private:
 
-    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    template<bool UA = Strategy::uniqueAllocator>
     enable_if_t<UA, void> swapSameType(Vector& other) {
         Base::swap(other);
     }
 
-    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    template<bool UA = Strategy::uniqueAllocator>
     enable_if_t<!UA, void>
     swapSameType(Vector& other) noexcept(noexcept(Vector().Detail::AVectorBase::swapProxy(other))) {
         Detail::AVectorBase::swapProxy(other);

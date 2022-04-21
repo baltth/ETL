@@ -106,8 +106,8 @@ class List : public ETL_NAMESPACE::List<T> {
     void swap(List& other) noexcept {
         static_assert(noexcept(List().swapNodeList(other)),
                       "noexcept contract violation");
-        static_assert(!Allocator::UNIQUE_ALLOCATOR,
-                      "Allocator should use UNIQUE_ALLOCATOR == false");
+        static_assert(!Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
         if (&other != this) {
             Base::swapNodeList(other);
         }
@@ -211,8 +211,8 @@ class List : public ETL_NAMESPACE::List<T> {
     void swap(List& other) noexcept(noexcept(Detail::NothrowContract<T>::nothrowIfMovable)) {
         // Note: this operation is noexcept when T can be moved 'noexceptly',
         // however lower level functions are not annotated with noexcept qualifier.
-        static_assert(Allocator::UNIQUE_ALLOCATOR,
-                      "Allocator should use UNIQUE_ALLOCATOR == true");
+        static_assert(Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == true");
         if (&other != this) {
             Base::swap(other);
         }
@@ -307,8 +307,8 @@ class List : public ETL_NAMESPACE::List<T> {
     void swap(List& other) noexcept {
         static_assert(noexcept(List().swapNodeList(other)),
                       "noexcept contract violation");
-        static_assert(!Allocator::UNIQUE_ALLOCATOR,
-                      "Allocator should use UNIQUE_ALLOCATOR == false");
+        static_assert(!Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
         if (&other != this) {
             Base::swapNodeList(other);
         }
