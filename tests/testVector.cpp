@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
-#include <etl/List.h>
+#include <etl/Array.h>
 #include <etl/Vector.h>
 
 #include "AtScopeEnd.h"

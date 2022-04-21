@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,22 +39,22 @@ class List : private Detail::TypedListBase<T> {
 
   public:  // types
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    using value_type = T;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = T*;
+    using const_pointer = const T*;
 
-    typedef Detail::TypedListBase<T> Base;
-    typedef typename Base::Node Node;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+    using Base = Detail::TypedListBase<T>;
+    using Node = typename Base::Node;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
 
-    typedef AAllocator<Node> AllocatorBase;
+    using AllocatorBase = AAllocator<Node>;
 
-    typedef typename Base::size_type size_type;
+    using size_type = typename Base::size_type;
 
     friend class Base::Node;
 
@@ -189,7 +189,7 @@ class List : private Detail::TypedListBase<T> {
     void swap(List& other) {
         if (this != &other) {
             if (allocator.handle() == other.allocator.handle()) {
-                Detail::AListBase::swapNodeList(other);
+                swapNodeList(other);
             } else {
                 swapElements(other);
             }
@@ -216,6 +216,12 @@ class List : private Detail::TypedListBase<T> {
                 const_iterator last);
 
     /// \}
+
+protected:
+
+    void swapNodeList(List& other) noexcept(noexcept(std::declval<List>().Detail::AListBase::swapNodeList(other))) {
+        Detail::AListBase::swapNodeList(other);
+    }
 
   private:
 
@@ -265,7 +271,7 @@ class List : private Detail::TypedListBase<T> {
     }
 
     /// Helper to perform non-trivial swap on two elements of different lists.
-    /// This overload is used when `T` does not conforms the contract of a `swap` function.
+    /// This overload is used when `T` does not conform the contract of a `swap` function.
     /// The function uses no assignment, but expects capacity for one extra element on `this`.
     template<class U = T>
     enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<iterator, iterator>>

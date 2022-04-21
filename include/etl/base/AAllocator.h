@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2018 Balazs Toth.
+Copyright 2018-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -82,10 +82,12 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:  // types
 
-    typedef T ItemType;
-    typedef T* PtrType;
+    using ItemType = T;
+    using PtrType = T*;
 
-    typedef A<T> Allocator;
+    using Allocator = A<T>;
+
+    static constexpr bool UNIQUE_ALLOCATOR = false;
 
   public:  // functions
 
@@ -119,13 +121,16 @@ class AllocatorWrapper : public AAllocator<T> {
 
 
 template<class T, template<class> class A>
-struct AllocatorType {
-    using Type = typename std::conditional<std::is_base_of<AAllocator<T>, A<T>>::value,
-                                           A<T>,
-                                           AllocatorWrapper<T, A>>::type;
+struct AllocatorTraits {
+
+    static constexpr bool IS_CHILD_OF_AALLOCATOR = std::is_base_of<AAllocator<T>, A<T>>::value;
+    static constexpr bool UNIQUE_ALLOCATOR =
+        IS_CHILD_OF_AALLOCATOR ? A<T>::UNIQUE_ALLOCATOR : false;
+    using Type =
+        typename std::conditional<IS_CHILD_OF_AALLOCATOR, A<T>, AllocatorWrapper<T, A>>::type;
 };
 
 
 }  // namespace ETL_NAMESPACE
 
-#endif // __ETL_AALLOCATOR_H__
+#endif  // __ETL_AALLOCATOR_H__

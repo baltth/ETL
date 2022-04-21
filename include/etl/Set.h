@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
     typedef typename Base::Node Node;
-    typedef typename AllocatorType<Node, A>::Type Allocator;
+    typedef typename AllocatorTraits<Node, A>::Type Allocator;
 
   private:  // variables
 
@@ -124,7 +124,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
   public:  // types
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
+    typedef typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>
         Allocator;
 
   private:  // variables
@@ -198,7 +198,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
   public:  // types
 
     typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
+    typedef typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>
         Allocator;
 
   private:  // variables

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,8 +41,10 @@ class PoolAllocator : public AAllocator<T> {
 
   public:  // types
 
-    typedef T ItemType;
-    typedef T* PtrType;
+    using ItemType = T;
+    using PtrType = T*;
+
+    static constexpr bool UNIQUE_ALLOCATOR = true;
 
   private:  // variables
 
@@ -90,9 +92,11 @@ class CommonPoolAllocator : public AAllocator<T> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::PoolAllocator<T, N> Allocator;
-    typedef typename Allocator::ItemType ItemType;
-    typedef typename Allocator::PtrType PtrType;
+    using Allocator = ETL_NAMESPACE::PoolAllocator<T, N>;
+    using ItemType = typename Allocator::ItemType;
+    using PtrType = typename Allocator::PtrType;
+
+    static constexpr bool UNIQUE_ALLOCATOR = false;
 
   public:  // functions
 
@@ -126,7 +130,7 @@ class CommonPoolAllocator : public AAllocator<T> {
 
 
 template<uint32_t N>
-class PoolHelper {
+class PoolHelperForSize {
 
   public:  // types
 
