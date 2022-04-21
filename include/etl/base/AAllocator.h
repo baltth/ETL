@@ -45,7 +45,7 @@ class AAllocator {
 
   public:  // functions
 
-    virtual ~AAllocator() {};
+    virtual ~AAllocator() = default;
 
     virtual size_t max_size() const noexcept = 0;
     virtual size_t size() const noexcept = 0;
@@ -120,16 +120,34 @@ class AllocatorWrapper : public AAllocator<T> {
 };
 
 
+namespace Detail {
+
 template<class T, template<class> class A>
 struct AllocatorTraits {
 
+    template<class S, typename = void>
+    struct hasUniqueAllocatorTag : std::false_type {};
+
+    template<class S>
+    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator, void())> : std::true_type {};
+
+    template<class S>
+    static constexpr bool uniqueAllocatorTag(std::false_type) {
+        return false;
+    }
+
+    template<class S>
+    static constexpr bool uniqueAllocatorTag(std::true_type) {
+        return S::uniqueAllocator;
+    }
+
     static constexpr bool isChildOfAAllocator = std::is_base_of<AAllocator<T>, A<T>>::value;
     static constexpr bool uniqueAllocator =
-        isChildOfAAllocator ? A<T>::uniqueAllocator : false;
-    using Type =
-        typename std::conditional<isChildOfAAllocator, A<T>, AllocatorWrapper<T, A>>::type;
+        isChildOfAAllocator ? uniqueAllocatorTag<A<T>>(hasUniqueAllocatorTag<A<T>> {}) : false;
+    using Type = typename std::conditional<isChildOfAAllocator, A<T>, AllocatorWrapper<T, A>>::type;
 };
 
+}  // namespace Detail
 
 }  // namespace ETL_NAMESPACE
 

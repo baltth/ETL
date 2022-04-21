@@ -41,7 +41,8 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     using Base = ETL_NAMESPACE::Map<K, E, C>;
     using Node = typename Base::Node;
-    using Allocator = typename AllocatorTraits<Node, A>::Type;
+    using AllocatorTraits = typename Detail::AllocatorTraits<Node, A>;
+    using Allocator = typename AllocatorTraits::Type;
 
   private:  // variables
 
@@ -103,7 +104,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     void swap(Map& other) noexcept {
         static_assert(noexcept(Map().Base::swapNodeList(other)),
                       "noexcept contract violation");
-        static_assert(!Allocator::uniqueAllocator,
+        static_assert(!AllocatorTraits::uniqueAllocator,
                       "Allocator should use uniqueAllocator == false");
         if (&other != this) {
             Base::swapNodeList(other);

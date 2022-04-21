@@ -44,7 +44,8 @@ class List : public ETL_NAMESPACE::List<T> {
     using const_iterator = typename Base::const_iterator;
     using Node = typename Base::Node;
 
-    using Allocator = typename AllocatorTraits<Node, A>::Type;
+    using AllocatorTraits = typename Detail::AllocatorTraits<Node, A>;
+    using Allocator = typename AllocatorTraits::Type;
 
   private:  // variables
 
@@ -106,7 +107,7 @@ class List : public ETL_NAMESPACE::List<T> {
     void swap(List& other) noexcept {
         static_assert(noexcept(List().swapNodeList(other)),
                       "noexcept contract violation");
-        static_assert(!Allocator::uniqueAllocator,
+        static_assert(!AllocatorTraits::uniqueAllocator,
                       "Allocator should use uniqueAllocator == false");
         if (&other != this) {
             Base::swapNodeList(other);

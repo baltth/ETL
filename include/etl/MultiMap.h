@@ -40,9 +40,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename Base::Node Node;
-    typedef typename AllocatorTraits<Node, A>::Type Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Node = typename Base::Node;
+    using Allocator = typename Detail::AllocatorTraits<Node, A>::Type;
 
   private:  // variables
 
@@ -124,9 +124,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>;
 
   private:  // variables
 
@@ -199,9 +199,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>;
 
   private:  // variables
 
