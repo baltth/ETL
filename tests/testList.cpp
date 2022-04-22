@@ -36,14 +36,33 @@ using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
 
+namespace {
+
+namespace CheckNoexcept {
+
 using Etl::Detail::NothrowContract;
 
-static_assert(NothrowContract<Etl::Static::List<int, 16U>>::value,
-              "nothrow contract");
-static_assert(NothrowContract<Etl::Static::List<Etl::Static::List<int, 16U>, 8>>::value,
-              "nothrow contract");
+using SC = Etl::Static::List<int, 16U>;
+using SCSC = Etl::Static::List<SC, 8U>;
+using PC = Etl::Pooled::List<int, 16U>;
+using DC = Etl::Dynamic::List<int>;
 
-namespace {
+TEMPLATE_TEST_CASE("List nothrow contract",
+                   "[list][etl][basic]",
+                   SC,
+                   SCSC,
+                   PC,
+                   DC) {
+
+    static_assert(NothrowContract<TestType>::value, "nothrow contract violation");
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
+}
+
+}  // namespace CheckNoexcept
+
 
 template<class ListT>
 void testListBasic() {

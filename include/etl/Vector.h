@@ -111,6 +111,17 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         strategy.cleanup(*this);
     }
 
+    void swap(Vector& other) noexcept(
+        noexcept(Detail::NothrowContract<typename Base::value_type>::nothrowIfMovable)) {
+        // Note: this operation is noexcept when T can be moved 'noexceptly',
+        // however lower level functions are not annotated with noexcept qualifier.
+        if (&other != this) {
+            Base::swap(other);
+        }
+    }
+
+    using Base::swap;
+
   private:
 
     void moveAssignSameType(Vector&& other) noexcept(
@@ -122,6 +133,10 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
             this->moveFromOther(this->data(), other.data(), other.size());
             other.clear();
         }
+    }
+
+    friend void swap(Vector& lhs, Vector& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -140,12 +155,6 @@ Vector<T, N>::Vector(uint32_t len, const T& item) :
     strategy(data_, N) {
 
     this->insert(this->cbegin(), len, item);
-}
-
-
-template<class T, size_t N>
-void swap(Static::Vector<T, N>& lhs, Static::Vector<T, N>& rhs) {
-    lhs.swap(rhs);
 }
 
 }  // namespace Static
@@ -231,23 +240,23 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         }
     }
 
-    void swap(Base& other) {
-        if (&other != this) {
-            Base::swap(other);
-        }
-    }
+    using Base::swap;
 
   private:
 
-    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    template<bool UA = Strategy::uniqueAllocator>
     enable_if_t<UA, void> swapSameType(Vector& other) {
         Base::swap(other);
     }
 
-    template<bool UA = Strategy::UNIQUE_ALLOCATOR>
+    template<bool UA = Strategy::uniqueAllocator>
     enable_if_t<!UA, void>
     swapSameType(Vector& other) noexcept(noexcept(Vector().Detail::AVectorBase::swapProxy(other))) {
         Detail::AVectorBase::swapProxy(other);
+    }
+
+    friend void swap(Vector& lhs, Vector& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -265,12 +274,6 @@ Vector<T, A>::Vector(uint32_t len, const T& item) :
     Base(strategy) {
 
     this->insert(this->cbegin(), len, item);
-}
-
-
-template<class T, template<class> class A>
-void swap(Custom::Vector<T, A>& lhs, Custom::Vector<T, A>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
-    lhs.swap(rhs);
 }
 
 }  // namespace Custom

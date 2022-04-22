@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2018 Balazs Toth.
+Copyright 2018-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,11 +41,11 @@ class AAllocator {
     typedef T ItemType;
     typedef T* PtrType;
 
-    static constexpr bool NoexceptDestroy = std::is_nothrow_destructible<T>::value;
+    static constexpr bool noexceptDestroy = std::is_nothrow_destructible<T>::value;
 
   public:  // functions
 
-    virtual ~AAllocator() {};
+    virtual ~AAllocator() = default;
 
     virtual size_t max_size() const noexcept = 0;
     virtual size_t size() const noexcept = 0;
@@ -66,7 +66,7 @@ class AAllocator {
         new (ptr) ItemType(std::forward<Args>(args)...);
     }
 
-    static void destroy(PtrType ptr) noexcept(NoexceptDestroy) {
+    static void destroy(PtrType ptr) noexcept(noexceptDestroy) {
         ptr->~ItemType();
     }
 };
@@ -82,10 +82,12 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:  // types
 
-    typedef T ItemType;
-    typedef T* PtrType;
+    using ItemType = T;
+    using PtrType = T*;
 
-    typedef A<T> Allocator;
+    using Allocator = A<T>;
+
+    static constexpr bool uniqueAllocator = false;
 
   public:  // functions
 
@@ -118,14 +120,35 @@ class AllocatorWrapper : public AAllocator<T> {
 };
 
 
+namespace Detail {
+
 template<class T, template<class> class A>
-struct AllocatorType {
-    using Type = typename std::conditional<std::is_base_of<AAllocator<T>, A<T>>::value,
-                                           A<T>,
-                                           AllocatorWrapper<T, A>>::type;
+struct AllocatorTraits {
+
+    template<class S, typename = void>
+    struct hasUniqueAllocatorTag : std::false_type {};
+
+    template<class S>
+    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator, void())> : std::true_type {};
+
+    template<class S>
+    static constexpr bool uniqueAllocatorTag(std::false_type) {
+        return false;
+    }
+
+    template<class S>
+    static constexpr bool uniqueAllocatorTag(std::true_type) {
+        return S::uniqueAllocator;
+    }
+
+    static constexpr bool isChildOfAAllocator = std::is_base_of<AAllocator<T>, A<T>>::value;
+    static constexpr bool uniqueAllocator =
+        isChildOfAAllocator ? uniqueAllocatorTag<A<T>>(hasUniqueAllocatorTag<A<T>> {}) : false;
+    using Type = typename std::conditional<isChildOfAAllocator, A<T>, AllocatorWrapper<T, A>>::type;
 };
 
+}  // namespace Detail
 
 }  // namespace ETL_NAMESPACE
 
-#endif // __ETL_AALLOCATOR_H__
+#endif  // __ETL_AALLOCATOR_H__

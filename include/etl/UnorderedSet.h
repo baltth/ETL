@@ -156,7 +156,7 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     using Base = ETL_NAMESPACE::UnorderedSet<K, H, KE>;
 
     using NodeAllocator =
-        typename ETL_NAMESPACE::PoolHelper<NN>::template Allocator<typename Base::Node>;
+        typename ETL_NAMESPACE::PoolHelperForSize<NN>::template Allocator<typename Base::Node>;
     using BucketImpl = Static::Vector<typename Base::BucketItem, NB>;
 
   private:  // variables
@@ -243,7 +243,7 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     using Base = ETL_NAMESPACE::UnorderedSet<K, H, KE>;
 
     using NodeAllocator =
-        typename ETL_NAMESPACE::PoolHelper<NN>::template CommonAllocator<typename Base::Node>;
+        typename ETL_NAMESPACE::PoolHelperForSize<NN>::template CommonAllocator<typename Base::Node>;
     using BucketImpl = Static::Vector<typename Base::BucketItem, NB>;
 
   private:  // variables

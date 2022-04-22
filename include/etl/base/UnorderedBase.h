@@ -341,8 +341,8 @@ class UnorderedBase {
 
     /// \name Modifiers
     /// \{
-    void clear() noexcept(NodeAllocator::NoexceptDestroy);
-    iterator erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy);
+    void clear() noexcept(NodeAllocator::noexceptDestroy);
+    iterator erase(iterator pos) noexcept(NodeAllocator::noexceptDestroy);
 
     template<typename H>
     void swap(H hasher, UnorderedBase& other) {
@@ -563,7 +563,7 @@ class UnorderedBase {
 
 
 template<class T>
-void UnorderedBase<T>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
+void UnorderedBase<T>::clear() noexcept(NodeAllocator::noexceptDestroy) {
 
     auto it = begin();
     while (it != end()) {
@@ -581,7 +581,7 @@ void UnorderedBase<T>::clear() noexcept(NodeAllocator::NoexceptDestroy) {
 
 
 template<class T>
-auto UnorderedBase<T>::erase(iterator pos) noexcept(NodeAllocator::NoexceptDestroy)
+auto UnorderedBase<T>::erase(iterator pos) noexcept(NodeAllocator::noexceptDestroy)
     -> iterator {
 
     ETL_ASSERT(pos != end());

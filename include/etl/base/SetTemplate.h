@@ -137,6 +137,10 @@ class Set : private Detail::SortedList<E, C> {
 
   protected:
 
+    void swapNodeList(Set& other) noexcept(noexcept(std::declval<Base>().swapNodeList(other))) {
+        Base::swapNodeList(other);
+    }
+
     template<typename InputIt>
     void assign(InputIt first, InputIt last) {
         this->clear();

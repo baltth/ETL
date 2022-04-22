@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2022 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,9 +40,10 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename Base::Node Node;
-    typedef typename AllocatorType<Node, A>::Type Allocator;
+    using Base = ETL_NAMESPACE::Set<E, C>;
+    using Node = typename Base::Node;
+    using AllocatorTraits = typename Detail::AllocatorTraits<Node, A>;
+    using Allocator = typename AllocatorTraits::Type;
 
   private:  // variables
 
@@ -73,12 +74,12 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    Set(Set&& other) :
+    Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
         Set() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Set& operator=(Set&& other) {
+    Set& operator=(Set&& other) noexcept(noexcept(Set().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -93,16 +94,35 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
+
+    void swap(Set& other) noexcept {
+        static_assert(noexcept(Set().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!AllocatorTraits::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Set& lhs, Set& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Custom
+
 
 namespace Dynamic {
 
@@ -123,9 +143,9 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::Set<E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>;
 
   private:  // variables
 
@@ -156,12 +176,12 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    Set(Set&& other) :
+    Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
         Set() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Set& operator=(Set&& other) {
+    Set& operator=(Set&& other) noexcept(noexcept(Set().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -176,16 +196,36 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
+
+    void swap(Set& other) noexcept(
+        noexcept(Detail::NothrowContract<typename Base::value_type>::nothrowIfMovable)) {
+        // Note: this operation is noexcept when T can be moved 'noexceptly',
+        // however lower level functions are not annotated with noexcept qualifier.
+        static_assert(Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == true");
+        if (&other != this) {
+            Base::swap(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Set& lhs, Set& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Static
+
 
 namespace Pooled {
 
@@ -197,9 +237,9 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::Set<E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::Set<E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>;
 
   private:  // variables
 
@@ -230,12 +270,12 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    Set(Set&& other) :
+    Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
         Set() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    Set& operator=(Set&& other) {
+    Set& operator=(Set&& other) noexcept(noexcept(Set().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -250,16 +290,35 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
         return *this;
     }
 
-    ~Set() noexcept(Allocator::NoexceptDestroy) {
+    ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
     }
+
+    void swap(Set& other) noexcept {
+        static_assert(noexcept(Set().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(Set& lhs, Set& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
+    }
 };
 
 }  // namespace Pooled
+
 }  // namespace ETL_NAMESPACE
 
 #endif  // __ETL_SET_H__

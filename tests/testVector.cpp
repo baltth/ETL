@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
-#include <etl/List.h>
+#include <etl/Array.h>
 #include <etl/Vector.h>
 
 #include "AtScopeEnd.h"
@@ -38,10 +38,28 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
-static_assert(Etl::Detail::NothrowContract<Etl::Static::Vector<int, 32U>>::value,
-              "Etl::Static::Vector<int, N> violates nothrow contract");
-static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::Vector<int>>::value,
-              "Etl::Dynamic::Vector<int, N> violates nothrow contract");
+namespace CheckNoexcept {
+
+using Etl::Detail::NothrowContract;
+
+using SC = Etl::Static::Vector<int, 16U>;
+using SCSC = Etl::Static::Vector<SC, 8U>;
+using DC = Etl::Dynamic::Vector<int>;
+
+TEMPLATE_TEST_CASE("Vector nothrow contract",
+                   "[vector][etl][basic]",
+                   SC,
+                   SCSC,
+                   DC) {
+
+    static_assert(NothrowContract<TestType>::value, "nothrow contract violation");
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
+}
+
+}  // namespace CheckNoexcept
 
 // Etl::Vector tests ----------------------------------------------------------
 

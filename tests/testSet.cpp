@@ -34,6 +34,32 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
+namespace CheckNoexcept {
+
+using Etl::Detail::NothrowContract;
+
+using SC = Etl::Static::Set<int, 16U>;
+using SCSC = Etl::Static::Set<SC, 8U>;
+using PC = Etl::Pooled::Set<int, 16U>;
+using DC = Etl::Dynamic::Set<int>;
+
+TEMPLATE_TEST_CASE("Set nothrow contract",
+                   "[set][etl][basic]",
+                   SC,
+                   SCSC,
+                   PC,
+                   DC) {
+
+    static_assert(NothrowContract<TestType>::value, "nothrow contract violation");
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
+}
+
+}  // namespace CheckNoexcept
+
+
 TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
 
     typedef Etl::Dynamic::Set<ContainerTester> SetType;

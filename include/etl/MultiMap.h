@@ -40,9 +40,10 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename Base::Node Node;
-    typedef typename AllocatorType<Node, A>::Type Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Node = typename Base::Node;
+    using AllocatorTraits = typename Detail::AllocatorTraits<Node, A>;
+    using Allocator = typename AllocatorTraits::Type;
 
   private:  // variables
 
@@ -73,12 +74,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(MultiMap&& other) :
+    MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
         MultiMap() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    MultiMap& operator=(MultiMap&& other) {
+    MultiMap& operator=(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -93,12 +94,30 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(MultiMap& other) noexcept {
+        static_assert(noexcept(MultiMap().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!AllocatorTraits::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(MultiMap& lhs, MultiMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -124,9 +143,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template Allocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>;
 
   private:  // variables
 
@@ -157,12 +176,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(MultiMap&& other) :
+    MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
         MultiMap() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    MultiMap& operator=(MultiMap&& other) {
+    MultiMap& operator=(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -177,12 +196,31 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(MultiMap& other) noexcept(
+        noexcept(Detail::NothrowContract<typename Base::value_type>::nothrowIfMovable)) {
+        // Note: this operation is noexcept when T can be moved 'noexceptly',
+        // however lower level functions are not annotated with noexcept qualifier.
+        static_assert(Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == true");
+        if (&other != this) {
+            Base::swap(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(MultiMap& lhs, MultiMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 
@@ -199,9 +237,9 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
   public:  // types
 
-    typedef ETL_NAMESPACE::MultiMap<K, E, C> Base;
-    typedef typename ETL_NAMESPACE::PoolHelper<N>::template CommonAllocator<typename Base::Node>
-        Allocator;
+    using Base = ETL_NAMESPACE::MultiMap<K, E, C>;
+    using Allocator =
+        typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>;
 
   private:  // variables
 
@@ -232,12 +270,12 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    MultiMap(MultiMap&& other) :
+    MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
         MultiMap() {
-        operator=(std::move(other));
+        this->swap(other);
     }
 
-    MultiMap& operator=(MultiMap&& other) {
+    MultiMap& operator=(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -252,12 +290,30 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
         return *this;
     }
 
-    ~MultiMap() noexcept(Allocator::NoexceptDestroy) {
+    ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
     }
 
     Allocator& getAllocator() const noexcept {
         return allocator;
+    }
+
+    void swap(MultiMap& other) noexcept {
+        static_assert(noexcept(MultiMap().Base::swapNodeList(other)),
+                      "noexcept contract violation");
+        static_assert(!Allocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        if (&other != this) {
+            Base::swapNodeList(other);
+        }
+    }
+
+    using Base::swap;
+
+  private:
+
+    friend void swap(MultiMap& lhs, MultiMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+        lhs.swap(rhs);
     }
 };
 

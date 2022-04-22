@@ -172,6 +172,11 @@ class MultiMap : private Detail::SortedList<std::pair<const K, E>, Detail::KeyCo
 
   protected:
 
+    void
+    swapNodeList(MultiMap& other) noexcept(noexcept(std::declval<Base>().swapNodeList(other))) {
+        Base::swapNodeList(other);
+    }
+
     template<typename InputIt>
     void assign(InputIt first, InputIt last) {
         this->clear();
