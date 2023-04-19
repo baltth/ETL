@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,8 +33,51 @@ using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
 
-namespace {
+namespace CheckNoexcept {
 
+using Etl::Detail::NothrowContract;
+
+using StaticUnorderedMap = Etl::Static::UnorderedMap<int, int, 16U>;
+using StaticUnorderedMapNested = Etl::Static::UnorderedMap<int, StaticUnorderedMap, 8U>;
+using PooledUnorderedMap = Etl::Pooled::UnorderedMap<int, int, 16U>;
+using DynamicUnorderedMap = Etl::Dynamic::UnorderedMap<int, int>;
+
+TEMPLATE_TEST_CASE("UnorderedMap noexcept default constructor",
+                   "[unorderedmap][etl][basic]",
+                   StaticUnorderedMap,
+                   StaticUnorderedMapNested,
+                   PooledUnorderedMap) {  // Dynamic skipped intentionally
+    REQUIRE(NothrowContract<TestType>::nothrowIfDefaultConstructible);
+    REQUIRE(NothrowContract<TestType>::nothrowIfDestructible);
+}
+
+TEMPLATE_TEST_CASE("UnorderedMap noexcept move",
+                   "[unorderedmap][etl][basic]",
+                   StaticUnorderedMap,
+                   StaticUnorderedMapNested,
+                   PooledUnorderedMap,
+                   DynamicUnorderedMap) {
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveConstructible);
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveAssignable);
+    REQUIRE(NothrowContract<TestType>::nothrowIfMovable);
+}
+
+TEMPLATE_TEST_CASE("UnorderedMap noexcept swap",
+                   "[unorderedmap][etl][basic]",
+                   StaticUnorderedMap,
+                   StaticUnorderedMapNested,
+                   PooledUnorderedMap,
+                   DynamicUnorderedMap) {
+
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    REQUIRE(noexcept(swap(c1, c2)));
+}
+
+}  // namespace CheckNoexcept
+
+namespace {
 
 TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl][basic]") {
 

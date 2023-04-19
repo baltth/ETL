@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ using ETL_NAMESPACE::Detail::SingleChain;
 void AHashTable::insert(AHashTable::Node& item) {
 
     ETL_ASSERT(buckets.data() != nullptr);
-    ETL_ASSERT(buckets.size() > 0U);
+    ETL_ASSERT(!buckets.empty());
 
     // Buckets point to the previous node of the first element
     // in the bucket:

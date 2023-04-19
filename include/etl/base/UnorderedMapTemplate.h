@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -70,8 +70,9 @@ class UnorderedMap : public Detail::UnorderedBase<std::pair<const K, E>> {
 
     /// \name Construction, destruction, assignment
     /// \{
-    UnorderedMap(typename Base::BucketImpl& b, typename Base::NodeAllocator& a) :
-        Base(b, a) {};
+    UnorderedMap(typename Base::BucketImpl& b,
+                 typename Base::NodeAllocator& a) noexcept(noexcept(Base(b, a))) :
+        Base(b, a) {}
 
     UnorderedMap& operator=(const UnorderedMap& other) {
         this->clear();  // @todo this could be optimized to reuse existing elements

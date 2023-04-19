@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,11 +50,11 @@ class AHashTable {
 
       protected:  // functions
 
-        Node() :
+        Node() noexcept :
             SingleChain::Node(),
             hash(0U) {};
 
-        Node(const SingleChain::Node& n, HashType h) :
+        Node(const SingleChain::Node& n, HashType h) noexcept :
             SingleChain::Node(n),
             hash(h) {};
     };
@@ -83,7 +83,7 @@ class AHashTable {
 
       protected:
 
-        explicit Iterator(AHashTable::Node* n) :
+        explicit Iterator(AHashTable::Node* n) noexcept :
             node_(n) {};
 
         Node* node() {
@@ -134,7 +134,7 @@ class AHashTable {
             ix((n != nullptr) ? ix : INVALID_IX),
             div(d) {};
 
-        LocalIterator() :
+        LocalIterator() noexcept :
             LocalIterator(nullptr, 0, 1) {};
 
       private:
@@ -167,7 +167,7 @@ class AHashTable {
 
   public:  // functions
 
-    AHashTable() :
+    AHashTable() noexcept :
         size_ {0U},
         lastItem {&chain_.getFrontNode()},
         frontBucketIx {0U} {};
@@ -272,7 +272,7 @@ class AHashTable {
         return buckets[bucketIxOfHash(h)];
     }
 
-    void bindBuckets(Buckets b) {
+    void bindBuckets(Buckets b) noexcept {
         ETL_ASSERT(empty());
         buckets = b;
     }
@@ -287,9 +287,11 @@ class AHashTable {
     }
 
     template<typename B>
-    void swapWithSources(B& ownBucketSource,
-                         AHashTable& other,
-                         B& otherBucketSource);
+    static void
+    swapWithSources(AHashTable& lhs,
+                    B& lhsBucketSource,
+                    AHashTable& rhs,
+                    B& rhsBucketSource) noexcept(noexcept(lhsBucketSource.swap(rhsBucketSource)));
 
     void consume(SingleChain& chain);
 
@@ -374,7 +376,7 @@ inline AHashTable::LocalIterator AHashTable::begin(size_type ix) const {
 }
 
 
-inline void swap(AHashTable& lhs, AHashTable& rhs) {
+inline void swapBase(AHashTable& lhs, AHashTable& rhs) noexcept {
     AHashTable tmp {std::move(lhs)};
     lhs = std::move(rhs);
     rhs = std::move(tmp);
@@ -382,17 +384,20 @@ inline void swap(AHashTable& lhs, AHashTable& rhs) {
 
 
 template<typename B>
-void AHashTable::swapWithSources(B& ownBucketSource,
-                                 AHashTable& other,
-                                 B& otherBucketSource) {
+inline void AHashTable::swapWithSources(
+    AHashTable& lhs,
+    B& lhsBucketSource,
+    AHashTable& rhs,
+    B& rhsBucketSource) noexcept(noexcept(lhsBucketSource.swap(rhsBucketSource))) {
 
+    ETL_ASSERT(&lhs != &rhs);
     // swap the base
-    swap(*this, other);
+    swapBase(lhs, rhs);
 
     // swap the bucket contents and rebind the buckets
-    ownBucketSource.swap(otherBucketSource);
-    buckets = Buckets {ownBucketSource};
-    other.buckets = Buckets {otherBucketSource};
+    lhsBucketSource.swap(rhsBucketSource);
+    lhs.buckets = Buckets {lhsBucketSource};
+    rhs.buckets = Buckets {rhsBucketSource};
 
     // fix the incorrect 'front node' references in buckets
     auto fixBucketOfFirst = [](AHashTable& table) {
@@ -405,8 +410,8 @@ void AHashTable::swapWithSources(B& ownBucketSource,
         }
     };
 
-    fixBucketOfFirst(*this);
-    fixBucketOfFirst(other);
+    fixBucketOfFirst(lhs);
+    fixBucketOfFirst(rhs);
 }
 
 

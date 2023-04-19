@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -277,7 +277,7 @@ class UnorderedBase {
 
     /// \name Construction, destruction, assignment
     /// \{
-    UnorderedBase(BucketImpl& b, NodeAllocator& a) :
+    UnorderedBase(BucketImpl& b, NodeAllocator& a) noexcept :
         buckets {b},  // Note: reference of buckets are stored here but...
         allocator {a},
         hashTable {},  // ...bucket binding for the hashTable is skipped intentionally as creating a
@@ -287,8 +287,8 @@ class UnorderedBase {
     UnorderedBase(const UnorderedBase& other) = delete;
     UnorderedBase& operator=(const UnorderedBase& other) = delete;
 
-    UnorderedBase(UnorderedBase&& other) = default;
-    UnorderedBase& operator=(UnorderedBase&& other) = default;
+    UnorderedBase(UnorderedBase&& other) noexcept(noexcept(AHashTable(AHashTable()))) = default;
+    UnorderedBase& operator=(UnorderedBase&& other) = delete;
 
     ~UnorderedBase() {
         // The container shall be empty at his stage
@@ -348,9 +348,10 @@ class UnorderedBase {
     void swap(H hasher, UnorderedBase& other) {
         if (this != &other) {
             if (allocator.handle() == other.allocator.handle()) {
-                hashTable.swapWithSources(buckets,
-                                          other.hashTable,
-                                          other.buckets);
+                AHashTable::swapWithSources(hashTable,
+                                            buckets,
+                                            other.hashTable,
+                                            other.buckets);
             } else {
                 swapElements(std::move(hasher), other);
             }
@@ -399,15 +400,15 @@ class UnorderedBase {
 
     /// \name Hash policy
     /// \{
-    float load_factor() const {
+    float load_factor() const noexcept {
         return static_cast<float>(size()) / bucket_count();
     }
 
-    float max_load_factor() const {
+    float max_load_factor() const noexcept {
         return mlf;
     }
 
-    void max_load_factor(float m) {
+    void max_load_factor(float m) noexcept {
         static constexpr float LF_MIN = 0.01f;
         mlf = (m > LF_MIN) ? m : LF_MIN;
     }
@@ -425,7 +426,7 @@ class UnorderedBase {
 
   protected:
 
-    void bindOwnBuckets() {
+    void bindOwnBuckets() noexcept {
         hashTable.bindBuckets(buckets);
     }
 
@@ -547,7 +548,7 @@ class UnorderedBase {
         return next;
     }
 
-    void destroy(Node* node) {
+    void destroy(Node* node) noexcept(NodeAllocator::noexceptDestroy) {
         NodeAllocator::destroy(node);
         allocator.deallocate(node, 1U);
     }

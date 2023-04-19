@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2018-2022 Balazs Toth.
+Copyright 2018-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -144,6 +144,7 @@ struct AllocatorTraits {
     static constexpr bool isChildOfAAllocator = std::is_base_of<AAllocator<T>, A<T>>::value;
     static constexpr bool uniqueAllocator =
         isChildOfAAllocator ? uniqueAllocatorTag<A<T>>(hasUniqueAllocatorTag<A<T>> {}) : false;
+
     using Type = typename std::conditional<isChildOfAAllocator, A<T>, AllocatorWrapper<T, A>>::type;
 };
 
