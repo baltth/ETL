@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022 Balazs Toth.
+Copyright 2022-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,6 +35,51 @@ limitations under the License.
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
+
+namespace CheckNoexcept {
+
+using Etl::Detail::NothrowContract;
+
+using StaticUnorderedMultiMap = Etl::Static::UnorderedMultiMap<int, int, 16U>;
+using StaticUnorderedMultiMapNested =
+    Etl::Static::UnorderedMultiMap<int, StaticUnorderedMultiMap, 8U>;
+using PooledUnorderedMultiMap = Etl::Pooled::UnorderedMultiMap<int, int, 16U>;
+using DynamicUnorderedMultiMap = Etl::Dynamic::UnorderedMultiMap<int, int>;
+
+TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept default constructor",
+                   "[unorderedmultimap][etl][basic]",
+                   StaticUnorderedMultiMap,
+                   StaticUnorderedMultiMapNested,
+                   PooledUnorderedMultiMap) {  // Dynamic skipped intentionally
+    REQUIRE(NothrowContract<TestType>::nothrowIfDefaultConstructible);
+    REQUIRE(NothrowContract<TestType>::nothrowIfDestructible);
+}
+
+TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept move",
+                   "[unorderedmultimap][etl][basic]",
+                   StaticUnorderedMultiMap,
+                   StaticUnorderedMultiMapNested,
+                   PooledUnorderedMultiMap,
+                   DynamicUnorderedMultiMap) {
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveConstructible);
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveAssignable);
+    REQUIRE(NothrowContract<TestType>::nothrowIfMovable);
+}
+
+TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept swap",
+                   "[unorderedmultimap][etl][basic]",
+                   StaticUnorderedMultiMap,
+                   StaticUnorderedMultiMapNested,
+                   PooledUnorderedMultiMap,
+                   DynamicUnorderedMultiMap) {
+
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    REQUIRE(noexcept(swap(c1, c2)));
+}
+
+}  // namespace CheckNoexcept
 
 namespace {
 
