@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ limitations under the License.
 
 #include <etl/base/PoolBase.h>
 
-using ETL_NAMESPACE::PoolBase;
-using ETL_NAMESPACE::GenericProxy;
+using ETL_NAMESPACE::Detail::PoolBase;
 
 
 void* PoolBase::pop() {
@@ -40,6 +39,9 @@ void* PoolBase::pop() {
         result = data.getItemPointer(nextFreeIx);
         ++nextFreeIx;
         --freeCnt;
+
+    } else {
+        // NOP
     }
 
     return result;

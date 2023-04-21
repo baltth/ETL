@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,27 +41,25 @@ class MemoryPool {
 
   private:  // types
 
-    typedef uint64_t MinItemType;
+    using MinItemType = std::uint64_t;
 
     union ItemAlias {
         MinItemType minItem;  // for aliasing alignment and size of Minimal Item
         uint8_t item[S];      // for aliasing size of S
-        uint8_t freeItem[sizeof(PoolBase::FreeItem)];  // for aliasing size of PoolBase::FreeItem
+        uint8_t freeItem[sizeof(
+            Detail::PoolBase::FreeItem)];  // for aliasing size of PoolBase::FreeItem
     };
 
-    static const size_t ITEMSIZE = sizeof(ItemAlias);
+    static const size_t ITEM_SIZE = sizeof(ItemAlias);
 
   private:  // variables
 
-    Array<ItemAlias, N> data;
-    PoolBase base;
+    Array<ItemAlias, N> data {};
+    Detail::PoolBase base {data};
 
   public:  // functions
 
-    MemoryPool() :
-        data(),
-        base(data) {};
-
+    MemoryPool() = default;
     MemoryPool(const MemoryPool& other) = delete;
     MemoryPool& operator=(const MemoryPool& other) = delete;
     MemoryPool(MemoryPool&& other) = delete;

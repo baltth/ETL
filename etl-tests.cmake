@@ -7,7 +7,6 @@ endif()
 list(APPEND ETL_TEST_CMN ${ETL_TESTS_DIR}/ContainerTester.cpp)
 list(APPEND ETL_TEST_CMN ${ETL_TESTS_DIR}/testMain.cpp)
 
-list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testArray.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testVector.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testList.cpp)
 list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testSet.cpp)

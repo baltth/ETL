@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ limitations under the License.
 #ifndef __ETL_POOLBASE_H__
 #define __ETL_POOLBASE_H__
 
-#include <etl/Proxy.h>
+#include <etl/base/Proxy.h>
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
+namespace Detail {
 
 
 class PoolBase {
@@ -35,40 +36,42 @@ class PoolBase {
     struct FreeItem {
         FreeItem* next;
         FreeItem() :
-            next(nullptr) {};
+            next(nullptr) {}
         explicit FreeItem(void* ptr) :
-            next(static_cast<FreeItem*>(ptr)) {};
+            next(static_cast<FreeItem*>(ptr)) {}
     };
 
   private:  // variables
 
-    GenericProxy data;
+    Detail::Proxy data;
     FreeItem freeList;
 
-    uint32_t freeCnt;
-    uint32_t nextFreeIx;
+    std::size_t freeCnt;
+    std::size_t nextFreeIx;
 
   public:  // functions
 
-    explicit PoolBase(const GenericProxy& d) :
-        data(d),
-        freeCnt(data.size()),
-        nextFreeIx(0) {};
+    explicit PoolBase(const Detail::Proxy& d) :
+        data {d},
+        freeCnt {data.size()},
+        nextFreeIx {0} {}
+
+    PoolBase() noexcept = delete;
+    PoolBase(const PoolBase& other) = delete;
+    PoolBase& operator=(const PoolBase& other) = delete;
+    PoolBase(PoolBase&& other) noexcept = default;
+    PoolBase& operator=(PoolBase&& other) & noexcept = default;
+    ~PoolBase() = default;
 
     void* pop();
     bool push(void* item);
 
-    uint32_t getFreeCount() const {
+    std::size_t getFreeCount() const {
         return freeCnt;
     }
-
-  private:
-
-    // Non-copyable
-    PoolBase(const PoolBase& other);
-    PoolBase& operator=(const PoolBase& other);
 };
 
+}  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
 #endif  // __ETL_POOLBASE_H__
