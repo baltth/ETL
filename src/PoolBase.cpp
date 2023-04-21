@@ -24,7 +24,7 @@ limitations under the License.
 using ETL_NAMESPACE::Detail::PoolBase;
 
 
-void* PoolBase::pop() {
+void* PoolBase::pop() noexcept {
 
     void* result = NULL;
 
@@ -48,7 +48,7 @@ void* PoolBase::pop() {
 }
 
 
-bool PoolBase::push(void* item) {
+bool PoolBase::push(void* item) noexcept {
 
     const uint8_t* const itemEnd = static_cast<uint8_t*>(item) + data.getItemSize();
     const uint8_t* const regionStart = static_cast<uint8_t*>(data.getItemPointer(0));

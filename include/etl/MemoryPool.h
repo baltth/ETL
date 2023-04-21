@@ -33,7 +33,7 @@ Memory pool template.
 \tparam S Allocated block size
 \tparam N Pool length
 */
-template<size_t S, uint32_t N>
+template<std::size_t S, std::size_t N>
 class MemoryPool {
 
     static_assert(S > 0, "Invalid item size");
@@ -44,13 +44,13 @@ class MemoryPool {
     using MinItemType = std::uint64_t;
 
     union ItemAlias {
-        MinItemType minItem;  // for aliasing alignment and size of Minimal Item
-        uint8_t item[S];      // for aliasing size of S
-        uint8_t freeItem[sizeof(
+        MinItemType minItem;   // for aliasing alignment and size of Minimal Item
+        std::uint8_t item[S];  // for aliasing size of S
+        std::uint8_t freeItem[sizeof(
             Detail::PoolBase::FreeItem)];  // for aliasing size of PoolBase::FreeItem
     };
 
-    static const size_t ITEM_SIZE = sizeof(ItemAlias);
+    static const std::size_t ITEM_SIZE {sizeof(ItemAlias)};
 
   private:  // variables
 
@@ -66,23 +66,23 @@ class MemoryPool {
     MemoryPool& operator=(MemoryPool&& other) = delete;
     ~MemoryPool() = default;
 
-    void* pop() {
+    void* pop() noexcept {
         return base.pop();
     }
 
-    bool push(void* item) {
+    bool push(void* item) noexcept {
         return base.push(item);
     }
 
-    uint32_t getFreeCount() const {
+    std::size_t getFreeCount() const noexcept {
         return base.getFreeCount();
     }
 
-    uint32_t capacity() const {
+    std::size_t capacity() const noexcept {
         return N;
     }
 
-    uint32_t getCount() const {
+    std::size_t getCount() const noexcept {
         return capacity() - getFreeCount();
     }
 };

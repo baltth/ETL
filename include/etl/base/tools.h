@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -199,6 +199,50 @@ struct UseSwapInCont<std::pair<const K, E>> {
     static constexpr bool value = false;
 };
 
+
+class NullLock {
+  public:  // functions
+    void lock() noexcept {}
+    void unlock() noexcept {}
+};
+
+
+template<class L>
+class LockGuard {
+
+  private:  // variables
+
+    L* l;
+
+  public:  // functions
+
+    explicit LockGuard(L& toLock) noexcept(noexcept(l->lock())) :
+        l {&toLock} {
+        l->lock();
+    }
+
+    LockGuard() = delete;
+    LockGuard(const LockGuard& other) = delete;
+    LockGuard& operator=(const LockGuard& other) & = delete;
+    LockGuard& operator=(LockGuard&& other) = delete;
+
+    LockGuard(LockGuard&& other) noexcept :
+        l {other.l} {
+        other.l = nullptr;
+    }
+
+    ~LockGuard() {
+        if (l != nullptr) {
+            l->unlock();
+        }
+    }
+};
+
+
+template<class L>
+LockGuard<L> lock(L& toLock) noexcept(noexcept(LockGuard<L> {toLock})) {
+    return LockGuard<L> {toLock};
+}
 
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE

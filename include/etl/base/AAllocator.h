@@ -47,11 +47,11 @@ class AAllocator {
 
     virtual ~AAllocator() = default;
 
-    virtual size_t max_size() const noexcept = 0;
-    virtual size_t size() const noexcept = 0;
+    virtual std::size_t max_size() const noexcept = 0;
+    virtual std::size_t size() const noexcept = 0;
 
-    virtual PtrType allocate(uint32_t n) = 0;
-    virtual void deallocate(PtrType ptr, uint32_t n) noexcept = 0;
+    virtual PtrType allocate(std::size_t n) = 0;
+    virtual void deallocate(PtrType ptr, std::size_t n) noexcept = 0;
 
     virtual const void* handle() const noexcept = 0;
 
@@ -91,19 +91,19 @@ class AllocatorWrapper : public AAllocator<T> {
 
   public:  // functions
 
-    size_t max_size() const noexcept override {
+    std::size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    size_t size() const noexcept override {
+    std::size_t size() const noexcept override {
         return allocator().max_size();
     }
 
-    PtrType allocate(uint32_t n) override {
+    PtrType allocate(std::size_t n) override {
         return allocator().allocate(n);
     }
 
-    void deallocate(PtrType ptr, uint32_t n) noexcept override {
+    void deallocate(PtrType ptr, std::size_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 

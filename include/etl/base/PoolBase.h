@@ -51,22 +51,21 @@ class PoolBase {
 
   public:  // functions
 
-    explicit PoolBase(const Detail::Proxy& d) :
+    explicit PoolBase(const Detail::Proxy& d) noexcept :
         data {d},
         freeCnt {data.size()},
         nextFreeIx {0} {}
 
-    PoolBase() noexcept = delete;
+    PoolBase() = delete;
     PoolBase(const PoolBase& other) = delete;
     PoolBase& operator=(const PoolBase& other) = delete;
-    PoolBase(PoolBase&& other) noexcept = default;
-    PoolBase& operator=(PoolBase&& other) & noexcept = default;
-    ~PoolBase() = default;
+    PoolBase(PoolBase&& other) = delete;
+    PoolBase& operator=(PoolBase&& other) = delete;
 
-    void* pop();
-    bool push(void* item);
+    void* pop() noexcept;
+    bool push(void* item) noexcept;
 
-    std::size_t getFreeCount() const {
+    std::size_t getFreeCount() const noexcept {
         return freeCnt;
     }
 };
