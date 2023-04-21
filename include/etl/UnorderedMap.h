@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2022 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     using Node = typename Base::Node;
 
     using BucketImpl = Custom::Vector<typename Base::BucketItem, BA>;
-    using NodeAllocator = ETL_NAMESPACE::AllocatorWrapper<Node, NA>;
+    using NodeAllocatorTraits = typename Detail::AllocatorTraits<Node, NA>;
+    using NodeAllocator = typename NodeAllocatorTraits::Type;
 
     static constexpr size_t DEFAULT_BUCKETS {32U};
 
@@ -93,12 +94,18 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         Base::operator=(initList);
     }
 
-    UnorderedMap(UnorderedMap&& other) :
-        UnorderedMap() {
+    UnorderedMap(UnorderedMap&& other) noexcept(
+        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        && noexcept(std::declval<UnorderedMap>().operator=(std::move(other)))) :
+        // No default constructor delegation as it's not noexcept
+        Base(buckets, allocator),
+        buckets() {
+        this->bindOwnBuckets();
         operator=(std::move(other));
     }
 
-    UnorderedMap& operator=(UnorderedMap&& other) {
+    UnorderedMap&
+    operator=(UnorderedMap&& other) noexcept(noexcept(std::declval<UnorderedMap>().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -107,9 +114,33 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         this->clear();
     }
 
+    void
+    swap(UnorderedMap& other) noexcept(noexcept(std::declval<UnorderedMap>().swapSameType(other))) {
+        if (&other != this) {
+            swapSameType(other);
+        }
+    }
+
+    using Base::swap;
+
   private:
 
-    friend void swap(UnorderedMap& lhs, Base& rhs) {
+    void swapSameType(UnorderedMap& other) noexcept {
+        static_assert(noexcept(Detail::AHashTable::swapWithSources(this->Base::hashTable,
+                                                                   this->buckets,
+                                                                   other.Base::hashTable,
+                                                                   other.buckets)),
+                      "noexcept contract violation");
+        static_assert(!NodeAllocatorTraits::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        ETL_ASSERT(allocator.handle() == other.allocator.handle());
+        Detail::AHashTable::swapWithSources(this->Base::hashTable,
+                                            this->buckets,
+                                            other.Base::hashTable,
+                                            other.buckets);
+    }
+
+    friend void swap(UnorderedMap& lhs, UnorderedMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
         lhs.swap(rhs);
     }
 };
@@ -173,7 +204,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMap() :
+    UnorderedMap() noexcept(noexcept(Base(buckets, allocator))) :
         Base(buckets, allocator),
         buckets(NB) {
         ETL_ASSERT(buckets.size() == NB);
@@ -203,12 +234,13 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         Base::operator=(initList);
     }
 
-    UnorderedMap(UnorderedMap&& other) :
+    UnorderedMap(UnorderedMap&& other) noexcept(noexcept(UnorderedMap())
+                                                && noexcept(UnorderedMap().swap(other))) :
         UnorderedMap() {
         operator=(std::move(other));
     }
 
-    UnorderedMap& operator=(UnorderedMap&& other) {
+    UnorderedMap& operator=(UnorderedMap&& other) noexcept(noexcept(UnorderedMap().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -217,9 +249,27 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         this->clear();
     }
 
+    void swap(UnorderedMap& other) noexcept(noexcept(UnorderedMap().swapSameType(other))) {
+        if (&other != this) {
+            swapSameType(other);
+        }
+    }
+
+    using Base::swap;
+
   private:
 
-    friend void swap(UnorderedMap& lhs, Base& rhs) {
+    void swapSameType(UnorderedMap& other) noexcept(
+        (Detail::NothrowContract<typename Base::Node>::nothrowIfMovable)
+        && (Detail::NothrowContract<typename Base::Node>::nothrowIfDestructible)) {
+        static_assert(NodeAllocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == true");
+        // While Base::swap() has no noexcept guarantee, being noexcept here depends only on the
+        // noexcept properties of Node.
+        Base::swap(other);
+    }
+
+    friend void swap(UnorderedMap& lhs, UnorderedMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
         lhs.swap(rhs);
     }
 };
@@ -251,8 +301,8 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     using Base = ETL_NAMESPACE::UnorderedMap<K, E, H, KE>;
 
-    using NodeAllocator =
-        typename ETL_NAMESPACE::PoolHelperForSize<NN>::template CommonAllocator<typename Base::Node>;
+    using NodeAllocator = typename ETL_NAMESPACE::PoolHelperForSize<NN>::template CommonAllocator<
+        typename Base::Node>;
     using BucketImpl = Static::Vector<typename Base::BucketItem, NB>;
 
   private:  // variables
@@ -262,7 +312,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMap() :
+    UnorderedMap() noexcept(noexcept(Base(buckets, allocator))) :
         Base(buckets, allocator),
         buckets(NB) {
         ETL_ASSERT(buckets.size() == NB);
@@ -292,12 +342,17 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         Base::operator=(initList);
     }
 
-    UnorderedMap(UnorderedMap&& other) :
-        UnorderedMap() {
+    UnorderedMap(UnorderedMap&& other) noexcept(
+        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        && noexcept(UnorderedMap().operator=(std::move(other)))) :
+        Base(buckets, allocator),
+        buckets() {
+        this->bindOwnBuckets();
+        this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
         operator=(std::move(other));
     }
 
-    UnorderedMap& operator=(UnorderedMap&& other) {
+    UnorderedMap& operator=(UnorderedMap&& other) noexcept(noexcept(UnorderedMap().swap(other))) {
         this->swap(other);
         return *this;
     }
@@ -306,9 +361,31 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         this->clear();
     }
 
+    void swap(UnorderedMap& other) noexcept(noexcept(UnorderedMap().swapSameType(other))) {
+        if (&other != this) {
+            swapSameType(other);
+        }
+    }
+
+    using Base::swap;
+
   private:
 
-    friend void swap(UnorderedMap& lhs, Base& rhs) {
+    void swapSameType(UnorderedMap& other) noexcept {
+        static_assert(noexcept(Detail::AHashTable::swapWithSources(this->Base::hashTable,
+                                                                   this->buckets,
+                                                                   other.Base::hashTable,
+                                                                   other.buckets)),
+                      "noexcept contract violation");
+        static_assert(!NodeAllocator::uniqueAllocator,
+                      "Allocator should use uniqueAllocator == false");
+        Detail::AHashTable::swapWithSources(this->Base::hashTable,
+                                            this->buckets,
+                                            other.Base::hashTable,
+                                            other.buckets);
+    }
+
+    friend void swap(UnorderedMap& lhs, UnorderedMap& rhs) noexcept(noexcept(lhs.swap(rhs))) {
         lhs.swap(rhs);
     }
 };

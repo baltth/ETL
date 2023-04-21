@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022 Balazs Toth.
+Copyright 2022-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -72,8 +72,9 @@ class UnorderedMultiMap : public Detail::UnorderedBase<std::pair<const K, E>> {
 
     /// \name Construction, destruction, assignment
     /// \{
-    UnorderedMultiMap(typename Base::BucketImpl& b, typename Base::NodeAllocator& a) :
-        Base(b, a) {};
+    UnorderedMultiMap(typename Base::BucketImpl& b,
+                      typename Base::NodeAllocator& a) noexcept(noexcept(Base(b, a))) :
+        Base(b, a) {}
 
     UnorderedMultiMap& operator=(const UnorderedMultiMap& other) {
         this->clear();  // @todo this could be optimized to reuse existing elements

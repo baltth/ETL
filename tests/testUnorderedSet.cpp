@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022 Balazs Toth.
+Copyright 2022-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,6 +33,51 @@ using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
 
+namespace CheckNoexcept {
+
+using Etl::Detail::NothrowContract;
+
+using StaticUnorderedSet = Etl::Static::UnorderedSet<int, 16U>;
+using StaticUnorderedSetNested = Etl::Static::UnorderedSet<StaticUnorderedSet, 8U>;
+using PooledUnorderedSet = Etl::Pooled::UnorderedSet<int, 16U>;
+using DynamicUnorderedSet = Etl::Dynamic::UnorderedSet<int>;
+
+TEMPLATE_TEST_CASE("UnorderedSet noexcept default constructor",
+                   "[unorderedset][etl][basic]",
+                   StaticUnorderedSet,
+                   StaticUnorderedSetNested,
+                   PooledUnorderedSet) {  // Dynamic skipped intentionally
+    REQUIRE(NothrowContract<TestType>::nothrowIfDefaultConstructible);
+    REQUIRE(NothrowContract<TestType>::nothrowIfDestructible);
+}
+
+TEMPLATE_TEST_CASE("UnorderedSet noexcept move",
+                   "[unorderedset][etl][basic]",
+                   StaticUnorderedSet,
+                   StaticUnorderedSetNested,
+                   PooledUnorderedSet,
+                   DynamicUnorderedSet) {
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveConstructible);
+    CAPTURE(NothrowContract<TestType>::nothrowIfMoveAssignable);
+    REQUIRE(NothrowContract<TestType>::nothrowIfMovable);
+}
+
+TEMPLATE_TEST_CASE("UnorderedSet noexcept swap",
+                   "[unorderedset][etl][basic]",
+                   StaticUnorderedSet,
+                   StaticUnorderedSetNested,
+                   PooledUnorderedSet,
+                   DynamicUnorderedSet) {
+
+    using std::swap;
+    TestType c1;
+    TestType c2;
+    REQUIRE(noexcept(swap(c1, c2)));
+}
+
+}  // namespace CheckNoexcept
+
+namespace {
 
 TEST_CASE("Etl::Dynamic::UnorderedSet<> basic test", "[unorderedset][etl][basic]") {
 
@@ -516,3 +561,5 @@ TEST_CASE("Etl::UnorderedSet<> equivalence", "[unorderedset][etl]") {
                         rInserter);
     }
 }
+
+}  // namespace

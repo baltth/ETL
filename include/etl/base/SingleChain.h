@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ class SingleChain {
 
         Node* next;
 
-        Node() :
+        Node() noexcept :
             next(nullptr) {};
 
-        explicit Node(Node* n) :
+        explicit Node(Node* n) noexcept :
             next(n) {};
     };
 
@@ -51,7 +51,7 @@ class SingleChain {
 
   public:  // functions
 
-    SingleChain() = default;
+    SingleChain() noexcept = default;
 
     SingleChain(const SingleChain& other) = delete;
     SingleChain& operator=(const SingleChain& other) = delete;
