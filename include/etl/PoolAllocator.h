@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,17 +24,22 @@ limitations under the License.
 
 #include <etl/MemoryPool.h>
 #include <etl/base/AAllocator.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
+
+#include <mutex>
 
 namespace ETL_NAMESPACE {
 
 /**
 Allocator template class.
 Implements AAllocator based on MemoryPool.
+\note This allocator supports allocating exactly _one element_ for one call.
 \tparam T Item type
 \tparam N Size of pool
+\tparam L Lock type, defaults to 'null lock'
 */
-template<class T, uint32_t N>
+template<class T, uint32_t N, class L = Detail::NullLock>
 class PoolAllocator : public AAllocator<T> {
 
     static_assert(N > 0, "Invalid pool size");
@@ -43,24 +48,29 @@ class PoolAllocator : public AAllocator<T> {
 
     using ItemType = T;
     using PtrType = T*;
+    using Lock = L;
 
     static constexpr bool uniqueAllocator = true;
 
   private:  // variables
 
-    MemoryPool<sizeof(T), N> pool;
+    MemoryPool<sizeof(T), N> pool {};
+    mutable Lock l {};
 
   public:  // functions
 
-    size_t max_size() const noexcept override {
+    std::size_t max_size() const noexcept override {
+        auto lg = Detail::lock(l);
         return pool.capacity();
     }
 
-    size_t size() const noexcept override {
+    std::size_t size() const noexcept override {
+        auto lg = Detail::lock(l);
         return pool.getCount();
     }
 
-    PtrType allocate(uint32_t n) override {
+    PtrType allocate(std::size_t n) override {
+        auto lg = Detail::lock(l);
         if (n == 1) {
             return static_cast<PtrType>(pool.pop());
         } else {
@@ -68,7 +78,8 @@ class PoolAllocator : public AAllocator<T> {
         }
     }
 
-    void deallocate(PtrType ptr, uint32_t n) noexcept override {
+    void deallocate(PtrType ptr, std::size_t n) noexcept override {
+        auto lg = Detail::lock(l);
         (void)n;
         pool.push(ptr);
     }
@@ -82,37 +93,42 @@ class PoolAllocator : public AAllocator<T> {
 /**
 Allocator template class with static pool.
 Forwards the `std::allocator` interface to a static MemoryPool.
+This way each instance for the same template arguments use
+a common pool.
+\note This allocator supports allocating exactly _one element_ for one call.
 \tparam T Item type
 \tparam N Size of pool
+\tparam L Lock type, defaults to std::mutex
 */
-template<class T, uint32_t N>
+template<class T, uint32_t N, class L = std::mutex>
 class CommonPoolAllocator : public AAllocator<T> {
 
     static_assert(N > 0, "Invalid pool size");
 
   public:  // types
 
-    using Allocator = ETL_NAMESPACE::PoolAllocator<T, N>;
+    using Allocator = ETL_NAMESPACE::PoolAllocator<T, N, L>;
     using ItemType = typename Allocator::ItemType;
     using PtrType = typename Allocator::PtrType;
+    using Lock = L;
 
     static constexpr bool uniqueAllocator = false;
 
   public:  // functions
 
-    size_t max_size() const noexcept override {
+    std::size_t max_size() const noexcept override {
         return allocator().max_size();
     }
 
-    size_t size() const noexcept override {
+    std::size_t size() const noexcept override {
         return allocator().size();
     }
 
-    PtrType allocate(uint32_t n) override {
+    PtrType allocate(std::size_t n) override {
         return allocator().allocate(n);
     }
 
-    void deallocate(PtrType ptr, uint32_t n) noexcept override {
+    void deallocate(PtrType ptr, std::size_t n) noexcept override {
         allocator().deallocate(ptr, n);
     }
 
@@ -137,8 +153,8 @@ class PoolHelperForSize {
     template<class T>
     class Allocator : public PoolAllocator<T, N> {};
 
-    template<class T>
-    class CommonAllocator : public CommonPoolAllocator<T, N> {};
+    template<class T, class L = std::mutex>
+    class CommonAllocator : public CommonPoolAllocator<T, N, L> {};
 };
 
 }  // namespace ETL_NAMESPACE

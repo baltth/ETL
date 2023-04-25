@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ limitations under the License.
 #ifndef __ETL_AVECTORBASE_H__
 #define __ETL_AVECTORBASE_H__
 
+#include <etl/base/Proxy.h>
 #include <etl/etlSupport.h>
-#include <etl/Proxy.h>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -33,7 +33,7 @@ class AVectorBase {
 
   protected:  // types
 
-    class Proxy : public GenericProxy {
+    class Proxy : public Detail::Proxy {
         friend class AVectorBase;
 
       protected:  // variables
@@ -61,14 +61,13 @@ class AVectorBase {
       protected:
 
         explicit Proxy(size_t itemSize) noexcept :
-            GenericProxy(itemSize, nullptr, 0U),
-            capacity_(0U) {};
-
+            Detail::Proxy {itemSize, nullptr, 0U},
+            capacity_ {0U} {}
     };
 
   protected:  // variables
 
-    Proxy proxy;
+    AVectorBase::Proxy proxy;
 
   public:  // functions
 
@@ -90,7 +89,7 @@ class AVectorBase {
   protected:
 
     explicit AVectorBase(size_t itemSize) noexcept :
-        proxy(itemSize) {};
+        proxy(itemSize) {}
 
     void* getItemPointer(uint32_t ix) noexcept {
         return proxy.getItemPointer(ix);
