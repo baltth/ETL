@@ -1,13 +1,23 @@
 # ETL library and test build
 
 cmake_minimum_required(VERSION 3.5)
+
+message(STATUS "CMake ${CMAKE_VERSION}")
+
+# project def
+
 project(ETL)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# project options
-if(NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+if(NOT CMAKE_BUILD_TYPE)
+    message(FATAL_ERROR
+            "Build type undefined, please explicitly configure with \
+            -DCMAKE_BUILD_TYPE=[Release|Debug|DebugWithOpt...]")
 endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+set(CMAKE_CXX_FLAGS_DEBUGWITHOPT "${CMAKE_CXX_FLAGS_DEBUG} -O2")
+
+# project options
 
 option(ETL_BUILD_TESTS "Build tests" OFF)
 option(ETL_BUILD_BENCHMARKS "Build benchmarks" OFF)
