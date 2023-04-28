@@ -22,6 +22,7 @@ set(CMAKE_CXX_FLAGS_DEBUGWITHOPT "${CMAKE_CXX_FLAGS_DEBUG} -O2")
 option(ETL_BUILD_TESTS "Build tests" OFF)
 option(ETL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(ETL_COVERAGE "Enable code coverage" OFF)
+option(ETL_CUSTOM_NAMESPACE "Override 'Etl' namespace. This should be defined to use multiple ETL versions in your project")
 
 # threading lib used for std::mutex
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
@@ -33,8 +34,17 @@ add_library(etl-compile-if INTERFACE)
 target_compile_options(etl-compile-if INTERFACE -Wall -Wextra -pedantic)
 target_link_libraries(etl-compile-if INTERFACE Threads::Threads)
 
+if(ETL_CUSTOM_NAMESPACE)
+    message(STATUS "Using custom namespace '${ETL_CUSTOM_NAMESPACE}'")
+    if(ETL_BUILD_TESTS OR ETL_BUILD_BENCHMARKS)
+        message(FATAL_ERROR "Tests and benchmarks are not expected to build with custom namespace.")
+    endif()
+
+    target_compile_definitions(etl-compile-if INTERFACE ETL_NAMESPACE=${ETL_CUSTOM_NAMESPACE})
+endif()
+
 if(ETL_COVERAGE)
-    message(STATUS "Coverage enabled!")
+    message(STATUS "Coverage enabled")
     target_compile_options(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
     target_link_libraries(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
 endif()
