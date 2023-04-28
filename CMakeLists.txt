@@ -22,7 +22,15 @@ set(CMAKE_CXX_FLAGS_DEBUGWITHOPT "${CMAKE_CXX_FLAGS_DEBUG} -O2")
 option(ETL_BUILD_TESTS "Build tests" OFF)
 option(ETL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(ETL_COVERAGE "Enable code coverage" OFF)
-option(ETL_CUSTOM_NAMESPACE "Override 'Etl' namespace. This should be defined to use multiple ETL versions in your project")
+option(ETL_CUSTOM_NAMESPACE
+       "Override 'Etl' namespace. \
+       This should be defined to use multiple ETL versions in your project")
+option(ETL_CUSTOM_LIB_SUFFIX
+       "Suffix for the library name: `libetl-SUFFIX.a`. \
+       This should be defined when using multiple ETL versions in your project.")
+option(ETL_CUSTOM_INCLUDE_SUFFIX
+       "Suffix for the installed include folder: `CMAKE_INSTALL_PREFIX/include-SUFFIX/etl`. \
+       This should be defined when using multiple ETL versions in your project.")
 
 # threading lib used for std::mutex
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
