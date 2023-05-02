@@ -81,13 +81,13 @@ class UnorderedBase {
         using iterator_category = std::forward_iterator_tag;
 
         const_iterator() :
-            AHashTable::Iterator(nullptr) {}
+            AHashTable::Iterator {nullptr} {}
 
         const_iterator(const const_iterator& other) = default;
         const_iterator& operator=(const const_iterator& other) = default;
 
         explicit const_iterator(const AHashTable::Iterator& it) :
-            AHashTable::Iterator(it) {}
+            AHashTable::Iterator {it} {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -114,7 +114,7 @@ class UnorderedBase {
       private:
 
         explicit const_iterator(const UnorderedBase<T>::Node* n) :
-            AHashTable::Iterator(const_cast<UnorderedBase<T>::Node*>(n)) {}
+            AHashTable::Iterator {const_cast<UnorderedBase<T>::Node*>(n)} {}
     };
 
     class iterator : public AHashTable::Iterator {
@@ -129,13 +129,13 @@ class UnorderedBase {
         using iterator_category = std::forward_iterator_tag;
 
         iterator() :
-            AHashTable::Iterator(nullptr) {}
+            AHashTable::Iterator {nullptr} {}
 
         iterator(const iterator& other) = default;
         iterator& operator=(const iterator& other) = default;
 
         operator const_iterator() const {
-            return const_iterator(*this);
+            return this->asConst();
         }
 
         reference operator*() const {
@@ -167,6 +167,10 @@ class UnorderedBase {
 
         explicit iterator(const AHashTable::Iterator& it) :
             AHashTable::Iterator(it) {}
+
+        const_iterator asConst() const {
+            return const_iterator {static_cast<const AHashTable::Iterator&>(*this)};
+        }
     };
 
     class const_local_iterator : public AHashTable::LocalIterator {

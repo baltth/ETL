@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -80,10 +80,10 @@ class TypedListBase : protected AListBase {
         typedef std::bidirectional_iterator_tag iterator_category;
 
         const_iterator() noexcept :
-            AListBase::Iterator(nullptr) {}
+            AListBase::Iterator {nullptr} {}
 
         explicit const_iterator(const AListBase::Iterator& it) noexcept :
-            AListBase::Iterator(it) {}
+            AListBase::Iterator {it} {}
 
         const_iterator(const const_iterator& other) noexcept = default;
         const_iterator& operator=(const const_iterator& other) & noexcept = default;
@@ -132,7 +132,7 @@ class TypedListBase : protected AListBase {
       private:
 
         explicit const_iterator(TypedListBase<T>::Node* n) noexcept :
-            AListBase::Iterator(n) {}
+            AListBase::Iterator {n} {}
     };
 
     class iterator : public AListBase::Iterator {
@@ -156,7 +156,7 @@ class TypedListBase : protected AListBase {
         ~iterator() noexcept = default;
 
         operator const_iterator() const noexcept {
-            return const_iterator(*this);
+            return this->asConst();
         }
 
         reference operator*() const noexcept {
@@ -208,10 +208,14 @@ class TypedListBase : protected AListBase {
       private:
 
         explicit iterator(TypedListBase<T>::Node* n) noexcept :
-            AListBase::Iterator(n) {}
+            AListBase::Iterator {n} {}
 
         explicit iterator(const AListBase::Iterator& it) noexcept :
-            AListBase::Iterator(it) {}
+            AListBase::Iterator {it} {}
+
+        const_iterator asConst() const noexcept {
+            return const_iterator {static_cast<const AListBase::Iterator&>(*this)};
+        }
     };
 
     typedef std::reverse_iterator<iterator> reverse_iterator;
