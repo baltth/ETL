@@ -40,11 +40,11 @@ Etl::Dynamic::Vector<int> dynItems;
 fill(dynItems);
 ```
 
-Even _move, swap,_ etc works with this interface:
+Even _move, swap,_ etc. works with this interface:
 ```C++
 void consume(Etl::Vector<int>& items) {
     Etl::Dynamic::Vector<int> consumer = std::move(items);
-    // These operations fall back to copy when move is
+    // This operation falls back to move-by-element when container storage move is
     // not possible like 'Static -> Dynamic' cases
 }
 ```
