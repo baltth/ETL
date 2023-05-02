@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -64,10 +64,13 @@ TEMPLATE_TEST_CASE("List nothrow contract",
 }  // namespace CheckNoexcept
 
 
-template<class ListT>
-void testListBasic() {
+TEMPLATE_TEST_CASE("Etl::List<> basic test",
+                   "[list][etl][basic]",
+                   (Etl::Dynamic::List<int>),
+                   (Etl::Static::List<int, 16U>),
+                   (Etl::Pooled::List<int, 16U>)) {
 
-    ListT list;
+    TestType list;
 
     REQUIRE(list.size() == 0);
     REQUIRE(list.empty());
@@ -81,19 +84,23 @@ void testListBasic() {
     REQUIRE(list.size() == 2);
     REQUIRE_FALSE(list.empty());
 
-    typename ListT::iterator it = list.begin();
+    auto it = list.begin();
+    REQUIRE(it != list.end());
     REQUIRE(*it == 1);
     ++it;
+    REQUIRE(it != list.end());
     REQUIRE(*it == 2);
     ++it;
     REQUIRE(it == list.end());
 
     it = list.insert(list.begin(), 3);
     REQUIRE(list.size() == 3);
+    REQUIRE(it != list.end());
     REQUIRE(*it == 3);
 
     it = list.emplace(list.end(), 4);
     REQUIRE(list.size() == 4);
+    REQUIRE(it != list.end());
     REQUIRE(*it == 4);
 
     list.pop_front();
@@ -109,104 +116,32 @@ void testListBasic() {
     REQUIRE(list.empty());
 }
 
-TEST_CASE("Etl::Dynamic::List<> basic test", "[list][etl][basic]") {
 
-    typedef int ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
+TEMPLATE_TEST_CASE("Etl::List<> push/pop test",
+                   "[list][etl][basic]",
+                   (Etl::Dynamic::List<int>),
+                   (Etl::Static::List<int, 16U>),
+                   (Etl::Pooled::List<int, 16U>)) {
 
-    testListBasic<ListT>();
-}
-
-TEST_CASE("Etl::Static::List<> basic test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Static::List<ItemType, 16> ListT;
-
-    testListBasic<ListT>();
-}
-
-TEST_CASE("Etl::Pooled::List<> basic test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Pooled::List<ItemType, 16> ListT;
-
-    testListBasic<ListT>();
+    testBackAccess<TestType>();
+    testFrontAccess<TestType>();
 }
 
 
-TEST_CASE("Etl::Dynamic::List<> push/pop test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
-
-    testBackAccess<ListT>();
-    testFrontAccess<ListT>();
-}
-
-TEST_CASE("Etl::Static::List<> push/pop test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Static::List<ItemType, 16> ListT;
-
-    testBackAccess<ListT>();
-    testFrontAccess<ListT>();
-}
-
-TEST_CASE("Etl::Pooled::List<> push/pop test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Pooled::List<ItemType, 16> ListT;
-
-    testBackAccess<ListT>();
-    testFrontAccess<ListT>();
-}
-
-
-TEST_CASE("Etl::Dynamic::List<> iteration test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
+TEMPLATE_TEST_CASE("Etl::List<> iteration test",
+                   "[list][etl][basic]",
+                   (Etl::Dynamic::List<int>),
+                   (Etl::Static::List<int, 16U>),
+                   (Etl::Pooled::List<int, 16U>)) {
 
     SECTION("iterator") {
-        testIterationForward<ListT>();
-        testIterationBackward<ListT>();
+        testIterationForward<TestType>();
+        testIterationBackward<TestType>();
     }
 
     SECTION("reverse_iterator") {
-        testReverseIterationForward<ListT>();
-        testReverseIterationBackward<ListT>();
-    }
-}
-
-TEST_CASE("Etl::Static::List<> iteration test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Static::List<ItemType, 16> ListT;
-
-    SECTION("iterator") {
-        testIterationForward<ListT>();
-        testIterationBackward<ListT>();
-    }
-
-    SECTION("reverse_iterator") {
-        testReverseIterationForward<ListT>();
-        testReverseIterationBackward<ListT>();
-    }
-}
-
-TEST_CASE("Etl::Pooled::List<> iteration test", "[list][etl][basic]") {
-
-    typedef int ItemType;
-    typedef Etl::Pooled::List<ItemType, 16> ListT;
-
-    SECTION("iterator") {
-        testIterationForward<ListT>();
-        testIterationBackward<ListT>();
-    }
-
-    SECTION("reverse_iterator") {
-        testReverseIterationForward<ListT>();
-        testReverseIterationBackward<ListT>();
+        testReverseIterationForward<TestType>();
+        testReverseIterationBackward<TestType>();
     }
 }
 
