@@ -40,7 +40,6 @@ find_package(Threads REQUIRED)
 
 # Interface library for compile flags and configuration
 add_library(etl-compile-if INTERFACE)
-target_compile_options(etl-compile-if INTERFACE -Wall -Wextra -pedantic)
 target_link_libraries(etl-compile-if INTERFACE Threads::Threads)
 
 if(ETL_CUSTOM_NAMESPACE)
@@ -52,16 +51,21 @@ if(ETL_CUSTOM_NAMESPACE)
     target_compile_definitions(etl-compile-if INTERFACE ETL_NAMESPACE=${ETL_CUSTOM_NAMESPACE})
 endif()
 
+# Interface library for private compile flags and configuration
+add_library(etl-prv-compile-if INTERFACE)
+target_compile_options(etl-prv-compile-if INTERFACE -Wall -Wextra -pedantic)
+target_link_libraries(etl-prv-compile-if INTERFACE etl-compile-if)
+
 if(ETL_COVERAGE)
     message(STATUS "Coverage enabled")
-    target_compile_options(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
-    target_link_libraries(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
+    target_compile_options(etl-prv-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
+    target_link_libraries(etl-prv-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
 endif()
 
 if(ETL_SANITIZE)
     message(STATUS "Using -fsanitize=undefined -fsanitize=address")
-    target_compile_options(etl-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
-    target_link_libraries(etl-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
+    target_compile_options(etl-prv-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
+    target_link_libraries(etl-prv-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
 endif()
 
 # library build
