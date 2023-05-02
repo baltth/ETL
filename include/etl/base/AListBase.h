@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class AListBase {
         Node() noexcept = default;
 
         explicit Node(const DoubleChain::Node& other) noexcept :
-            DoubleChain::Node(other) {};
+            DoubleChain::Node {other} {}
     };
 
     class Iterator {
@@ -83,7 +83,7 @@ class AListBase {
       protected:
 
         explicit Iterator(AListBase::Node* n) noexcept :
-            node(n) {};
+            node {n} {}
     };
 
     typedef std::uint32_t size_type;

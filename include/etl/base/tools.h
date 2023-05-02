@@ -157,6 +157,20 @@ struct NothrowContract {
 };
 
 
+template<class T>
+const bool NothrowContract<T>::nothrowIfDefaultConstructible;
+template<class T>
+const bool NothrowContract<T>::nothrowIfMoveConstructible;
+template<class T>
+const bool NothrowContract<T>::nothrowIfMoveAssignable;
+template<class T>
+const bool NothrowContract<T>::nothrowIfDestructible;
+template<class T>
+const bool NothrowContract<T>::nothrowIfMovable;
+template<class T>
+const bool NothrowContract<T>::value;
+
+
 template<typename S, typename T>
 struct CopyConst {
     typedef T Type;
