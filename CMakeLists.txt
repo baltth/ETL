@@ -22,6 +22,7 @@ set(CMAKE_CXX_FLAGS_DEBUGWITHOPT "${CMAKE_CXX_FLAGS_DEBUG} -O2")
 option(ETL_BUILD_TESTS "Build tests" OFF)
 option(ETL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(ETL_COVERAGE "Enable code coverage" OFF)
+option(ETL_SANITIZE "Enable -fsanitize=..." OFF)
 option(ETL_CUSTOM_NAMESPACE
        "Override 'Etl' namespace. \
        This should be defined to use multiple ETL versions in your project")
@@ -55,6 +56,12 @@ if(ETL_COVERAGE)
     message(STATUS "Coverage enabled")
     target_compile_options(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
     target_link_libraries(etl-compile-if INTERFACE -fprofile-arcs -ftest-coverage -fPIC)
+endif()
+
+if(ETL_SANITIZE)
+    message(STATUS "Using -fsanitize=undefined -fsanitize=address")
+    target_compile_options(etl-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
+    target_link_libraries(etl-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
 endif()
 
 # library build
