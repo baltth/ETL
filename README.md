@@ -105,6 +105,33 @@ All containers can be used with all strategies except
 - `Fifo` and `FifoAccess` are container adaptors for circular
   buffer use
 
+## Building the library
+
+ETL uses [CMake](https://cmake.org/documentation/) build system generator, used the ordinary way:
+- configure with `cmake -B $BUILD_DIR -DCMAKE_BUILD_TYPE=Release`,
+  e.g. to build into `build` folder:
+  ```
+  $ cmake -B build -DCMAKE_BUILD_TYPE=Release
+  ```
+- build with `cmake --build $BUILD_DIR`
+- install with `cmake --install $BUILD_DIR` on demand
+  > Use the `-DCMAKE_INSTAL_PREFIX=...` switch to specify installation path when configuring.
+
+Note that **`CMAKE_BUILD_TYPE` has to be specified** when configuring, feel free to use any builtin type.
+
+### Building as external project
+
+The project can be used as a CMake [external project](https://cmake.org/cmake/help/latest/module/ExternalProject.html),
+this is the preferred way of using in another CMake project.
+
+### Direct use
+
+The library can be built directly in any project with including
+`libetl.cmake`. Any compiler setup can be passed with defining
+public and private _compile interface targets_
+(`etl-compile-if` and `etl-prv-compile-if`), preferably
+as an `INTERFACE` library. See `CMakeLists.txt` for an example.
+
 ---
 
 More info coming soon. Check out and try it until then,
