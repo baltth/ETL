@@ -123,3 +123,23 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ./testEtl
+
+  build-as-ep:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      run: |
+        cmake -DCMAKE_BUILD_TYPE=Release \
+          -DETL_VERSION=${{env.COMMIT_SHA}} \
+          -S ${{github.workspace}}/tests/ep-test/ \
+          -B ${{github.workspace}}/build-ep
+ 
+      env:
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build-ep
