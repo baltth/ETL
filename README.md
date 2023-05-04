@@ -122,7 +122,8 @@ Note that **`CMAKE_BUILD_TYPE` has to be specified** when configuring, feel free
 ### Building as external project
 
 The project can be used as a CMake [external project](https://cmake.org/cmake/help/latest/module/ExternalProject.html),
-this is the preferred way of using in another CMake project.
+this is the preferred way of using in another CMake project. Please check `libetl-ep.cmake` as an example for
+fetching and interfacing. A test project using this is available `tests/ep-test`.
 
 ### Direct use
 
