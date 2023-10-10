@@ -129,7 +129,7 @@ struct AllocatorTraits {
     struct hasUniqueAllocatorTag : std::false_type {};
 
     template<class S>
-    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator, void())> : std::true_type {};
+    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator)> : std::true_type {};
 
     template<class S>
     static constexpr bool uniqueAllocatorTag(std::false_type) {
