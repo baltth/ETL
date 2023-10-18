@@ -187,6 +187,46 @@ inline bool operator<(const ContainerTester& lhs, const ContainerTester& rhs) {
     return lhs.getValue() < rhs.getValue();
 }
 
+
+class NonAssignable {
+
+  private:  // variables
+
+    int val {};
+
+  public:  // types
+
+    int get() const {
+        return val;
+    }
+
+    NonAssignable() = default;
+
+    explicit NonAssignable(int v) :
+        val {v} {};
+
+    NonAssignable(const NonAssignable&) = default;
+    NonAssignable(NonAssignable&&) = default;
+
+    NonAssignable& operator=(const NonAssignable&) = delete;
+    NonAssignable& operator=(NonAssignable&&) = delete;
+
+    ~NonAssignable() = default;
+};
+
+
+inline bool operator==(const NonAssignable& lhs, const NonAssignable& rhs) {
+    return lhs.get() == rhs.get();
+}
+
+inline bool operator!=(const NonAssignable& lhs, const NonAssignable& rhs) {
+    return !(operator==(lhs, rhs));
+}
+
+inline bool operator<(const NonAssignable& lhs, const NonAssignable& rhs) {
+    return lhs.get() < rhs.get();
+}
+
 }  // namespace Test
 }  // namespace Etl
 
@@ -197,6 +237,13 @@ template<>
 struct hash<Etl::Test::ContainerTester> {
     size_t operator()(Etl::Test::ContainerTester const& val) const noexcept {
         return hash<int32_t> {}(val.getValue());
+    }
+};
+
+template<>
+struct hash<Etl::Test::NonAssignable> {
+    size_t operator()(Etl::Test::NonAssignable const& val) const noexcept {
+        return hash<int32_t> {}(val.get());
     }
 };
 

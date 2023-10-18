@@ -28,6 +28,7 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
+#include "swapTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
@@ -314,6 +315,119 @@ TEST_CASE("Etl::Dynamic::UnorderedSet<> copy", "[unorderedset][etl]") {
         REQUIRE(set2.find(2) != set2.end());
         REQUIRE(set2.find(3) != set2.end());
         REQUIRE(set2.find(4) != set2.end());
+    }
+}
+
+
+TEST_CASE("Etl::UnorderedSet<> swap", "[unorderedset][etl]") {
+
+    using SIC = Etl::Static::UnorderedSet<int, 4>;
+    using PIC = Etl::Pooled::UnorderedSet<int, 8>;
+    using DIC = Etl::Dynamic::UnorderedSet<int>;
+    using SNMC = Etl::Static::UnorderedSet<Etl::Test::NonAssignable, 4>;
+    using PNMC = Etl::Pooled::UnorderedSet<Etl::Test::NonAssignable, 8>;
+    using DNMC = Etl::Dynamic::UnorderedSet<Etl::Test::NonAssignable>;
+
+    SECTION("with movable type") {
+
+        auto insert = [](Etl::UnorderedSet<int>& set, int v) { set.insert(v); };
+
+        SECTION("self: Static") {
+            using Self = SIC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PIC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DIC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DIC>(insert);
+            }
+        }
+    }
+
+    SECTION("with non-assignable type") {
+
+        auto insert = [](Etl::UnorderedSet<Etl::Test::NonAssignable>& set, int v) {
+            set.emplace(v);
+        };
+
+        SECTION("self: Static") {
+            using Self = SNMC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PNMC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DNMC;
+            SECTION("other: Static") {
+                Etl::Test::testSwap<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwap<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwap<Self, DNMC>(insert);
+            }
+        }
     }
 }
 
