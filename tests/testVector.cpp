@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ limitations under the License.
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
 #include "sequenceTests.h"
+#include "swapTests.h"
 
 using Etl::Test::UnalignedTester;
 using Etl::Test::ContainerTester;
@@ -355,126 +356,16 @@ TEST_CASE("Etl::Static::Vector<> assignment test", "[vec][static][etl]") {
 }
 
 
-template<class VecT1, class VecT2>
-void testVectorSwap() {
-
-    VecT1 vec1;
-    vec1.push_back(1);
-    vec1.push_back(2);
-    vec1.push_back(3);
-
-    VecT2 vec2;
-    vec2.push_back(-1);
-    vec2.push_back(-2);
-    vec2.push_back(-3);
-
-    CHECK(vec1.size() == 3);
-    CHECK(vec2.size() == 3);
-
-    SECTION("Swap ego") {
-
-        vec1.swap(vec1);
-
-        REQUIRE(vec1.size() == 3);
-
-        REQUIRE(vec1[0] == 1);
-        REQUIRE(vec1[1] == 2);
-        REQUIRE(vec1[2] == 3);
-    }
-
-    SECTION("Swap equal length") {
-
-        vec1.swap(vec2);
-
-        REQUIRE(vec1.size() == 3);
-        REQUIRE(vec2.size() == 3);
-
-        REQUIRE(vec1[0] == -1);
-        REQUIRE(vec1[1] == -2);
-        REQUIRE(vec1[2] == -3);
-
-        REQUIRE(vec2[0] == 1);
-        REQUIRE(vec2[1] == 2);
-        REQUIRE(vec2[2] == 3);
-    }
-
-    SECTION("Swap different length") {
-
-        vec2.push_back(-4);
-        vec2.push_back(-5);
-
-        CHECK(vec2.size() == 5);
-
-        vec1.swap(vec2);
-
-        REQUIRE(vec1.size() == 5);
-        REQUIRE(vec2.size() == 3);
-
-        REQUIRE(vec1[0] == -1);
-        REQUIRE(vec1[1] == -2);
-        REQUIRE(vec1[2] == -3);
-        REQUIRE(vec1[3] == -4);
-        REQUIRE(vec1[4] == -5);
-
-        REQUIRE(vec2[0] == 1);
-        REQUIRE(vec2[1] == 2);
-        REQUIRE(vec2[2] == 3);
-
-        vec1.swap(vec2);
-
-        REQUIRE(vec1.size() == 3);
-        REQUIRE(vec2.size() == 5);
-
-        REQUIRE(vec1[0] == 1);
-        REQUIRE(vec1[2] == 3);
-
-        REQUIRE(vec2[0] == -1);
-        REQUIRE(vec2[4] == -5);
-    }
-
-    SECTION("Swap empty") {
-
-        VecT2 vec3;
-
-        CHECK(vec3.empty());
-
-        vec1.swap(vec3);
-
-        REQUIRE(vec1.empty());
-        REQUIRE(vec3.size() == 3);
-
-        REQUIRE(vec3[0] == 1);
-        REQUIRE(vec3[1] == 2);
-        REQUIRE(vec3[2] == 3);
-
-        vec1.swap(vec3);
-
-        REQUIRE(vec1.size() == 3);
-        REQUIRE(vec3.empty());
-
-        REQUIRE(vec1[0] == 1);
-        REQUIRE(vec1[1] == 2);
-        REQUIRE(vec1[2] == 3);
-    }
-}
-
-TEST_CASE("Etl::Dynamic::Vector<> swap test", "[vec][dynamic][etl]") {
-
-    using Item = int;
-    using Vec = Etl::Dynamic::Vector<Item>;
-
-    testVectorSwap<Vec, Vec>();
-
+template<class VecT>
+void testSwapIsNoCopy() {
     SECTION("Swap is no-copy") {
 
-        typedef Etl::Dynamic::Vector<ContainerTester> VecT2;
-
-        VecT2 vec;
+        VecT vec;
 
         vec.push_back(ContainerTester(1));
         vec.push_back(ContainerTester(2));
 
-        VecT2 vec2;
+        VecT vec2;
 
         vec2.push_back(ContainerTester(-1));
 
@@ -486,82 +377,41 @@ TEST_CASE("Etl::Dynamic::Vector<> swap test", "[vec][dynamic][etl]") {
     }
 }
 
-TEST_CASE("Etl::Static::Vector<> swap test", "[vec][static][etl]") {
 
-    using Item = int;
-    using Vec = Etl::Static::Vector<Item, 16>;
+TEST_CASE("Etl::Vector<> swap", "[vector][etl]") {
 
-    SECTION("Same capacity") {
-        testVectorSwap<Vec, Vec>();
-    }
+    using Etl::Test::NonAssignable;
 
-    SECTION("Different capacity") {
+    using SIC = Etl::Static::Vector<int, 4>;
+    using DIC = Etl::Dynamic::Vector<int>;
 
-        typedef Etl::Static::Vector<Item, 24> VecT2;
+    auto insert = [](Etl::Vector<int>& vec, int v) { vec.push_back(v); };
 
-        testVectorSwap<Vec, VecT2>();
-    }
+    SECTION("self: Static") {
+        using Self = SIC;
 
-    SECTION("Capacity boundaries") {
-
-        typedef Etl::Static::Vector<Item, 4> VecT2;
-
-        Vec vec1(4, 1);
-        VecT2 vec2;
-
-        CHECK(vec1.size() == vec2.max_size());
-
-        SECTION("Allow at max capacity") {
-
-            SECTION("1->2") {
-
-                vec1.swap(vec2);
-
-                REQUIRE(vec1.empty());
-                REQUIRE(vec2.size() == 4);
-                REQUIRE(vec2[0] == 1);
-                REQUIRE(vec2[3] == 1);
-
-                vec1.swap(vec2);
-
-                REQUIRE(vec1.size() == 4);
-                REQUIRE(vec2.empty());
-                REQUIRE(vec1[0] == 1);
-                REQUIRE(vec1[3] == 1);
-            }
-
-            SECTION("2->1") {
-
-                vec2.swap(vec1);
-
-                REQUIRE(vec1.empty());
-                REQUIRE(vec2.size() == 4);
-                REQUIRE(vec2[0] == 1);
-                REQUIRE(vec2[3] == 1);
-
-                vec2.swap(vec1);
-
-                REQUIRE(vec1.size() == 4);
-                REQUIRE(vec2.empty());
-                REQUIRE(vec1[0] == 1);
-                REQUIRE(vec1[3] == 1);
-            }
+        SECTION("other: Static") {
+            Etl::Test::testSwapOrdered<Self, SIC>(insert);
         }
 
-        SECTION("Disallow above max capacity") {
-
-            vec1.push_back(2);
-            CHECK(vec1.size() > vec2.max_size());
-
-            SECTION("1->2") {
-                vec1.swap(vec2);
-            }
-
-            SECTION("2->1") {
-                vec2.swap(vec1);
-            }
+        SECTION("other: Dynamic") {
+            Etl::Test::testSwapOrdered<Self, DIC>(insert);
         }
     }
+
+    SECTION("self: Dynamic") {
+        using Self = DIC;
+
+        SECTION("other: Static") {
+            Etl::Test::testSwapOrdered<Self, SIC>(insert);
+        }
+
+        SECTION("other: Dynamic") {
+            Etl::Test::testSwapOrdered<Self, DIC>(insert);
+        }
+    }
+
+    testSwapIsNoCopy<Etl::Dynamic::Vector<ContainerTester>>();
 }
 
 

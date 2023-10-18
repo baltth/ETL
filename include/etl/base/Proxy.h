@@ -40,21 +40,41 @@ class Proxy {
 
   public:  // functions
 
+    Proxy() noexcept :
+        Proxy {0U, nullptr, 0U} {}
+
     Proxy(size_t is, void* d, size_t s) noexcept :
-        data_(d),
-        size_(s),
-        itemSize(is) {}
+        data_ {d},
+        size_ {s},
+        itemSize {is} {}
 
     template<class C>
     Proxy(C& container) noexcept :
-        data_(container.data()),
-        size_(container.size()),
-        itemSize(sizeof(typename C::value_type)) {}
+        data_ {container.data()},
+        size_ {container.size()},
+        itemSize {sizeof(typename C::value_type)} {}
 
     Proxy(const Proxy& other) = default;
     Proxy& operator=(const Proxy& other) = default;
-    Proxy(Proxy&& other) = default;
-    Proxy& operator=(Proxy&& other) = default;
+
+    Proxy(Proxy&& other) noexcept :
+        Proxy {} {
+        this->operator=(std::move(other));
+    }
+
+    Proxy& operator=(Proxy&& other) noexcept {
+
+        data_ = other.data_;
+        size_ = other.size_;
+        itemSize = other.size_;
+
+        other.data_ = nullptr;
+        other.size_ = 0U;
+        other.itemSize = 0U;
+
+        return *this;
+    }
+
     ~Proxy() = default;
 
     void* getItemPointer(size_t ix) noexcept {

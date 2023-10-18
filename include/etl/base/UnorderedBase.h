@@ -741,21 +741,28 @@ auto UnorderedBase<T>::swapN(H hasher,
     -> enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<Node*, Node*>> {
 
     (void)hasher;
-    using std::swap;
 
     auto swapTwo = [this, &other](Node* own, Node* toSwap) {
         auto* nextOwn = static_cast<Node*>(own->next);
         auto* nextToSwap = static_cast<Node*>(toSwap->next);
+        // swap element
+        using std::swap;
         swap(own->item, toSwap->item);
+        // swap hashes
+        HashType origOwnHash = own->hash;
+        own->hash = toSwap->hash;
+        toSwap->hash = origOwnHash;
+        // insert elements
         hashTable.insert(*own);
         other.hashTable.insert(*toSwap);
+
         return std::make_pair(nextOwn, nextToSwap);
     };
 
     for (size_type i = 0; i < n; ++i) {
+
         ETL_ASSERT(ownNode != nullptr);
         ETL_ASSERT(otherNode != nullptr);
-
         auto res = swapTwo(ownNode, otherNode);
         ownNode = res.first;
         otherNode = res.second;
@@ -766,7 +773,7 @@ auto UnorderedBase<T>::swapN(H hasher,
 
 /// Helper to perform non-trivial swap on N element pairs of different containers.
 /// This overload is used when `T` does not conforms the contract of a `swap` function.
-/// The function uses no assignment, but expects capacity for one extra element on `this`.
+/// The function expects move-constructible type.
 template<class T>
 template<typename H, typename U /* = T */>
 auto UnorderedBase<T>::swapN(H hasher,
@@ -797,7 +804,7 @@ auto UnorderedBase<T>::swapN(H hasher,
 
     // As swapTwo() needs one empty slot in this,
     // the algorithm is specialized when this is full.
-    if (size() == allocator.max_size()) {
+    if (allocator.reserve() == 0U) {
         // The first element is moved to a temporary to
         // free its capacity ...
         auto* firstNode = ownNode;
@@ -806,9 +813,10 @@ auto UnorderedBase<T>::swapN(H hasher,
         destroy(firstNode);
         // ... then N - 1 swaps performed ...
         auto res = doSwap(ownNode, otherNode, n - 1);
+        ETL_ASSERT(res.second != nullptr);
         // ... then the last of other is stolen ...
         res.second = stealElement(hasher, other, res.second);
-        // ... and finally the temporary is insterted to other
+        // ... and finally the temporary is inserted to other
         other.emplace(hasher, std::move(tmp));
 
         return res;
