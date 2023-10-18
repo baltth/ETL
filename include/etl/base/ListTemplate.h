@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -262,24 +262,57 @@ class List : private Detail::TypedListBase<T> {
     /// This overload is used when `T` conforms the contract of a `swap` function.
     template<class U = T>
     enable_if_t<Detail::UseSwapInCont<U>::value, std::pair<iterator, iterator>>
-    swapTwo(iterator pos, List& other, iterator toSwap) {
+    swapN(iterator pos, List& other, iterator otherPos, size_type n) {
         (void)other;
         using std::swap;
-        swap(*pos, *toSwap);
-        ++pos;
-        ++toSwap;
-        return std::make_pair(pos, toSwap);
+
+        for (uint32_t i = 0; i < n; ++i) {
+            swap(*pos, *otherPos);
+            ++pos;
+            ++otherPos;
+        }
+
+        return std::make_pair(pos, otherPos);
     }
 
     /// Helper to perform non-trivial swap on two elements of different lists.
     /// This overload is used when `T` does not conform the contract of a `swap` function.
-    /// The function uses no assignment, but expects capacity for one extra element on `this`.
+    /// The function expects move-constructible type.
     template<class U = T>
     enable_if_t<!Detail::UseSwapInCont<U>::value, std::pair<iterator, iterator>>
-    swapTwo(iterator pos, List& other, iterator toSwap) {
-        auto otherPos = stealElement(pos, other, toSwap);
-        pos = other.stealElement(otherPos, *this, pos);
-        return std::make_pair(pos, otherPos);
+    swapN(iterator pos, List& other, iterator otherPos, size_type n) {
+
+        auto doSwap = [this, &other](iterator pos, iterator otherPos, size_type n) {
+            for (uint32_t i = 0; i < n; ++i) {
+                ETL_ASSERT(pos != end());
+                ETL_ASSERT(otherPos != other.end());
+                auto nextOther = stealElement(pos, other, otherPos);
+                pos = other.stealElement(nextOther, *this, pos);
+                otherPos = nextOther;
+            }
+            return std::make_pair(pos, otherPos);
+        };
+
+        // As doSwap() needs one empty slot,
+        // the algorithm is specialized when this is full.
+        if (allocator.reserve() == 0U) {
+            // The first element is moved to a temporary to
+            // free its capacity ...
+            value_type tmp = std::move(*pos);
+            pos = erase(pos);
+            // ... then N - 1 swaps performed ...
+            auto res = doSwap(pos, otherPos, n - 1U);
+            ETL_ASSERT(res.second != other.end());
+            // ... then the last of other is 'stolen' to the end...
+            res.second = stealElement(res.first, other, res.second);
+            // ... and finally the temporary is inserted to the front of other
+            other.emplace(other.begin(), std::move(tmp));
+
+            return res;
+
+        } else {
+            return doSwap(pos, otherPos, n);
+        }
     }
 
     iterator stealElement(const_iterator pos,
@@ -400,16 +433,17 @@ void List<T>::swapElements(List<T>& other) {
     iterator ownIt = this->begin();
     iterator otherIt = other.begin();
 
-    for (uint32_t i = 0; i < diff.common; ++i) {
-
-        auto res = swapTwo(ownIt, other, otherIt);
+    if (diff.common > 0) {
+        auto res = swapN(ownIt, other, otherIt, diff.common);
         ownIt = res.first;
         otherIt = res.second;
     }
 
     if (diff.lGreaterWith > 0) {
+        ETL_ASSERT(otherIt == other.end());
         other.spliceElements(other.end(), *this, ownIt, this->end());
     } else if (diff.rGreaterWith > 0) {
+        ETL_ASSERT(ownIt == end());
         this->spliceElements(this->end(), other, otherIt, other.end());
     }
 }
