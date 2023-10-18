@@ -31,6 +31,7 @@ limitations under the License.
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
 #include "sequenceTests.h"
+#include "swapTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
@@ -302,121 +303,8 @@ TEST_CASE("Etl::Pooled::List<> copy", "[list][etl]") {
 }
 
 
-template<class ListT1, class ListT2>
-void testListSwap() {
-
-    ListT1 list1;
-    list1.push_back(1);
-    list1.push_back(2);
-
-    ListT2 list2;
-    list2.push_back(-1);
-    list2.push_back(-2);
-
-    CHECK(list1.size() == 2);
-    CHECK(list2.size() == 2);
-
-    SECTION("Swap equal length") {
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 2);
-        REQUIRE(list2.size() == 2);
-
-        typename ListT1::const_iterator it1 = list1.begin();
-        REQUIRE(*it1 == -1);
-        ++it1;
-        REQUIRE(*it1 == -2);
-        ++it1;
-        REQUIRE(it1 == list1.end());
-
-        typename ListT2::const_iterator it2 = list2.begin();
-        REQUIRE(*it2 == 1);
-        ++it2;
-        REQUIRE(*it2 == 2);
-        ++it2;
-        REQUIRE(it2 == list2.end());
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 2);
-        REQUIRE(list2.size() == 2);
-
-        REQUIRE(*list1.begin() == 1);
-        REQUIRE(*list2.begin() == -1);
-    }
-
-    SECTION("Swap different length") {
-
-        list2.push_back(-3);
-        list2.push_back(-4);
-
-        CHECK(list2.size() == 4);
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 4);
-        REQUIRE(list2.size() == 2);
-
-        typename ListT1::const_iterator it1 = list1.begin();
-        REQUIRE(*it1 == -1);
-        ++it1;
-        REQUIRE(*it1 == -2);
-        ++it1;
-        REQUIRE(*it1 == -3);
-        ++it1;
-        REQUIRE(*it1 == -4);
-        ++it1;
-        REQUIRE(it1 == list1.end());
-
-        typename ListT2::const_iterator it2 = list2.begin();
-        REQUIRE(*it2 == 1);
-        ++it2;
-        REQUIRE(*it2 == 2);
-        ++it2;
-        REQUIRE(it2 == list2.end());
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 2);
-        REQUIRE(list2.size() == 4);
-
-        REQUIRE(*list1.begin() == 1);
-        REQUIRE(*list2.begin() == -1);
-    }
-
-    SECTION("Swap with empty") {
-
-        list2.clear();
-
-        CHECK(list2.empty());
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 0);
-        REQUIRE(list2.size() == 2);
-
-        typename ListT1::const_iterator it1 = list1.begin();
-        REQUIRE(it1 == list1.end());
-
-        typename ListT2::const_iterator it2 = list2.begin();
-        REQUIRE(*it2 == 1);
-        ++it2;
-        REQUIRE(*it2 == 2);
-        ++it2;
-        REQUIRE(it2 == list2.end());
-
-        list1.swap(list2);
-
-        REQUIRE(list1.size() == 2);
-        REQUIRE(list2.size() == 0);
-
-        REQUIRE(*list1.begin() == 1);
-    }
-}
-
 template<class ListT>
-void testListSwapIsNoCopy() {
+void testSwapIsNoCopy() {
 
     SECTION("Swap is no-copy") {
 
@@ -437,61 +325,126 @@ void testListSwapIsNoCopy() {
     }
 }
 
-TEST_CASE("Etl::Dynamic::List<> swap", "[list][etl]") {
 
-    typedef Etl::Dynamic::List<int> DListT;
-    typedef Etl::Static::List<int, 16> SListT;
-    typedef Etl::Pooled::List<int, 16> PListT;
-    typedef Etl::Dynamic::List<ContainerTester> ListTNC;
+TEST_CASE("Etl::List<> swap", "[list][etl]") {
 
-    SECTION("D.swap(D)") {
-        testListSwap<DListT, DListT>();
+    using Etl::Test::NonAssignable;
+
+    using SIC = Etl::Static::List<int, 4>;
+    using PIC = Etl::Pooled::List<int, 8>;
+    using DIC = Etl::Dynamic::List<int>;
+    using SNMC = Etl::Static::List<NonAssignable, 4>;
+    using PNMC = Etl::Pooled::List<NonAssignable, 8>;
+    using DNMC = Etl::Dynamic::List<NonAssignable>;
+
+    SECTION("with assignable type") {
+
+        auto insert = [](Etl::List<int>& list, int v) { list.push_back(v); };
+
+        SECTION("self: Static") {
+            using Self = SIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DIC>(insert);
+            }
+        }
     }
-    SECTION("D.swap(S)") {
-        testListSwap<DListT, SListT>();
-    }
-    SECTION("D.swap(P)") {
-        testListSwap<DListT, PListT>();
+
+    SECTION("with non-assignable type") {
+
+        auto insert = [](Etl::List<NonAssignable>& list, int v) { list.emplace_back(v); };
+
+        SECTION("self: Static") {
+            using Self = SNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapOrdered<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapOrdered<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapOrdered<Self, DNMC>(insert);
+            }
+        }
     }
 
-    testListSwapIsNoCopy<ListTNC>();
-}
-
-TEST_CASE("Etl::Static::List<> swap", "[list][etl]") {
-
-    typedef Etl::Dynamic::List<int> DListT;
-    typedef Etl::Static::List<int, 16> SListT;
-    typedef Etl::Pooled::List<int, 16> PListT;
-
-    SECTION("S.swap(D)") {
-        testListSwap<SListT, DListT>();
-    }
-    SECTION("S.swap(S)") {
-        testListSwap<SListT, SListT>();
-    }
-    SECTION("S.swap(P)") {
-        testListSwap<SListT, PListT>();
-    }
-}
-
-TEST_CASE("Etl::Pooled::List<> swap", "[list][etl]") {
-
-    typedef Etl::Dynamic::List<int> DListT;
-    typedef Etl::Static::List<int, 32> SListT;
-    typedef Etl::Pooled::List<int, 32> PListT;
-    typedef Etl::Pooled::List<ContainerTester, 32> ListTNC;
-
-    SECTION("P.swap(D)") {
-        testListSwap<PListT, DListT>();
-    }
-    SECTION("P.swap(S)") {
-        testListSwap<PListT, SListT>();
-    }
-    SECTION("P.swap(P)") {
-        testListSwap<PListT, PListT>();
-    }
-
-    testListSwapIsNoCopy<ListTNC>();
+    testSwapIsNoCopy<Etl::Pooled::List<ContainerTester, 32>>();
+    testSwapIsNoCopy<Etl::Dynamic::List<ContainerTester>>();
 }
 
 

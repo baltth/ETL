@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2017-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ limitations under the License.
 #include "ContainerTester.h"
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
+#include "swapTests.h"
 
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
@@ -312,21 +313,124 @@ TEST_CASE("Etl::Dynamic::Set<> copy", "[set][etl]") {
         REQUIRE(set3.find(1) != set3.end());
         REQUIRE(set3.find(4) != set3.end());
     }
+}
 
-    SECTION("swap()") {
 
-        set.swap(set2);
+TEST_CASE("Etl::Set<> swap", "[set][etl]") {
 
-        REQUIRE(set2.size() == 4);
-        REQUIRE(set.size() == 2);
+    using Etl::Test::NonAssignable;
 
-        REQUIRE(set.find(1) != set.end());
-        REQUIRE(set.find(5) != set.end());
+    using SIC = Etl::Static::Set<int, 4>;
+    using PIC = Etl::Pooled::Set<int, 8>;
+    using DIC = Etl::Dynamic::Set<int>;
+    using SNMC = Etl::Static::Set<NonAssignable, 4>;
+    using PNMC = Etl::Pooled::Set<NonAssignable, 8>;
+    using DNMC = Etl::Dynamic::Set<NonAssignable>;
 
-        REQUIRE(set2.find(1) != set2.end());
-        REQUIRE(set2.find(2) != set2.end());
-        REQUIRE(set2.find(3) != set2.end());
-        REQUIRE(set2.find(4) != set2.end());
+    SECTION("with assignable type") {
+
+        auto insert = [](Etl::Set<int>& set, int v) { set.insert(v); };
+
+        SECTION("self: Static") {
+            using Self = SIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DIC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DIC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SIC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PIC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DIC>(insert);
+            }
+        }
+    }
+
+    SECTION("with non-assignable type") {
+
+        auto insert = [](Etl::Set<NonAssignable>& set, int v) { set.emplace(v); };
+
+        SECTION("self: Static") {
+            using Self = SNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Pooled") {
+            using Self = PNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DNMC>(insert);
+            }
+        }
+
+        SECTION("self: Dynamic") {
+            using Self = DNMC;
+
+            SECTION("other: Static") {
+                Etl::Test::testSwapAssociative<Self, SNMC>(insert);
+            }
+
+            SECTION("other: Pooled") {
+                Etl::Test::testSwapAssociative<Self, PNMC>(insert);
+            }
+
+            SECTION("other: Dynamic") {
+                Etl::Test::testSwapAssociative<Self, DNMC>(insert);
+            }
+        }
     }
 }
 
