@@ -100,8 +100,19 @@ class AListBase {
     AListBase(const AListBase& other) = delete;
     AListBase& operator=(const AListBase& other) = delete;
 
-    AListBase(AListBase&& other) noexcept = default;
-    AListBase& operator=(AListBase&& other) noexcept = default;
+    AListBase(AListBase&& other) noexcept :
+        AListBase {} {
+        this->operator=(std::move(other));
+    }
+
+    AListBase& operator=(AListBase&& other) noexcept {
+        chain = std::move(other.chain);
+        ETL_ASSERT(other.chain.isEmpty());
+        size_ = other.size_;
+        other.size_ = 0U;
+        return *this;
+    }
+
     ~AListBase() noexcept = default;
 
     size_type size() const noexcept {
