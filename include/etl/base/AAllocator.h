@@ -49,6 +49,7 @@ class AAllocator {
 
     virtual std::size_t max_size() const noexcept = 0;
     virtual std::size_t size() const noexcept = 0;
+    virtual std::size_t reserve() const noexcept = 0;
 
     virtual PtrType allocate(std::size_t n) = 0;
     virtual void deallocate(PtrType ptr, std::size_t n) noexcept = 0;
@@ -96,7 +97,11 @@ class AllocatorWrapper : public AAllocator<T> {
     }
 
     std::size_t size() const noexcept override {
-        return allocator().max_size();
+        return 0U;
+    }
+
+    std::size_t reserve() const noexcept override {
+        return max_size();
     }
 
     PtrType allocate(std::size_t n) override {
@@ -129,7 +134,7 @@ struct AllocatorTraits {
     struct hasUniqueAllocatorTag : std::false_type {};
 
     template<class S>
-    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator)> : std::true_type {};
+    struct hasUniqueAllocatorTag<S, decltype(S::uniqueAllocator, void())> : std::true_type {};
 
     template<class S>
     static constexpr bool uniqueAllocatorTag(std::false_type) {

@@ -69,6 +69,12 @@ class PoolAllocator : public AAllocator<T> {
         return pool.getCount();
     }
 
+    std::size_t reserve() const noexcept override {
+        auto lg = Detail::lock(l);
+        ETL_ASSERT(pool.capacity() >= pool.getCount());
+        return pool.capacity() - pool.getCount();
+    }
+
     PtrType allocate(std::size_t n) override {
         auto lg = Detail::lock(l);
         if (n == 1) {
@@ -122,6 +128,10 @@ class CommonPoolAllocator : public AAllocator<T> {
 
     std::size_t size() const noexcept override {
         return allocator().size();
+    }
+
+    std::size_t reserve() const noexcept override {
+        return allocator().reserve();
     }
 
     PtrType allocate(std::size_t n) override {
