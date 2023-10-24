@@ -293,7 +293,7 @@ namespace Pooled {
 template<class K,
          class E,
          std::size_t NN,
-         std::size_t NB = NN,
+         std::size_t NB,
          class H = std::hash<K>,
          class KE = std::equal_to<K>>
 class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {

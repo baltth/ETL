@@ -280,7 +280,7 @@ namespace Pooled {
 /// @tparam KE 'key equal' type
 template<class K,
          std::size_t NN,
-         std::size_t NB = NN,
+         std::size_t NB,
          class H = std::hash<K>,
          class KE = std::equal_to<K>>
 class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
