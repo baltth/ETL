@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2023 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -581,8 +581,9 @@ void testMaps() {
         FUNC<M> func;
         func.prepare(map, input);
         meter.measure([&map, &func, &input] {
-            func.test(map, input);
+            auto res = func.test(map, input);
             func.reset(map);
+            return res;
         });
     };
 
@@ -593,8 +594,9 @@ void testMaps() {
         FUNC<M> func;
         func.prepare(map, input);
         meter.measure([&map, &func, &input] {
-            func.test(map, input);
+            auto res = func.test(map, input);
             func.reset(map);
+            return res;
         });
     };
 
@@ -605,8 +607,9 @@ void testMaps() {
         FUNC<M> func;
         func.prepare(map, input);
         meter.measure([&map, &func, &input] {
-            func.test(map, input);
+            auto res = func.test(map, input);
             func.reset(map);
+            return res;
         });
     };
 }
@@ -622,8 +625,9 @@ struct MapInsert {
     }
 
     template<typename M, typename INPUT>
-    void test(M& map, const INPUT& data) {
+    size_t test(M& map, const INPUT& data) {
         MapInsert::insert(map, data);
+        return map.size();
     }
 
     template<typename M, typename INPUT>
@@ -690,11 +694,13 @@ struct MapAccess {
     }
 
     template<typename M, typename INPUT>
-    void test(M& map, const INPUT& data) {
+    size_t test(M& map, const INPUT& data) {
+        auto it = map.begin();
         for (auto item : data) {
-            auto it = map.find(item);
+            it = map.find(item);
             (void)it;
         }
+        return reinterpret_cast<size_t>(&*it);
     }
 
     template<typename M>
@@ -753,11 +759,13 @@ struct MapIteration {
     }
 
     template<typename M, typename INPUT>
-    void test(M& map, const INPUT& data) {
+    size_t test(M& map, const INPUT& data) {
         (void)data;
-        for (auto& item : map) {
-            (void)item;
+        auto it = map.begin();
+        while (it != map.end()) {
+            ++it;
         }
+        return reinterpret_cast<size_t>(&*it);
     }
 
     template<typename M>
@@ -818,9 +826,10 @@ struct MapCopy {
     }
 
     template<typename M, typename INPUT>
-    void test(M& map, const INPUT& data) {
+    size_t test(M& map, const INPUT& data) {
         (void)data;
         map = src;
+        return map.size();
     }
 
     template<typename M>
@@ -866,9 +875,10 @@ struct MapMove {
     }
 
     template<typename M, typename INPUT>
-    void test(M& map, const INPUT& data) {
+    size_t test(M& map, const INPUT& data) {
         (void)data;
         map = std::move(src);
+        return map.size();
     }
 
     template<typename M>
