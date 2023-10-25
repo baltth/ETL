@@ -40,7 +40,7 @@ using Etl::Detail::NothrowContract;
 
 using StaticUnorderedMap = Etl::Static::UnorderedMap<int, int, 16U>;
 using StaticUnorderedMapNested = Etl::Static::UnorderedMap<int, StaticUnorderedMap, 8U>;
-using PooledUnorderedMap = Etl::Pooled::UnorderedMap<int, int, 16U>;
+using PooledUnorderedMap = Etl::Pooled::UnorderedMap<int, int, 16U, 8U>;
 using DynamicUnorderedMap = Etl::Dynamic::UnorderedMap<int, int>;
 
 TEMPLATE_TEST_CASE("UnorderedMap noexcept default constructor",
@@ -513,10 +513,10 @@ TEST_CASE("Etl::UnorderedMap<> swap", "[unorderedmap][etl]") {
     using Etl::Test::NonAssignable;
 
     using SIC = Etl::Static::UnorderedMap<int, int, 4>;
-    using PIC = Etl::Pooled::UnorderedMap<int, int, 8>;
+    using PIC = Etl::Pooled::UnorderedMap<int, int, 8, 4>;
     using DIC = Etl::Dynamic::UnorderedMap<int, int>;
     using SNMC = Etl::Static::UnorderedMap<int, NonAssignable, 4>;
-    using PNMC = Etl::Pooled::UnorderedMap<int, NonAssignable, 8>;
+    using PNMC = Etl::Pooled::UnorderedMap<int, NonAssignable, 8, 4>;
     using DNMC = Etl::Dynamic::UnorderedMap<int, NonAssignable>;
 
     SECTION("with assignable type") {
@@ -635,7 +635,7 @@ TEMPLATE_TEST_CASE("Etl::UnorderedMap<> with std::initializer_list<>",
                    "[unorderedmap][etl]",
                    (Etl::Dynamic::UnorderedMap<int, int>),
                    (Etl::Static::UnorderedMap<int, int, 32U>),
-                   (Etl::Pooled::UnorderedMap<int, int, 32U>)) {
+                   (Etl::Pooled::UnorderedMap<int, int, 32U, 8U>)) {
 
     std::initializer_list<typename TestType::value_type> init {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
     auto test = [&init](const TestType& map) {
@@ -665,7 +665,7 @@ TEMPLATE_TEST_CASE("Etl::UnorderedMap<> search tests",
                    "[unorderedmap][etl]",
                    (Etl::Dynamic::UnorderedMap<int, ContainerTester>),
                    (Etl::Static::UnorderedMap<int, ContainerTester, 32U>),
-                   (Etl::Pooled::UnorderedMap<int, ContainerTester, 32U>)) {
+                   (Etl::Pooled::UnorderedMap<int, ContainerTester, 32U, 16U>)) {
 
     TestType map;
 

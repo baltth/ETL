@@ -40,7 +40,7 @@ using Etl::Detail::NothrowContract;
 
 using StaticUnorderedSet = Etl::Static::UnorderedSet<int, 16U>;
 using StaticUnorderedSetNested = Etl::Static::UnorderedSet<StaticUnorderedSet, 8U>;
-using PooledUnorderedSet = Etl::Pooled::UnorderedSet<int, 16U>;
+using PooledUnorderedSet = Etl::Pooled::UnorderedSet<int, 16U, 8U>;
 using DynamicUnorderedSet = Etl::Dynamic::UnorderedSet<int>;
 
 TEMPLATE_TEST_CASE("UnorderedSet noexcept default constructor",
@@ -324,10 +324,10 @@ TEST_CASE("Etl::UnorderedSet<> swap", "[unorderedset][etl]") {
     using Etl::Test::NonAssignable;
 
     using SIC = Etl::Static::UnorderedSet<int, 4>;
-    using PIC = Etl::Pooled::UnorderedSet<int, 8>;
+    using PIC = Etl::Pooled::UnorderedSet<int, 8, 4>;
     using DIC = Etl::Dynamic::UnorderedSet<int>;
     using SNMC = Etl::Static::UnorderedSet<NonAssignable, 4>;
-    using PNMC = Etl::Pooled::UnorderedSet<NonAssignable, 8>;
+    using PNMC = Etl::Pooled::UnorderedSet<NonAssignable, 8, 4>;
     using DNMC = Etl::Dynamic::UnorderedSet<NonAssignable>;
 
     SECTION("with assignable type") {
@@ -596,9 +596,9 @@ TEST_CASE("Etl::Custom::UnorderedSet<> allocator test", "[unorderedset][etl]") {
 
 TEST_CASE("Etl::Pooled::UnorderedSet<> test", "[unorderedset][etl]") {
 
-    static const uint32_t NUM = 16;
+    static const size_t NUM {16U};
     using ItemType = ContainerTester;
-    using SetType = Etl::Pooled::UnorderedSet<ItemType, NUM>;
+    using SetType = Etl::Pooled::UnorderedSet<ItemType, NUM, NUM / 2U>;
 
     SetType set;
 
@@ -618,7 +618,7 @@ TEST_CASE("Etl::Pooled::UnorderedSet<> test", "[unorderedset][etl]") {
 
     SECTION("Allocate all") {
 
-        for (uint32_t i = 0; i < NUM; ++i) {
+        for (size_t i = 0; i < NUM; ++i) {
             set.insert(ContainerTester(i));
         }
 
