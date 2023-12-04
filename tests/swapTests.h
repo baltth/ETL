@@ -38,11 +38,49 @@ void testSwapAssociative(I insert) {
 
     L lhs {};
 
+    SECTION("swap() empties") {
+
+        R rhs {};
+
+        CHECK(lhs.empty());
+        CHECK(rhs.empty());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.empty());
+        REQUIRE(rhs.empty());
+    }
+
     insert(lhs, 1);
     insert(lhs, 2);
     insert(lhs, 3);
 
     CHECK(lhs.size() == 3);
+
+    SECTION("swap() with empty") {
+
+        R rhs {};
+
+        CHECK(rhs.empty());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.empty());
+        REQUIRE(rhs.size() == 3);
+
+        CHECK(rhs.find(Key {1}) != rhs.end());
+        CHECK(rhs.find(Key {2}) != rhs.end());
+        CHECK(rhs.find(Key {3}) != rhs.end());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.size() == 3);
+        REQUIRE(rhs.empty());
+
+        CHECK(lhs.find(Key {1}) != lhs.end());
+        CHECK(lhs.find(Key {2}) != lhs.end());
+        CHECK(lhs.find(Key {3}) != lhs.end());
+    }
 
     SECTION("swap() with different size") {
 
@@ -175,11 +213,59 @@ void testSwapOrdered(I insert) {
 
     L lhs {};
 
+    SECTION("swap() empties") {
+
+        R rhs {};
+
+        CHECK(lhs.empty());
+        CHECK(rhs.empty());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.empty());
+        REQUIRE(rhs.empty());
+    }
+
     insert(lhs, 1);
     insert(lhs, 2);
     insert(lhs, 3);
 
     CHECK(lhs.size() == 3);
+
+    SECTION("swap() with empty") {
+
+        R rhs {};
+
+        CHECK(rhs.empty());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.empty());
+        REQUIRE(rhs.size() == 3);
+
+        auto rIt = rhs.begin();
+        CHECK(*rIt == Val {1});
+        ++rIt;
+        CHECK(*rIt == Val {2});
+        ++rIt;
+        CHECK(*rIt == Val {3});
+        ++rIt;
+        CHECK(rIt == rhs.end());
+
+        lhs.swap(rhs);
+
+        REQUIRE(lhs.size() == 3);
+        REQUIRE(rhs.empty());
+
+        auto lIt = lhs.begin();
+        CHECK(*lIt == Val {1});
+        ++lIt;
+        CHECK(*lIt == Val {2});
+        ++lIt;
+        CHECK(*lIt == Val {3});
+        ++lIt;
+        CHECK(lIt == lhs.end());
+    }
 
     SECTION("swap() with different size") {
 

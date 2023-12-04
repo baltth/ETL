@@ -143,3 +143,27 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build-ep
+
+  build-alias:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}/build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+          -DETL_CUSTOM_NAMESPACE=Etl2 \
+          -DETL_CUSTOM_LIB_SUFFIX=etl2
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Install
+      run: cmake --install ${{github.workspace}}/build
+
+    - name: Check
+      run: nm -C ${{github.workspace}}/install/lib/libetl-etl2.a | grep Etl2

@@ -36,9 +36,13 @@ target_compile_definitions(${ETL_NAME} PUBLIC ETL_USE_EXCEPTIONS=0)
 
 if(TARGET ${ETL_NAME}-compile-if)
     target_link_libraries(${ETL_NAME} PUBLIC ${ETL_NAME}-compile-if)
+elseif(TARGET etl-compile-if)
+    target_link_libraries(${ETL_NAME} PUBLIC etl-compile-if)
 endif()
 if(TARGET ${ETL_NAME}-prv-compile-if)
     target_link_libraries(${ETL_NAME} PRIVATE ${ETL_NAME}-prv-compile-if)
+elseif(TARGET etl-prv-compile-if)
+    target_link_libraries(${ETL_NAME} PUBLIC etl-prv-compile-if)
 endif()
 
 install(TARGETS ${ETL_NAME} ARCHIVE DESTINATION lib)
