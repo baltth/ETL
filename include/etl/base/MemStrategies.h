@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ limitations under the License.
 
 #include <limits>
 #include <memory>
+#include <algorithm>
 
 namespace ETL_NAMESPACE {
 

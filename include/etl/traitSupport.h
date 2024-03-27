@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2018 Balazs Toth.
+Copyright 2018-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ using std::false_type;
 
 // primary type categories:
 using std::is_void;
-using std::is_null_pointer;
 using std::is_integral;
 using std::is_floating_point;
 using std::is_array;
