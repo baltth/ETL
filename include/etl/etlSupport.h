@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_ETLSUPPORT_H__
-#define __ETL_ETLSUPPORT_H__
+#ifndef ETL_ETLSUPPORT_H_
+#define ETL_ETLSUPPORT_H_
 
 #include <etl/langSupport.h>
 
@@ -173,4 +173,4 @@ inline void operator delete[](void* ptr) {
 
 #endif
 
-#endif  // __ETL_ETLSUPPORT_H__
+#endif  // ETL_ETLSUPPORT_H_

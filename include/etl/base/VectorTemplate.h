@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTORTEMPLATE_H__
-#define __ETL_VECTORTEMPLATE_H__
+#ifndef ETL_VECTORTEMPLATE_H_
+#define ETL_VECTORTEMPLATE_H_
 
 #include <etl/base/MemStrategies.h>
 #include <etl/base/TypedVectorBase.h>
@@ -410,7 +410,7 @@ auto Vector<T>::insert(const_iterator position, size_type num, const_reference v
                 }
             }
         });
-}  // namespace ETL_NAMESPACE
+}
 
 
 template<class T>
@@ -704,4 +704,4 @@ void swap(Vector<T>& lhs, Vector<T>& rhs) {
 }  // namespace ETL_NAMESPACE
 
 
-#endif  // __ETL_VECTORTEMPLATE_H__
+#endif  // ETL_VECTORTEMPLATE_H_

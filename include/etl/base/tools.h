@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TOOLS_H__
-#define __ETL_TOOLS_H__
+#ifndef ETL_TOOLS_H_
+#define ETL_TOOLS_H_
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
@@ -261,4 +261,4 @@ LockGuard<L> lock(L& toLock) noexcept(noexcept(LockGuard<L> {toLock})) {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_TOOLS_H__
+#endif  // ETL_TOOLS_H_

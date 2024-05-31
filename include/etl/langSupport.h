@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LANGSUPPORT_H__
-#define __ETL_LANGSUPPORT_H__
+#ifndef ETL_LANGSUPPORT_H_
+#define ETL_LANGSUPPORT_H_
 
 #if (__cplusplus >= 201703L)
 #define ETL_HAS_CPP17 1
@@ -43,4 +43,4 @@ limitations under the License.
 #define ETL_COND_CONSTEXPR constexpr
 #endif
 
-#endif  // __ETL_LANGSUPPORT_H__
+#endif  // ETL_LANGSUPPORT_H_

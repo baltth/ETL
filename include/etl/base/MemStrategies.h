@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_MEMSTARTEGIES_H__
-#define __ETL_MEMSTARTEGIES_H__
+#ifndef ETL_MEMSTARTEGIES_H_
+#define ETL_MEMSTARTEGIES_H_
 
 #include <etl/base/MemStrategies_fwd.h>
 #include <etl/etlSupport.h>
@@ -340,4 +340,4 @@ void DynamicSized<C, A>::allocate(C& cont, size_type len) {
 
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_MEMSTARTEGIES_H__
+#endif  // ETL_MEMSTARTEGIES_H_

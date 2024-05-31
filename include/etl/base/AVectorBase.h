@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_AVECTORBASE_H__
-#define __ETL_AVECTORBASE_H__
+#ifndef ETL_AVECTORBASE_H_
+#define ETL_AVECTORBASE_H_
 
 #include <etl/base/Proxy.h>
 #include <etl/etlSupport.h>
@@ -112,4 +112,4 @@ class AVectorBase {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_AVECTORBASE_H__
+#endif  // ETL_AVECTORBASE_H_
