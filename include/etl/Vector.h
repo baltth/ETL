@@ -42,6 +42,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     using StrategyBase = typename Base::StrategyBase;
     using Strategy = StaticSized<StrategyBase>;
 
+    using size_type = typename Base::size_type;
+
   private:  // variables
 
     uint8_t data_[N * sizeof(T)];
@@ -55,8 +57,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         this->reserve(N);
     }
 
-    explicit Vector(uint32_t len);
-    Vector(uint32_t len, const T& item);
+    explicit Vector(size_type len);
+    Vector(size_type len, const T& item);
 
     Vector(const Vector& other) :
         Base(strategy),
@@ -141,7 +143,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 };
 
 template<class T, size_t N>
-Vector<T, N>::Vector(uint32_t len) :
+Vector<T, N>::Vector(size_type len) :
     Base(strategy),
     strategy(data_, N) {
 
@@ -150,7 +152,7 @@ Vector<T, N>::Vector(uint32_t len) :
 
 
 template<class T, size_t N>
-Vector<T, N>::Vector(uint32_t len, const T& item) :
+Vector<T, N>::Vector(size_type len, const T& item) :
     Base(strategy),
     strategy(data_, N) {
 
@@ -173,6 +175,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     using Allocator = A<typename StrategyBase::value_type>;
     using Strategy = DynamicSized<StrategyBase, Allocator>;
 
+    using size_type = typename Base::size_type;
+
   private:  // variables
 
     Strategy strategy;
@@ -182,8 +186,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     Vector() noexcept :
         Base(strategy) {};
 
-    explicit Vector(uint32_t len);
-    Vector(uint32_t len, const T& item);
+    explicit Vector(size_type len);
+    Vector(size_type len, const T& item);
 
     Vector(const Vector& other) :
         Base(strategy) {
@@ -262,7 +266,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
 
 
 template<class T, template<class> class A>
-Vector<T, A>::Vector(uint32_t len) :
+Vector<T, A>::Vector(size_type len) :
     Base(strategy) {
 
     this->insertDefault(this->cbegin(), len);
@@ -270,7 +274,7 @@ Vector<T, A>::Vector(uint32_t len) :
 
 
 template<class T, template<class> class A>
-Vector<T, A>::Vector(uint32_t len, const T& item) :
+Vector<T, A>::Vector(size_type len, const T& item) :
     Base(strategy) {
 
     this->insert(this->cbegin(), len, item);

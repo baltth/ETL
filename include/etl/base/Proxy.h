@@ -77,12 +77,12 @@ class Proxy {
 
     ~Proxy() = default;
 
-    void* getItemPointer(size_t ix) noexcept {
-        return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
+    void* getItemPointer(size_t i) noexcept {
+        return static_cast<void*>(static_cast<uint8_t*>(data_) + (i * itemSize));
     }
 
-    const void* getItemPointer(size_t ix) const noexcept {
-        return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
+    const void* getItemPointer(size_t i) const noexcept {
+        return static_cast<void*>(static_cast<uint8_t*>(data_) + (i * itemSize));
     }
 
     void* data() noexcept {

@@ -36,9 +36,9 @@ class AVectorBase {
     class Proxy : public Detail::Proxy {
         friend class AVectorBase;
 
-      protected:  // variables
+      private:  // variables
 
-        uint32_t capacity_;
+        size_t capacity_ {0U};
 
       public:  // functions
 
@@ -46,23 +46,22 @@ class AVectorBase {
             data_ = d;
         }
 
-        void setSize(uint32_t s) noexcept {
+        void setSize(size_t s) noexcept {
             size_ = s;
         }
 
-        void setCapacity(uint32_t c) noexcept {
+        void setCapacity(size_t c) noexcept {
             capacity_ = c;
         }
 
-        uint32_t capacity() const noexcept {
+        size_t capacity() const noexcept {
             return capacity_;
         }
 
       protected:
 
         explicit Proxy(size_t itemSize) noexcept :
-            Detail::Proxy {itemSize, nullptr, 0U},
-            capacity_ {0U} {}
+            Detail::Proxy {itemSize, nullptr, 0U} {}
     };
 
   protected:  // variables
@@ -73,11 +72,11 @@ class AVectorBase {
 
     /// \name Capacity
     /// \{
-    uint32_t capacity() const noexcept {
+    size_t capacity() const noexcept {
         return proxy.capacity();
     }
 
-    uint32_t size() const noexcept {
+    size_t size() const noexcept {
         return proxy.size();
     }
 
@@ -91,12 +90,12 @@ class AVectorBase {
     explicit AVectorBase(size_t itemSize) noexcept :
         proxy(itemSize) {}
 
-    void* getItemPointer(uint32_t ix) noexcept {
-        return proxy.getItemPointer(ix);
+    void* getItemPointer(size_t i) noexcept {
+        return proxy.getItemPointer(i);
     }
 
-    const void* getItemPointer(uint32_t ix) const noexcept {
-        return proxy.getItemPointer(ix);
+    const void* getItemPointer(size_t i) const noexcept {
+        return proxy.getItemPointer(i);
     }
 
     void swapProxy(AVectorBase& other) noexcept {

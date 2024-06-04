@@ -74,7 +74,7 @@ class TypedVectorBase : public AVectorBase {
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    typedef std::uint32_t size_type;
+    typedef std::size_t size_type;
 
   protected:
 
@@ -241,20 +241,20 @@ class TypedVectorBase : public AVectorBase {
         clear();
     }
 
-    pointer getItemPointer(uint32_t ix) noexcept {
-        return static_cast<pointer>(AVectorBase::getItemPointer(ix));
+    pointer getItemPointer(size_t i) noexcept {
+        return static_cast<pointer>(AVectorBase::getItemPointer(i));
     }
 
-    const_pointer getConstItemPointer(uint32_t ix) const noexcept {
-        return static_cast<const_pointer>(AVectorBase::getItemPointer(ix));
+    const_pointer getConstItemPointer(size_t i) const noexcept {
+        return static_cast<const_pointer>(AVectorBase::getItemPointer(i));
     }
 
-    iterator getIterator(uint32_t ix) noexcept {
-        return static_cast<iterator>(getItemPointer(ix));
+    iterator getIterator(size_t i) noexcept {
+        return static_cast<iterator>(getItemPointer(i));
     }
 
-    const_iterator getConstIterator(uint32_t ix) const noexcept {
-        return static_cast<const_iterator>(getConstItemPointer(ix));
+    const_iterator getConstIterator(size_t i) const noexcept {
+        return static_cast<const_iterator>(getConstItemPointer(i));
     }
 
     void copyOperation(pointer dst, const_pointer src, size_type num) noexcept(
