@@ -37,26 +37,26 @@ class Set : private Detail::SortedList<E, C> {
 
   public:  // types
 
-    typedef E key_type;
-    typedef E value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using key_type = E;
+    using value_type = E;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef C key_compare;
-    typedef C value_compare;
-    typedef Detail::SortedList<E, C> Base;
-    typedef typename Base::Node Node;
-    typedef typename Base::Cont ContainerType;
-    typedef typename ContainerType::AllocatorBase AllocatorBase;
+    using key_compare = C;
+    using value_compare = C;
+    using Base = Detail::SortedList<E, C>;
+    using Node = typename Base::Node;
+    using ContainerType = typename Base::Cont;
+    using AllocatorBase = typename ContainerType::AllocatorBase;
 
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
 
-    typedef typename Base::size_type size_type;
+    using size_type = typename Base::size_type;
 
   public:  // functions
 

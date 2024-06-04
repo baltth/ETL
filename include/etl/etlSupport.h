@@ -26,7 +26,6 @@ limitations under the License.
 
 #include <cstddef>
 #include <cstdint>
-//#include <functional>
 #include <iterator>
 #include <stdexcept>  // For new overrides
 #include <type_traits>
@@ -90,8 +89,8 @@ namespace Detail {
 template<typename T>
 struct IsIterator {
 
-    typedef char Yes;
-    typedef long No;
+    using Yes = char;
+    using No = long;
 
     template<typename U, typename = typename U::iterator_category>
     struct HasIteratorCategory {

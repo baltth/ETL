@@ -43,13 +43,13 @@ class TypedListBase : protected AListBase {
 
   public:  // types
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef T* pointer;
-    typedef const T* const_pointer;
+    using value_type = T;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = T*;
+    using const_pointer = const T*;
 
-    typedef AListBase::size_type size_type;
+    using size_type = AListBase::size_type;
 
     class Node : public AListBase::Node {
 
@@ -73,11 +73,11 @@ class TypedListBase : protected AListBase {
 
       public:
 
-        typedef int difference_type;
-        typedef const T value_type;
-        typedef const T* pointer;
-        typedef const value_type& reference;
-        typedef std::bidirectional_iterator_tag iterator_category;
+        using difference_type = int;
+        using value_type = const T;
+        using pointer = const T*;
+        using reference = const value_type&;
+        using iterator_category = std::bidirectional_iterator_tag;
 
         const_iterator() noexcept :
             AListBase::Iterator {nullptr} {}
@@ -140,11 +140,11 @@ class TypedListBase : protected AListBase {
 
       public:
 
-        typedef int difference_type;
-        typedef T value_type;
-        typedef T* pointer;
-        typedef value_type& reference;
-        typedef std::bidirectional_iterator_tag iterator_category;
+        using difference_type = int;
+        using value_type = T;
+        using pointer = T*;
+        using reference = value_type&;
+        using iterator_category = std::bidirectional_iterator_tag;
 
         iterator() noexcept :
             AListBase::Iterator(nullptr) {}
@@ -218,8 +218,8 @@ class TypedListBase : protected AListBase {
         }
     };
 
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   public:  // functions
 

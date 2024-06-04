@@ -31,7 +31,7 @@ namespace Detail {
 
 template<class T, class S = void>
 struct TypeDefined {
-    typedef S type;
+    using type = S;
 };
 
 
@@ -173,12 +173,12 @@ const bool NothrowContract<T>::value;
 
 template<typename S, typename T>
 struct CopyConst {
-    typedef T Type;
+    using Type = T;
 };
 
 template<typename S, typename T>
 struct CopyConst<const S, T> {
-    typedef const T Type;
+    using Type = const T;
 };
 
 

@@ -86,7 +86,7 @@ class AListBase {
             node {n} {}
     };
 
-    typedef std::uint32_t size_type;
+    using size_type = std::uint32_t;
 
   protected:  // variables
 

@@ -38,8 +38,8 @@ class AAllocator {
 
   public:  // types
 
-    typedef T ItemType;
-    typedef T* PtrType;
+    using ItemType = T;
+    using PtrType = T*;
 
     static constexpr bool noexceptDestroy = std::is_nothrow_destructible<T>::value;
 

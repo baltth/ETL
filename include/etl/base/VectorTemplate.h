@@ -52,23 +52,23 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
   public:  // types
 
-    typedef Detail::TypedVectorBase<T> Base;
-    typedef Base StrategyBase;
+    using Base = Detail::TypedVectorBase<T>;
+    using StrategyBase = Base;
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using value_type = T;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef pointer iterator;
-    typedef const_pointer const_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    typedef typename Base::size_type size_type;
+    using size_type = typename Base::size_type;
 
-    typedef typename Base::CreateFunc CreateFunc;
+    using CreateFunc = typename Base::CreateFunc;
 
   private:  // variables
 
@@ -443,22 +443,22 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
 
   public:  // types
 
-    typedef T* value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using value_type = T*;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef value_type* iterator;
-    typedef const value_type* const_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using iterator = value_type*;
+    using const_iterator = const value_type*;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    typedef Vector<typename Detail::CopyConst<T, void>::Type*> Base;
-    typedef typename Base::StrategyBase StrategyBase;
+    using Base = Vector<typename Detail::CopyConst<T, void>::Type*>;
+    using StrategyBase = typename Base::StrategyBase;
 
-    typedef typename Base::size_type size_type;
-    typedef typename Base::CreateFunc CreateFunc;
+    using size_type = typename Base::size_type;
+    using CreateFunc = typename Base::CreateFunc;
 
   public:  // functions
 
