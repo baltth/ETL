@@ -52,23 +52,35 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:  // functions
 
     Vector() noexcept :
-        Base(strategy),
-        strategy(data_, N) {
+        Base {strategy},
+        strategy {data_, N} {
         this->reserve(N);
     }
 
-    explicit Vector(size_type len);
-    Vector(size_type len, const T& item);
+    explicit Vector(size_type len) :
+        Vector {} {
+        this->insertDefault(this->cbegin(), len);
+    }
+
+    Vector(size_type len, const T& item) :
+        Vector {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+    Vector(InputIt first, InputIt last) :
+        Vector {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     Vector(const Vector& other) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(other);
     }
 
     explicit Vector(const Base& other) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(other);
     }
 
@@ -83,14 +95,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         moveAssignSameType(std::move(other));
     }
 
     Vector(std::initializer_list<T> initList) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(initList);
     }
 
@@ -142,23 +152,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 };
 
-template<class T, size_t N>
-Vector<T, N>::Vector(size_type len) :
-    Base(strategy),
-    strategy(data_, N) {
-
-    this->insertDefault(this->cbegin(), len);
-}
-
-
-template<class T, size_t N>
-Vector<T, N>::Vector(size_type len, const T& item) :
-    Base(strategy),
-    strategy(data_, N) {
-
-    this->insert(this->cbegin(), len, item);
-}
-
 }  // namespace Static
 
 
@@ -184,18 +177,32 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:  // functions
 
     Vector() noexcept :
-        Base(strategy) {};
+        Base {strategy} {}
 
-    explicit Vector(size_type len);
-    Vector(size_type len, const T& item);
+    explicit Vector(size_type len) :
+        Vector {} {
+        this->insertDefault(this->cbegin(), len);
+    }
+
+    Vector(size_type len, const T& item) :
+        Vector {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+    Vector(InputIt first, InputIt last) :
+        Vector {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     Vector(const Vector& other) :
-        Base(strategy) {
+        Vector {} {
         Base::operator=(other);
     }
 
     explicit Vector(const Base& other) :
-        Base(strategy) {
+        Vector {} {
         Base::operator=(other);
     }
 
@@ -210,12 +217,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector(Vector&& other) noexcept(noexcept(Vector().swap(other))) :
-        Base(strategy) {
+        Vector {} {
         this->swap(other);
     }
 
     Vector(std::initializer_list<T> initList) :
-        Base(strategy) {
+        Vector {} {
         operator=(initList);
     }
 
@@ -263,22 +270,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
         lhs.swap(rhs);
     }
 };
-
-
-template<class T, template<class> class A>
-Vector<T, A>::Vector(size_type len) :
-    Base(strategy) {
-
-    this->insertDefault(this->cbegin(), len);
-}
-
-
-template<class T, template<class> class A>
-Vector<T, A>::Vector(size_type len, const T& item) :
-    Base(strategy) {
-
-    this->insert(this->cbegin(), len, item);
-}
 
 }  // namespace Custom
 

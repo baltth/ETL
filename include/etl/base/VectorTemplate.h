@@ -340,7 +340,7 @@ auto Vector<T>::insertRangeWithSNR(const_iterator position, InputIt first, Input
     // |aaaaaaaaaacccccccccbbbbbbbb|
 
     auto posIndex = std::distance(cbegin(), position);
-    size_type origSize = size();
+    auto origSize = size();
     ETL_ASSERT(origSize >= posIndex);
 
     size_t cnt = 0;
@@ -356,7 +356,7 @@ auto Vector<T>::insertRangeWithSNR(const_iterator position, InputIt first, Input
         Base::swapNeighbourRanges(posIndex, origSize);
     }
 
-    return (cnt > 0) ? Base::getIterator(posIndex) : iterator(position);
+    return (cnt > 0) ? Base::getIterator(posIndex) : iterator {position};
 }
 
 
@@ -417,18 +417,21 @@ template<class T>
 template<typename... Args>
 auto Vector<T>::emplace(const_iterator position, Args&&... args) -> iterator {
 
-    iterator result = const_cast<iterator>(position);
     auto res = prepareForInsert(position, 1U);
     if (res.first) {
-        result = Base::insertOneOperation(res.second, [&args...](pointer item, bool place) {
+
+        return Base::insertOneOperation(res.second, [&args...](pointer item, bool place) {
             if (place) {
                 new (item) T(args...);
             } else {
                 *item = T(args...);
             }
         });
+
+    } else {
+        // @todo add assertion/exception
+        return const_cast<iterator>(position);
     }
-    return result;
 }
 
 
