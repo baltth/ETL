@@ -19,6 +19,7 @@ jobs:
       BUILD_TYPE: Debug
       CC: gcc-${{ matrix.gcc }}
       CXX: g++-${{ matrix.gcc }}
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +36,7 @@ jobs:
           -DETL_SANITIZE=ON
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build -- -j2
+      run: cmake --build ${{github.workspace}}/build
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -51,7 +52,7 @@ jobs:
 
     env:
       BUILD_TYPE: ${{ matrix.build-type }}
-      CMAKE_BUILD_PARALLEL_LEVEL: 2
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
 
     steps:
     - uses: actions/checkout@v2
