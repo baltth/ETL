@@ -68,7 +68,7 @@ class List : private Detail::TypedListBase<T> {
     /// \{
 
     explicit List(AllocatorBase& a) noexcept :
-        allocator(a) {};
+        allocator {a} {}
 
     List& operator=(const List& other) {
         assign(other.begin(), other.end());
@@ -139,10 +139,10 @@ class List : private Detail::TypedListBase<T> {
     /// \name Modifiers
     /// \{
 
-    inline void clear() noexcept(AllocatorBase::noexceptDestroy);
+    void clear() noexcept(AllocatorBase::noexceptDestroy);
 
-    inline void push_front(const T& item);
-    inline void push_back(const T& item);
+    void push_front(const T& item);
+    void push_back(const T& item);
 
     void pop_front() noexcept(AllocatorBase::noexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
@@ -152,12 +152,17 @@ class List : private Detail::TypedListBase<T> {
         deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
-    inline iterator insert(const_iterator pos, const T& item);
+    iterator insert(const_iterator pos, const T& item);
 
-    iterator insert(const_iterator pos, uint32_t n, const T& item) {
+    iterator insert(const_iterator pos, T&& item) {
+        return emplace(pos, std::move(item));
+    }
+
+    iterator insert(const_iterator pos, size_type n, const T& item) {
         iterator it = this->end();
         while (n > 0) {
             it = insert(pos, item);
+            --n;
         }
         return it;
     }
@@ -165,6 +170,10 @@ class List : private Detail::TypedListBase<T> {
     template<typename InputIt>
     enable_if_t<!is_integral<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
+
+    void insert(const_iterator position, std::initializer_list<T> initList) {
+        insert(position, initList.begin(), initList.end());
+    }
 
     template<typename... Args>
     iterator emplace(const_iterator pos, Args&&... args);

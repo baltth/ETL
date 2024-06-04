@@ -42,6 +42,7 @@ class List : public ETL_NAMESPACE::List<T> {
     using Base = ETL_NAMESPACE::List<T>;
     using iterator = typename Base::iterator;
     using const_iterator = typename Base::const_iterator;
+    using size_type = typename Base::size_type;
     using Node = typename Base::Node;
 
     using AllocatorTraits = typename Detail::AllocatorTraits<Node, A>;
@@ -54,15 +55,32 @@ class List : public ETL_NAMESPACE::List<T> {
   public:  // functions
 
     List() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
+
+    explicit List(size_type len) :
+        List {} {
+        this->emplace(this->cbegin(), T {});
+    }
+
+    List(size_type len, const T& item) :
+        List {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+    List(InputIt first, InputIt last) :
+        List {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     List(const List& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
@@ -77,7 +95,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(List&& other) noexcept(noexcept(List().swap(other))) :
-        List() {
+        List {} {
         this->swap(other);
     }
 
@@ -87,7 +105,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(std::initializer_list<T> initList) :
-        List() {
+        List {} {
         operator=(initList);
     }
 
@@ -138,7 +156,7 @@ using List = ETL_NAMESPACE::Custom::List<T, std::allocator>;
 namespace Static {
 
 /// List with unique pool allocator.
-template<class T, uint32_t N>
+template<class T, size_t N>
 class List : public ETL_NAMESPACE::List<T> {
 
     static_assert(N > 0, "Invalid Etl::Static::List size");
@@ -148,6 +166,7 @@ class List : public ETL_NAMESPACE::List<T> {
     using Base = ETL_NAMESPACE::List<T>;
     using iterator = typename Base::iterator;
     using const_iterator = typename Base::const_iterator;
+    using size_type = typename Base::size_type;
 
     using Allocator =
         typename ETL_NAMESPACE::PoolHelperForSize<N>::template Allocator<typename Base::Node>;
@@ -159,15 +178,32 @@ class List : public ETL_NAMESPACE::List<T> {
   public:  // functions
 
     List() noexcept :
-        Base(allocator) {};
+        Base(allocator) {}
+
+    explicit List(size_type len) :
+        List {} {
+        this->emplace(this->cbegin(), T {});
+    }
+
+    List(size_type len, const T& item) :
+        List {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+    List(InputIt first, InputIt last) :
+        List {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     List(const List& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
@@ -182,7 +218,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(List&& other) noexcept(noexcept(List().swap(other))) :
-        List() {
+        List {} {
         this->swap(other);
     }
 
@@ -192,7 +228,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(std::initializer_list<T> initList) :
-        List() {
+        List {} {
         operator=(initList);
     }
 
@@ -234,7 +270,7 @@ class List : public ETL_NAMESPACE::List<T> {
 namespace Pooled {
 
 /// List with common pool allocator.
-template<class T, uint32_t N>
+template<class T, size_t N>
 class List : public ETL_NAMESPACE::List<T> {
 
     static_assert(N > 0, "Invalid Etl::Pooled::List size");
@@ -244,6 +280,7 @@ class List : public ETL_NAMESPACE::List<T> {
     using Base = ETL_NAMESPACE::List<T>;
     using iterator = typename Base::iterator;
     using const_iterator = typename Base::const_iterator;
+    using size_type = typename Base::size_type;
 
     using Allocator =
         typename ETL_NAMESPACE::PoolHelperForSize<N>::template CommonAllocator<typename Base::Node>;
@@ -255,15 +292,32 @@ class List : public ETL_NAMESPACE::List<T> {
   public:  // functions
 
     List() noexcept :
-        Base(allocator) {};
+        Base(allocator) {}
+
+    explicit List(size_type len) :
+        List {} {
+        this->emplace(this->cbegin(), T {});
+    }
+
+    List(size_type len, const T& item) :
+        List {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+    List(InputIt first, InputIt last) :
+        List {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     List(const List& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
     explicit List(const Base& other) :
-        List() {
+        List {} {
         Base::operator=(other);
     }
 
@@ -278,7 +332,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(List&& other) noexcept(noexcept(List().swap(other))) :
-        List() {
+        List {} {
         this->swap(other);
     }
 
@@ -288,7 +342,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     List(std::initializer_list<T> initList) :
-        List() {
+        List {} {
         operator=(initList);
     }
 
