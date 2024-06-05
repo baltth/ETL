@@ -25,6 +25,8 @@ limitations under the License.
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
 
+#include <iterator>
+
 namespace ETL_NAMESPACE {
 namespace Detail {
 
@@ -110,6 +112,25 @@ struct SizeDiff {
     uint32_t lGreaterWith {0};
     uint32_t rGreaterWith {0};
 };
+
+
+template<typename T, typename = void>
+struct IsInputIterator {
+    static constexpr bool value = false;
+};
+
+
+template<typename T>
+struct IsInputIterator<
+    T,
+    void_t<typename std::iterator_traits<remove_reference_t<T>>::iterator_category>> {
+    static constexpr bool value =
+        is_convertible<typename std::iterator_traits<remove_reference_t<T>>::iterator_category,
+                       std::input_iterator_tag>::value;
+};
+
+static_assert(!IsInputIterator<int>::value, "IsInputIterator<> error");
+static_assert(IsInputIterator<int*>::value, "IsInputIterator<> error");
 
 
 template<class L, class R>

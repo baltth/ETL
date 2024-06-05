@@ -178,6 +178,9 @@ using common_type_t = typename std::common_type<T...>::type;
 template<class T>
 using underlying_type_t = typename std::underlying_type<T>::type;
 
+template<class...>
+using void_t = void;
+
 }  // namespace ETL_NAMESPACE
 
 #endif  // ETL_TRAITSUPPORT_H_

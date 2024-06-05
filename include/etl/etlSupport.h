@@ -68,7 +68,8 @@ limitations under the License.
 #endif
 
 
-// Language features
+// Alias for std:: features
+
 using std::uint8_t;
 using std::uint16_t;
 using std::uint32_t;
@@ -78,52 +79,6 @@ using std::int16_t;
 using std::int32_t;
 using std::int64_t;
 using std::size_t;
-
-
-// Utilities
-
-namespace ETL_NAMESPACE {
-namespace Detail {
-
-
-template<typename T>
-struct IsIterator {
-
-    using Yes = char;
-    using No = long;
-
-    template<typename U, typename = typename U::iterator_category>
-    struct HasIteratorCategory {
-        static const Yes value;
-    };
-
-    template<typename U>
-    static HasIteratorCategory<U> test(U*);
-
-    template<typename U>
-    static No test(...);
-
-    static const bool value = (sizeof(test<T>(nullptr)) == sizeof(Yes));
-};
-
-
-template<typename T>
-struct AlignmentOf {
-
-    struct Aligned {
-        char c;
-        T i;
-    };
-    struct Basic {
-        T i;
-    };
-
-    static const size_t value = sizeof(Aligned) - sizeof(Basic);
-    static_assert(value > 0, "Error calculating alignment");
-};
-
-}  // namespace Detail
-}  // namespace ETL_NAMESPACE
 
 
 // Heap usage

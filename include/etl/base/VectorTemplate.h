@@ -111,7 +111,8 @@ class Vector : protected Detail::TypedVectorBase<T> {
         insert(this->begin(), num, value);
     }
 
-    template<typename InputIt>
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     void assign(InputIt first, InputIt last) {
         this->clear();
         insert(this->begin(), first, last);
@@ -193,7 +194,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
     iterator insert(const_iterator position, size_type num, const_reference value);
 
     template<typename InputIt>
-    enable_if_t<!is_integral<InputIt>::value, iterator>
+    enable_if_t<Detail::IsInputIterator<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last) {
         return insertRange(
             position, first, last, typename std::iterator_traits<InputIt>::iterator_category {});

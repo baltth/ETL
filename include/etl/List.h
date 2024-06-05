@@ -68,7 +68,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     template<typename InputIt,
-             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     List(InputIt first, InputIt last) :
         List {} {
         this->insert(this->cbegin(), first, last);
@@ -191,7 +191,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     template<typename InputIt,
-             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     List(InputIt first, InputIt last) :
         List {} {
         this->insert(this->cbegin(), first, last);
@@ -305,7 +305,7 @@ class List : public ETL_NAMESPACE::List<T> {
     }
 
     template<typename InputIt,
-             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     List(InputIt first, InputIt last) :
         List {} {
         this->insert(this->cbegin(), first, last);

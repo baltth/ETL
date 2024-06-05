@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/base/MemStrategies.h>
 #include <etl/base/VectorTemplate.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
@@ -68,7 +69,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     template<typename InputIt,
-             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     Vector(InputIt first, InputIt last) :
         Vector {} {
         this->insert(this->cbegin(), first, last);
@@ -190,7 +191,7 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     template<typename InputIt,
-             typename = enable_if_t<!is_integral<InputIt>::value, size_type>>
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     Vector(InputIt first, InputIt last) :
         Vector {} {
         this->insert(this->cbegin(), first, last);

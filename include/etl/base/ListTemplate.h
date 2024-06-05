@@ -97,7 +97,8 @@ class List : private Detail::TypedListBase<T> {
         insert(this->begin(), num, value);
     }
 
-    template<typename InputIt>
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     void assign(InputIt first, InputIt last) {
         this->clear();
         insert(this->begin(), first, last);
@@ -168,7 +169,7 @@ class List : private Detail::TypedListBase<T> {
     }
 
     template<typename InputIt>
-    enable_if_t<!is_integral<InputIt>::value, iterator>
+    enable_if_t<Detail::IsInputIterator<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
 
     void insert(const_iterator position, std::initializer_list<T> initList) {
@@ -385,7 +386,7 @@ auto List<T>::emplace(const_iterator pos, Args&&... args) -> iterator {
 
 template<class T>
 template<typename InputIt>
-enable_if_t<!is_integral<InputIt>::value, typename List<T>::iterator>
+enable_if_t<Detail::IsInputIterator<InputIt>::value, typename List<T>::iterator>
 List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);
