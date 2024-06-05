@@ -23,6 +23,7 @@ limitations under the License.
 
 #include <etl/List.h>
 
+#include <iterator>
 #include <memory>
 
 #include "AtScopeEnd.h"
@@ -40,7 +41,7 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
-namespace CheckNoexcept {
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -63,7 +64,16 @@ TEMPLATE_TEST_CASE("List nothrow contract",
     static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
 }
 
-}  // namespace CheckNoexcept
+
+static_assert(std::is_same<std::iterator_traits<PC::iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for List<>::iterator");
+
+static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for List<>::const_iterator");
+
+}  // namespace CompileTimeChecks
 
 
 TEMPLATE_TEST_CASE("Etl::List<> basic test",

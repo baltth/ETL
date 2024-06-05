@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <iterator>
+
 #include <etl/Array.h>
 #include <etl/Vector.h>
 
@@ -40,7 +42,7 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
-namespace CheckNoexcept {
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -61,9 +63,15 @@ TEMPLATE_TEST_CASE("Vector nothrow contract",
     static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
 }
 
-}  // namespace CheckNoexcept
+static_assert(std::is_same<std::iterator_traits<SC::iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Vector<>::iterator");
 
-// Etl::Vector tests ----------------------------------------------------------
+static_assert(std::is_same<std::iterator_traits<SC::const_iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Vector<>::const_iterator");
+
+}  // namespace CompileTimeChecks
 
 
 template<class Vec>

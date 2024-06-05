@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022-2023 Balazs Toth.
+Copyright 2022-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <iterator>
+
 #include <etl/Set.h>
 #include <etl/UnorderedSet.h>
 
@@ -34,7 +36,7 @@ using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
 
-namespace CheckNoexcept {
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -76,7 +78,17 @@ TEMPLATE_TEST_CASE("UnorderedSet noexcept swap",
     REQUIRE(noexcept(swap(c1, c2)));
 }
 
-}  // namespace CheckNoexcept
+
+static_assert(std::is_same<std::iterator_traits<PooledUnorderedSet::iterator>::iterator_category,
+                           std::forward_iterator_tag>::value,
+              "Wrong iterator category for UnorderedSet<>::iterator");
+
+static_assert(
+    std::is_same<std::iterator_traits<PooledUnorderedSet::const_iterator>::iterator_category,
+                 std::forward_iterator_tag>::value,
+    "Wrong iterator category for UnorderedSet<>::const_iterator");
+
+}  // namespace CompileTimeChecks
 
 namespace {
 
