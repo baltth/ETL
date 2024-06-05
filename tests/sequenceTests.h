@@ -29,6 +29,9 @@ limitations under the License.
 #include <iterator>
 #include <numeric>
 
+namespace Etl {
+namespace Test {
+
 
 template<class Cont>
 void testBackAccess() {
@@ -227,5 +230,8 @@ void testReverseIterationBackward() {
     REQUIRE(*rit == 3);
     REQUIRE(rit == c.rbegin());
 }
+
+}  // namespace Test
+}  // namespace Etl
 
 #endif  // ETL_TEST_SEQUENCETESTS_H_

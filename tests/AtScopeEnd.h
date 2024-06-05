@@ -36,7 +36,7 @@ class AtScopeEnd {
   public:  // functions
 
     template<typename F>
-    AtScopeEnd(F f) :
+    explicit AtScopeEnd(F f) :
         func {f} {}
 
     ~AtScopeEnd() {

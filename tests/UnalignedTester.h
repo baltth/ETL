@@ -28,10 +28,7 @@ namespace Etl {
 namespace Test {
 
 
-class __attribute__((packed)) UnalignedTester {
-
-  public:  // variables
-
+struct __attribute__((packed)) UnalignedTester {
     uint32_t a;
     uint8_t b;
 };
