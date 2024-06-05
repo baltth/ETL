@@ -27,6 +27,7 @@ limitations under the License.
 #include <etl/base/VectorTemplate.h>
 #include <etl/etlSupport.h>
 
+#include <cmath>
 #include <utility>
 
 namespace ETL_NAMESPACE {
@@ -59,8 +60,8 @@ class UnorderedBase {
       public:  // functions
 
         template<typename... Args>
-        Node(Args&&... args) :
-            item(std::forward<Args>(args)...) {}
+        explicit Node(Args&&... args) :
+            item {std::forward<Args>(args)...} {}
 
       private:
 
@@ -105,7 +106,7 @@ class UnorderedBase {
             return *this;
         }
 
-        const const_iterator operator++(int) {
+        const_iterator operator++(int) {
             const_iterator old = *this;
             this->operator++();
             return old;
@@ -134,7 +135,7 @@ class UnorderedBase {
         iterator(const iterator& other) = default;
         iterator& operator=(const iterator& other) = default;
 
-        operator const_iterator() const {
+        explicit operator const_iterator() const {
             return this->asConst();
         }
 
@@ -154,7 +155,7 @@ class UnorderedBase {
             return *this;
         }
 
-        const iterator operator++(int) {
+        iterator operator++(int) {
             iterator old = *this;
             this->operator++();
             return old;
@@ -163,10 +164,10 @@ class UnorderedBase {
       private:
 
         explicit iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::Iterator(n) {}
+            AHashTable::Iterator {n} {}
 
         explicit iterator(const AHashTable::Iterator& it) :
-            AHashTable::Iterator(it) {}
+            AHashTable::Iterator {it} {}
 
         const_iterator asConst() const {
             return const_iterator {static_cast<const AHashTable::Iterator&>(*this)};
@@ -187,10 +188,10 @@ class UnorderedBase {
         const_local_iterator() = default;
 
         const_local_iterator(const const_local_iterator& it) :
-            AHashTable::LocalIterator(it) {}
+            AHashTable::LocalIterator {it} {}
 
         explicit const_local_iterator(const AHashTable::LocalIterator& it) :
-            AHashTable::LocalIterator(it) {}
+            AHashTable::LocalIterator {it} {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -208,7 +209,7 @@ class UnorderedBase {
             return *this;
         }
 
-        const const_local_iterator operator++(int) {
+        const_local_iterator operator++(int) {
             const_local_iterator old = *this;
             this->operator++();
             return old;
@@ -234,10 +235,10 @@ class UnorderedBase {
         local_iterator() = default;
 
         local_iterator(const local_iterator& it) :
-            AHashTable::LocalIterator(it) {}
+            AHashTable::LocalIterator {it} {}
 
         explicit local_iterator(const AHashTable::LocalIterator& it) :
-            AHashTable::LocalIterator(it) {}
+            AHashTable::LocalIterator {it} {}
 
         const_reference operator*() const {
             return static_cast<const UnorderedBase<T>::Node*>(node())->item;
@@ -255,7 +256,7 @@ class UnorderedBase {
             return *this;
         }
 
-        const local_iterator operator++(int) {
+        local_iterator operator++(int) {
             local_iterator old = *this;
             this->operator++();
             return old;
@@ -264,7 +265,7 @@ class UnorderedBase {
       private:
 
         explicit local_iterator(UnorderedBase<T>::Node* n) :
-            AHashTable::LocalIterator(n) {}
+            AHashTable::LocalIterator {n} {}
     };
 
     using BucketImpl = ETL_NAMESPACE::Vector<AHashTable::BucketItem>;
@@ -616,7 +617,7 @@ auto UnorderedBase<T>::findExactInRange(It first, It last, P predicate) const ->
         }
     }
 
-    return first;
+    return static_cast<const_iterator>(first);
 }
 
 
@@ -678,11 +679,11 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
         ETL_ASSERT(other.hashTable.chain().isEmpty());
 
         // Resize and reset the buckets
-        auto setupBuckets = [](BucketImpl& buckets, size_type targetSize) {
-            if ((buckets.capacity() >= targetSize) && (buckets.size() < targetSize)) {
-                buckets.resize(targetSize);
+        auto setupBuckets = [](BucketImpl& bcks, size_type targetSize) {
+            if ((bcks.capacity() >= targetSize) && (bcks.size() < targetSize)) {
+                bcks.resize(targetSize);
             }
-            for (auto& item : buckets) {
+            for (auto& item : bcks) {
                 item = nullptr;
             }
         };
@@ -700,8 +701,8 @@ void UnorderedBase<T>::swapElements(H hasher, UnorderedBase& other) {
         other.hashTable = AHashTable {other.buckets};
 
         // Realloc and insert elements
-        Node* ownNode = static_cast<Node*>(origOwnChain.getFirst());
-        Node* otherNode = static_cast<Node*>(origOtherChain.getFirst());
+        auto* ownNode = static_cast<Node*>(origOwnChain.getFirst());
+        auto* otherNode = static_cast<Node*>(origOtherChain.getFirst());
 
         const auto diff = sizeDiff(origOwnSize, origOtherSize);
         if (diff.common > 0U) {
@@ -791,15 +792,15 @@ auto UnorderedBase<T>::swapN(H hasher,
         return std::make_pair(nextOwn, nextOther);
     };
 
-    auto doSwap = [&swapTwo](Node* ownNode, Node* otherNode, size_type n) {
+    auto doSwap = [&swapTwo](Node* own, Node* other, size_type n) {
         for (size_type i = 0; i < n; ++i) {
-            ETL_ASSERT(ownNode != nullptr);
-            ETL_ASSERT(otherNode != nullptr);
-            auto res = swapTwo(ownNode, otherNode);
-            ownNode = res.first;
-            otherNode = res.second;
+            ETL_ASSERT(own != nullptr);
+            ETL_ASSERT(other != nullptr);
+            auto res = swapTwo(own, other);
+            own = res.first;
+            other = res.second;
         }
-        return std::make_pair(ownNode, otherNode);
+        return std::make_pair(own, other);
     };
 
     // As swapTwo() needs one empty slot in this,
