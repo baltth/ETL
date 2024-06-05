@@ -30,6 +30,7 @@ limitations under the License.
 #include "UnalignedTester.h"
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
+#include "constructorTests.h"
 #include "sequenceTests.h"
 #include "swapTests.h"
 
@@ -110,6 +111,29 @@ TEMPLATE_TEST_CASE("Etl::Vector<> basic test",
                    (Etl::Static::Vector<int, 16U>)) {
 
     testVectorBasic<TestType>();
+}
+
+
+TEMPLATE_TEST_CASE("Etl::Vector<> constructor test",
+                   "[vec][etl][basic]",
+                   (Etl::Dynamic::Vector<ContainerTester>),
+                   (Etl::Static::Vector<ContainerTester, 16U>)) {
+
+    SECTION("V(size_t)") {
+        Etl::Test::constructForSize<TestType>();
+    }
+
+    SECTION("V(size_t, const value_type&)") {
+        Etl::Test::constructForSizeAndValue<TestType>(ContainerTester {17});
+    }
+
+    SECTION("V(InputIt, IntputIt)") {
+        Etl::Test::constructWithIterators<TestType>();
+    }
+
+    SECTION("V(std::initializer_list)") {
+        Etl::Test::constructWithInitList<TestType>();
+    }
 }
 
 

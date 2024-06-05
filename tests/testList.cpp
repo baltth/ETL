@@ -30,6 +30,7 @@ limitations under the License.
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
+#include "constructorTests.h"
 #include "sequenceTests.h"
 #include "swapTests.h"
 
@@ -115,6 +116,30 @@ TEMPLATE_TEST_CASE("Etl::List<> basic test",
 
     REQUIRE(list.size() == 0);
     REQUIRE(list.empty());
+}
+
+
+TEMPLATE_TEST_CASE("Etl::List<> constructor test",
+                   "[list][etl][basic]",
+                   (Etl::Dynamic::List<ContainerTester>),
+                   (Etl::Static::List<ContainerTester, 16U>),
+                   (Etl::Pooled::List<ContainerTester, 16U>)) {
+
+    SECTION("L(size_t)") {
+        Etl::Test::constructForSize<TestType>();
+    }
+
+    SECTION("L(size_t, const value_type&)") {
+        Etl::Test::constructForSizeAndValue<TestType>(ContainerTester {17});
+    }
+
+    SECTION("L(InputIt, IntputIt)") {
+        Etl::Test::constructWithIterators<TestType>();
+    }
+
+    SECTION("L(std::initializer_list)") {
+        Etl::Test::constructWithInitList<TestType>();
+    }
 }
 
 
