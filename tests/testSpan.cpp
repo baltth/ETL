@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019 Balazs Toth.
+Copyright 2019-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <iterator>
+
 #include <etl/Span.h>
 
 #include "ContainerTester.h"
@@ -29,12 +31,19 @@ using Etl::Test::ContainerTester;
 
 namespace {
 
+static_assert(std::is_same<std::iterator_traits<Etl::Span<int>::iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Set<>::iterator");
+
+static_assert(std::is_same<std::iterator_traits<Etl::Span<int>::const_iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Set<>::const_iterator");
+
+
 constexpr char C_ARRAY[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 constexpr std::size_t SIZE = sizeof(C_ARRAY);
 
 constexpr std::array<char, SIZE> ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-
-}  // namespace
 
 
 TEST_CASE("Etl::Span<> basic test", "[span][etl][basic]") {
@@ -96,6 +105,8 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == 0U, "Span<>: Invalid size()");
+        static_assert(span.empty(), "Span<>: Invalid empty()");
+
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() == nullptr, "Span<>: Invalid data()");
         static_assert(span.begin() == span.end(), "Span<>: Invalid iterators");
@@ -113,6 +124,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -142,6 +154,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -170,6 +183,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -198,6 +212,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -227,6 +242,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -255,6 +271,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
         static_assert(span.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
         static_assert(span.size() == SIZE, "Span<>: Invalid size()");
+        static_assert(!span.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
         static_assert(span.data() != nullptr, "Span<>: Invalid data()");
@@ -280,6 +297,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(firstSub.extent == 6, "Span<>: static extent '6' expected");
             static_assert(firstSub.size() == 6, "Span<>: Invalid size()");
+            static_assert(!firstSub.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
             static_assert(firstSub.data() != nullptr, "Span<>: Invalid data()");
@@ -299,6 +317,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
             static_assert(firstSub.extent == Etl::dynamic_extent,
                           "Span<>: dynamic_extent expected");
             static_assert(firstSub.size() == 6, "Span<>: Invalid size()");
+            static_assert(!firstSub.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
             static_assert(firstSub.data() != nullptr, "Span<>: Invalid data()");
@@ -317,6 +336,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(lastSub.extent == 6, "Span<>: static extent '6' expected");
             static_assert(lastSub.size() == 6, "Span<>: Invalid size()");
+            static_assert(!lastSub.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
             static_assert(lastSub.data() != nullptr, "Span<>: Invalid data()");
@@ -335,6 +355,7 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
 
             static_assert(lastSub.extent == Etl::dynamic_extent, "Span<>: dynamic_extent expected");
             static_assert(lastSub.size() == 6, "Span<>: Invalid size()");
+            static_assert(!lastSub.empty(), "Span<>: Invalid empty()");
 
 #if ETL_FULL_CONSTEXPR
             static_assert(lastSub.data() != nullptr, "Span<>: Invalid data()");
@@ -411,3 +432,5 @@ TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
         }
     }
 }
+
+}  // namespace

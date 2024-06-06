@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2023 Balazs Toth.
+Copyright 2017-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ limitations under the License.
 
 #include <etl/List.h>
 
+#include <iterator>
 #include <memory>
 
 #include "AtScopeEnd.h"
@@ -30,6 +31,7 @@ limitations under the License.
 #include "DummyAllocator.h"
 #include "comparisionTests.h"
 #include "compatibilityTests.h"
+#include "constructorTests.h"
 #include "sequenceTests.h"
 #include "swapTests.h"
 
@@ -39,7 +41,7 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
-namespace CheckNoexcept {
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -62,7 +64,16 @@ TEMPLATE_TEST_CASE("List nothrow contract",
     static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
 }
 
-}  // namespace CheckNoexcept
+
+static_assert(std::is_same<std::iterator_traits<PC::iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for List<>::iterator");
+
+static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for List<>::const_iterator");
+
+}  // namespace CompileTimeChecks
 
 
 TEMPLATE_TEST_CASE("Etl::List<> basic test",
@@ -118,14 +129,38 @@ TEMPLATE_TEST_CASE("Etl::List<> basic test",
 }
 
 
+TEMPLATE_TEST_CASE("Etl::List<> constructor test",
+                   "[list][etl][basic]",
+                   (Etl::Dynamic::List<ContainerTester>),
+                   (Etl::Static::List<ContainerTester, 16U>),
+                   (Etl::Pooled::List<ContainerTester, 16U>)) {
+
+    SECTION("L(size_t)") {
+        Etl::Test::constructForSize<TestType>();
+    }
+
+    SECTION("L(size_t, const value_type&)") {
+        Etl::Test::constructForSizeAndValue<TestType>(ContainerTester {17});
+    }
+
+    SECTION("L(InputIt, IntputIt)") {
+        Etl::Test::constructWithIterators<TestType>();
+    }
+
+    SECTION("L(std::initializer_list)") {
+        Etl::Test::constructWithInitList<TestType>();
+    }
+}
+
+
 TEMPLATE_TEST_CASE("Etl::List<> push/pop test",
                    "[list][etl][basic]",
                    (Etl::Dynamic::List<int>),
                    (Etl::Static::List<int, 16U>),
                    (Etl::Pooled::List<int, 16U>)) {
 
-    testBackAccess<TestType>();
-    testFrontAccess<TestType>();
+    Etl::Test::testBackAccess<TestType>();
+    Etl::Test::testFrontAccess<TestType>();
 }
 
 
@@ -136,13 +171,13 @@ TEMPLATE_TEST_CASE("Etl::List<> iteration test",
                    (Etl::Pooled::List<int, 16U>)) {
 
     SECTION("iterator") {
-        testIterationForward<TestType>();
-        testIterationBackward<TestType>();
+        Etl::Test::testIterationForward<TestType>();
+        Etl::Test::testIterationBackward<TestType>();
     }
 
     SECTION("reverse_iterator") {
-        testReverseIterationForward<TestType>();
-        testReverseIterationBackward<TestType>();
+        Etl::Test::testReverseIterationForward<TestType>();
+        Etl::Test::testReverseIterationBackward<TestType>();
     }
 }
 
@@ -200,31 +235,19 @@ void testListLeak() {
     REQUIRE(ItemType::getObjectCount() == 0);
 }
 
-TEST_CASE("Etl::Dynamic::List<> leak test", "[list][etl]") {
 
-    typedef ContainerTester ItemType;
-    typedef Etl::Dynamic::List<ItemType> ListT;
+TEMPLATE_TEST_CASE("Etl::List<> leak test",
+                   "[list][etl]",
+                   (Etl::Dynamic::List<ContainerTester>),
+                   (Etl::Static::List<ContainerTester, 16U>),
+                   (Etl::Pooled::List<ContainerTester, 16U>)) {
 
-    testListLeak<ListT>();
-}
+    testListLeak<TestType>();
 
-TEST_CASE("Etl::Static::List<> leak test", "[list][etl]") {
-
-    typedef ContainerTester ItemType;
-    typedef Etl::Static::List<ItemType, 16> ListT;
-
-    testListLeak<ListT>();
-}
-
-TEST_CASE("Etl::Pooled::List<> leak test", "[list][etl]") {
-
-    typedef ContainerTester ItemType;
-    typedef Etl::Pooled::List<ItemType, 16> ListT;
-
-    testListLeak<ListT>();
-
-    ListT l;
-    REQUIRE(l.getAllocator().size() == 0);
+    if (!TestType::Allocator::uniqueAllocator) {
+        TestType l;
+        REQUIRE(l.getAllocator().size() == 0);
+    }
 }
 
 
@@ -281,25 +304,14 @@ void testListCopy() {
     }
 }
 
-TEST_CASE("Etl::Dynamic::List<> copy", "[list][etl]") {
 
-    typedef Etl::Dynamic::List<int> ListT;
+TEMPLATE_TEST_CASE("Etl::List<> copy",
+                   "[list][etl]",
+                   (Etl::Dynamic::List<int>),
+                   (Etl::Static::List<int, 32U>),
+                   (Etl::Pooled::List<int, 32U>)) {
 
-    testListCopy<ListT>();
-}
-
-TEST_CASE("Etl::Static::List<> copy", "[list][etl]") {
-
-    typedef Etl::Static::List<int, 32> ListT;
-
-    testListCopy<ListT>();
-}
-
-TEST_CASE("Etl::Pooled::List<> copy", "[list][etl]") {
-
-    typedef Etl::Pooled::List<int, 32> ListT;
-
-    testListCopy<ListT>();
+    testListCopy<TestType>();
 }
 
 
@@ -626,6 +638,7 @@ TEST_CASE("Etl::Static::List<>::splice() test", "[list][etl]") {
     }
 }
 
+
 TEST_CASE("Etl::Pooled::List<>::splice() test", "[list][etl]") {
 
     typedef ContainerTester ItemType;
@@ -643,6 +656,7 @@ TEST_CASE("Etl::Pooled::List<>::splice() test", "[list][etl]") {
         testListSplice<PListT, PListT>();
     }
 }
+
 
 TEST_CASE("Etl::Custom::List<> allocator test", "[list][etl]") {
 
@@ -717,6 +731,7 @@ void testSizedListAllocation() {
     list.clear();
     REQUIRE(list.getAllocator().size() == 0);
 }
+
 
 TEST_CASE("Etl::Static::List<> test", "[list][etl]") {
 

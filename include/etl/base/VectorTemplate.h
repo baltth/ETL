@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTORTEMPLATE_H__
-#define __ETL_VECTORTEMPLATE_H__
+#ifndef ETL_VECTORTEMPLATE_H_
+#define ETL_VECTORTEMPLATE_H_
 
 #include <etl/base/MemStrategies.h>
 #include <etl/base/TypedVectorBase.h>
@@ -52,23 +52,23 @@ class Vector : protected Detail::TypedVectorBase<T> {
 
   public:  // types
 
-    typedef Detail::TypedVectorBase<T> Base;
-    typedef Base StrategyBase;
+    using Base = Detail::TypedVectorBase<T>;
+    using StrategyBase = Base;
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using value_type = T;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef pointer iterator;
-    typedef const_pointer const_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    typedef typename Base::size_type size_type;
+    using size_type = typename Base::size_type;
 
-    typedef typename Base::CreateFunc CreateFunc;
+    using CreateFunc = typename Base::CreateFunc;
 
   private:  // variables
 
@@ -111,7 +111,8 @@ class Vector : protected Detail::TypedVectorBase<T> {
         insert(this->begin(), num, value);
     }
 
-    template<typename InputIt>
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     void assign(InputIt first, InputIt last) {
         this->clear();
         insert(this->begin(), first, last);
@@ -193,7 +194,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
     iterator insert(const_iterator position, size_type num, const_reference value);
 
     template<typename InputIt>
-    enable_if_t<!is_integral<InputIt>::value, iterator>
+    enable_if_t<Detail::IsInputIterator<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last) {
         return insertRange(
             position, first, last, typename std::iterator_traits<InputIt>::iterator_category {});
@@ -340,7 +341,7 @@ auto Vector<T>::insertRangeWithSNR(const_iterator position, InputIt first, Input
     // |aaaaaaaaaacccccccccbbbbbbbb|
 
     auto posIndex = std::distance(cbegin(), position);
-    size_type origSize = size();
+    auto origSize = size();
     ETL_ASSERT(origSize >= posIndex);
 
     size_t cnt = 0;
@@ -356,7 +357,7 @@ auto Vector<T>::insertRangeWithSNR(const_iterator position, InputIt first, Input
         Base::swapNeighbourRanges(posIndex, origSize);
     }
 
-    return (cnt > 0) ? Base::getIterator(posIndex) : iterator(position);
+    return (cnt > 0) ? Base::getIterator(posIndex) : iterator {position};
 }
 
 
@@ -410,25 +411,28 @@ auto Vector<T>::insert(const_iterator position, size_type num, const_reference v
                 }
             }
         });
-}  // namespace ETL_NAMESPACE
+}
 
 
 template<class T>
 template<typename... Args>
 auto Vector<T>::emplace(const_iterator position, Args&&... args) -> iterator {
 
-    iterator result = const_cast<iterator>(position);
     auto res = prepareForInsert(position, 1U);
     if (res.first) {
-        result = Base::insertOneOperation(res.second, [&args...](pointer item, bool place) {
+
+        return Base::insertOneOperation(res.second, [&args...](pointer item, bool place) {
             if (place) {
                 new (item) T(args...);
             } else {
                 *item = T(args...);
             }
         });
+
+    } else {
+        // @todo add assertion/exception
+        return const_cast<iterator>(position);
     }
-    return result;
 }
 
 
@@ -443,22 +447,22 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
 
   public:  // types
 
-    typedef T* value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using value_type = T*;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef value_type* iterator;
-    typedef const value_type* const_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using iterator = value_type*;
+    using const_iterator = const value_type*;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    typedef Vector<typename Detail::CopyConst<T, void>::Type*> Base;
-    typedef typename Base::StrategyBase StrategyBase;
+    using Base = Vector<typename Detail::CopyConst<T, void>::Type*>;
+    using StrategyBase = typename Base::StrategyBase;
 
-    typedef typename Base::size_type size_type;
-    typedef typename Base::CreateFunc CreateFunc;
+    using size_type = typename Base::size_type;
+    using CreateFunc = typename Base::CreateFunc;
 
   public:  // functions
 
@@ -704,4 +708,4 @@ void swap(Vector<T>& lhs, Vector<T>& rhs) {
 }  // namespace ETL_NAMESPACE
 
 
-#endif  // __ETL_VECTORTEMPLATE_H__
+#endif  // ETL_VECTORTEMPLATE_H_

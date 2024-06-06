@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_LISTTEMPLATE_H__
-#define __ETL_LISTTEMPLATE_H__
+#ifndef ETL_LISTTEMPLATE_H_
+#define ETL_LISTTEMPLATE_H_
 
 #include <etl/base/AAllocator.h>
 #include <etl/base/TypedListBase.h>
@@ -68,7 +68,7 @@ class List : private Detail::TypedListBase<T> {
     /// \{
 
     explicit List(AllocatorBase& a) noexcept :
-        allocator(a) {};
+        allocator {a} {}
 
     List& operator=(const List& other) {
         assign(other.begin(), other.end());
@@ -97,7 +97,8 @@ class List : private Detail::TypedListBase<T> {
         insert(this->begin(), num, value);
     }
 
-    template<typename InputIt>
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
     void assign(InputIt first, InputIt last) {
         this->clear();
         insert(this->begin(), first, last);
@@ -139,10 +140,10 @@ class List : private Detail::TypedListBase<T> {
     /// \name Modifiers
     /// \{
 
-    inline void clear() noexcept(AllocatorBase::noexceptDestroy);
+    void clear() noexcept(AllocatorBase::noexceptDestroy);
 
-    inline void push_front(const T& item);
-    inline void push_back(const T& item);
+    void push_front(const T& item);
+    void push_back(const T& item);
 
     void pop_front() noexcept(AllocatorBase::noexceptDestroy) {
         deleteNode(static_cast<Node*>(Detail::AListBase::popFront()));
@@ -152,19 +153,28 @@ class List : private Detail::TypedListBase<T> {
         deleteNode(static_cast<Node*>(Detail::AListBase::popBack()));
     }
 
-    inline iterator insert(const_iterator pos, const T& item);
+    iterator insert(const_iterator pos, const T& item);
 
-    iterator insert(const_iterator pos, uint32_t n, const T& item) {
+    iterator insert(const_iterator pos, T&& item) {
+        return emplace(pos, std::move(item));
+    }
+
+    iterator insert(const_iterator pos, size_type n, const T& item) {
         iterator it = this->end();
         while (n > 0) {
             it = insert(pos, item);
+            --n;
         }
         return it;
     }
 
     template<typename InputIt>
-    enable_if_t<!is_integral<InputIt>::value, iterator>
+    enable_if_t<Detail::IsInputIterator<InputIt>::value, iterator>
     insert(const_iterator position, InputIt first, InputIt last);
+
+    void insert(const_iterator position, std::initializer_list<T> initList) {
+        insert(position, initList.begin(), initList.end());
+    }
 
     template<typename... Args>
     iterator emplace(const_iterator pos, Args&&... args);
@@ -376,7 +386,7 @@ auto List<T>::emplace(const_iterator pos, Args&&... args) -> iterator {
 
 template<class T>
 template<typename InputIt>
-enable_if_t<!is_integral<InputIt>::value, typename List<T>::iterator>
+enable_if_t<Detail::IsInputIterator<InputIt>::value, typename List<T>::iterator>
 List<T>::insert(const_iterator position, InputIt first, InputIt last) {
 
     iterator res = Base::convert(position);
@@ -487,4 +497,4 @@ void swap(List<T>& lhs, List<T>& rhs) {
 
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_LISTTEMPLATE_H__
+#endif  // ETL_LISTTEMPLATE_H_

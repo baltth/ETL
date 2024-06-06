@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <iterator>
+
 #include <etl/MultiMap.h>
 
 #include "AtScopeEnd.h"
@@ -35,7 +37,7 @@ using Etl::Test::AtScopeEnd;
 
 namespace {
 
-namespace CheckNoexcept {
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -58,7 +60,16 @@ TEMPLATE_TEST_CASE("MultiMap nothrow contract",
     static_assert(noexcept(swap(c1, c2)), "swap() nothrow contract violation");
 }
 
-}  // namespace CheckNoexcept
+
+static_assert(std::is_same<std::iterator_traits<PC::iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for MultiMap<>::iterator");
+
+static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_category,
+                           std::bidirectional_iterator_tag>::value,
+              "Wrong iterator category for MultiMap<>::const_iterator");
+
+}  // namespace CompileTimeChecks
 
 
 TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl][basic]") {

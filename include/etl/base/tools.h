@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TOOLS_H__
-#define __ETL_TOOLS_H__
+#ifndef ETL_TOOLS_H_
+#define ETL_TOOLS_H_
 
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
+
+#include <iterator>
 
 namespace ETL_NAMESPACE {
 namespace Detail {
@@ -31,7 +33,7 @@ namespace Detail {
 
 template<class T, class S = void>
 struct TypeDefined {
-    typedef S type;
+    using type = S;
 };
 
 
@@ -112,6 +114,25 @@ struct SizeDiff {
 };
 
 
+template<typename T, typename = void>
+struct IsInputIterator {
+    static constexpr bool value = false;
+};
+
+
+template<typename T>
+struct IsInputIterator<
+    T,
+    void_t<typename std::iterator_traits<remove_reference_t<T>>::iterator_category>> {
+    static constexpr bool value =
+        is_convertible<typename std::iterator_traits<remove_reference_t<T>>::iterator_category,
+                       std::input_iterator_tag>::value;
+};
+
+static_assert(!IsInputIterator<int>::value, "IsInputIterator<> error");
+static_assert(IsInputIterator<int*>::value, "IsInputIterator<> error");
+
+
 template<class L, class R>
 enable_if_t<is_integral<L>::value && is_integral<R>::value, SizeDiff> sizeDiff(L l, R r) {
 
@@ -173,12 +194,12 @@ const bool NothrowContract<T>::value;
 
 template<typename S, typename T>
 struct CopyConst {
-    typedef T Type;
+    using Type = T;
 };
 
 template<typename S, typename T>
 struct CopyConst<const S, T> {
-    typedef const T Type;
+    using Type = const T;
 };
 
 
@@ -261,4 +282,4 @@ LockGuard<L> lock(L& toLock) noexcept(noexcept(LockGuard<L> {toLock})) {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_TOOLS_H__
+#endif  // ETL_TOOLS_H_

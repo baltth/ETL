@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2017-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_BUFSTR_H__
-#define __ETL_BUFSTR_H__
+#ifndef ETL_BUFSTR_H_
+#define ETL_BUFSTR_H_
 
 #include <etl/Vector.h>
 #include <etl/etlSupport.h>
@@ -568,4 +568,4 @@ inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* 
     return bs.write(data);
 }
 
-#endif  // __ETL_BUFSTR_H__
+#endif  // ETL_BUFSTR_H_

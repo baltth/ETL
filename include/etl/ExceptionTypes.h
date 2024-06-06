@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_EXCEPTIONTYPES_H__
-#define __ETL_EXCEPTIONTYPES_H__
+#ifndef ETL_EXCEPTIONTYPES_H_
+#define ETL_EXCEPTIONTYPES_H_
 
 #include <etl/etlSupport.h>
 
@@ -69,4 +69,4 @@ class OutOfRangeException : public Exception {
 
 #endif
 
-#endif  // __ETL_EXCEPTIONTYPES_H__
+#endif  // ETL_EXCEPTIONTYPES_H_

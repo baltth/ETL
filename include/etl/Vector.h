@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_VECTOR_H__
-#define __ETL_VECTOR_H__
+#ifndef ETL_VECTOR_H_
+#define ETL_VECTOR_H_
 
 #include <etl/base/MemStrategies.h>
 #include <etl/base/VectorTemplate.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 
 namespace ETL_NAMESPACE {
@@ -42,6 +43,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     using StrategyBase = typename Base::StrategyBase;
     using Strategy = StaticSized<StrategyBase>;
 
+    using size_type = typename Base::size_type;
+
   private:  // variables
 
     uint8_t data_[N * sizeof(T)];
@@ -50,23 +53,35 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:  // functions
 
     Vector() noexcept :
-        Base(strategy),
-        strategy(data_, N) {
+        Base {strategy},
+        strategy {data_, N} {
         this->reserve(N);
     }
 
-    explicit Vector(uint32_t len);
-    Vector(uint32_t len, const T& item);
+    explicit Vector(size_type len) :
+        Vector {} {
+        this->insertDefault(this->cbegin(), len);
+    }
+
+    Vector(size_type len, const T& item) :
+        Vector {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
+    Vector(InputIt first, InputIt last) :
+        Vector {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     Vector(const Vector& other) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(other);
     }
 
     explicit Vector(const Base& other) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(other);
     }
 
@@ -81,14 +96,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector(Vector&& other) noexcept(noexcept(Vector().moveAssignSameType(Vector()))) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         moveAssignSameType(std::move(other));
     }
 
     Vector(std::initializer_list<T> initList) :
-        Base(strategy),
-        strategy(data_, N) {
+        Vector {} {
         operator=(initList);
     }
 
@@ -140,23 +153,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 };
 
-template<class T, size_t N>
-Vector<T, N>::Vector(uint32_t len) :
-    Base(strategy),
-    strategy(data_, N) {
-
-    this->insertDefault(this->cbegin(), len);
-}
-
-
-template<class T, size_t N>
-Vector<T, N>::Vector(uint32_t len, const T& item) :
-    Base(strategy),
-    strategy(data_, N) {
-
-    this->insert(this->cbegin(), len, item);
-}
-
 }  // namespace Static
 
 
@@ -173,6 +169,8 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     using Allocator = A<typename StrategyBase::value_type>;
     using Strategy = DynamicSized<StrategyBase, Allocator>;
 
+    using size_type = typename Base::size_type;
+
   private:  // variables
 
     Strategy strategy;
@@ -180,18 +178,32 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
   public:  // functions
 
     Vector() noexcept :
-        Base(strategy) {};
+        Base {strategy} {}
 
-    explicit Vector(uint32_t len);
-    Vector(uint32_t len, const T& item);
+    explicit Vector(size_type len) :
+        Vector {} {
+        this->insertDefault(this->cbegin(), len);
+    }
+
+    Vector(size_type len, const T& item) :
+        Vector {} {
+        this->insert(this->cbegin(), len, item);
+    }
+
+    template<typename InputIt,
+             enable_if_t<Detail::IsInputIterator<InputIt>::value, bool> = true>
+    Vector(InputIt first, InputIt last) :
+        Vector {} {
+        this->insert(this->cbegin(), first, last);
+    }
 
     Vector(const Vector& other) :
-        Base(strategy) {
+        Vector {} {
         Base::operator=(other);
     }
 
     explicit Vector(const Base& other) :
-        Base(strategy) {
+        Vector {} {
         Base::operator=(other);
     }
 
@@ -206,12 +218,12 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 
     Vector(Vector&& other) noexcept(noexcept(Vector().swap(other))) :
-        Base(strategy) {
+        Vector {} {
         this->swap(other);
     }
 
     Vector(std::initializer_list<T> initList) :
-        Base(strategy) {
+        Vector {} {
         operator=(initList);
     }
 
@@ -260,22 +272,6 @@ class Vector : public ETL_NAMESPACE::Vector<T> {
     }
 };
 
-
-template<class T, template<class> class A>
-Vector<T, A>::Vector(uint32_t len) :
-    Base(strategy) {
-
-    this->insertDefault(this->cbegin(), len);
-}
-
-
-template<class T, template<class> class A>
-Vector<T, A>::Vector(uint32_t len, const T& item) :
-    Base(strategy) {
-
-    this->insert(this->cbegin(), len, item);
-}
-
 }  // namespace Custom
 
 
@@ -289,4 +285,4 @@ using Vector = ETL_NAMESPACE::Custom::Vector<T, std::allocator>;
 
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_VECTOR_H__
+#endif  // ETL_VECTOR_H_

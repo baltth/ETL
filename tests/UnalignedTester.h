@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TEST_UNALIGNEDTESTER_H__
-#define __ETL_TEST_UNALIGNEDTESTER_H__
+#ifndef ETL_TEST_UNALIGNEDTESTER_H_
+#define ETL_TEST_UNALIGNEDTESTER_H_
 
 #include <stdint.h>
 
@@ -28,10 +28,7 @@ namespace Etl {
 namespace Test {
 
 
-class __attribute__((packed)) UnalignedTester {
-
-  public:  // variables
-
+struct __attribute__((packed)) UnalignedTester {
     uint32_t a;
     uint8_t b;
 };
@@ -39,4 +36,4 @@ class __attribute__((packed)) UnalignedTester {
 }  // namespace Test
 }  // namespace Etl
 
-#endif  // __ETL_TEST_UNALIGNEDTESTER_H__
+#endif  // ETL_TEST_UNALIGNEDTESTER_H_

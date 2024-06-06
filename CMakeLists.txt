@@ -38,6 +38,10 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Interface library for compile flags and configuration
 add_library(etl-compile-if INTERFACE)
 target_link_libraries(etl-compile-if INTERFACE Threads::Threads)

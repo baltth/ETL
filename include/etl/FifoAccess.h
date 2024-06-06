@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2021 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_FIFOACCESS_H__
-#define __ETL_FIFOACCESS_H__
+#ifndef ETL_FIFOACCESS_H_
+#define ETL_FIFOACCESS_H_
 
 #include <etl/Span.h>
 #include <etl/base/AFifoIterator.h>
@@ -234,4 +234,4 @@ typename FifoAccess<T>::const_reference FifoAccess<T>::operator[](int32_t ix) co
 
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_FIFOACCESS_H__
+#endif  // ETL_FIFOACCESS_H_

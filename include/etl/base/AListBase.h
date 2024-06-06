@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_ALISTBASE_H__
-#define __ETL_ALISTBASE_H__
+#ifndef ETL_ALISTBASE_H_
+#define ETL_ALISTBASE_H_
 
 #include <etl/base/DoubleChain.h>
 #include <etl/base/tools.h>
@@ -86,7 +86,7 @@ class AListBase {
             node {n} {}
     };
 
-    typedef std::uint32_t size_type;
+    using size_type = std::uint32_t;
 
   protected:  // variables
 
@@ -176,4 +176,4 @@ static_assert(NothrowContract<AListBase>::value,
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_ALISTBASE_H__
+#endif  // ETL_ALISTBASE_H_

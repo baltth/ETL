@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2022 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TYPEDVECTORBASE_H__
-#define __ETL_TYPEDVECTORBASE_H__
+#ifndef ETL_TYPEDVECTORBASE_H_
+#define ETL_TYPEDVECTORBASE_H_
 
 #include <etl/base/AVectorBase.h>
 #include <etl/base/MemStrategies_fwd.h>
@@ -63,18 +63,18 @@ class TypedVectorBase : public AVectorBase {
 
   public:  // types
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+    using value_type = T;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
-    typedef pointer iterator;
-    typedef const_pointer const_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    typedef std::uint32_t size_type;
+    using size_type = std::size_t;
 
   protected:
 
@@ -241,20 +241,20 @@ class TypedVectorBase : public AVectorBase {
         clear();
     }
 
-    pointer getItemPointer(uint32_t ix) noexcept {
-        return static_cast<pointer>(AVectorBase::getItemPointer(ix));
+    pointer getItemPointer(size_t i) noexcept {
+        return static_cast<pointer>(AVectorBase::getItemPointer(i));
     }
 
-    const_pointer getConstItemPointer(uint32_t ix) const noexcept {
-        return static_cast<const_pointer>(AVectorBase::getItemPointer(ix));
+    const_pointer getConstItemPointer(size_t i) const noexcept {
+        return static_cast<const_pointer>(AVectorBase::getItemPointer(i));
     }
 
-    iterator getIterator(uint32_t ix) noexcept {
-        return static_cast<iterator>(getItemPointer(ix));
+    iterator getIterator(size_t i) noexcept {
+        return static_cast<iterator>(getItemPointer(i));
     }
 
-    const_iterator getConstIterator(uint32_t ix) const noexcept {
-        return static_cast<const_iterator>(getConstItemPointer(ix));
+    const_iterator getConstIterator(size_t i) const noexcept {
+        return static_cast<const_iterator>(getConstItemPointer(i));
     }
 
     void copyOperation(pointer dst, const_pointer src, size_type num) noexcept(
@@ -947,4 +947,4 @@ class TypedVectorBase<T>::ContCreator {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_TYPEDVECTORBASE_H__
+#endif  // ETL_TYPEDVECTORBASE_H_

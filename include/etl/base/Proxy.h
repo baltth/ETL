@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2016-2023 Balazs Toth.
+Copyright 2016-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_PROXY_H__
-#define __ETL_PROXY_H__
+#ifndef ETL_PROXY_H_
+#define ETL_PROXY_H_
 
 #include <etl/etlSupport.h>
 
@@ -77,12 +77,12 @@ class Proxy {
 
     ~Proxy() = default;
 
-    void* getItemPointer(size_t ix) noexcept {
-        return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
+    void* getItemPointer(size_t i) noexcept {
+        return static_cast<void*>(static_cast<uint8_t*>(data_) + (i * itemSize));
     }
 
-    const void* getItemPointer(size_t ix) const noexcept {
-        return static_cast<void*>(static_cast<uint8_t*>(data_) + (ix * itemSize));
+    const void* getItemPointer(size_t i) const noexcept {
+        return static_cast<void*>(static_cast<uint8_t*>(data_) + (i * itemSize));
     }
 
     void* data() noexcept {
@@ -105,4 +105,4 @@ class Proxy {
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_PROXY_H__
+#endif  // ETL_PROXY_H_

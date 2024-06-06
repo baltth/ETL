@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2023 Balazs Toth.
+Copyright 2019-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_AHASHTABLE_H__
-#define __ETL_AHASHTABLE_H__
+#ifndef ETL_AHASHTABLE_H_
+#define ETL_AHASHTABLE_H_
 
 #include <etl/Span.h>
 #include <etl/base/SingleChain.h>
@@ -441,4 +441,4 @@ inline AHashTable rehashTable(AHashTable& hashTable, AHashTable::Buckets newBuck
 }  // namespace Detail
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_AHASHTABLE_H__
+#endif  // ETL_AHASHTABLE_H_

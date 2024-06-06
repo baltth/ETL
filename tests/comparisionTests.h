@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2021 Balazs Toth.
+Copyright 2017-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TEST_COMPARISIONTESTS_H__
-#define __ETL_TEST_COMPARISIONTESTS_H__
+#ifndef ETL_TEST_COMPARISIONTESTS_H_
+#define ETL_TEST_COMPARISIONTESTS_H_
 
 #include <catch2/catch.hpp>
 
@@ -152,4 +152,4 @@ void testEquivalence(L& lhs,
     eq();
 }
 
-#endif  // __ETL_TEST_COMPARISIONTESTS_H__
+#endif  // ETL_TEST_COMPARISIONTESTS_H_

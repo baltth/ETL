@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef __ETL_TRAITSUPPORT_H__
-#define __ETL_TRAITSUPPORT_H__
+#ifndef ETL_TRAITSUPPORT_H_
+#define ETL_TRAITSUPPORT_H_
 
 #include <etl/etlSupport.h>
 
@@ -178,6 +178,9 @@ using common_type_t = typename std::common_type<T...>::type;
 template<class T>
 using underlying_type_t = typename std::underlying_type<T>::type;
 
+template<class...>
+using void_t = void;
+
 }  // namespace ETL_NAMESPACE
 
-#endif  // __ETL_TRAITSUPPORT_H__
+#endif  // ETL_TRAITSUPPORT_H_

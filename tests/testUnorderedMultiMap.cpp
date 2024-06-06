@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022-2023 Balazs Toth.
+Copyright 2022-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <algorithm>
+#include <iterator>
+
 #include <etl/List.h>
 #include <etl/Set.h>
 #include <etl/UnorderedMultiMap.h>
@@ -31,13 +34,13 @@ limitations under the License.
 #include "comparisionTests.h"
 #include "swapTests.h"
 
-#include <algorithm>
-
 using Etl::Test::ContainerTester;
 using Etl::Test::DummyAllocator;
 using Etl::Test::AtScopeEnd;
 
-namespace CheckNoexcept {
+namespace {
+
+namespace CompileTimeChecks {
 
 using Etl::Detail::NothrowContract;
 
@@ -80,9 +83,19 @@ TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept swap",
     REQUIRE(noexcept(swap(c1, c2)));
 }
 
-}  // namespace CheckNoexcept
 
-namespace {
+static_assert(
+    std::is_same<std::iterator_traits<PooledUnorderedMultiMap::iterator>::iterator_category,
+                 std::forward_iterator_tag>::value,
+    "Wrong iterator category for UnorderedMultiMap<>::iterator");
+
+static_assert(
+    std::is_same<std::iterator_traits<PooledUnorderedMultiMap::const_iterator>::iterator_category,
+                 std::forward_iterator_tag>::value,
+    "Wrong iterator category for UnorderedMultiMap<>::const_iterator");
+
+}  // namespace CompileTimeChecks
+
 
 template<class It>
 Etl::Dynamic::List<typename It::value_type::second_type> fetchValues(It first, It last) {

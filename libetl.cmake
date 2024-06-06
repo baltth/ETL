@@ -42,7 +42,7 @@ endif()
 if(TARGET ${ETL_NAME}-prv-compile-if)
     target_link_libraries(${ETL_NAME} PRIVATE ${ETL_NAME}-prv-compile-if)
 elseif(TARGET etl-prv-compile-if)
-    target_link_libraries(${ETL_NAME} PUBLIC etl-prv-compile-if)
+    target_link_libraries(${ETL_NAME} PRIVATE etl-prv-compile-if)
 endif()
 
 install(TARGETS ${ETL_NAME} ARCHIVE DESTINATION lib)
