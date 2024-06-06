@@ -53,8 +53,18 @@ void constructForSizeAndValue(Val v) {
 template<class Cont>
 void constructForSize() {
 
+    static constexpr std::size_t N {5U};
+
+    Cont c {N};
+
+    REQUIRE_FALSE(c.empty());
+    REQUIRE(c.size() == N);
+
     const auto DEF = typename Cont::value_type {};
-    constructForSizeAndValue<Cont>(DEF);
+
+    for (const auto& item : c) {
+        REQUIRE(item == DEF);
+    }
 }
 
 
