@@ -22,6 +22,8 @@ limitations under the License.
 #ifndef ETL_TEST_DUMMYALLOCATOR_H_
 #define ETL_TEST_DUMMYALLOCATOR_H_
 
+#include <etl/etlSupport.h>
+
 namespace Etl {
 namespace Test {
 
@@ -31,43 +33,44 @@ class DummyAllocator {
 
   public:  // types
 
-    typedef T ItemType;
-    static const uint32_t SIZE = 64;
+    using ItemType = T;
+
+    static const size_t SIZE {64U};
 
   private:  // variables
 
     static uint8_t data[SIZE * sizeof(T)];
-    static uint32_t cnt;
-    static uint32_t deleteCnt;
+    static size_t cnt;
+    static size_t deleteCnt;
 
   public:  // functions
 
     T* allocate(size_t n) {
 
         if (cnt + n > SIZE) {
-            return NULL;
+            return nullptr;
         }
 
-        T* ptr = const_cast<T*>(ptrOfAllocation(cnt));
+        auto* ptr = const_cast<T*>(ptrOfAllocation(cnt));
         cnt += n;
 
         return ptr;
     }
 
-    void deallocate(T* ptr, uint32_t n) {
+    void deallocate(T* ptr, size_t n) {
         (void)ptr;
         deleteCnt += n;
     }
 
-    static const T* ptrOfAllocation(uint32_t n) {
+    static const T* ptrOfAllocation(size_t n) {
         return reinterpret_cast<T*>(&data[n * sizeof(T)]);
     }
 
-    static uint32_t getDeleteCount() {
+    static size_t getDeleteCount() {
         return deleteCnt;
     }
 
-    static uint32_t getAllocCount() {
+    static size_t getAllocCount() {
         return cnt;
     }
 
@@ -86,10 +89,10 @@ template<class T>
 uint8_t DummyAllocator<T>::data[SIZE * sizeof(T)];
 
 template<class T>
-uint32_t DummyAllocator<T>::cnt = 0;
+size_t DummyAllocator<T>::cnt = 0;
 
 template<class T>
-uint32_t DummyAllocator<T>::deleteCnt = 0;
+size_t DummyAllocator<T>::deleteCnt = 0;
 
 }  // namespace Test
 }  // namespace Etl
