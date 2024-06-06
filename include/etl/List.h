@@ -59,7 +59,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
     explicit List(size_type len) :
         List {} {
-        this->emplace(this->cbegin(), T {});
+        this->insert(this->cbegin(), len, T {});
     }
 
     List(size_type len, const T& item) :
@@ -182,7 +182,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
     explicit List(size_type len) :
         List {} {
-        this->emplace(this->cbegin(), T {});
+        this->insert(this->cbegin(), len, T {});
     }
 
     List(size_type len, const T& item) :
@@ -296,7 +296,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
     explicit List(size_type len) :
         List {} {
-        this->emplace(this->cbegin(), T {});
+        this->insert(this->cbegin(), len, T {});
     }
 
     List(size_type len, const T& item) :
