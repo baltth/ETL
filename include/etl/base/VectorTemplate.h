@@ -275,6 +275,35 @@ class Vector : protected Detail::TypedVectorBase<T> {
     template<typename InputIt>
     iterator insertRangeWithSNR(const_iterator position, InputIt first, InputIt last) noexcept(
         is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value);
+
+
+    friend bool operator==(const Vector& lhs, const Vector& rhs) {
+        return Detail::isEqual(lhs, rhs);
+    }
+
+    friend bool operator!=(const Vector& lhs, const Vector& rhs) {
+        return !(lhs == rhs);
+    }
+
+    friend bool operator<(const Vector& lhs, const Vector& rhs) {
+        return Detail::isLess(lhs, rhs);
+    }
+
+    friend bool operator<=(const Vector& lhs, const Vector& rhs) {
+        return !(rhs < lhs);
+    }
+
+    friend bool operator>(const Vector& lhs, const Vector& rhs) {
+        return (rhs < lhs);
+    }
+
+    friend bool operator>=(const Vector& lhs, const Vector& rhs) {
+        return !(lhs < rhs);
+    }
+
+    friend void swap(Vector& lhs, Vector& rhs) {
+        lhs.swap(rhs);
+    }
 };
 
 
@@ -673,44 +702,35 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
                             reinterpret_cast<typename Base::pointer>(src),
                             num);
     }
+
+    friend bool operator==(const Vector& lhs, const Vector& rhs) {
+        return Detail::isEqual(lhs, rhs);
+    }
+
+    friend bool operator!=(const Vector& lhs, const Vector& rhs) {
+        return !(lhs == rhs);
+    }
+
+    friend bool operator<(const Vector& lhs, const Vector& rhs) {
+        return Detail::isLess(lhs, rhs);
+    }
+
+    friend bool operator<=(const Vector& lhs, const Vector& rhs) {
+        return !(rhs < lhs);
+    }
+
+    friend bool operator>(const Vector& lhs, const Vector& rhs) {
+        return (rhs < lhs);
+    }
+
+    friend bool operator>=(const Vector& lhs, const Vector& rhs) {
+        return !(lhs < rhs);
+    }
+
+    friend void swap(Vector& lhs, Vector& rhs) {
+        lhs.swap(rhs);
+    }
 };
-
-
-template<class T>
-bool operator==(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return Detail::isEqual(lhs, rhs);
-}
-
-template<class T>
-bool operator!=(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return !(lhs == rhs);
-}
-
-template<class T>
-bool operator<(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return Detail::isLess(lhs, rhs);
-}
-
-template<class T>
-bool operator<=(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return !(rhs < lhs);
-}
-
-template<class T>
-bool operator>(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return (rhs < lhs);
-}
-
-template<class T>
-bool operator>=(const Vector<T>& lhs, const Vector<T>& rhs) {
-    return !(lhs < rhs);
-}
-
-
-template<class T>
-void swap(Vector<T>& lhs, Vector<T>& rhs) {
-    lhs.swap(rhs);
-}
 
 }  // namespace ETL_NAMESPACE
 
