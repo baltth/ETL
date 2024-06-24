@@ -666,6 +666,13 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
             Base::insertDefault(reinterpret_cast<typename Base::const_iterator>(position),
                                 num));
     }
+
+    void moveFromOther(pointer dst, pointer src, size_type num) noexcept(
+        is_nothrow_move_assignable<T>::value&& is_nothrow_move_constructible<T>::value) {
+        Base::moveFromOther(reinterpret_cast<typename Base::pointer>(dst),
+                            reinterpret_cast<typename Base::pointer>(src),
+                            num);
+    }
 };
 
 
