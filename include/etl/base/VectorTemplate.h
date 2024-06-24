@@ -97,7 +97,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
         return *this;
     }
 
-    Vector& operator=(std::initializer_list<T> initList) {
+    Vector& operator=(std::initializer_list<value_type> initList) {
         assign(initList);
         return *this;
     }
@@ -118,7 +118,7 @@ class Vector : protected Detail::TypedVectorBase<T> {
         insert(this->begin(), first, last);
     }
 
-    void assign(std::initializer_list<T> initList) {
+    void assign(std::initializer_list<value_type> initList) {
         assign(initList.begin(), initList.end());
     }
     /// \}
@@ -479,8 +479,8 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
         return *this;
     }
 
-    Vector& operator=(std::initializer_list<T> initList) {
-        Base::operator=(initList);
+    Vector& operator=(std::initializer_list<value_type> initList) {
+        assign(initList);
         return *this;
     }
 
@@ -499,7 +499,7 @@ class Vector<T*> : public Vector<typename Detail::CopyConst<T, void>::Type*> {
         insert(this->begin(), first, last);
     }
 
-    void assign(std::initializer_list<T> initList) {
+    void assign(std::initializer_list<value_type> initList) {
         assign(initList.begin(), initList.end());
     }
     /// \}

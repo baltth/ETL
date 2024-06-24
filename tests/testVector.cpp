@@ -49,12 +49,16 @@ using Etl::Detail::NothrowContract;
 using SC = Etl::Static::Vector<int, 16U>;
 using SCSC = Etl::Static::Vector<SC, 8U>;
 using DC = Etl::Dynamic::Vector<int>;
+using SCV = Etl::Static::Vector<int*, 16U>;
+using DCV = Etl::Dynamic::Vector<int*>;
 
 TEMPLATE_TEST_CASE("Vector nothrow contract",
                    "[vector][etl][basic]",
                    SC,
                    SCSC,
-                   DC) {
+                   DC,
+                   SCV,
+                   DCV) {
 
     static_assert(NothrowContract<TestType>::value, "nothrow contract violation");
     using std::swap;
@@ -68,6 +72,14 @@ static_assert(std::is_same<std::iterator_traits<SC::iterator>::iterator_category
               "Wrong iterator category for Vector<>::iterator");
 
 static_assert(std::is_same<std::iterator_traits<SC::const_iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Vector<>::const_iterator");
+
+static_assert(std::is_same<std::iterator_traits<SCV::iterator>::iterator_category,
+                           std::random_access_iterator_tag>::value,
+              "Wrong iterator category for Vector<>::iterator");
+
+static_assert(std::is_same<std::iterator_traits<SCV::const_iterator>::iterator_category,
                            std::random_access_iterator_tag>::value,
               "Wrong iterator category for Vector<>::const_iterator");
 
@@ -1254,5 +1266,30 @@ TEST_CASE("Etl::Vector<> stability issues", "[vec][etl][stab]") {
         verify(vec);
     }
 }
+
+
+// Etl::Vector<T*> ------------------------------------------------------------
+
+TEST_CASE("Etl::Vector<T*> tests", "[vec][etl]") {
+
+    static constexpr std::size_t DATA_SIZE {7U};
+    const auto data = std::array<int, DATA_SIZE> {1, 2, 3, 4, 5, 6, 7};
+
+    Etl::Static::Vector<const int*, DATA_SIZE> v({&data[2], &data[4], &data[6]});
+
+    REQUIRE(v.size() == 3U);
+    REQUIRE(v.front() == &data[2]);
+    REQUIRE(v[1] == &data[4]);
+    REQUIRE(v.back() == &data[6]);
+
+    auto prev = v.begin();
+    REQUIRE(*prev != nullptr);
+    for (auto it = std::next(v.begin()); it != v.end(); ++it) {
+        REQUIRE(*it != nullptr);
+        REQUIRE(*it > *prev);
+        prev = it;
+    }
+}
+
 
 }  // namespace
