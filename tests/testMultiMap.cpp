@@ -47,7 +47,7 @@ using PC = Etl::Pooled::MultiMap<int, int, 16U>;
 using DC = Etl::Dynamic::MultiMap<int, int>;
 
 TEMPLATE_TEST_CASE("MultiMap nothrow contract",
-                   "[multimap][etl][basic]",
+                   "[multimap][etl]",
                    SC,
                    SCSC,
                    PC,
@@ -72,7 +72,7 @@ static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_ca
 }  // namespace CompileTimeChecks
 
 
-TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl][basic]") {
+TEST_CASE("Etl::Dynamic::MultiMap<> basic test", "[multimap][etl]") {
 
     typedef Etl::Dynamic::MultiMap<int, ContainerTester> MapType;
     MapType map;

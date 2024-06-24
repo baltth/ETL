@@ -51,7 +51,7 @@ using PooledUnorderedMultiMap = Etl::Pooled::UnorderedMultiMap<int, int, 16U, 4U
 using DynamicUnorderedMultiMap = Etl::Dynamic::UnorderedMultiMap<int, int>;
 
 TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept default constructor",
-                   "[unorderedmultimap][etl][basic]",
+                   "[unorderedmultimap][etl]",
                    StaticUnorderedMultiMap,
                    StaticUnorderedMultiMapNested,
                    PooledUnorderedMultiMap) {  // Dynamic skipped intentionally
@@ -60,7 +60,7 @@ TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept default constructor",
 }
 
 TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept move",
-                   "[unorderedmultimap][etl][basic]",
+                   "[unorderedmultimap][etl]",
                    StaticUnorderedMultiMap,
                    StaticUnorderedMultiMapNested,
                    PooledUnorderedMultiMap,
@@ -71,7 +71,7 @@ TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept move",
 }
 
 TEMPLATE_TEST_CASE("UnorderedMultiMap noexcept swap",
-                   "[unorderedmultimap][etl][basic]",
+                   "[unorderedmultimap][etl]",
                    StaticUnorderedMultiMap,
                    StaticUnorderedMultiMapNested,
                    PooledUnorderedMultiMap,
@@ -109,7 +109,7 @@ Etl::Dynamic::List<typename It::value_type::second_type> fetchValues(It first, I
 }
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMultiMap<> basic test", "[unorderedmultimap][etl][basic]") {
+TEST_CASE("Etl::Dynamic::UnorderedMultiMap<> basic test", "[unorderedmultimap][etl]") {
 
     using MapType = Etl::Dynamic::UnorderedMultiMap<uint32_t, ContainerTester>;
     MapType map;

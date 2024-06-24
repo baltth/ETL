@@ -47,7 +47,7 @@ using PC = Etl::Pooled::Map<int, int, 16U>;
 using DC = Etl::Dynamic::Map<int, int>;
 
 TEMPLATE_TEST_CASE("Map nothrow contract",
-                   "[map][etl][basic]",
+                   "[map][etl]",
                    SC,
                    SCSC,
                    PC,
@@ -72,7 +72,7 @@ static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_ca
 }  // namespace CompileTimeChecks
 
 
-TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Map<> basic test", "[map][etl]") {
 
     Etl::Dynamic::Map<uint32_t, ContainerTester> map;
 

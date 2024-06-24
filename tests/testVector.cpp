@@ -53,7 +53,7 @@ using SCV = Etl::Static::Vector<int*, 16U>;
 using DCV = Etl::Dynamic::Vector<int*>;
 
 TEMPLATE_TEST_CASE("Vector nothrow contract",
-                   "[vector][etl][basic]",
+                   "[vector][etl]",
                    SC,
                    SCSC,
                    DC,
@@ -126,7 +126,7 @@ void testVectorBasic() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> basic test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -135,7 +135,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> basic test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> constructor test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -158,7 +158,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> constructor test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> push/pop test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -168,7 +168,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> push/pop test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> iteration test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -312,7 +312,7 @@ void testVectorInsertAndErase() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> insert/erase test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 256U>)) {
 
@@ -346,7 +346,7 @@ void testVectorAssignment() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> assignment test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -441,7 +441,7 @@ void testVectorLeak() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> leak test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -487,7 +487,7 @@ void testVectorWithPtrItem() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<T*> test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int*>),
                    (Etl::Dynamic::Vector<const int*>),
                    (Etl::Static::Vector<int*, 16U>),
@@ -683,7 +683,7 @@ void testVectorEmplace() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> emplace test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -738,7 +738,7 @@ void testVectorMove() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> move test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -1018,7 +1018,7 @@ TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vec][dynamic][etl]") {
 // Etl::Static::Vector tests --------------------------------------------------
 
 
-TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 16;
 
@@ -1070,7 +1070,7 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]
 }
 
 
-TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 4;
 
@@ -1089,7 +1089,7 @@ TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 16;
     static const uint32_t CAPACITY4 = 20;

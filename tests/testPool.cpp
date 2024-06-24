@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2023 Balazs Toth.
+Copyright 2017-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ limitations under the License.
 
 namespace {
 
-TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl][basic]") {
+TEST_CASE("Etl::MemoryPool<> basic test", "[pool][etl]") {
 
     Etl::MemoryPool<16, 16> pool;
 
@@ -160,7 +160,7 @@ void testMemoryPoolRandomAccess() {
     REQUIRE(((items[7] == item4) || (items[7] == item6) || (items[7] == item7)));
 }
 
-TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
+TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl]") {
 
     SECTION("for size 16") {
         testMemoryPoolRandomAccess<16, 8>();
@@ -176,7 +176,7 @@ TEST_CASE("Etl::MemoryPool<> random access", "[pool][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::PoolAllocator basic tests", "[poolallocator][etl][basic]") {
+TEST_CASE("Etl::PoolAllocator basic tests", "[poolallocator][etl]") {
 
     static const std::size_t SIZE {16U};
     Etl::PoolHelperForSize<SIZE>::Allocator<int> pool;
@@ -208,7 +208,7 @@ TEST_CASE("Etl::PoolAllocator basic tests", "[poolallocator][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::CommonPoolAllocator basic tests", "[poolallocator][etl][basic]") {
+TEST_CASE("Etl::CommonPoolAllocator basic tests", "[poolallocator][etl]") {
 
     static const std::size_t SIZE {16U};
     Etl::PoolHelperForSize<SIZE>::CommonAllocator<int> pool1;
@@ -258,7 +258,7 @@ TEST_CASE("Etl::CommonPoolAllocator basic tests", "[poolallocator][etl][basic]")
 }
 
 
-TEST_CASE("Etl::CommonPoolAllocator concurrency test", "[poolallocator][etl][basic]") {
+TEST_CASE("Etl::CommonPoolAllocator concurrency test", "[poolallocator][etl]") {
 
     static const std::size_t NUM_THREADS {10000U};
     static const std::size_t SIZE {100000U};
