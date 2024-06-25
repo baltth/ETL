@@ -49,16 +49,16 @@ using Etl::Detail::NothrowContract;
 using SC = Etl::Static::Vector<int, 16U>;
 using SCSC = Etl::Static::Vector<SC, 8U>;
 using DC = Etl::Dynamic::Vector<int>;
-using SCV = Etl::Static::Vector<int*, 16U>;
-using DCV = Etl::Dynamic::Vector<int*>;
+using SCP = Etl::Static::Vector<int*, 16U>;
+using DCP = Etl::Dynamic::Vector<int*>;
 
 TEMPLATE_TEST_CASE("Vector nothrow contract",
-                   "[vector][etl][basic]",
+                   "[vector][etl]",
                    SC,
                    SCSC,
                    DC,
-                   SCV,
-                   DCV) {
+                   SCP,
+                   DCP) {
 
     static_assert(NothrowContract<TestType>::value, "nothrow contract violation");
     using std::swap;
@@ -75,11 +75,11 @@ static_assert(std::is_same<std::iterator_traits<SC::const_iterator>::iterator_ca
                            std::random_access_iterator_tag>::value,
               "Wrong iterator category for Vector<>::const_iterator");
 
-static_assert(std::is_same<std::iterator_traits<SCV::iterator>::iterator_category,
+static_assert(std::is_same<std::iterator_traits<SCP::iterator>::iterator_category,
                            std::random_access_iterator_tag>::value,
               "Wrong iterator category for Vector<>::iterator");
 
-static_assert(std::is_same<std::iterator_traits<SCV::const_iterator>::iterator_category,
+static_assert(std::is_same<std::iterator_traits<SCP::const_iterator>::iterator_category,
                            std::random_access_iterator_tag>::value,
               "Wrong iterator category for Vector<>::const_iterator");
 
@@ -126,7 +126,7 @@ void testVectorBasic() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> basic test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -135,7 +135,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> basic test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> constructor test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -158,7 +158,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> constructor test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> push/pop test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -168,7 +168,7 @@ TEMPLATE_TEST_CASE("Etl::Vector<> push/pop test",
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> iteration test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 16U>)) {
 
@@ -312,7 +312,7 @@ void testVectorInsertAndErase() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> insert/erase test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int>),
                    (Etl::Static::Vector<int, 256U>)) {
 
@@ -346,7 +346,7 @@ void testVectorAssignment() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> assignment test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -441,7 +441,7 @@ void testVectorLeak() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> leak test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -487,7 +487,7 @@ void testVectorWithPtrItem() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<T*> test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<int*>),
                    (Etl::Dynamic::Vector<const int*>),
                    (Etl::Static::Vector<int*, 16U>),
@@ -683,7 +683,7 @@ void testVectorEmplace() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> emplace test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -738,7 +738,7 @@ void testVectorMove() {
 
 
 TEMPLATE_TEST_CASE("Etl::Vector<> move test",
-                   "[vec][etl][basic]",
+                   "[vec][etl]",
                    (Etl::Dynamic::Vector<ContainerTester>),
                    (Etl::Static::Vector<ContainerTester, 16U>)) {
 
@@ -1018,7 +1018,7 @@ TEST_CASE("Etl::Dynamic::Vector<> test cleanup", "[vec][dynamic][etl]") {
 // Etl::Static::Vector tests --------------------------------------------------
 
 
-TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 16;
 
@@ -1070,7 +1070,7 @@ TEST_CASE("Etl::Static::Vector<> size/capacity test", "[vec][static][etl][basic]
 }
 
 
-TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 4;
 
@@ -1089,7 +1089,7 @@ TEST_CASE("Etl::Static::Vector<> full push test", "[vec][static][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl][basic]") {
+TEST_CASE("Etl::Static::Vector<> constructor test", "[vec][static][etl]") {
 
     static const uint32_t CAPACITY = 16;
     static const uint32_t CAPACITY4 = 20;
@@ -1270,26 +1270,91 @@ TEST_CASE("Etl::Vector<> stability issues", "[vec][etl][stab]") {
 
 // Etl::Vector<T*> ------------------------------------------------------------
 
-TEST_CASE("Etl::Vector<T*> tests", "[vec][etl]") {
+namespace VecOfPointers {
+
+using SC = Etl::Static::Vector<int*, 12U>;
+using DC = Etl::Dynamic::Vector<int*>;
+using SCC = Etl::Static::Vector<const int*, 12U>;
+using DCC = Etl::Dynamic::Vector<const int*>;
+
+TEMPLATE_TEST_CASE("Etl::Vector<T*> tests",
+                   "[vec][etl]",
+                   (std::pair<SC, SC>),
+                   (std::pair<SC, DC>),
+                   (std::pair<DC, DC>),
+                   (std::pair<DC, SC>),
+                   (std::pair<SCC, SCC>),
+                   (std::pair<SCC, DCC>),
+                   (std::pair<DCC, DCC>),
+                   (std::pair<DCC, SCC>)) {
 
     static constexpr std::size_t DATA_SIZE {7U};
-    const auto data = std::array<int, DATA_SIZE> {1, 2, 3, 4, 5, 6, 7};
+    auto data = std::array<int, DATA_SIZE> {1, 2, 3, 4, 5, 6, 7};
 
-    Etl::Static::Vector<const int*, DATA_SIZE> v({&data[2], &data[4], &data[6]});
+    using FirstType = typename TestType::first_type;
+    using OtherType = typename TestType::second_type;
 
-    REQUIRE(v.size() == 3U);
-    REQUIRE(v.front() == &data[2]);
-    REQUIRE(v[1] == &data[4]);
-    REQUIRE(v.back() == &data[6]);
+    FirstType v({&data[2], &data[4], &data[6]});
 
-    auto prev = v.begin();
-    REQUIRE(*prev != nullptr);
-    for (auto it = std::next(v.begin()); it != v.end(); ++it) {
-        REQUIRE(*it != nullptr);
-        REQUIRE(*it > *prev);
-        prev = it;
+    SECTION("basic operations") {
+
+        REQUIRE(v.size() == 3U);
+        REQUIRE(v.front() == &data[2]);
+        REQUIRE(v[1] == &data[4]);
+        REQUIRE(v.back() == &data[6]);
+
+        auto prev = v.begin();
+        REQUIRE(*prev != nullptr);
+        for (auto it = std::next(v.begin()); it != v.end(); ++it) {
+            REQUIRE(*it != nullptr);
+            REQUIRE(*it > *prev);
+            prev = it;
+        }
+
+        v.push_front(nullptr);
+        REQUIRE(v.size() == 4U);
+        REQUIRE(v.front() == nullptr);
+        REQUIRE(v.back() == &data[6]);
+    }
+
+    SECTION("V(const V&)") {
+
+        OtherType v2(v);
+
+        REQUIRE(v2.size() == v.size());
+        REQUIRE(v2.front() == v.front());
+        REQUIRE(v2 == v);
+    }
+
+    SECTION("V = const V&") {
+
+        OtherType v2({nullptr});
+        CHECK_FALSE(v2.empty());
+
+        v2 = v;
+
+        REQUIRE(v2 == v);
+    }
+
+    FirstType vOrig = v;
+    CHECK(vOrig == v);
+
+    SECTION("V(V&&)") {
+
+        OtherType v2(std::move(v));
+        REQUIRE(v2 == vOrig);
+    }
+
+    SECTION("V = V&&") {
+
+        OtherType v2({nullptr});
+        CHECK_FALSE(v2.empty());
+
+        v2 = std::move(v);
+        REQUIRE(v2 == vOrig);
     }
 }
 
+}  // namespace VecOfPointers
 
 }  // namespace

@@ -46,7 +46,7 @@ using PooledUnorderedSet = Etl::Pooled::UnorderedSet<int, 16U, 8U>;
 using DynamicUnorderedSet = Etl::Dynamic::UnorderedSet<int>;
 
 TEMPLATE_TEST_CASE("UnorderedSet noexcept default constructor",
-                   "[unorderedset][etl][basic]",
+                   "[unorderedset][etl]",
                    StaticUnorderedSet,
                    StaticUnorderedSetNested,
                    PooledUnorderedSet) {  // Dynamic skipped intentionally
@@ -55,7 +55,7 @@ TEMPLATE_TEST_CASE("UnorderedSet noexcept default constructor",
 }
 
 TEMPLATE_TEST_CASE("UnorderedSet noexcept move",
-                   "[unorderedset][etl][basic]",
+                   "[unorderedset][etl]",
                    StaticUnorderedSet,
                    StaticUnorderedSetNested,
                    PooledUnorderedSet,
@@ -66,7 +66,7 @@ TEMPLATE_TEST_CASE("UnorderedSet noexcept move",
 }
 
 TEMPLATE_TEST_CASE("UnorderedSet noexcept swap",
-                   "[unorderedset][etl][basic]",
+                   "[unorderedset][etl]",
                    StaticUnorderedSet,
                    StaticUnorderedSetNested,
                    PooledUnorderedSet,
@@ -92,7 +92,7 @@ static_assert(
 
 namespace {
 
-TEST_CASE("Etl::Dynamic::UnorderedSet<> basic test", "[unorderedset][etl][basic]") {
+TEST_CASE("Etl::Dynamic::UnorderedSet<> basic test", "[unorderedset][etl]") {
 
     using SetType = Etl::Dynamic::UnorderedSet<ContainerTester>;
     SetType set;

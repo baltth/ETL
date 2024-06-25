@@ -51,7 +51,7 @@ using PC = Etl::Pooled::List<int, 16U>;
 using DC = Etl::Dynamic::List<int>;
 
 TEMPLATE_TEST_CASE("List nothrow contract",
-                   "[list][etl][basic]",
+                   "[list][etl]",
                    SC,
                    SCSC,
                    PC,
@@ -77,7 +77,7 @@ static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_ca
 
 
 TEMPLATE_TEST_CASE("Etl::List<> basic test",
-                   "[list][etl][basic]",
+                   "[list][etl]",
                    (Etl::Dynamic::List<int>),
                    (Etl::Static::List<int, 16U>),
                    (Etl::Pooled::List<int, 16U>)) {
@@ -130,7 +130,7 @@ TEMPLATE_TEST_CASE("Etl::List<> basic test",
 
 
 TEMPLATE_TEST_CASE("Etl::List<> constructor test",
-                   "[list][etl][basic]",
+                   "[list][etl]",
                    (Etl::Dynamic::List<ContainerTester>),
                    (Etl::Static::List<ContainerTester, 16U>),
                    (Etl::Pooled::List<ContainerTester, 16U>)) {
@@ -154,7 +154,7 @@ TEMPLATE_TEST_CASE("Etl::List<> constructor test",
 
 
 TEMPLATE_TEST_CASE("Etl::List<> push/pop test",
-                   "[list][etl][basic]",
+                   "[list][etl]",
                    (Etl::Dynamic::List<int>),
                    (Etl::Static::List<int, 16U>),
                    (Etl::Pooled::List<int, 16U>)) {
@@ -165,7 +165,7 @@ TEMPLATE_TEST_CASE("Etl::List<> push/pop test",
 
 
 TEMPLATE_TEST_CASE("Etl::List<> iteration test",
-                   "[list][etl][basic]",
+                   "[list][etl]",
                    (Etl::Dynamic::List<int>),
                    (Etl::Static::List<int, 16U>),
                    (Etl::Pooled::List<int, 16U>)) {

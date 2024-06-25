@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017 Balazs Toth.
+Copyright 2017-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ void testFifoBasic(FifoT& fifo, uint32_t capacity) {
 }
 
 
-TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl]") {
 
     static const uint32_t SIZE = 16;
     typedef Etl::Fifo<Etl::Array<int, SIZE>> FifoType;
@@ -62,7 +62,7 @@ TEST_CASE("Etl::Fifo<> basic test with Array<>", "[fifo][array][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynamic][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynamic][etl]") {
 
     static const uint32_t SIZE = 16;
     typedef Etl::Fifo<Etl::Dynamic::Vector<int>> FifoType;
@@ -72,7 +72,7 @@ TEST_CASE("Etl::Fifo<> basic test with Dynamic::Vector<>", "[fifo][vector][dynam
 }
 
 
-TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static][etl][basic]") {
+TEST_CASE("Etl::Fifo<> basic test with Static::Vector<>", "[fifo][vector][static][etl]") {
 
     static const uint32_t SIZE = 16;
     typedef Etl::Fifo<Etl::Static::Vector<int, SIZE>> FifoType;
@@ -180,7 +180,7 @@ TEST_CASE("Etl::Fifo<> iteration", "[fifo][etl]") {
 }
 
 
-TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl][basic]") {
+TEST_CASE("Etl::Fifo<> overflow", "[fifo][etl]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 4;
@@ -286,7 +286,7 @@ TEST_CASE("Etl::Fifo<> length", "[fifo][etl]") {
 }
 
 
-TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl][basic]") {
+TEST_CASE("Etl::FifoAccess<> basic test with Array<>", "[fifo][array][etl]") {
 
     typedef int ItemType;
     static const uint32_t SIZE = 16;

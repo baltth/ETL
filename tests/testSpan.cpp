@@ -46,7 +46,7 @@ constexpr std::size_t SIZE = sizeof(C_ARRAY);
 constexpr std::array<char, SIZE> ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
 
-TEST_CASE("Etl::Span<> basic test", "[span][etl][basic]") {
+TEST_CASE("Etl::Span<> basic test", "[span][etl]") {
 
     using Etl::Span;
 
@@ -65,7 +65,7 @@ TEST_CASE("Etl::Span<> basic test", "[span][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Span<> element constness tests", "[span][etl][basic]") {
+TEST_CASE("Etl::Span<> element constness tests", "[span][etl]") {
 
     using Etl::Span;
 
@@ -95,7 +95,7 @@ TEST_CASE("Etl::Span<> element constness tests", "[span][etl][basic]") {
 }
 
 
-TEST_CASE("Etl::Span<> constexpr tests", "[span][etl][basic]") {
+TEST_CASE("Etl::Span<> constexpr tests", "[span][etl]") {
 
     using Etl::Span;
 

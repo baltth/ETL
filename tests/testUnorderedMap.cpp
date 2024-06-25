@@ -48,7 +48,7 @@ using PooledUnorderedMap = Etl::Pooled::UnorderedMap<int, int, 16U, 8U>;
 using DynamicUnorderedMap = Etl::Dynamic::UnorderedMap<int, int>;
 
 TEMPLATE_TEST_CASE("UnorderedMap noexcept default constructor",
-                   "[unorderedmap][etl][basic]",
+                   "[unorderedmap][etl]",
                    StaticUnorderedMap,
                    StaticUnorderedMapNested,
                    PooledUnorderedMap) {  // Dynamic skipped intentionally
@@ -57,7 +57,7 @@ TEMPLATE_TEST_CASE("UnorderedMap noexcept default constructor",
 }
 
 TEMPLATE_TEST_CASE("UnorderedMap noexcept move",
-                   "[unorderedmap][etl][basic]",
+                   "[unorderedmap][etl]",
                    StaticUnorderedMap,
                    StaticUnorderedMapNested,
                    PooledUnorderedMap,
@@ -68,7 +68,7 @@ TEMPLATE_TEST_CASE("UnorderedMap noexcept move",
 }
 
 TEMPLATE_TEST_CASE("UnorderedMap noexcept swap",
-                   "[unorderedmap][etl][basic]",
+                   "[unorderedmap][etl]",
                    StaticUnorderedMap,
                    StaticUnorderedMapNested,
                    PooledUnorderedMap,
@@ -93,7 +93,7 @@ static_assert(
 }  // namespace CompileTimeChecks
 
 
-TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl][basic]") {
+TEST_CASE("Etl::Dynamic::UnorderedMap<> basic test", "[unorderedmap][etl]") {
 
     Etl::Dynamic::UnorderedMap<uint32_t, ContainerTester> map;
 

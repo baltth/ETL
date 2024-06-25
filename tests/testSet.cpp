@@ -47,7 +47,7 @@ using PC = Etl::Pooled::Set<int, 16U>;
 using DC = Etl::Dynamic::Set<int>;
 
 TEMPLATE_TEST_CASE("Set nothrow contract",
-                   "[set][etl][basic]",
+                   "[set][etl]",
                    SC,
                    SCSC,
                    PC,
@@ -72,7 +72,7 @@ static_assert(std::is_same<std::iterator_traits<PC::const_iterator>::iterator_ca
 }  // namespace CompileTimeChecks
 
 
-TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl][basic]") {
+TEST_CASE("Etl::Dynamic::Set<> basic test", "[set][etl]") {
 
     typedef Etl::Dynamic::Set<ContainerTester> SetType;
     SetType set;
