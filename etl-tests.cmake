@@ -21,6 +21,7 @@ if(ETL_BUILD_TESTS)
     list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testBufStr.cpp)
     list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testSpan.cpp)
     list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testComplexScenarios.cpp)
+    list(APPEND ETL_TEST_SRCS ${ETL_TESTS_DIR}/testStaticInstance.cpp)
 
     add_executable(testEtl ${ETL_TEST_SRCS} ${ETL_TEST_CMN})
     target_link_libraries(testEtl PRIVATE etl etl-prv-compile-if)
