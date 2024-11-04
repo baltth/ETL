@@ -178,7 +178,7 @@ class List : public ETL_NAMESPACE::List<T> {
   public:  // functions
 
     List() noexcept :
-        Base(allocator) {}
+        Base {allocator} {}
 
     explicit List(size_type len) :
         List {} {
@@ -292,7 +292,10 @@ class List : public ETL_NAMESPACE::List<T> {
   public:  // functions
 
     List() noexcept :
-        Base(allocator) {}
+        Base {allocator} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
+    }
 
     explicit List(size_type len) :
         List {} {
@@ -353,6 +356,7 @@ class List : public ETL_NAMESPACE::List<T> {
 
     ~List() {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     Allocator& getAllocator() const {

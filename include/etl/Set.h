@@ -52,15 +52,15 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
   public:  // functions
 
     Set() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     Set(const Set& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
@@ -75,7 +75,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
-        Set() {
+        Set {} {
         this->swap(other);
     }
 
@@ -85,7 +85,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(std::initializer_list<E> initList) :
-        Set() {
+        Set {} {
         operator=(initList);
     }
 
@@ -154,15 +154,15 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
   public:  // functions
 
     Set() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     Set(const Set& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
@@ -177,7 +177,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
-        Set() {
+        Set {} {
         this->swap(other);
     }
 
@@ -187,7 +187,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(std::initializer_list<E> initList) :
-        Set() {
+        Set {} {
         operator=(initList);
     }
 
@@ -248,15 +248,18 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
   public:  // functions
 
     Set() noexcept :
-        Base(allocator) {};
+        Base {allocator} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
+    }
 
     Set(const Set& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
     explicit Set(const Base& other) :
-        Set() {
+        Set {} {
         Base::operator=(other);
     }
 
@@ -271,7 +274,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(Set&& other) noexcept(noexcept(Set().swap(other))) :
-        Set() {
+        Set {} {
         this->swap(other);
     }
 
@@ -281,7 +284,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
     }
 
     Set(std::initializer_list<E> initList) :
-        Set() {
+        Set {} {
         operator=(initList);
     }
 
@@ -292,6 +295,7 @@ class Set : public ETL_NAMESPACE::Set<E, C> {
 
     ~Set() noexcept(Allocator::noexceptDestroy) {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     Allocator& getAllocator() const noexcept {

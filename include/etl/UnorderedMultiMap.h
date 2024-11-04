@@ -66,19 +66,19 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
   public:  // functions
 
     UnorderedMultiMap() :
-        Base(buckets, allocator),
+        Base {buckets, allocator},
         buckets(DEFAULT_BUCKETS) {
         ETL_ASSERT(buckets.size() == DEFAULT_BUCKETS);
         this->bindOwnBuckets();
     }
 
     UnorderedMultiMap(const UnorderedMultiMap& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMultiMap(const Base& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
@@ -90,16 +90,16 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMultiMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMultiMap(UnorderedMultiMap&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(std::declval<UnorderedMultiMap>().operator=(std::move(other)))) :
         // No default constructor delegation as it's not noexcept
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
         this->bindOwnBuckets();
         operator=(std::move(other));
     }
@@ -205,21 +205,21 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMultiMap() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedMultiMap() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedMultiMap(const UnorderedMultiMap& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMultiMap(const Base& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
@@ -231,13 +231,13 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMultiMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMultiMap(UnorderedMultiMap&& other) noexcept(
         noexcept(UnorderedMultiMap()) && noexcept(UnorderedMultiMap().swap(other))) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         operator=(std::move(other));
     }
 
@@ -316,21 +316,23 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMultiMap() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedMultiMap() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
         ETL_ASSERT(buckets.size() == NB);
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedMultiMap(const UnorderedMultiMap& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMultiMap(const Base& other) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(other);
     }
 
@@ -342,15 +344,17 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMultiMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMultiMap() {
+        UnorderedMultiMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMultiMap(UnorderedMultiMap&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(UnorderedMultiMap().operator=(std::move(other)))) :
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
         operator=(std::move(other));
@@ -364,6 +368,7 @@ class UnorderedMultiMap : public ETL_NAMESPACE::UnorderedMultiMap<K, E, H, KE> {
 
     ~UnorderedMultiMap() {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     void
