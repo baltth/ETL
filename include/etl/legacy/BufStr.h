@@ -19,8 +19,8 @@ limitations under the License.
 \endparblock
 */
 
-#ifndef ETL_BUFSTR_H_
-#define ETL_BUFSTR_H_
+#ifndef ETL_LEGACY_BUFSTR_H_
+#define ETL_LEGACY_BUFSTR_H_
 
 #include <etl/Vector.h>
 #include <etl/etlSupport.h>
@@ -29,7 +29,7 @@ limitations under the License.
 #include <utility>
 
 namespace ETL_NAMESPACE {
-
+namespace Legacy {
 
 class BufStr {
 
@@ -388,17 +388,19 @@ class BufStr {
     static char tetradeToChar(uint8_t val);
 };
 
+}  // namespace Legacy
 
 namespace Static {
+namespace Legacy {
 
 template<uint32_t N>
-class BufStr : public ETL_NAMESPACE::BufStr {
+class BufStr : public ETL_NAMESPACE::Legacy::BufStr {
 
   public:  // types
 
     static_assert(N > 0U, "Invalid size for Static::BufStr");
 
-    using Base = ETL_NAMESPACE::BufStr;
+    using Base = ETL_NAMESPACE::Legacy::BufStr;
     using Data = ETL_NAMESPACE::Static::Vector<char, N>;
 
   private:  // variables
@@ -415,7 +417,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(const BufStr& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const BufStr& other) & {
         Base::operator=(other);
@@ -425,7 +427,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(BufStr&& other) noexcept(noexcept(BufStr().operator=(std::move(other)))) :
         Base(data) {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<Data>::value) {
         // Direct move of members allow propagation of
@@ -438,7 +440,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(const Base& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const Base& other) {
         Base::operator=(other);
@@ -448,7 +450,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(Base&& other) :
         BufStr() {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(Base&& other) {
         Base::operator=(std::move(other));
@@ -461,16 +463,18 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     }
 };
 
+}  // namespace Legacy
 }  // namespace Static
 
 
 namespace Dynamic {
+namespace Legacy {
 
-class BufStr : public ETL_NAMESPACE::BufStr {
+class BufStr : public ETL_NAMESPACE::Legacy::BufStr {
 
   public:  // types
 
-    using Base = ETL_NAMESPACE::BufStr;
+    using Base = ETL_NAMESPACE::Legacy::BufStr;
     using Data = ETL_NAMESPACE::Dynamic::Vector<char>;
 
   private:  // variables
@@ -514,7 +518,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(const Base& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const Base& other) {
         Base::operator=(other);
@@ -524,7 +528,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(Base&& other) :
         BufStr() {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(Base&& other) {
         Base::operator=(std::move(other));
@@ -537,8 +541,11 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     }
 };
 
+}  // namespace Legacy
 }  // namespace Dynamic
 
+
+namespace Legacy {
 
 template<>
 struct BufStr::SizeTypeTrait<sizeof(uint8_t)> {
@@ -560,12 +567,14 @@ struct BufStr::SizeTypeTrait<sizeof(uint64_t)> {
     static const uint8_t VALUE = 3;
 };
 
+}  // namespace Legacy
 }  // namespace ETL_NAMESPACE
 
 
-inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* data) {
+inline ETL_NAMESPACE::Legacy::BufStr& operator<<(ETL_NAMESPACE::Legacy::BufStr& bs,
+                                                 const char* data) {
 
     return bs.write(data);
 }
 
-#endif  // ETL_BUFSTR_H_
+#endif  // ETL_LEGACY_BUFSTR_H_

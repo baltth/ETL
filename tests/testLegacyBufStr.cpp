@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
-#include <etl/BufStr.h>
+#include <etl/legacy/BufStr.h>
 
 #include <cstring>
 
@@ -37,17 +37,17 @@ limitations under the License.
 
 namespace {
 
-static_assert(Etl::Detail::NothrowContract<Etl::Static::BufStr<32U>>::value,
-              "Etl::Static::BufStr<N> violates nothrow contract");
-static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::BufStr>::nothrowIfMovable,
-              "Etl::Dynamic::BufStr<N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Static::Legacy::BufStr<32U>>::value,
+              "Etl::Static::Legacy::BufStr<N> violates nothrow contract");
+static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::Legacy::BufStr>::nothrowIfMovable,
+              "Etl::Dynamic::Legacy::BufStr<N> violates nothrow contract");
 
 
-TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
+TEST_CASE("Etl::Legacy::BufStr() test", "[legacybufstr][etl]") {
 
-    using Etl::BufStr;
+    using Etl::Legacy::BufStr;
 
-    Etl::Static::BufStr<120> bs;
+    Etl::Static::Legacy::BufStr<120> bs;
     const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Default state") {
@@ -156,11 +156,11 @@ TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
 }
 
 
-TEST_CASE("Etl::BufStr() - Formats", "[bufstr][etl]") {
+TEST_CASE("Etl::Legacy::BufStr() - Formats", "[legacybufstr][etl]") {
 
-    using Etl::BufStr;
+    using Etl::Legacy::BufStr;
 
-    Etl::Static::BufStr<120> bs;
+    Etl::Static::Legacy::BufStr<120> bs;
     const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Fill") {
@@ -262,11 +262,11 @@ TEST_CASE("Etl::BufStr() - Formats", "[bufstr][etl]") {
 }
 
 
-TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
+TEST_CASE("Etl::Legacy::BufStr() - Decimal representations", "[legacybufstr][etl]") {
 
-    using Etl::BufStr;
+    using Etl::Legacy::BufStr;
 
-    Etl::Static::BufStr<120> bs;
+    Etl::Static::Legacy::BufStr<120> bs;
     const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Hex") {
@@ -355,18 +355,18 @@ TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
     }
 }
 
-TEMPLATE_TEST_CASE("Etl::BufStr() - copy/move",
-                   "[bufstr][etl]",
-                   Etl::Static::BufStr<43>,
-                   Etl::Static::BufStr<45>,
-                   Etl::Dynamic::BufStr) {
+TEMPLATE_TEST_CASE("Etl::Legacy::BufStr() - copy/move",
+                   "[legacybufstr][etl]",
+                   Etl::Static::Legacy::BufStr<43>,
+                   Etl::Static::Legacy::BufStr<45>,
+                   Etl::Dynamic::Legacy::BufStr) {
 
-    using BS = Etl::Static::BufStr<43>;
-    using BD = Etl::Dynamic::BufStr;
+    using BS = Etl::Static::Legacy::BufStr<43>;
+    using BD = Etl::Dynamic::Legacy::BufStr;
 
     const char TEST_STR[] = "testString";
 
-    auto checkCopy = [](const Etl::BufStr& dst, const Etl::BufStr& src) {
+    auto checkCopy = [](const Etl::Legacy::BufStr& dst, const Etl::Legacy::BufStr& src) {
         CAPTURE(dst.cStr());
         CAPTURE(src.cStr());
         REQUIRE(dst.cStr() != src.cStr());
@@ -405,7 +405,7 @@ TEMPLATE_TEST_CASE("Etl::BufStr() - copy/move",
         }
     }
 
-    auto checkMove = [&TEST_STR](const Etl::BufStr& dst, const Etl::BufStr& src) {
+    auto checkMove = [&TEST_STR](const Etl::Legacy::BufStr& dst, const Etl::Legacy::BufStr& src) {
         CAPTURE(dst.cStr());
         CAPTURE(src.cStr());
         REQUIRE(dst.cStr() != src.cStr());
@@ -452,9 +452,9 @@ TEMPLATE_TEST_CASE("Etl::BufStr() - copy/move",
 }
 
 
-TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
+TEST_CASE("Etl::Legacy::BufStr() - fill", "[legacybufstr][etl]") {
 
-    Etl::Static::BufStr<17> bs;
+    Etl::Static::Legacy::BufStr<17> bs;
     bs << "1234567890";
     bs << "1234567890";
 

@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2023 Balazs Toth.
+Copyright 2019-2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,13 +20,14 @@ limitations under the License.
 */
 
 #include "ContainerTester.h"
+
 #include <catch2/catch.hpp>
 
-#include <etl/BufStr.h>
 #include <etl/Map.h>
 #include <etl/Span.h>
 #include <etl/UnorderedMap.h>
 #include <etl/Vector.h>
+#include <etl/legacy/BufStr.h>
 
 #include <cstdlib>
 #include <ctime>
@@ -504,9 +505,9 @@ TEST_CASE("Etl::Vector<T> insert from...", "[vec][insert][foreign][etl]") {
 // Etl::BufStr performance tests ---------------------------------------------
 
 
-TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
+TEST_CASE("Etl::Legacy::BufStr performance", "[legacybufstr][perf][etl]") {
 
-    typedef Etl::Static::BufStr<128> BufT;
+    typedef Etl::Static::Legacy::BufStr<128> BufT;
 
     BENCHMARK_ADVANCED("with double")(Catch::Benchmark::Chronometer meter) {
         double val = (std::rand() * 100.0 / RAND_MAX) - 50.0;
@@ -522,8 +523,8 @@ TEST_CASE("Etl::BufStr performance", "[bufstr][perf][etl]") {
         meter.measure([i] {
             BufT bs;
             bs << "0x";
-            bs << Etl::BufStr::Hex(i, 10);
-            bs << Etl::BufStr::Hex(i + 1U, 10);
+            bs << Etl::Legacy::BufStr::Hex(i, 10);
+            bs << Etl::Legacy::BufStr::Hex(i + 1U, 10);
         });
     };
 }
