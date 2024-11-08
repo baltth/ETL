@@ -72,6 +72,13 @@ if(ETL_SANITIZE)
     target_link_libraries(etl-prv-compile-if INTERFACE -fsanitize=undefined -fsanitize=address)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # set variable tracking limit to unlimited to prevent compiler note:
+    # variable tracking size limit exceeded with ‘-fvar-tracking-assignments’
+    # more info: https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+    target_compile_options(etl-prv-compile-if INTERFACE --param=max-vartrack-size=0)
+endif()
+
 # library build
 include(${PROJECT_SOURCE_DIR}/libetl.cmake)
 

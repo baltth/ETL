@@ -51,15 +51,15 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
   public:  // functions
 
     Map() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     Map(const Map& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
@@ -74,7 +74,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
-        Map() {
+        Map {} {
         this->swap(other);
     }
 
@@ -84,7 +84,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(std::initializer_list<typename Base::value_type> initList) :
-        Map() {
+        Map {} {
         operator=(initList);
     }
 
@@ -153,15 +153,15 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
   public:  // functions
 
     Map() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     Map(const Map& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
@@ -176,7 +176,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
-        Map() {
+        Map {} {
         this->swap(other);
     }
 
@@ -186,7 +186,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(std::initializer_list<typename Base::value_type> initList) :
-        Map() {
+        Map {} {
         operator=(initList);
     }
 
@@ -247,15 +247,18 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
   public:  // functions
 
     Map() noexcept :
-        Base(allocator) {};
+        Base {allocator} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
+    }
 
     Map(const Map& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
     explicit Map(const Base& other) :
-        Map() {
+        Map {} {
         Base::operator=(other);
     }
 
@@ -270,7 +273,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(Map&& other) noexcept(noexcept(Map().swap(other))) :
-        Map() {
+        Map {} {
         this->swap(other);
     }
 
@@ -280,7 +283,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
     }
 
     Map(std::initializer_list<typename Base::value_type> initList) :
-        Map() {
+        Map {} {
         operator=(initList);
     }
 
@@ -291,6 +294,7 @@ class Map : public ETL_NAMESPACE::Map<K, E, C> {
 
     ~Map() noexcept(Allocator::noexceptDestroy) {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     Allocator& getAllocator() const noexcept {

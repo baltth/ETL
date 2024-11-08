@@ -66,19 +66,19 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
   public:  // functions
 
     UnorderedMap() :
-        Base(buckets, allocator),
+        Base {buckets, allocator},
         buckets(DEFAULT_BUCKETS) {
         ETL_ASSERT(buckets.size() == DEFAULT_BUCKETS);
         this->bindOwnBuckets();
     }
 
     UnorderedMap(const UnorderedMap& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMap(const Base& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
@@ -90,16 +90,16 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMap(UnorderedMap&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(std::declval<UnorderedMap>().operator=(std::move(other)))) :
         // No default constructor delegation as it's not noexcept
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
         this->bindOwnBuckets();
         operator=(std::move(other));
     }
@@ -204,21 +204,21 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMap() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedMap() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedMap(const UnorderedMap& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMap(const Base& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
@@ -230,13 +230,13 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMap(UnorderedMap&& other) noexcept(noexcept(UnorderedMap())
                                                 && noexcept(UnorderedMap().swap(other))) :
-        UnorderedMap() {
+        UnorderedMap {} {
         operator=(std::move(other));
     }
 
@@ -312,21 +312,23 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
   public:  // functions
 
-    UnorderedMap() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedMap() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedMap(const UnorderedMap& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
     explicit UnorderedMap(const Base& other) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(other);
     }
 
@@ -338,15 +340,17 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     using Base::operator=;
 
     UnorderedMap(std::initializer_list<typename Base::value_type> initList) :
-        UnorderedMap() {
+        UnorderedMap {} {
         Base::operator=(initList);
     }
 
     UnorderedMap(UnorderedMap&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(UnorderedMap().operator=(std::move(other)))) :
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
         operator=(std::move(other));
@@ -359,6 +363,7 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     ~UnorderedMap() {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     void swap(UnorderedMap& other) noexcept(noexcept(UnorderedMap().swapSameType(other))) {

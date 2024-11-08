@@ -64,19 +64,19 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
   public:  // functions
 
     UnorderedSet() :
-        Base(buckets, allocator),
+        Base {buckets, allocator},
         buckets(DEFAULT_BUCKETS) {
         ETL_ASSERT(buckets.size() == DEFAULT_BUCKETS);
         this->bindOwnBuckets();
     }
 
     UnorderedSet(const UnorderedSet& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
     explicit UnorderedSet(const Base& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
@@ -88,16 +88,16 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     using Base::operator=;
 
     UnorderedSet(std::initializer_list<K> initList) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(initList);
     }
 
     UnorderedSet(UnorderedSet&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(std::declval<UnorderedSet>().operator=(std::move(other)))) :
         // No default constructor delegation as it's not noexcept
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
         this->bindOwnBuckets();
         operator=(std::move(other));
     }
@@ -197,21 +197,21 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
 
   public:  // functions
 
-    UnorderedSet() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedSet() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedSet(const UnorderedSet& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
     explicit UnorderedSet(const Base& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
@@ -223,13 +223,13 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     using Base::operator=;
 
     UnorderedSet(std::initializer_list<K> initList) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(initList);
     }
 
     UnorderedSet(UnorderedSet&& other) noexcept(noexcept(UnorderedSet())
                                                 && noexcept(UnorderedSet().swap(other))) :
-        UnorderedSet() {
+        UnorderedSet {} {
         operator=(std::move(other));
     }
 
@@ -303,21 +303,23 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
 
   public:  // functions
 
-    UnorderedSet() noexcept(noexcept(Base(buckets, allocator))) :
-        Base(buckets, allocator),
-        buckets(NB) {
+    UnorderedSet() noexcept(noexcept(Base {buckets, allocator})) :
+        Base {buckets, allocator},
+        buckets {NB} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         ETL_ASSERT(buckets.size() == NB);
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
     }
 
     UnorderedSet(const UnorderedSet& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
     explicit UnorderedSet(const Base& other) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(other);
     }
 
@@ -329,15 +331,17 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     using Base::operator=;
 
     UnorderedSet(std::initializer_list<K> initList) :
-        UnorderedSet() {
+        UnorderedSet {} {
         Base::operator=(initList);
     }
 
     UnorderedSet(UnorderedSet&& other) noexcept(
-        noexcept(Base(buckets, allocator)) && noexcept(BucketImpl())
+        noexcept(Base {buckets, allocator}) && noexcept(BucketImpl {})
         && noexcept(UnorderedSet().operator=(std::move(other)))) :
-        Base(buckets, allocator),
-        buckets() {
+        Base {buckets, allocator},
+        buckets {} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
         this->bindOwnBuckets();
         this->max_load_factor(static_cast<float>(NN) / static_cast<float>(NB));
         operator=(std::move(other));
@@ -350,6 +354,7 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
 
     ~UnorderedSet() {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     void swap(UnorderedSet& other) noexcept(noexcept(UnorderedSet().swapSameType(other))) {

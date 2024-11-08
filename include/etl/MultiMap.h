@@ -52,15 +52,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
   public:  // functions
 
     MultiMap() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     MultiMap(const MultiMap& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
@@ -75,7 +75,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
-        MultiMap() {
+        MultiMap {} {
         this->swap(other);
     }
 
@@ -85,7 +85,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(std::initializer_list<typename Base::value_type> initList) :
-        MultiMap() {
+        MultiMap {} {
         operator=(initList);
     }
 
@@ -154,15 +154,15 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
   public:  // functions
 
     MultiMap() noexcept :
-        Base(allocator) {};
+        Base {allocator} {}
 
     MultiMap(const MultiMap& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
@@ -177,7 +177,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
-        MultiMap() {
+        MultiMap {} {
         this->swap(other);
     }
 
@@ -187,7 +187,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(std::initializer_list<typename Base::value_type> initList) :
-        MultiMap() {
+        MultiMap {} {
         operator=(initList);
     }
 
@@ -248,15 +248,18 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
   public:  // functions
 
     MultiMap() noexcept :
-        Base(allocator) {};
+        Base {allocator} {
+        (void)allocator.handle();  // This assures to construct allocator instance before
+                                   // the first container, avoiding SIOF during static deinit.
+    }
 
     MultiMap(const MultiMap& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
     explicit MultiMap(const Base& other) :
-        MultiMap() {
+        MultiMap {} {
         Base::operator=(other);
     }
 
@@ -271,7 +274,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(MultiMap&& other) noexcept(noexcept(MultiMap().swap(other))) :
-        MultiMap() {
+        MultiMap {} {
         this->swap(other);
     }
 
@@ -281,7 +284,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
     }
 
     MultiMap(std::initializer_list<typename Base::value_type> initList) :
-        MultiMap() {
+        MultiMap {} {
         operator=(initList);
     }
 
@@ -292,6 +295,7 @@ class MultiMap : public ETL_NAMESPACE::MultiMap<K, E, C> {
 
     ~MultiMap() noexcept(Allocator::noexceptDestroy) {
         this->clear();
+        ETL_ASSERT(this->empty());
     }
 
     Allocator& getAllocator() const noexcept {
