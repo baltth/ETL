@@ -24,20 +24,22 @@ limitations under the License.
 #include <etl/BufStr.h>
 
 #include <cstring>
+#include <iomanip>
 
 namespace {
 
-TEMPLATE_TEST_CASE("Etl::BufStr() test",
+TEMPLATE_TEST_CASE("Etl::BufStr() - basic stream operations",
                    "[bufstr][etl]",
                    (Etl::Static::BufStr<120>),
                    (Etl::Dynamic::BufStr<>)) {
 
     TestType bs;
 
-    bs << 12 << " " << 34 << " " << true << " 0x" << std::hex << 45U;
+    bs << 12 << " " << true << " " << std::boolalpha << false;
+    bs << std::setw(5) << "0x" << std::hex << 45U << std::endl;
 
     CAPTURE(bs.cStr());
-    REQUIRE(strcmp(bs.cStr(), "12 34 1 0x2d") == 0);
+    REQUIRE(strcmp(bs.cStr(), "12 1 false   0x2d\n") == 0);
 }
 
 }  // namespace

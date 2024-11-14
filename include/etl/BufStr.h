@@ -45,6 +45,7 @@ class BufStr {
 
     using StreamBuf = Detail::AMemStreamBuf<char_type>;
     using OutStream = std::basic_ostream<char_type, std::char_traits<char_type>>;
+    using Ios = std::basic_ios<char_type, std::char_traits<char_type>>;
 
   private:  // variables
 
@@ -70,6 +71,21 @@ class BufStr {
     template<typename T>
     BufStr& operator<<(T v) {
         stream << v;
+        return *this;
+    }
+
+    BufStr& operator<<(std::ios_base& (*func)(std::ios_base&)) {
+        stream << func;
+        return *this;
+    }
+
+    BufStr& operator<<(Ios& (*func)(Ios&)) {
+        stream << func;
+        return *this;
+    }
+
+    BufStr& operator<<(OutStream& (*func)(OutStream&)) {
+        stream << func;
         return *this;
     }
     /// \}
