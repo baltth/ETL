@@ -28,7 +28,12 @@ limitations under the License.
 
 namespace {
 
-TEMPLATE_TEST_CASE("Etl::BufStr() - basic stream operations",
+bool equals(const Etl::BufStr<>& bs, const char* expected) {
+    return strcmp(bs.cStr(), expected) == 0;
+}
+
+
+TEMPLATE_TEST_CASE("Etl::BufStr - basic stream operations",
                    "[bufstr][etl]",
                    (Etl::Static::BufStr<120>),
                    (Etl::Dynamic::BufStr<>)) {
@@ -39,7 +44,32 @@ TEMPLATE_TEST_CASE("Etl::BufStr() - basic stream operations",
     bs << std::setw(5) << "0x" << std::hex << 45U << std::endl;
 
     CAPTURE(bs.cStr());
-    REQUIRE(strcmp(bs.cStr(), "12 1 false   0x2d\n") == 0);
+    REQUIRE(equals(bs, "12 1 false   0x2d\n"));
+}
+
+
+TEMPLATE_TEST_CASE("Etl::BufStr - move",
+                   "[bufstr][etl]",
+                   (Etl::Static::BufStr<120>),
+                   (Etl::Dynamic::BufStr<>)) {
+
+    TestType src;
+    src << 12;
+    CAPTURE(src.cStr());
+
+    SECTION("Move constructor") {
+        TestType dest {std::move(src)};
+        CAPTURE(dest.cStr());
+        REQUIRE(equals(dest, "12"));
+    }
+
+    SECTION("Move assignment") {
+        TestType dest;
+        dest << 22;
+        dest = std::move(src);
+        CAPTURE(dest.cStr());
+        REQUIRE(equals(dest, "12"));
+    }
 }
 
 }  // namespace

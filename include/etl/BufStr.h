@@ -24,6 +24,7 @@ limitations under the License.
 
 #include <etl/Vector.h>
 #include <etl/base/AMemStreamBuf.h>
+#include <etl/base/OutStream.h>
 #include <etl/base/StreamBufImpl.h>
 #include <etl/base/tools.h>
 #include <etl/etlSupport.h>
@@ -44,8 +45,10 @@ class BufStr {
     using char_type = CharType;
 
     using StreamBuf = Detail::AMemStreamBuf<char_type>;
-    using OutStream = std::basic_ostream<char_type, std::char_traits<char_type>>;
-    using Ios = std::basic_ios<char_type, std::char_traits<char_type>>;
+    using OutStream = Detail::OutStream<char_type>;
+
+    using BasicOutStream = Detail::BasicOutStream<char_type>;
+    using BasicIos = std::basic_ios<char_type, std::char_traits<char_type>>;
 
   private:  // variables
 
@@ -54,7 +57,13 @@ class BufStr {
 
   public:  // functions
 
-    virtual ~BufStr() = default;
+    BufStr() = delete;
+    ~BufStr() = default;
+
+    BufStr(const BufStr& other) = delete;
+    BufStr& operator=(const BufStr& other) & = delete;
+    BufStr(BufStr&& other) = delete;
+    BufStr& operator=(BufStr&& other) & = delete;
 
     /// \name Access interface
     /// \{
@@ -79,12 +88,12 @@ class BufStr {
         return *this;
     }
 
-    BufStr& operator<<(Ios& (*func)(Ios&)) {
+    BufStr& operator<<(BasicIos& (*func)(BasicIos&)) {
         stream << func;
         return *this;
     }
 
-    BufStr& operator<<(OutStream& (*func)(OutStream&)) {
+    BufStr& operator<<(BasicOutStream& (*func)(BasicOutStream&)) {
         stream << func;
         return *this;
     }
@@ -94,7 +103,9 @@ class BufStr {
 
     explicit BufStr(StreamBuf& s) :
         sb {&s},
-        stream {&s.streambuf()} {}
+        stream {s} {
+        stream.exceptions(std::ios_base::goodbit);  // no exceptions
+    }
 };
 
 
@@ -115,12 +126,27 @@ class BufStr : public ETL_NAMESPACE::BufStr<CharType> {
 
   private:  // variables
 
-    StreamBuf sb {};
+    StreamBuf sb;
 
   public:  // functions
 
     BufStr() :
-        Base {sb} {}
+        Base {sb},
+        sb {} {}
+
+    BufStr(BufStr&& other) :
+        Base {sb},
+        sb {std::move(other.sb)} {};
+
+    BufStr& operator=(BufStr&& other) & {
+        sb = std::move(other.sb);
+        return *this;
+    }
+
+    BufStr(const BufStr& other) = delete;
+    BufStr& operator=(const BufStr& other) & = delete;
+
+    ~BufStr() = default;
 };
 
 }  // namespace Static
@@ -145,6 +171,19 @@ class BufStr : public ETL_NAMESPACE::BufStr<CharType> {
 
     BufStr() :
         Base {sb} {}
+
+    BufStr(BufStr&& other) :
+        Base {sb},
+        sb {std::move(other.sb)} {};
+
+    BufStr& operator=(BufStr&& other) & {
+        sb = std::move(other.sb);
+        return *this;
+    }
+    BufStr(const BufStr& other) = delete;
+    BufStr& operator=(const BufStr& other) & = delete;
+
+    ~BufStr() = default;
 };
 
 }  // namespace Dynamic

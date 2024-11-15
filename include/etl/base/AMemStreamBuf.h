@@ -31,15 +31,15 @@ namespace ETL_NAMESPACE {
 namespace Detail {
 
 template<typename CharType>
-using StreamBuf = std::basic_streambuf<CharType, std::char_traits<CharType>>;
+using BasicStreamBuf = std::basic_streambuf<CharType, std::char_traits<CharType>>;
 
 
 template<typename CharType>
-class AMemStreamBuf : private StreamBuf<CharType> {
+class AMemStreamBuf : private BasicStreamBuf<CharType> {
 
   public:  // types
 
-    using Base = StreamBuf<CharType>;
+    using Base = BasicStreamBuf<CharType>;
 
     using char_type = typename Base::char_type;
     using traits_type = typename Base::traits_type;
@@ -59,10 +59,38 @@ class AMemStreamBuf : private StreamBuf<CharType> {
 
   protected:
 
-    void setPutArea(CharType* buff, std::streamsize size) {
+    void setPutArea(char_type* buff, char_type* end) {
         ETL_ASSERT(buff != nullptr);
-        ETL_ASSERT(size > 0U);
-        this->setp(buff, buff + size);
+        ETL_ASSERT(end != nullptr);
+        ETL_ASSERT(std::distance(buff, end) >= 0U);
+        this->setp(buff, end);
+    }
+
+    const char_type* base() const {
+        return this->pbase();
+    }
+
+    void deactivate() {
+        this->setp(nullptr, nullptr);
+    }
+
+    // Validate put area and calculate pptr offset relative to the range.
+    std::ptrdiff_t offsetInRange(const char_type* buffBegin, const char_type* buffEnd) const {
+        ETL_ASSERT(buffBegin != nullptr);
+        ETL_ASSERT(buffEnd != nullptr);
+        auto size = std::distance(buffBegin, buffEnd);
+        ETL_ASSERT(size > 0);
+        (void)size;
+
+        // 1) check base pointer, it has to point somewhere in the range.
+        auto offsetOfBase = std::distance(buffBegin, this->base());
+        ETL_ASSERT(offsetOfBase >= 0);
+        ETL_ASSERT(offsetOfBase < size);
+        // 2) offset of put pointer and base pointer is calculated and asserted to point in range.
+        auto offsetOfPtr = std::distance(this->base(), static_cast<const char_type*>(this->pptr()));
+        ETL_ASSERT(offsetOfPtr >= 0);
+        ETL_ASSERT((offsetOfBase + offsetOfPtr) < size);
+        return offsetOfBase + offsetOfPtr;
     }
 
     virtual int_type onOverflow(int_type ch) = 0;

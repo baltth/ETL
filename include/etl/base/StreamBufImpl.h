@@ -29,6 +29,7 @@ limitations under the License.
 #include <etl/traitSupport.h>
 
 #include <array>
+#include <iterator>
 #include <limits>
 #include <streambuf>
 
@@ -38,9 +39,9 @@ namespace Detail {
 template<typename CharType, std::size_t N>
 class StaticStreamBuf : public AMemStreamBuf<CharType> {
 
-    static_assert(N > 1, "Invalid Etl::Static::BufStr size");
+    static_assert(N > 1, "Invalid Etl::Detail::StaticStreamBuf size");
     static_assert(N <= std::numeric_limits<std::streamsize>::max(),
-                  "Invalid Etl::Static::BufStr size");
+                  "Invalid Etl::Detail::StaticStreamBuf size");
 
   public:  // types
 
@@ -59,8 +60,39 @@ class StaticStreamBuf : public AMemStreamBuf<CharType> {
   public:  // functions
 
     StaticStreamBuf() {
-        this->setPutArea(buff.data(), buff.size() - 1U);
+        this->setPutArea(
+            buff.begin(),
+            std::prev(buff.end()));  // The last byte is reserved as a terminating '\0' guard.
     }
+
+    StaticStreamBuf(StaticStreamBuf&& other) :
+        Base {} {
+        this->operator=(std::move(other));
+    }
+
+    StaticStreamBuf& operator=(StaticStreamBuf&& other) & {
+        this->Base::operator=(other);  // Using copy intentionally, however it doesn't matter as
+                                       // std::basic_streambuf has only copy operations.
+        buff = std::move(other.buff);
+        if (other.base() != nullptr) {
+            // A new put area to set shall start after the last written byte.
+            // The offset of other is fetched:
+            auto offset = other.offsetInRange(other.buff.begin(), other.buff.end());
+            // The put area of self shall start at this offset in the copied buffer and end before
+            // the last byte.
+            this->setPutArea(&buff[offset], std::prev(buff.end()));
+            ETL_ASSERT(buff.back() == '\0');
+            other.deactivate();
+        } else {
+            this->deactivate();
+        }
+        return *this;
+    }
+
+    ~StaticStreamBuf() = default;
+
+    StaticStreamBuf(const StaticStreamBuf& other) = delete;
+    StaticStreamBuf& operator=(const StaticStreamBuf& other) & = delete;
 
     const char_type* data() const override {
         return buff.data();
@@ -95,6 +127,34 @@ class DynamicStreamBuf : public AMemStreamBuf<CharType> {
 
   public:  // functions
 
+    DynamicStreamBuf() = default;
+
+    DynamicStreamBuf(DynamicStreamBuf&& other) :
+        Base {} {
+        this->operator=(std::move(other));
+    }
+
+    DynamicStreamBuf& operator=(DynamicStreamBuf&& other) & {
+        this->Base::operator=(other);  // Using copy intentionally, however it doesn't matter as
+                                       // std::basic_streambuf has only copy operations.
+        buff = std::move(other.buff);
+        if (other.base() != nullptr) {
+            // Validating the move:
+            ETL_ASSERT(buff.data() != nullptr);
+            this->offsetInRange(buff.begin(), buff.end());
+            other.deactivate();
+        } else {
+            ETL_ASSERT(this->base() == nullptr);
+        }
+
+        return *this;
+    }
+
+    ~DynamicStreamBuf() = default;
+
+    DynamicStreamBuf(const DynamicStreamBuf& other) = delete;
+    DynamicStreamBuf& operator=(const DynamicStreamBuf& other) & = delete;
+
     const char_type* data() const override {
         return buff.data();
     }
@@ -123,7 +183,7 @@ class DynamicStreamBuf : public AMemStreamBuf<CharType> {
     }
 
     void setOffsetBuffer(std::size_t offset) {
-        this->setPutArea((buff.data() + offset), (buff.size() - offset));
+        this->setPutArea((buff.data() + offset), buff.end());
     }
 };
 
