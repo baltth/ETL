@@ -24,19 +24,24 @@ limitations under the License.
 #include <etl/BufStr.h>
 
 #include <cstring>
+#include <cwchar>
 #include <iomanip>
 
 namespace {
 
-bool equals(const Etl::BufStr<>& bs, const char* expected) {
+bool equals(const Etl::BufStr& bs, const char* expected) {
     return strcmp(bs.cStr(), expected) == 0;
+}
+
+bool equals(const Etl::BasicBufStr<wchar_t>& bs, const wchar_t* expected) {
+    return wcscmp(bs.cStr(), expected) == 0;
 }
 
 
 TEMPLATE_TEST_CASE("Etl::BufStr - basic stream operations",
                    "[bufstr][etl]",
                    (Etl::Static::BufStr<120>),
-                   (Etl::Dynamic::BufStr<>)) {
+                   (Etl::Dynamic::BufStr)) {
 
     TestType bs;
 
@@ -48,10 +53,21 @@ TEMPLATE_TEST_CASE("Etl::BufStr - basic stream operations",
 }
 
 
+TEST_CASE("Etl::BasicBufStr<wchar_t>", "[bufstr][etl]") {
+
+    Etl::Dynamic::BasicBufStr<wchar_t> bs;
+
+    bs << -756 << " and some text";
+
+    CAPTURE(bs.cStr());
+    REQUIRE(equals(bs, L"-756 and some text"));
+}
+
+
 TEMPLATE_TEST_CASE("Etl::BufStr - move",
                    "[bufstr][etl]",
                    (Etl::Static::BufStr<120>),
-                   (Etl::Dynamic::BufStr<>)) {
+                   (Etl::Dynamic::BufStr)) {
 
     TestType src;
     src << 12;
