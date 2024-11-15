@@ -52,6 +52,7 @@ class AMemStreamBuf : private BasicStreamBuf<CharType> {
     virtual ~AMemStreamBuf() = default;
 
     virtual const char_type* data() const = 0;
+    virtual std::size_t size() const = 0;
 
     Base& streambuf() {
         return *static_cast<Base*>(this);

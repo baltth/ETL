@@ -34,6 +34,7 @@ limitations under the License.
 #include <limits>
 #include <ostream>
 #include <streambuf>
+#include <string>
 
 namespace ETL_NAMESPACE {
 
@@ -71,6 +72,18 @@ class BasicBufStr {
     const char_type* cStr() const {
         ETL_ASSERT(sb != nullptr);
         return sb->data();
+    }
+
+    std::string str() const {
+        return std::string {cStr()};
+    }
+
+    std::size_t size() const {
+        return sb->size();
+    }
+
+    bool good() const {
+        return stream.good();
     }
     /// \}
 
@@ -150,6 +163,10 @@ class BasicBufStr : public ETL_NAMESPACE::BasicBufStr<CharType> {
     BasicBufStr& operator=(const BasicBufStr& other) & = delete;
 
     ~BasicBufStr() = default;
+
+    const typename StreamBuf::Buffer& buffer() const {
+        return sb.buffer();
+    }
 };
 
 
@@ -191,6 +208,10 @@ class BasicBufStr : public ETL_NAMESPACE::BasicBufStr<CharType> {
     BasicBufStr& operator=(const BasicBufStr& other) & = delete;
 
     ~BasicBufStr() = default;
+
+    const typename StreamBuf::Buffer& buffer() const {
+        return sb.buffer();
+    }
 };
 
 

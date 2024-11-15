@@ -53,9 +53,11 @@ class StaticStreamBuf : public AMemStreamBuf<CharType> {
     using pos_type = typename Base::pos_type;
     using off_type = typename Base::off_type;
 
+    using Buffer = std::array<char_type, N>;
+
   private:  // variables
 
-    std::array<char_type, N> buff {};
+    Buffer buff {};
 
   public:  // functions
 
@@ -98,6 +100,14 @@ class StaticStreamBuf : public AMemStreamBuf<CharType> {
         return buff.data();
     }
 
+    std::size_t size() const override {
+        return this->offsetInRange(buff.begin(), buff.end());
+    }
+
+    const Buffer& buffer() const {
+        return buff;
+    }
+
   private:
 
     int_type onOverflow(int_type) override {
@@ -119,11 +129,13 @@ class DynamicStreamBuf : public AMemStreamBuf<CharType> {
     using pos_type = typename Base::pos_type;
     using off_type = typename Base::off_type;
 
+    using Buffer = Dynamic::Vector<char_type>;
+
     static constexpr std::size_t SIZE_INCREMENT {128U};
 
   private:  // variables
 
-    Dynamic::Vector<char_type> buff {};
+    Buffer buff {};
 
   public:  // functions
 
@@ -157,6 +169,14 @@ class DynamicStreamBuf : public AMemStreamBuf<CharType> {
 
     const char_type* data() const override {
         return buff.data();
+    }
+
+    std::size_t size() const override {
+        return this->offsetInRange(buff.begin(), buff.end());
+    }
+
+    const Buffer& buffer() const {
+        return buff;
     }
 
   private:
