@@ -23,6 +23,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
+#include <etl/BufStr.h>
 #include <etl/Map.h>
 #include <etl/Span.h>
 #include <etl/UnorderedMap.h>
@@ -34,6 +35,7 @@ limitations under the License.
 #include <iostream>
 #include <list>
 #include <map>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
@@ -504,28 +506,362 @@ TEST_CASE("Etl::Vector<T> insert from...", "[vec][insert][foreign][etl]") {
 
 // Etl::BufStr performance tests ---------------------------------------------
 
+static constexpr std::size_t SBS_SIZE = 128000UL;
 
-TEST_CASE("Etl::Legacy::BufStr performance", "[legacybufstr][perf][etl]") {
 
-    typedef Etl::Static::Legacy::BufStr<128> BufT;
+TEST_CASE("Etl::BufStr constructor", "[bufstr][perf][etl]") {
 
-    BENCHMARK_ADVANCED("with double")(Catch::Benchmark::Chronometer meter) {
-        double val = (std::rand() * 100.0 / RAND_MAX) - 50.0;
-        meter.measure([val] {
-            BufT bs;
-            bs << val;
-            bs << val + 1.0f;
-        });
+    BENCHMARK("Etl:Static::BufStr<128>") {
+        Etl::Static::BufStr<128U> s;
+        return s.good();
     };
 
-    BENCHMARK_ADVANCED("with hex")(Catch::Benchmark::Chronometer meter) {
-        auto i = static_cast<uint32_t>(std::rand());
-        meter.measure([i] {
-            BufT bs;
-            bs << "0x";
-            bs << Etl::Legacy::BufStr::Hex(i, 10);
-            bs << Etl::Legacy::BufStr::Hex(i + 1U, 10);
+    BENCHMARK("Etl:Dynamic::BufStr") {
+        Etl::Dynamic::BufStr s;
+        return s.good();
+    };
+
+    BENCHMARK("Etl:Static::Legacy::BufStr<128>") {
+        Etl::Static::Legacy::BufStr<128U> s;
+        return s.size();
+    };
+
+    BENCHMARK("Etl:Dynamic::Legacy::BufStr") {
+        Etl::Dynamic::Legacy::BufStr s;
+        return s.size();
+    };
+
+    BENCHMARK("std::stringstream") {
+        std::stringstream s;
+        return s.good();
+    };
+}
+
+
+TEST_CASE("Etl::BufStr << int", "[bufstr][perf][etl]") {
+
+    auto get = []() -> int { return static_cast<int>(std::rand() * 100.0 / RAND_MAX) - 50; };
+
+    BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::BufStr<SBS_SIZE> s;
+        auto val = get();
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::BufStr s;
+        auto val = get();
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+        auto val = get();
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::Legacy::BufStr s;
+        auto val = get();
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+        std::stringstream s;
+        auto val = get();
+        meter.measure([&s, val]() { s << val; });
+    };
+}
+
+
+TEST_CASE("Etl::BufStr << double", "[bufstr][perf][etl]") {
+
+    auto get = []() -> double { return (std::rand() * 100.0 / RAND_MAX) - 50.0; };
+
+    BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::BufStr<SBS_SIZE> s;
+        auto val = get();
+        s << std::setprecision(5);
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::BufStr s;
+        auto val = get();
+        s << std::setprecision(5);
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+        auto val = get();
+        s << Etl::Legacy::BufStr::Prec(3);  // note: Prec of Legacy defines
+                                            // the length after the decimal mark.
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::Legacy::BufStr s;
+        auto val = get();
+        s << Etl::Legacy::BufStr::Prec(3);
+        meter.measure([&s, val]() { s << val; });
+    };
+
+    BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+        std::stringstream s;
+        auto val = get();
+        s << std::setprecision(5);
+        meter.measure([&s, val]() { s << val; });
+    };
+}
+
+
+TEST_CASE("Etl::BufStr << Hex()", "[bufstr][perf][etl]") {
+
+    auto get = []() -> std::uint32_t {
+        return static_cast<std::uint32_t>(std::rand() * UINT32_MAX / RAND_MAX);
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::BufStr<SBS_SIZE> s;
+        auto val = get();
+        meter.measure([&s, val]() { s << Etl::BufStr::Hex(val, 8); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::BufStr s;
+        auto val = get();
+        s << std::setprecision(3);
+        meter.measure([&s, val]() { s << Etl::BufStr::Hex(val, 8); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+        auto val = get();
+        s << Etl::Legacy::BufStr::Prec(3);
+        meter.measure([&s, val]() { s << Etl::Legacy::BufStr::Hex(val, 8); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::Legacy::BufStr s;
+        auto val = get();
+        s << Etl::Legacy::BufStr::Prec(3);
+        meter.measure([&s, val]() { s << Etl::Legacy::BufStr::Hex(val, 8); });
+    };
+
+    BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+        std::stringstream s;
+        auto val = get();
+        s << std::setprecision(3);
+        meter.measure([&s, val]() {
+            s << std::hex << std::setfill('0') << std::setw(8) << val << std::dec
+              << std::setfill(' ');
         });
+    };
+}
+
+
+TEST_CASE("Etl::BufStr << const char*", "[bufstr][perf][etl]") {
+
+    static constexpr char TEXT[] =
+        "some ad hoc text, probably long enough to avoid SSO in std::stringstream";
+
+    BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::BufStr<SBS_SIZE> s;
+        meter.measure([&s]() { s << TEXT; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::BufStr s;
+        meter.measure([&s]() { s << TEXT; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+        meter.measure([&s]() { s << TEXT; });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::Legacy::BufStr s;
+        meter.measure([&s]() { s << TEXT; });
+    };
+
+    BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+        std::stringstream s;
+        meter.measure([&s]() { s << TEXT; });
+    };
+}
+
+
+TEST_CASE("Etl::BufStr to C string", "[bufstr][perf][etl]") {
+
+    auto get = []() -> std::uint32_t {
+        return static_cast<std::uint32_t>(std::rand() * UINT32_MAX / RAND_MAX);
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::BufStr<SBS_SIZE> s;
+        s << get();
+        meter.measure([&s]() { return s.cStr(); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::BufStr s;
+        s << get();
+        meter.measure([&s]() { return s.cStr(); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+        Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+        s << get();
+        meter.measure([&s]() { return s.cStr(); });
+    };
+
+    BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+        Etl::Dynamic::Legacy::BufStr s;
+        s << get();
+        meter.measure([&s]() { return s.cStr(); });
+    };
+
+    BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+        std::stringstream s;
+        s << get();
+        meter.measure([&s]() { return s.str().c_str(); });
+    };
+}
+
+
+TEST_CASE("Etl::BufStr to std::string", "[bufstr][perf][etl]") {
+
+    auto get = []() -> std::uint32_t {
+        return static_cast<std::uint32_t>(std::rand() * UINT32_MAX / RAND_MAX);
+    };
+
+    SECTION("small string") {
+
+        BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+            Etl::Static::BufStr<SBS_SIZE> s;
+            s << get();
+            meter.measure([&s]() { return s.str(); });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+            Etl::Dynamic::BufStr s;
+            s << get();
+            meter.measure([&s]() { return s.str(); });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+            Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+            s << get();
+            meter.measure([&s]() { return std::string {s.cStr()}; });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+            Etl::Dynamic::Legacy::BufStr s;
+            s << get();
+            meter.measure([&s]() { return std::string {s.cStr()}; });
+        };
+
+        BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+            std::stringstream s;
+            s << get();
+            meter.measure([&s]() { return s.str(); });
+        };
+    }
+
+    SECTION("large string") {
+        static constexpr int CNT = 35;
+
+        BENCHMARK_ADVANCED("Etl:Static::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+            Etl::Static::BufStr<SBS_SIZE> s;
+            for (int i = 0; i < CNT; ++i) {
+                s << get();
+            }
+            meter.measure([&s]() { return s.str(); });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Dynamic::BufStr")(Catch::Benchmark::Chronometer meter) {
+            Etl::Dynamic::BufStr s;
+            for (int i = 0; i < CNT; ++i) {
+                s << get();
+            }
+            meter.measure([&s]() { return s.str(); });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Static::Legacy::BufStr<>")(Catch::Benchmark::Chronometer meter) {
+            Etl::Static::Legacy::BufStr<SBS_SIZE> s;
+            for (int i = 0; i < CNT; ++i) {
+                s << get();
+            }
+            meter.measure([&s]() { return std::string {s.cStr()}; });
+        };
+
+        BENCHMARK_ADVANCED("Etl:Dynamic::Legacy::BufStr")(Catch::Benchmark::Chronometer meter) {
+            Etl::Dynamic::Legacy::BufStr s;
+            for (int i = 0; i < CNT; ++i) {
+                s << get();
+            }
+            meter.measure([&s]() { return std::string {s.cStr()}; });
+        };
+
+        BENCHMARK_ADVANCED("std::stringstream")(Catch::Benchmark::Chronometer meter) {
+            std::stringstream s;
+            for (int i = 0; i < CNT; ++i) {
+                s << get();
+            }
+            meter.measure([&s]() { return s.str(); });
+        };
+    }
+}
+
+
+TEST_CASE("Etl::BufStr complex operations", "[bufstr][perf][etl]") {
+
+    static constexpr std::uint32_t U_VAL = 566247UL;
+    static constexpr double D_VAL = 576.799547337;
+    static constexpr char TEXT[] = "Print some ad hoc values emulating a real life log: ";
+
+    BENCHMARK("Etl:Static::BufStr<>") {
+        Etl::Static::BufStr<256> s;
+        s << TEXT << "0x" << Etl::BufStr::Hex(U_VAL, 8U);
+        s << std::setprecision(6);
+        s << " (" << D_VAL << ")" << std::endl;
+        return s.str();
+    };
+
+    BENCHMARK("Etl:Dynamic::BufStr") {
+        Etl::Dynamic::BufStr s;
+        s << TEXT << "0x" << Etl::BufStr::Hex(U_VAL, 8U);
+        s << std::setprecision(6);
+        s << " (" << D_VAL << ")" << std::endl;
+        return s.str();
+    };
+
+    BENCHMARK("Etl:Static::Legacy::BufStr<>") {
+        Etl::Static::Legacy::BufStr<256> s;
+        s << TEXT << "0x" << Etl::Legacy::BufStr::Hex(U_VAL, 8U);
+        s << Etl::Legacy::BufStr::Prec(3);  // note: Prec of Legacy defines
+                                            // the length after the decimal mark.
+        s << " (" << D_VAL << ")" << Etl::Legacy::BufStr::Endl;
+        return std::string {s.cStr()};
+    };
+
+    BENCHMARK("Etl:Dynamic::Legacy::BufStr") {
+        Etl::Dynamic::Legacy::BufStr s;
+        s << TEXT << "0x" << Etl::Legacy::BufStr::Hex(U_VAL, 8U);
+        s << Etl::Legacy::BufStr::Prec(3);
+        s << " (" << D_VAL << ")" << Etl::Legacy::BufStr::Endl;
+        return std::string {s.cStr()};
+    };
+
+    BENCHMARK("std::stringstream") {
+        std::stringstream s;
+        s << TEXT << "0x" << std::hex << std::setfill('0') << std::setw(8) << U_VAL << std::dec
+          << std::setfill(' ');
+        s << std::setprecision(6);
+        s << " (" << D_VAL << ")" << std::endl;
+        return s.str();
     };
 }
 

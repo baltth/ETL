@@ -31,6 +31,8 @@ limitations under the License.
 #include <etl/traitSupport.h>
 
 #include <array>
+#include <climits>
+#include <iomanip>
 #include <limits>
 #include <ostream>
 #include <streambuf>
@@ -50,6 +52,48 @@ class BasicBufStr {
 
     using BasicOutStream = Detail::BasicOutStream<char_type>;
     using BasicIos = std::basic_ios<char_type, std::char_traits<char_type>>;
+
+    /// \name Format manipulation
+    /// \{
+
+    class FormatSaver {
+
+      private:  // variables
+
+        BasicBufStr& bs;
+        std::ios_base::fmtflags flags;
+        char_type fill;
+        std::streamsize precision;
+
+      public:
+
+        explicit FormatSaver(BasicBufStr& bs) :
+            bs {bs},
+            flags {bs.stream.flags()},
+            fill {bs.stream.fill()},
+            precision {bs.stream.precision()} {}
+
+        ~FormatSaver() {
+            bs.stream.precision(precision);
+            bs.stream.fill(fill);
+            bs.stream.flags(flags);
+        }
+    };
+
+    enum class Radix : std::uint8_t {
+        Bin,
+        Oct,
+        Dec,
+        Hex
+    };
+
+    template<typename T>
+    struct FormattedInt {
+        const T val;
+        const Radix radix;
+        const std::uint8_t width;
+    };
+    /// \}
 
   private:  // variables
 
@@ -112,12 +156,102 @@ class BasicBufStr {
     }
     /// \}
 
+    /// \name Format manipulation
+    /// \{
+
+    template<typename T>
+    BasicBufStr& operator<<(const FormattedInt<T>& f) {
+        add(f);
+        return *this;
+    }
+
+    template<typename T>
+    static FormattedInt<T> Dec(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Dec, w};
+    }
+
+    template<typename T>
+    static FormattedInt<T> Hex(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Hex, w};
+    }
+
+    template<typename T>
+    static FormattedInt<T> Oct(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Oct, w};
+    }
+
+    template<typename T>
+    static FormattedInt<T> Bin(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Bin, w};
+    }
+    /// \}
+
   protected:
 
     explicit BasicBufStr(StreamBuf& s) :
         sb {&s},
         stream {s} {
         stream.exceptions(std::ios_base::goodbit);  // no exceptions
+    }
+
+  private:
+
+    template<typename T>
+    void add(const FormattedInt<T>& f) {
+        auto fs = FormatSaver {*this};
+        if (f.radix == Radix::Bin) {
+            addBin(f.val, f.width);
+        } else {
+            std::ios_base::fmtflags radix {};
+            switch (f.radix) {
+                case Radix::Dec:
+                    radix = std::ios_base::dec;
+                    break;
+                case Radix::Hex:
+                    radix = std::ios_base::hex;
+                    break;
+                case Radix::Oct:
+                    radix = std::ios_base::oct;
+                    break;
+                default:
+                    ETL_ASSERT(false);  // Invalid radix
+                    break;
+            }
+            stream.setf(radix, std::ios_base::basefield);
+            if (f.width > 0) {
+                stream.fill(char_type {'0'});
+                stream << std::setw(f.width);
+            }
+            stream << f.val;
+        }
+    }
+
+    template<typename T>
+    void addBin(T val, std::uint8_t width) {
+        static constexpr std::size_t DIGITS = CHAR_BIT * sizeof(T);
+
+        stream.fill(char_type {'0'});
+        bool fillStarted = false;
+
+        if (width > DIGITS) {
+            for (int i = (width - DIGITS); i >= 0; --i) {
+                stream.put('0');
+            }
+            fillStarted = true;
+        }
+
+        for (int i = (DIGITS - 1); i >= 0; --i) {
+            std::uint8_t b = (val >> i) & 0x01U;
+            if (b == 0) {
+                if (fillStarted || (width > i)) {
+                    stream.put('0');
+                    fillStarted = true;
+                }
+            } else {
+                stream.put('1');
+                fillStarted = true;
+            }
+        }
     }
 };
 

@@ -182,6 +182,11 @@ TEST_CASE("Etl::Legacy::BufStr() - Formats", "[legacybufstr][etl]") {
         REQUIRE(strcmp(data.begin(), "1.12346") == 0);
 
         bs.clear();
+        PRINT_DATA_NL;
+        bs << BufStr::Prec(5) << 123.1234567;
+        REQUIRE(strcmp(data.begin(), "123.12346") == 0);
+        
+        bs.clear();
         bs << BufStr::Prec(1) << 1.1234567;
         PRINT_DATA_NL;
         REQUIRE(strcmp(data.begin(), "1.1") == 0);
