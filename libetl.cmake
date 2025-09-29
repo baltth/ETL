@@ -22,13 +22,17 @@ if(NOT DEFINED ETL_SRCS_DIR)
     set(ETL_SRCS_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 endif()
 
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/AListBase.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/SingleChain.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/DoubleChain.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/FifoIndexing.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/PoolBase.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/AHashTable.cpp)
-list(APPEND ETL_SRCS ${ETL_SRCS_DIR}/legacy/BufStr.cpp)
+list(
+    APPEND
+    ETL_SRCS
+    ${ETL_SRCS_DIR}/AListBase.cpp
+    ${ETL_SRCS_DIR}/SingleChain.cpp
+    ${ETL_SRCS_DIR}/DoubleChain.cpp
+    ${ETL_SRCS_DIR}/FifoIndexing.cpp
+    ${ETL_SRCS_DIR}/PoolBase.cpp
+    ${ETL_SRCS_DIR}/AHashTable.cpp
+    ${ETL_SRCS_DIR}/legacy/BufStr.cpp
+)
 
 add_library(${ETL_NAME} STATIC ${ETL_SRCS})
 target_include_directories(${ETL_NAME} PUBLIC ${ETL_INCLUDE_DIR})
