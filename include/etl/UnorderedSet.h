@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022-2024 Balazs Toth.
+Copyright 2022-2025 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -110,6 +110,10 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
 
     ~UnorderedSet() {
         this->clear();
+    }
+
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
     }
 
     void
@@ -242,6 +246,10 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
         this->clear();
     }
 
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
+    }
+
     void swap(UnorderedSet& other) noexcept(noexcept(UnorderedSet().swapSameType(other))) {
         if (&other != this) {
             swapSameType(other);
@@ -355,6 +363,10 @@ class UnorderedSet : public ETL_NAMESPACE::UnorderedSet<K, H, KE> {
     ~UnorderedSet() {
         this->clear();
         ETL_ASSERT(this->empty());
+    }
+
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
     }
 
     void swap(UnorderedSet& other) noexcept(noexcept(UnorderedSet().swapSameType(other))) {

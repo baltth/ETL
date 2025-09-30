@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2022-2024 Balazs Toth.
+Copyright 2022-2025 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -614,6 +614,8 @@ TEST_CASE("Etl::Pooled::UnorderedSet<> test", "[unorderedset][etl]") {
 
     SetType set;
 
+    REQUIRE(set.getAllocator().size() == 0);
+
     SECTION("Basic allocation") {
 
         set.insert(ContainerTester(5));
@@ -626,6 +628,8 @@ TEST_CASE("Etl::Pooled::UnorderedSet<> test", "[unorderedset][etl]") {
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
+
+        REQUIRE(set.getAllocator().size() == set.size());
     }
 
     SECTION("Allocate all") {
@@ -640,6 +644,8 @@ TEST_CASE("Etl::Pooled::UnorderedSet<> test", "[unorderedset][etl]") {
         REQUIRE(set.size() == NUM);
         REQUIRE(res.first == set.end());
         REQUIRE(res.second == false);
+
+        REQUIRE(set.getAllocator().size() == set.getAllocator().max_size());
     }
 }
 
