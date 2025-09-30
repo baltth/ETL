@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2024 Balazs Toth.
+Copyright 2019-2025 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -112,6 +112,10 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
 
     ~UnorderedMap() {
         this->clear();
+    }
+
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
     }
 
     void
@@ -249,6 +253,10 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
         this->clear();
     }
 
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
+    }
+
     void swap(UnorderedMap& other) noexcept(noexcept(UnorderedMap().swapSameType(other))) {
         if (&other != this) {
             swapSameType(other);
@@ -364,6 +372,10 @@ class UnorderedMap : public ETL_NAMESPACE::UnorderedMap<K, E, H, KE> {
     ~UnorderedMap() {
         this->clear();
         ETL_ASSERT(this->empty());
+    }
+
+    NodeAllocator& getAllocator() const noexcept {
+        return allocator;
     }
 
     void swap(UnorderedMap& other) noexcept(noexcept(UnorderedMap().swapSameType(other))) {

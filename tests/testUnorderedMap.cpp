@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2019-2024 Balazs Toth.
+Copyright 2019-2025 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1001,6 +1001,8 @@ TEST_CASE("Etl::Static::UnorderedMap<> test", "[unorderedmap][etl]") {
 
     MapType map;
 
+    REQUIRE(map.getAllocator().size() == 0);
+
     SECTION("Basic allocation") {
 
         map.insert(5, ContainerTester(-5));
@@ -1013,6 +1015,8 @@ TEST_CASE("Etl::Static::UnorderedMap<> test", "[unorderedmap][etl]") {
         ++it2;
         REQUIRE(it2.operator->() != NULL);
         REQUIRE(it2.operator->() != it.operator->());
+
+        REQUIRE(map.getAllocator().size() == map.size());
     }
 
     SECTION("Allocate all") {
@@ -1027,6 +1031,8 @@ TEST_CASE("Etl::Static::UnorderedMap<> test", "[unorderedmap][etl]") {
         REQUIRE(map.size() == NUM);
         REQUIRE(res.first == map.end());
         REQUIRE(res.second == false);
+
+        REQUIRE(map.getAllocator().size() == map.getAllocator().max_size());
     }
 }
 
