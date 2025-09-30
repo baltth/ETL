@@ -7,13 +7,13 @@ on:
 
 jobs:
 
-  build-focal:
+  build-jammy:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-        gcc: [11, 7]
+        gcc: [12, 9]
 
     env:
       BUILD_TYPE: Debug
