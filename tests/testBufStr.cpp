@@ -20,6 +20,7 @@ limitations under the License.
 */
 
 #include <catch2/catch.hpp>
+
 #include <etl/BufStr.h>
 
 #include <cstring>
@@ -32,14 +33,22 @@ static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::BufStr>::nothrowIfMovab
               "Etl::Dynamic::BufStr<N> violates nothrow contract");
 
 
+void checkContent(const Etl::BufStr& bs, const char* expected) {
+
+    CAPTURE(bs.getBuff().begin(), expected);
+    REQUIRE(strcmp(bs.getBuff().begin(), expected) == 0);
+}
+
+
 TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
 
     using Etl::BufStr;
 
     Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Default state") {
+
+        const Etl::Vector<char>& data = bs.getBuff();
 
         REQUIRE(data.begin() == bs.cStr());
         REQUIRE(data.size() == 1);
@@ -53,101 +62,86 @@ TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
     SECTION("Endline serialization") {
 
         bs << BufStr::Endl;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "\n") == 0);
+        checkContent(bs, "\n");
     }
 
     SECTION("Char serialization") {
 
         bs << BufStr::Char('a') << "bcd";
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "abcd") == 0);
+        checkContent(bs, "abcd");
     }
 
     SECTION("Bool serialization") {
 
         bs << true << ", " << false;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "true, false") == 0);
+        checkContent(bs, "true, false");
     }
 
     SECTION("Integer serialization") {
 
         bs << 132UL << ", " << -132L;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "132, -132") == 0);
+        checkContent(bs, "132, -132");
 
         bs.clear();
         bs << INT64_MIN << ", " << -1;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "-9223372036854775808, -1") == 0);
+        checkContent(bs, "-9223372036854775808, -1");
 
         bs.clear();
         bs << UINT64_MAX;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "18446744073709551615") == 0);
+        checkContent(bs, "18446744073709551615");
     }
 
     SECTION("Float serialization") {
 
         bs << 0.0;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "0.0") == 0);
+        checkContent(bs, "0.0");
 
         bs.clear();
         bs << 132.0 << ", " << -132.102f;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "132.0, -132.102") == 0);
+        checkContent(bs, "132.0, -132.102");
 
         bs.clear();
         bs << 132.10222 << ", " << 132.10255;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "132.102, 132.103") == 0);
+        checkContent(bs, "132.102, 132.103");
 
         SECTION("Float specials") {
 
             bs.clear();
             bs << INFINITY << ", " << -INFINITY;
-            CAPTURE(data.begin());
-            REQUIRE(strcmp(data.begin(), "inf, -inf") == 0);
+            checkContent(bs, "inf, -inf");
 
             bs.clear();
             bs << NAN;
-            CAPTURE(data.begin());
-            REQUIRE(strcmp(data.begin(), "NaN") == 0);
+            checkContent(bs, "NaN");
         }
     }
 
     SECTION("Enum serialization") {
 
         bs << BufStr::Radix::HEX;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "16") == 0);
+        checkContent(bs, "16");
 
         bs.clear();
         bs << BufStr::Radix::BIN;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "2") == 0);
+        checkContent(bs, "2");
     }
 
     SECTION("Pointer serialization") {
 
         static const size_t PTR_TETRADES = sizeof(void*) * 2;
 
-        bs << &data;
-        CAPTURE(data.begin());
-        REQUIRE(strlen(data.begin()) == (PTR_TETRADES + 2));
-        REQUIRE(data[0] == '0');
-        REQUIRE(data[1] == 'x');
+        bs << &bs;
+        REQUIRE(strlen(bs.getBuff().begin()) == (PTR_TETRADES + 2));
+        REQUIRE(bs.getBuff()[0] == '0');
+        REQUIRE(bs.getBuff()[1] == 'x');
 
         bs.clear();
-        bs << BufStr::Pad(PTR_TETRADES + 6) << &data;
-        CAPTURE(data.begin());
-        REQUIRE(strlen(data.begin()) == (PTR_TETRADES + 6));
-        REQUIRE(data[0] == ' ');
-        REQUIRE(data[3] == ' ');
-        REQUIRE(data[4] == '0');
-        REQUIRE(data[5] == 'x');
+        bs << BufStr::Pad(PTR_TETRADES + 6) << &bs;
+        REQUIRE(strlen(bs.getBuff().begin()) == (PTR_TETRADES + 6));
+        REQUIRE(bs.getBuff()[0] == ' ');
+        REQUIRE(bs.getBuff()[3] == ' ');
+        REQUIRE(bs.getBuff()[4] == '0');
+        REQUIRE(bs.getBuff()[5] == 'x');
     }
 }
 
@@ -157,103 +151,85 @@ TEST_CASE("Etl::BufStr() - Formats", "[bufstr][etl]") {
     using Etl::BufStr;
 
     Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Fill") {
 
         bs << BufStr::Fill(5) << 112;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "00112") == 0);
+        checkContent(bs, "00112");
 
         bs.clear();
         bs << BufStr::Fill(5) << -112;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "-00112") == 0);
+        checkContent(bs, "-00112");
     }
 
     SECTION("Precision") {
 
         bs << BufStr::Prec(5) << 1.1234567;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1.12346") == 0);
+        checkContent(bs, "1.12346");
 
         bs.clear();
         bs << BufStr::Prec(1) << 1.1234567;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1.1") == 0);
+        checkContent(bs, "1.1");
 
         bs.clear();
         bs << BufStr::Prec(1) << 1.99 << ", " << -1.99;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "2.0, -2.0") == 0);
+        checkContent(bs, "2.0, -2.0");
     }
 
     SECTION("Padding") {
 
         bs << BufStr::Pad(6) << 13;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "    13") == 0);
+        checkContent(bs, "    13");
 
         bs.clear();
         bs << BufStr::Pad(6) << -13;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "   -13") == 0);
+        checkContent(bs, "   -13");
 
         bs.clear();
         bs << BufStr::Pad(6) << 13.02;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "    13.02") == 0);
+        checkContent(bs, "    13.02");
 
         bs.clear();
         bs << BufStr::Pad(6) << -1356.7;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), " -1356.7") == 0);
+        checkContent(bs, " -1356.7");
 
         bs.clear();
         bs << BufStr::Pad(12) << INT8_C(-13);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "         -13") == 0);
+        checkContent(bs, "         -13");
     }
 
     SECTION("Format persistency") {
 
         bs << 33 << ", " << BufStr::SetHex << 33;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "33, 21") == 0);
+        checkContent(bs, "33, 21");
 
         bs.clear();
         bs << 33 << ", " << BufStr::Fill(4) << 33;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "21, 0021") == 0);
+        checkContent(bs, "21, 0021");
 
         bs.clear();
         bs << 33 << ", " << BufStr::SetDec << 33;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "0021, 0033") == 0);
+        checkContent(bs, "0021, 0033");
 
         bs.clear();
         bs << BufStr::Default << 33;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "33") == 0);
+        checkContent(bs, "33");
     }
 
     SECTION("On-the-fly ints") {
 
         bs << 11 << ", " << BufStr::Hex(11) << ", " << 11;
-        CAPTURE(data.begin());
-        CHECK(strcmp(data.begin(), "11, b, 11") == 0);
+        checkContent(bs, "11, b, 11");
 
         bs.clear();
         bs << BufStr::Fill(4);
         bs << 11 << ", " << BufStr::Hex(11, 2) << ", " << 11;
-        CAPTURE(data.begin());
-        CHECK(strcmp(data.begin(), "0011, 0b, 0011") == 0);
+        checkContent(bs, "0011, 0b, 0011");
 
         bs.clear();
         bs << BufStr::Fill(3);
         bs << 11 << ", " << BufStr::Bin(11) << ", " << 11;
-        CAPTURE(data.begin());
-        CHECK(strcmp(data.begin(), "011, 1011, 011") == 0);
+        checkContent(bs, "011, 1011, 011");
     }
 }
 
@@ -263,91 +239,75 @@ TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
     using Etl::BufStr;
 
     Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
 
     SECTION("Hex") {
 
         bs << BufStr::SetHex << 132UL;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "84") == 0);
+        checkContent(bs, "84");
 
         bs.clear();
         bs << UINT64_MAX;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "ffffffffffffffff") == 0);
+        checkContent(bs, "ffffffffffffffff");
 
         bs.clear();
         bs << INT64_C(-1);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "ffffffffffffffff") == 0);
+        checkContent(bs, "ffffffffffffffff");
 
         bs.clear();
         bs << -1;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "ffffffff") == 0);
+        checkContent(bs, "ffffffff");
 
         bs.clear();
         bs << -2;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "fffffffe") == 0);
+        checkContent(bs, "fffffffe");
 
         bs.clear();
         bs << static_cast<int8_t>(INT8_MAX);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "7f") == 0);
+        checkContent(bs, "7f");
     }
 
     SECTION("Hex formats") {
 
         bs << BufStr::SetHex;
         bs << BufStr::Fill(7) << 0x33AAF;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "0033aaf") == 0);
+        checkContent(bs, "0033aaf");
 
         bs.clear();
         bs << BufStr::Pad(9) << 0x33AAF;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "  0033aaf") == 0);
+        checkContent(bs, "  0033aaf");
     }
 
     SECTION("Bin") {
 
         bs << BufStr::SetBin << 132UL;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "10000100") == 0);
+        checkContent(bs, "10000100");
 
         bs.clear();
         bs << UINT16_MAX;
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1111111111111111") == 0);
+        checkContent(bs, "1111111111111111");
 
         bs.clear();
         bs << static_cast<int16_t>(-1);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1111111111111111") == 0);
+        checkContent(bs, "1111111111111111");
 
         bs.clear();
         bs << static_cast<int16_t>(-2);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1111111111111110") == 0);
+        checkContent(bs, "1111111111111110");
 
         bs.clear();
         bs << static_cast<int8_t>(INT8_MAX);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "1111111") == 0);
+        checkContent(bs, "1111111");
     }
 
     SECTION("Bin formats") {
 
         bs << BufStr::SetBin;
         bs << BufStr::Fill(8) << static_cast<int8_t>(47);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "00101111") == 0);
+        checkContent(bs, "00101111");
 
         bs.clear();
         bs << BufStr::Pad(11) << static_cast<int8_t>(47);
-        CAPTURE(data.begin());
-        REQUIRE(strcmp(data.begin(), "   00101111") == 0);
+        checkContent(bs, "   00101111");
     }
 }
 
@@ -455,7 +415,7 @@ TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
     bs << "1234567890";
 
     REQUIRE(bs.size() == 16);
-    REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
+    checkContent(bs, "1234567890123456");
 }
 
 }  // namespace
