@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2024 Balazs Toth.
+Copyright 2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,549 +23,336 @@ limitations under the License.
 #define ETL_BUFSTR_H_
 
 #include <etl/Vector.h>
+#include <etl/base/AMemStreamBuf.h>
+#include <etl/base/OutStream.h>
+#include <etl/base/StreamBufImpl.h>
+#include <etl/base/tools.h>
 #include <etl/etlSupport.h>
 #include <etl/traitSupport.h>
 
-#include <utility>
+#include <array>
+#include <climits>
+#include <iomanip>
+#include <limits>
+#include <ostream>
+#include <streambuf>
+#include <string>
 
 namespace ETL_NAMESPACE {
 
-
-class BufStr {
+template<typename CharType>
+class BasicBufStr {
 
   public:  // types
 
-    struct Char {
-        char ch;
-        explicit Char(char c) :
-            ch(c) {};
-    };
+    using char_type = CharType;
 
-    static const struct EndlineT : Char { EndlineT() : Char('\n') {}; } Endl;
+    using StreamBuf = Detail::AMemStreamBuf<char_type>;
+    using OutStream = Detail::OutStream<char_type>;
 
-    enum Radix {
-        BIN = 2,
-        DEC = 10,
-        HEX = 16
-    };
+    using BasicOutStream = Detail::BasicOutStream<char_type>;
+    using BasicIos = std::basic_ios<char_type, std::char_traits<char_type>>;
 
-    template<typename V>
-    struct IntFormatSpec {
-        const V val;
-        const Radix radix;
-        const uint8_t fill;
-        explicit IntFormatSpec(V v, Radix r, uint8_t f = 0) :
-            val(v),
-            radix(r),
-            fill(f) {};
-    };
+    /// \name Format manipulation
+    /// \{
 
-    struct Fill {
-        uint8_t fill;
-        explicit Fill(uint8_t f) :
-            fill(f) {};
-    };
+    class FormatSaver {
 
-    struct Prec {
-        uint8_t precision;
-        explicit Prec(uint8_t p) :
-            precision(p) {};
-    };
+      private:  // variables
 
-    struct Pad {
-        uint8_t padding;
-        explicit Pad(uint8_t p) :
-            padding(p) {};
-    };
+        BasicBufStr& bs;
+        std::ios_base::fmtflags flags;
+        char_type fill;
+        std::streamsize precision;
 
-    struct DecModT {};
-    static const DecModT SetDec;
-    struct HexModT {};
-    static const HexModT SetHex;
-    struct BinModT {};
-    static const BinModT SetBin;
-    struct DefaultModT {};
-    static const DefaultModT Default;
+      public:
 
-    template<uint32_t S>
-    struct SizeTypeTrait {};
+        explicit FormatSaver(BasicBufStr& bs) :
+            bs {bs},
+            flags {bs.stream.flags()},
+            fill {bs.stream.fill()},
+            precision {bs.stream.precision()} {}
 
-    template<typename T>
-    struct LengthTrait {
-        static const uint8_t VALUE = SizeTypeTrait<sizeof(T)>::VALUE;
-    };
-
-    struct Format {
-        Radix radix {DEC};
-        uint8_t fill {1U};
-        uint8_t precision {3U};
-        uint8_t padding {1U};
-    };
-
-    struct FormatSaver {
-        BufStr& str;
-        Format format;
-        explicit FormatSaver(BufStr& s) :
-            str(s),
-            format(s.format) {};
         ~FormatSaver() {
-            str.format = format;
+            bs.stream.precision(precision);
+            bs.stream.fill(fill);
+            bs.stream.flags(flags);
         }
     };
+
+    enum class Radix : std::uint8_t {
+        Bin,
+        Oct,
+        Dec,
+        Hex
+    };
+
+    template<typename T>
+    struct FormattedInt {
+        const T val;
+        const Radix radix;
+        const std::uint8_t width;
+    };
+    /// \}
 
   private:  // variables
 
-    ETL_NAMESPACE::Vector<char>& data;
-    Format format;
+    StreamBuf* sb;
+    OutStream stream;
 
   public:  // functions
 
-    BufStr() noexcept = delete;
-    BufStr(const BufStr& other) = delete;
-    BufStr(BufStr&& other) noexcept = delete;
-    ~BufStr() = default;
+    BasicBufStr() = delete;
+    ~BasicBufStr() = default;
 
-    BufStr& operator=(const BufStr& other) & {
-        data = other.data;
-        format = other.format;
-        closeStrOnDemand();
-        return *this;
-    }
+    BasicBufStr(const BasicBufStr& other) = delete;
+    BasicBufStr& operator=(const BasicBufStr& other) & = delete;
+    BasicBufStr(BasicBufStr&& other) = delete;
+    BasicBufStr& operator=(BasicBufStr&& other) & = delete;
 
-    BufStr& operator=(BufStr&& other) & {
-        data = std::move(other.data);
-        format = std::move(other.format);
-        closeStrOnDemand();
-        return *this;
-    }
-
-    /// \name Data interface
+    /// \name Access interface
     /// \{
-    BufStr& put(char c) {
-        data.back() = c;
-        closeStr();
-        return *this;
+
+    const char_type* cStr() const {
+        ETL_ASSERT(sb != nullptr);
+        return sb->data();
     }
 
-    BufStr& write(const char* str, size_t len);
-    BufStr& write(const char* str);
-
-    BufStr& operator<<(bool data) {
-        if (data) {
-            return write("true", sizeof("true") - 1);
-        } else {
-            return write("false", sizeof("false") - 1);
-        }
+    std::string str() const {
+        return std::string {cStr()};
     }
 
-    BufStr& operator<<(Char data) {
-        return put(data.ch);
+    std::size_t size() const {
+        return sb->size();
     }
 
-    template<typename T>
-    enable_if_t<is_integral<T>::value && is_unsigned<T>::value, BufStr&> operator<<(T data) {
-        return putUNumber(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_integral<T>::value && is_signed<T>::value, BufStr&> operator<<(T data) {
-        return putSNumber(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_floating_point<T>::value, BufStr&> operator<<(T data) {
-        return putFloat(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_enum<T>::value, BufStr&> operator<<(T data) {
-        return operator<<(static_cast<typename std::underlying_type<T>::type>(data));
-    }
-
-    BufStr& operator<<(const void* data) {
-        return putPointer(data);
-    }
-
-    BufStr& operator<<(const BufStr& other) {
-        if (!other.empty()) {
-            write(other.cStr(), other.size());
-        }
-        return *this;
-    }
-
-    const ETL_NAMESPACE::Vector<char>& getBuff() const noexcept {
-        return data;
-    }
-
-    const char* cStr() const noexcept {
-        return data.begin();
-    }
-
-    uint32_t size() const noexcept {
-        return data.size() ? (data.size() - 1) : 0;
-    }
-
-    bool empty() const noexcept {
-        return (size() == 0);
-    }
-
-    void clear() {
-        data.clear();
-        closeStr();
+    bool good() const {
+        return stream.good();
     }
     /// \}
 
-    /// \name Format interface
+    /// \name Stream interface
     /// \{
+
     template<typename T>
-    BufStr& operator<<(IntFormatSpec<T> data) {
-        FormatSaver fs {*this};
-        format.radix = data.radix;
-        *this << Fill(data.fill) << data.val;
+    BasicBufStr& operator<<(T v) {
+        stream << v;
         return *this;
     }
 
-    BufStr& operator<<(DecModT) {
-        format.radix = DEC;
+    BasicBufStr& operator<<(std::ios_base& (*func)(std::ios_base&)) {
+        stream << func;
         return *this;
     }
 
-    BufStr& operator<<(HexModT) {
-        format.radix = HEX;
+    BasicBufStr& operator<<(BasicIos& (*func)(BasicIos&)) {
+        stream << func;
         return *this;
     }
 
-    BufStr& operator<<(BinModT) {
-        format.radix = BIN;
+    BasicBufStr& operator<<(BasicOutStream& (*func)(BasicOutStream&)) {
+        stream << func;
         return *this;
     }
+    /// \}
 
-    BufStr& operator<<(Fill mod) {
-        if (mod.fill) {
-            format.fill = mod.fill;
-        }
-        return *this;
-    }
+    /// \name Format manipulation
+    /// \{
 
-    BufStr& operator<<(Prec mod) {
-        if (mod.precision) {
-            format.precision = mod.precision;
-        }
-        return *this;
-    }
-
-    BufStr& operator<<(Pad mod) {
-        if (mod.padding) {
-            format.padding = mod.padding;
-        }
-        return *this;
-    }
-
-    BufStr& operator<<(DefaultModT) {
-        resetFormat();
+    template<typename T>
+    BasicBufStr& operator<<(const FormattedInt<T>& f) {
+        add(f);
         return *this;
     }
 
     template<typename T>
-    static IntFormatSpec<T> Dec(T val, uint8_t f = 0) {
-        return IntFormatSpec<T>(val, DEC, f);
+    static FormattedInt<T> Dec(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Dec, w};
     }
 
     template<typename T>
-    static IntFormatSpec<T> Hex(T val, uint8_t f = 0) {
-        return IntFormatSpec<T>(val, HEX, f);
+    static FormattedInt<T> Hex(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Hex, w};
     }
 
     template<typename T>
-    static IntFormatSpec<T> Bin(T val, uint8_t f = 0) {
-        return IntFormatSpec<T>(val, BIN, f);
+    static FormattedInt<T> Oct(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Oct, w};
     }
 
-    void resetFormat() {
-        format = Format();
-    }
-
-    void setFormat(Format f) {
-        format = f;
-    }
-
-    Format getFormat() const noexcept {
-        return format;
-    }
-
-    Radix getRadix() const noexcept {
-        return format.radix;
-    }
-
-    uint8_t getFill() const noexcept {
-        return format.fill;
-    }
-
-    uint8_t getPrecision() const noexcept {
-        return format.precision;
-    }
-
-    uint8_t getPadding() const noexcept {
-        return format.padding;
+    template<typename T>
+    static FormattedInt<T> Bin(T val, std::uint8_t w = 0U) {
+        return FormattedInt<T> {val, Radix::Bin, w};
     }
     /// \}
 
   protected:
 
-    explicit BufStr(ETL_NAMESPACE::Vector<char>& d) noexcept :
-        data(d) {};
+    explicit BasicBufStr(StreamBuf& s) :
+        sb {&s},
+        stream {s} {
+        stream.exceptions(std::ios_base::goodbit);  // no exceptions
+    }
+
+  private:
 
     template<typename T>
-    BufStr& putUNumber(T val) {
-
-        if (getRadix() == HEX) {
-            toHexString(static_cast<uint64_t>(val), sizeof(T));
-        } else if (getRadix() == BIN) {
-            toBinString(static_cast<uint64_t>(val), sizeof(T));
+    void add(const FormattedInt<T>& f) {
+        auto fs = FormatSaver {*this};
+        if (f.radix == Radix::Bin) {
+            addBin(f.val, f.width);
         } else {
-            toString(static_cast<uint64_t>(val), LengthTrait<T>::VALUE);
+            std::ios_base::fmtflags radix {};
+            switch (f.radix) {
+                case Radix::Dec:
+                    radix = std::ios_base::dec;
+                    break;
+                case Radix::Hex:
+                    radix = std::ios_base::hex;
+                    break;
+                case Radix::Oct:
+                    radix = std::ios_base::oct;
+                    break;
+                default:
+                    ETL_ASSERT(false);  // Invalid radix
+                    break;
+            }
+            stream.setf(radix, std::ios_base::basefield);
+            if (f.width > 0) {
+                stream.fill(char_type {'0'});
+                stream << std::setw(f.width);
+            }
+            stream << f.val;
         }
-        return *this;
     }
 
     template<typename T>
-    BufStr& putSNumber(T val) {
+    void addBin(T val, std::uint8_t width) {
+        static constexpr std::size_t DIGITS = CHAR_BIT * sizeof(T);
 
-        if (getRadix() == HEX) {
-            toHexString(static_cast<uint64_t>(val), sizeof(T));
-        } else if (getRadix() == BIN) {
-            toBinString(static_cast<uint64_t>(val), sizeof(T));
-        } else {
-            toString(static_cast<int64_t>(val), LengthTrait<T>::VALUE);
+        stream.fill(char_type {'0'});
+        bool fillStarted = false;
+
+        if (width > DIGITS) {
+            for (int i = (width - DIGITS); i >= 0; --i) {
+                stream.put('0');
+            }
+            fillStarted = true;
         }
-        return *this;
-    }
 
-    BufStr& putFloat(double val) {
-        if (!handleFloatSpecials(val)) {
-            toString(val);
-        }
-        return *this;
-    }
-
-    BufStr& putPointer(const void* val);
-
-    void toString(uint64_t val, uint8_t lenType, char prefix = 0);
-    void toString(int64_t val, uint8_t lenType);
-    void toHexString(uint64_t val, uint8_t size);
-    void toBinString(uint64_t val, uint8_t size);
-
-    bool handleFloatSpecials(double val);
-    void toString(double val);
-
-    void pad(uint8_t num);
-    void putDigits(uint64_t val, uint64_t decades, bool forceAll = false);
-
-    void writeWithPadding(const char* str, uint32_t len, uint8_t padding);
-
-    void putChar(char c) {
-        data.push_back(c);
-    }
-
-    void closeStr() {
-        data.push_back('\0');
-    }
-
-    void openStr() {
-        data.pop_back();
-    }
-
-    void closeStrOnDemand() {
-        if (data.empty() || (data.back() != '\0')) {
-            data.push_back('\0');
+        for (int i = (DIGITS - 1); i >= 0; --i) {
+            std::uint8_t b = (val >> i) & 0x01U;
+            if (b == 0) {
+                if (fillStarted || (width > i)) {
+                    stream.put('0');
+                    fillStarted = true;
+                }
+            } else {
+                stream.put('1');
+                fillStarted = true;
+            }
         }
     }
-
-    void insertOp(const char* str, uint32_t len) {
-        data.insert(data.end(), str, (str + len));
-    }
-
-    static char tetradeToChar(uint8_t val);
 };
+
+
+using BufStr = BasicBufStr<char>;
 
 
 namespace Static {
 
-template<uint32_t N>
-class BufStr : public ETL_NAMESPACE::BufStr {
+template<std::size_t N, typename CharType>
+class BasicBufStr : public ETL_NAMESPACE::BasicBufStr<CharType> {
+
+    static_assert(N > 1, "Invalid Etl::Static::BasicBufStr size");
+    static_assert(N <= std::numeric_limits<std::streamsize>::max(),
+                  "Invalid Etl::Static::BasicBufStr size");
 
   public:  // types
 
-    static_assert(N > 0U, "Invalid size for Static::BufStr");
-
-    using Base = ETL_NAMESPACE::BufStr;
-    using Data = ETL_NAMESPACE::Static::Vector<char, N>;
+    using char_type = CharType;
+    using Base = ETL_NAMESPACE::BasicBufStr<char_type>;
+    using StreamBuf = Detail::StaticStreamBuf<char_type, N>;
 
   private:  // variables
 
-    Data data;
+    StreamBuf sb;
 
   public:  // functions
 
-    BufStr() noexcept :
-        Base(data) {
-        closeStr();
-    }
+    BasicBufStr() :
+        Base {sb},
+        sb {} {}
 
-    BufStr(const BufStr& other) :
-        BufStr() {
-        this->operator=(other);
-    };
+    BasicBufStr(BasicBufStr&& other) :
+        Base {sb},
+        sb {std::move(other.sb)} {};
 
-    BufStr& operator=(const BufStr& other) & {
-        Base::operator=(other);
+    BasicBufStr& operator=(BasicBufStr&& other) & {
+        sb = std::move(other.sb);
         return *this;
     }
 
-    BufStr(BufStr&& other) noexcept(noexcept(BufStr().operator=(std::move(other)))) :
-        Base(data) {
-        this->operator=(std::move(other));
-    };
+    BasicBufStr(const BasicBufStr& other) = delete;
+    BasicBufStr& operator=(const BasicBufStr& other) & = delete;
 
-    BufStr& operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<Data>::value) {
-        // Direct move of members allow propagation of
-        // noexcept properties of the data container type
-        data = std::move(other.data);
-        setFormat(other.getFormat());
-        return *this;
-    }
+    ~BasicBufStr() = default;
 
-    explicit BufStr(const Base& other) :
-        BufStr() {
-        this->operator=(other);
-    };
-
-    BufStr& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    explicit BufStr(Base&& other) :
-        BufStr() {
-        this->operator=(std::move(other));
-    };
-
-    BufStr& operator=(Base&& other) {
-        Base::operator=(std::move(other));
-        return *this;
-    }
-
-    explicit BufStr(const char* str) :
-        BufStr() {
-        write(str);
+    const typename StreamBuf::Buffer& buffer() const {
+        return sb.buffer();
     }
 };
+
+
+template<std::size_t N>
+using BufStr = BasicBufStr<N, char>;
 
 }  // namespace Static
 
 
 namespace Dynamic {
 
-class BufStr : public ETL_NAMESPACE::BufStr {
+template<typename CharType>
+class BasicBufStr : public ETL_NAMESPACE::BasicBufStr<CharType> {
 
   public:  // types
 
-    using Base = ETL_NAMESPACE::BufStr;
-    using Data = ETL_NAMESPACE::Dynamic::Vector<char>;
+    using char_type = CharType;
+    using Base = ETL_NAMESPACE::BasicBufStr<char_type>;
+    using StreamBuf = Detail::DynamicStreamBuf<char_type>;
 
   private:  // variables
 
-    Data data;
+    StreamBuf sb {};
 
   public:  // functions
 
-    BufStr() :
-        Base(data) {
-        closeStr();
-    }
+    BasicBufStr() :
+        Base {sb} {}
 
-    BufStr(const BufStr& other) :
-        BufStr() {
-        this->operator=(other);
-    }
+    BasicBufStr(BasicBufStr&& other) :
+        Base {sb},
+        sb {std::move(other.sb)} {};
 
-    BufStr& operator=(const BufStr& other) & {
-        Base::operator=(other);
+    BasicBufStr& operator=(BasicBufStr&& other) & {
+        sb = std::move(other.sb);
         return *this;
     }
+    BasicBufStr(const BasicBufStr& other) = delete;
+    BasicBufStr& operator=(const BasicBufStr& other) & = delete;
 
-    BufStr(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) :
-        Base(data) {
-        // Direct move of members allow propagation of
-        // noexcept properties of the data container type
-        data = std::move(other.data);
-        setFormat(other.getFormat());
-    }
+    ~BasicBufStr() = default;
 
-    BufStr&
-    operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) {
-        // Direct move of members allow propagation of
-        // noexcept properties of the data container type
-        data = std::move(other.data);
-        setFormat(other.getFormat());
-        return *this;
-    }
-
-    explicit BufStr(const Base& other) :
-        BufStr() {
-        this->operator=(other);
-    };
-
-    BufStr& operator=(const Base& other) {
-        Base::operator=(other);
-        return *this;
-    }
-
-    explicit BufStr(Base&& other) :
-        BufStr() {
-        this->operator=(std::move(other));
-    };
-
-    BufStr& operator=(Base&& other) {
-        Base::operator=(std::move(other));
-        return *this;
-    }
-
-    explicit BufStr(const char* str) :
-        BufStr() {
-        write(str);
+    const typename StreamBuf::Buffer& buffer() const {
+        return sb.buffer();
     }
 };
+
+
+using BufStr = BasicBufStr<char>;
 
 }  // namespace Dynamic
 
-
-template<>
-struct BufStr::SizeTypeTrait<sizeof(uint8_t)> {
-    static const uint8_t VALUE = 0;
-};
-
-template<>
-struct BufStr::SizeTypeTrait<sizeof(uint16_t)> {
-    static const uint8_t VALUE = 1;
-};
-
-template<>
-struct BufStr::SizeTypeTrait<sizeof(uint32_t)> {
-    static const uint8_t VALUE = 2;
-};
-
-template<>
-struct BufStr::SizeTypeTrait<sizeof(uint64_t)> {
-    static const uint8_t VALUE = 3;
-};
-
 }  // namespace ETL_NAMESPACE
-
-
-inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* data) {
-
-    return bs.write(data);
-}
 
 #endif  // ETL_BUFSTR_H_

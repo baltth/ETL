@@ -20,12 +20,12 @@ limitations under the License.
 */
 
 #include <etl/Array.h>
-#include <etl/BufStr.h>
+#include <etl/legacy/BufStr.h>
 
 #include <cmath>
 #include <cstring>
 
-using ETL_NAMESPACE::BufStr;
+using ETL_NAMESPACE::Legacy::BufStr;
 
 
 namespace {

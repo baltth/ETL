@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2022 Balazs Toth.
+Copyright 2024 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,442 +24,213 @@ limitations under the License.
 #include <etl/BufStr.h>
 
 #include <cstring>
-
-#if 0
-#define PRINT_DATA                                                                                 \
-    { std::cout << std::string(data.begin()); }
-#define PRINT_DATA_NL                                                                              \
-    { std::cout << std::string(data.begin()) << std::endl; }
-#else
-#define PRINT_DATA
-#define PRINT_DATA_NL
-#endif
+#include <cwchar>
+#include <iomanip>
 
 namespace {
 
-static_assert(Etl::Detail::NothrowContract<Etl::Static::BufStr<32U>>::value,
-              "Etl::Static::BufStr<N> violates nothrow contract");
-static_assert(Etl::Detail::NothrowContract<Etl::Dynamic::BufStr>::nothrowIfMovable,
-              "Etl::Dynamic::BufStr<N> violates nothrow contract");
+bool equals(const Etl::BufStr& bs, const char* expected) {
+    return strcmp(bs.cStr(), expected) == 0;
+}
 
-
-TEST_CASE("Etl::BufStr() test", "[bufstr][etl]") {
-
-    using Etl::BufStr;
-
-    Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
-
-    SECTION("Default state") {
-
-        REQUIRE(data.begin() == bs.cStr());
-        REQUIRE(data.size() == 1);
-        REQUIRE(data.back() == '\0');
-
-        REQUIRE(bs.getFill() == 1);
-        REQUIRE(bs.getRadix() == 10);
-        REQUIRE(bs.getPrecision() == 3);
-    }
-
-    SECTION("Char serialization") {
-
-        bs << BufStr::Char('a') << "bcd" << BufStr::Endl;
-        PRINT_DATA;
-        REQUIRE(strcmp(data.begin(), "abcd\n") == 0);
-    }
-
-    SECTION("Bool serialization") {
-
-        bs << true << ", " << false << BufStr::Endl;
-        PRINT_DATA;
-        REQUIRE(strcmp(data.begin(), "true, false\n") == 0);
-    }
-
-    SECTION("Integer serialization") {
-
-        bs << 132UL << ", " << -132L << BufStr::Endl;
-        PRINT_DATA;
-        REQUIRE(strcmp(data.begin(), "132, -132\n") == 0);
-
-        bs.clear();
-        bs << INT64_MIN << ", " << -1 << BufStr::Endl;
-        PRINT_DATA;
-        REQUIRE(strcmp(data.begin(), "-9223372036854775808, -1\n") == 0);
-
-        bs.clear();
-        bs << UINT64_MAX << BufStr::Endl;
-        PRINT_DATA;
-        REQUIRE(strcmp(data.begin(), "18446744073709551615\n") == 0);
-    }
-
-    SECTION("Float serialization") {
-
-        bs << 0.0;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "0.0") == 0);
-
-        bs.clear();
-        bs << 132.0 << ", " << -132.102f;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "132.0, -132.102") == 0);
-
-        bs.clear();
-        bs << 132.10222 << ", " << 132.10255;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "132.102, 132.103") == 0);
-
-        SECTION("Float specials") {
-
-            bs.clear();
-            bs << INFINITY << ", " << -INFINITY;
-            PRINT_DATA_NL;
-            REQUIRE(strcmp(data.begin(), "inf, -inf") == 0);
-
-            bs.clear();
-            bs << NAN;
-            PRINT_DATA_NL;
-            REQUIRE(strcmp(data.begin(), "NaN") == 0);
-        }
-    }
-
-    SECTION("Enum serialization") {
-
-        bs << BufStr::Radix::HEX;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "16") == 0);
-
-        bs.clear();
-        bs << BufStr::Radix::BIN;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "2") == 0);
-    }
-
-    SECTION("Pointer serialization") {
-
-        static const size_t PTR_TETRADES = sizeof(void*) * 2;
-
-        bs << &data;
-        PRINT_DATA_NL;
-        REQUIRE(strlen(data.begin()) == (PTR_TETRADES + 2));
-        REQUIRE(data[0] == '0');
-        REQUIRE(data[1] == 'x');
-
-        bs.clear();
-        bs << BufStr::Pad(PTR_TETRADES + 6) << &data;
-        PRINT_DATA_NL;
-        REQUIRE(strlen(data.begin()) == (PTR_TETRADES + 6));
-        REQUIRE(data[0] == ' ');
-        REQUIRE(data[3] == ' ');
-        REQUIRE(data[4] == '0');
-        REQUIRE(data[5] == 'x');
-    }
+bool equals(const Etl::BasicBufStr<wchar_t>& bs, const wchar_t* expected) {
+    return wcscmp(bs.cStr(), expected) == 0;
 }
 
 
-TEST_CASE("Etl::BufStr() - Formats", "[bufstr][etl]") {
-
-    using Etl::BufStr;
-
-    Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
-
-    SECTION("Fill") {
-
-        bs << BufStr::Fill(5) << 112;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "00112") == 0);
-
-        bs.clear();
-        bs << BufStr::Fill(5) << -112;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "-00112") == 0);
-    }
-
-    SECTION("Precision") {
-
-        bs << BufStr::Prec(5) << 1.1234567;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1.12346") == 0);
-
-        bs.clear();
-        bs << BufStr::Prec(1) << 1.1234567;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1.1") == 0);
-
-        bs.clear();
-        bs << BufStr::Prec(1) << 1.99 << ", " << -1.99;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "2.0, -2.0") == 0);
-    }
-
-    SECTION("Padding") {
-
-        bs << BufStr::Pad(6) << 13;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "    13") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(6) << -13;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "   -13") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(6) << 13.02;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "    13.02") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(6) << -1356.7;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), " -1356.7") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(12) << INT8_C(-13);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "         -13") == 0);
-    }
-
-    SECTION("Format persistency") {
-
-        bs << 33 << ", " << BufStr::SetHex << 33;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "33, 21") == 0);
-
-        bs.clear();
-        bs << 33 << ", " << BufStr::Fill(4) << 33;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "21, 0021") == 0);
-
-        bs.clear();
-        bs << 33 << ", " << BufStr::SetDec << 33;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "0021, 0033") == 0);
-
-        bs.clear();
-        bs << BufStr::Default << 33;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "33") == 0);
-    }
-
-    SECTION("On-the-fly ints") {
-
-        bs << 11 << ", " << BufStr::Hex(11) << ", " << 11;
-        PRINT_DATA_NL;
-        CHECK(strcmp(data.begin(), "11, b, 11") == 0);
-
-        bs.clear();
-        bs << BufStr::Fill(4);
-        bs << 11 << ", " << BufStr::Hex(11, 2) << ", " << 11;
-        PRINT_DATA_NL;
-        CHECK(strcmp(data.begin(), "0011, 0b, 0011") == 0);
-
-        bs.clear();
-        bs << BufStr::Fill(3);
-        bs << 11 << ", " << BufStr::Bin(11) << ", " << 11;
-        PRINT_DATA_NL;
-        CHECK(strcmp(data.begin(), "011, 1011, 011") == 0);
-    }
-}
-
-
-TEST_CASE("Etl::BufStr() - Decimal representations", "[bufstr][etl]") {
-
-    using Etl::BufStr;
-
-    Etl::Static::BufStr<120> bs;
-    const Etl::Vector<char>& data = bs.getBuff();
-
-    SECTION("Hex") {
-
-        bs << BufStr::SetHex << 132UL;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "84") == 0);
-
-        bs.clear();
-        bs << UINT64_MAX;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "ffffffffffffffff") == 0);
-
-        bs.clear();
-        bs << INT64_C(-1);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "ffffffffffffffff") == 0);
-
-        bs.clear();
-        bs << -1;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "ffffffff") == 0);
-
-        bs.clear();
-        bs << -2;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "fffffffe") == 0);
-
-        bs.clear();
-        bs << static_cast<int8_t>(INT8_MAX);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "7f") == 0);
-    }
-
-    SECTION("Hex formats") {
-
-        bs << BufStr::SetHex;
-        bs << BufStr::Fill(7) << 0x33AAF;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "0033aaf") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(9) << 0x33AAF;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "  0033aaf") == 0);
-    }
-
-    SECTION("Bin") {
-
-        bs << BufStr::SetBin << 132UL;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "10000100") == 0);
-
-        bs.clear();
-        bs << UINT16_MAX;
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1111111111111111") == 0);
-
-        bs.clear();
-        bs << static_cast<int16_t>(-1);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1111111111111111") == 0);
-
-        bs.clear();
-        bs << static_cast<int16_t>(-2);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1111111111111110") == 0);
-
-        bs.clear();
-        bs << static_cast<int8_t>(INT8_MAX);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "1111111") == 0);
-    }
-
-    SECTION("Bin formats") {
-
-        bs << BufStr::SetBin;
-        bs << BufStr::Fill(8) << static_cast<int8_t>(47);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "00101111") == 0);
-
-        bs.clear();
-        bs << BufStr::Pad(11) << static_cast<int8_t>(47);
-        PRINT_DATA_NL;
-        REQUIRE(strcmp(data.begin(), "   00101111") == 0);
-    }
-}
-
-TEMPLATE_TEST_CASE("Etl::BufStr() - copy/move",
+TEMPLATE_TEST_CASE("Etl::BufStr - basic stream operations",
                    "[bufstr][etl]",
-                   Etl::Static::BufStr<43>,
-                   Etl::Static::BufStr<45>,
-                   Etl::Dynamic::BufStr) {
+                   (Etl::Static::BufStr<120>),
+                   (Etl::Dynamic::BufStr)) {
 
-    using BS = Etl::Static::BufStr<43>;
-    using BD = Etl::Dynamic::BufStr;
+    static constexpr char EXPECTED[] = "12 1 false   0x2d -123.45\n";
 
-    const char TEST_STR[] = "testString";
+    TestType bs;
+    CHECK(bs.good());
 
-    auto checkCopy = [](const Etl::BufStr& dst, const Etl::BufStr& src) {
-        CAPTURE(dst.cStr());
-        CAPTURE(src.cStr());
-        REQUIRE(dst.cStr() != src.cStr());
-        REQUIRE(strcmp(dst.cStr(), src.cStr()) == 0);
-    };
+    bs << 12 << " " << true << " " << std::boolalpha << false;
+    bs << std::setw(5) << "0x" << std::hex << 45U;
+    bs << " " << -123.45 << std::endl;
 
-    SECTION("B(const B&)") {
-        SECTION("from Static") {
-            BS src(TEST_STR);
-            TestType dst(src);
-            checkCopy(dst, src);
-        }
+    CAPTURE(bs.cStr());
+    REQUIRE(equals(bs, EXPECTED));
+    REQUIRE(bs.size() == std::strlen(EXPECTED));
+    REQUIRE(bs.good());
+}
 
-        SECTION("from Dynamic") {
-            BD src(TEST_STR);
-            TestType dst(src);
-            checkCopy(dst, src);
-        }
+
+TEST_CASE("Etl::BasicBufStr<wchar_t>", "[bufstr][etl]") {
+
+    Etl::Dynamic::BasicBufStr<wchar_t> bs;
+    CHECK(bs.good());
+
+    bs << -756 << " and some text";
+
+    CAPTURE(bs.cStr());
+    REQUIRE(equals(bs, L"-756 and some text"));
+    REQUIRE(bs.good());
+}
+
+
+TEMPLATE_TEST_CASE("Etl::BufStr - move",
+                   "[bufstr][etl]",
+                   (Etl::Static::BufStr<120>),
+                   (Etl::Dynamic::BufStr)) {
+
+    TestType src;
+    src << 12;
+    CAPTURE(src.cStr());
+
+    SECTION("Move constructor") {
+        TestType dest {std::move(src)};
+        CAPTURE(dest.cStr());
+        REQUIRE(equals(dest, "12"));
+        REQUIRE(dest.good());
     }
 
-    SECTION("B=(const B&)") {
-        SECTION("from Static") {
-            BS src(TEST_STR);
-            TestType dst;
-            CHECK(dst.empty());
-            dst = src;
-            checkCopy(dst, src);
-        }
-
-        SECTION("from Dynamic") {
-            BD src(TEST_STR);
-            TestType dst;
-            CHECK(dst.empty());
-            dst = src;
-            checkCopy(dst, src);
-        }
-    }
-
-    auto checkMove = [&TEST_STR](const Etl::BufStr& dst, const Etl::BufStr& src) {
-        CAPTURE(dst.cStr());
-        CAPTURE(src.cStr());
-        REQUIRE(dst.cStr() != src.cStr());
-        REQUIRE(strcmp(dst.cStr(), TEST_STR) == 0);
-    };
-
-    SECTION("B(B&&)") {
-        SECTION("from Static") {
-            BS src(TEST_STR);
-            CHECK_FALSE(src.empty());
-            TestType dst(std::move(src));
-            checkMove(dst, src);
-        }
-
-        SECTION("from Dynamic") {
-            BD src(TEST_STR);
-            CHECK_FALSE(src.empty());
-            TestType dst(std::move(src));
-            checkMove(dst, src);
-        }
-    }
-
-    SECTION("B=(B&&)") {
-        SECTION("from Static") {
-            BS src(TEST_STR);
-            CHECK_FALSE(src.empty());
-
-            TestType dst("DD");
-            CHECK_FALSE(dst.empty());
-            dst = std::move(src);
-            checkMove(dst, src);
-        }
-
-        SECTION("from Dynamic") {
-            BD src(TEST_STR);
-            CHECK_FALSE(src.empty());
-
-            TestType dst("DD");
-            CHECK_FALSE(dst.empty());
-            dst = std::move(src);
-            checkMove(dst, src);
-        }
+    SECTION("Move assignment") {
+        TestType dest;
+        dest << 22;
+        dest = std::move(src);
+        CAPTURE(dest.cStr());
+        REQUIRE(equals(dest, "12"));
+        REQUIRE(dest.good());
     }
 }
 
 
-TEST_CASE("Etl::BufStr() - fill", "[bufstr][etl]") {
+TEST_CASE("Etl::StaticBufStr<> - overflow", "[bufstr][etl]") {
 
-    Etl::Static::BufStr<17> bs;
-    bs << "1234567890";
-    bs << "1234567890";
+    static constexpr char INPUT[] = "12345678901234567890";
+    static constexpr std::size_t SIZE {16U};
+    static constexpr char TRUNCATED[] = "123456789012345";
 
-    REQUIRE(bs.size() == 16);
-    REQUIRE(strcmp(bs.cStr(), "1234567890123456") == 0);
+    Etl::Static::BufStr<SIZE> bs;
+
+    CHECK(bs.buffer().size() == SIZE);
+
+    bs << INPUT;
+
+    REQUIRE(bs.buffer().size() == SIZE);
+    REQUIRE(bs.size() == std::strlen(TRUNCATED));
+    CAPTURE(bs.cStr());
+    REQUIRE(equals(bs, TRUNCATED));
+    REQUIRE_FALSE(bs.good());
+}
+
+
+TEST_CASE("Etl::DynamicBufStr - overflow", "[bufstr][etl]") {
+
+    static constexpr char INPUT[] = "12345678901234567890";
+
+    Etl::Dynamic::BufStr bs;
+
+    CHECK(bs.buffer().size() == 0U);
+
+    bs << INPUT;
+
+    REQUIRE(bs.buffer().size() == Etl::Detail::DynamicStreamBuf<char>::SIZE_INCREMENT);
+    REQUIRE(bs.size() == std::strlen(INPUT));
+    CAPTURE(bs.cStr());
+    REQUIRE(equals(bs, INPUT));
+    REQUIRE(bs.good());
+}
+
+
+TEST_CASE("Etl::BufStr - std formatters", "[bufstr][etl]") {
+
+    Etl::Static::BufStr<128U> bs;
+
+    SECTION("std::setprecision()") {
+        bs << std::setprecision(4) << -12.7777;
+
+        CAPTURE(bs.cStr());
+        REQUIRE(equals(bs, "-12.78"));
+        REQUIRE(bs.good());
+    }
+
+    SECTION("std::setw()") {
+        bs << std::setw(4) << 14;
+
+        CAPTURE(bs.cStr());
+        REQUIRE(equals(bs, "  14"));
+        REQUIRE(bs.good());
+    }
+
+    SECTION("std::setfill()") {
+        bs << std::setfill('0') << std::setw(4) << 14;
+
+        CAPTURE(bs.cStr());
+        REQUIRE(equals(bs, "0014"));
+        REQUIRE(bs.good());
+    }
+}
+
+
+TEST_CASE("Etl::BufStr - non-sticky formatters", "[bufstr][etl]") {
+
+    static constexpr std::uint16_t VAL = 17U;
+    Etl::Static::BufStr<120U> bs;
+
+    SECTION("Basic formatting") {
+        SECTION("Dec(v)") {
+            bs << Etl::BufStr::Dec(VAL) << " " << Etl::BufStr::Dec(VAL, 5U);
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "17 00017"));
+        }
+
+        SECTION("Hex(v)") {
+            bs << Etl::BufStr::Hex(VAL) << " " << Etl::BufStr::Hex(VAL, 5U);
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "11 00011"));
+        }
+
+        SECTION("Oct(v)") {
+            bs << Etl::BufStr::Oct(VAL) << " " << Etl::BufStr::Oct(VAL, 5U);
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "21 00021"));
+        }
+
+        SECTION("Bin(v)") {
+            bs << Etl::BufStr::Bin(VAL) << " " << Etl::BufStr::Bin(VAL, 8U);
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "10001 00010001"));
+        }
+    }
+
+    SECTION("Reset format") {
+        SECTION("Dec(v)") {
+            bs << std::hex << VAL << " " << Etl::BufStr::Dec(VAL, 5U) << " " << VAL;
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "11 00017 11"));
+        }
+
+        SECTION("Hex(v)") {
+            bs << VAL << " " << Etl::BufStr::Hex(VAL, 5U) << " " << VAL;
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "17 00011 17"));
+        }
+
+        SECTION("Oct(v)") {
+            bs << VAL << " " << Etl::BufStr::Oct(VAL, 5U) << " " << VAL;
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "17 00021 17"));
+        }
+
+        SECTION("Bin(v)") {
+            bs << VAL << " " << Etl::BufStr::Bin(VAL, 8U) << " " << VAL;
+
+            CAPTURE(bs.cStr());
+            REQUIRE(equals(bs, "17 00010001 17"));
+        }
+    }
 }
 
 }  // namespace
