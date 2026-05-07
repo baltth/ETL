@@ -3,7 +3,7 @@
 
 \copyright
 \parblock
-Copyright 2017-2024 Balazs Toth.
+Copyright 2017-2026 Balazs Toth.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,7 +41,10 @@ class BufStr {
             ch(c) {};
     };
 
-    static const struct EndlineT : Char { EndlineT() : Char('\n') {}; } Endl;
+    static const struct EndlineT : Char {
+        EndlineT() :
+            Char('\n') {}
+    } Endl;
 
     enum Radix {
         BIN = 2,
@@ -57,25 +60,25 @@ class BufStr {
         explicit IntFormatSpec(V v, Radix r, uint8_t f = 0) :
             val(v),
             radix(r),
-            fill(f) {};
+            fill(f) {}
     };
 
     struct Fill {
         uint8_t fill;
         explicit Fill(uint8_t f) :
-            fill(f) {};
+            fill(f) {}
     };
 
     struct Prec {
         uint8_t precision;
         explicit Prec(uint8_t p) :
-            precision(p) {};
+            precision(p) {}
     };
 
     struct Pad {
         uint8_t padding;
         explicit Pad(uint8_t p) :
-            padding(p) {};
+            padding(p) {}
     };
 
     struct DecModT {};
@@ -107,7 +110,7 @@ class BufStr {
         Format format;
         explicit FormatSaver(BufStr& s) :
             str(s),
-            format(s.format) {};
+            format(s.format) {}
         ~FormatSaver() {
             str.format = format;
         }
@@ -141,6 +144,7 @@ class BufStr {
 
     /// \name Data interface
     /// \{
+
     BufStr& put(char c) {
         data.back() = c;
         closeStr();
@@ -149,49 +153,6 @@ class BufStr {
 
     BufStr& write(const char* str, size_t len);
     BufStr& write(const char* str);
-
-    BufStr& operator<<(bool data) {
-        if (data) {
-            return write("true", sizeof("true") - 1);
-        } else {
-            return write("false", sizeof("false") - 1);
-        }
-    }
-
-    BufStr& operator<<(Char data) {
-        return put(data.ch);
-    }
-
-    template<typename T>
-    enable_if_t<is_integral<T>::value && is_unsigned<T>::value, BufStr&> operator<<(T data) {
-        return putUNumber(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_integral<T>::value && is_signed<T>::value, BufStr&> operator<<(T data) {
-        return putSNumber(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_floating_point<T>::value, BufStr&> operator<<(T data) {
-        return putFloat(data);
-    }
-
-    template<typename T>
-    enable_if_t<is_enum<T>::value, BufStr&> operator<<(T data) {
-        return operator<<(static_cast<typename std::underlying_type<T>::type>(data));
-    }
-
-    BufStr& operator<<(const void* data) {
-        return putPointer(data);
-    }
-
-    BufStr& operator<<(const BufStr& other) {
-        if (!other.empty()) {
-            write(other.cStr(), other.size());
-        }
-        return *this;
-    }
 
     const ETL_NAMESPACE::Vector<char>& getBuff() const noexcept {
         return data;
@@ -217,54 +178,6 @@ class BufStr {
 
     /// \name Format interface
     /// \{
-    template<typename T>
-    BufStr& operator<<(IntFormatSpec<T> data) {
-        FormatSaver fs {*this};
-        format.radix = data.radix;
-        *this << Fill(data.fill) << data.val;
-        return *this;
-    }
-
-    BufStr& operator<<(DecModT) {
-        format.radix = DEC;
-        return *this;
-    }
-
-    BufStr& operator<<(HexModT) {
-        format.radix = HEX;
-        return *this;
-    }
-
-    BufStr& operator<<(BinModT) {
-        format.radix = BIN;
-        return *this;
-    }
-
-    BufStr& operator<<(Fill mod) {
-        if (mod.fill) {
-            format.fill = mod.fill;
-        }
-        return *this;
-    }
-
-    BufStr& operator<<(Prec mod) {
-        if (mod.precision) {
-            format.precision = mod.precision;
-        }
-        return *this;
-    }
-
-    BufStr& operator<<(Pad mod) {
-        if (mod.padding) {
-            format.padding = mod.padding;
-        }
-        return *this;
-    }
-
-    BufStr& operator<<(DefaultModT) {
-        resetFormat();
-        return *this;
-    }
 
     template<typename T>
     static IntFormatSpec<T> Dec(T val, uint8_t f = 0) {
@@ -310,10 +223,114 @@ class BufStr {
     }
     /// \}
 
+  private:
+
+    /// \name Stream interface
+    /// \{
+
+    friend BufStr& operator<<(BufStr& self, bool data) {
+        if (data) {
+            return self.write("true", sizeof("true") - 1);
+        } else {
+            return self.write("false", sizeof("false") - 1);
+        }
+    }
+
+    friend BufStr& operator<<(BufStr& self, Char data) {
+        return self.put(data.ch);
+    }
+
+    template<typename T>
+    friend enable_if_t<is_integral<T>::value && is_unsigned<T>::value, BufStr&>
+    operator<<(BufStr& self, T data) {
+        return self.putUNumber(data);
+    }
+
+    template<typename T>
+    friend enable_if_t<is_integral<T>::value && is_signed<T>::value, BufStr&>
+    operator<<(BufStr& self, T data) {
+        return self.putSNumber(data);
+    }
+
+    template<typename T>
+    friend enable_if_t<is_floating_point<T>::value, BufStr&> operator<<(BufStr& self, T data) {
+        return self.putFloat(data);
+    }
+
+    template<typename T>
+    friend enable_if_t<is_enum<T>::value, BufStr&> operator<<(BufStr& self, T data) {
+        return self << static_cast<typename std::underlying_type<T>::type>(data);
+    }
+
+    friend BufStr& operator<<(BufStr& self, const char* data) {
+        return self.write(data);
+    }
+
+    friend BufStr& operator<<(BufStr& self, const void* data) {
+        return self.putPointer(data);
+    }
+
+    friend BufStr& operator<<(BufStr& self, const BufStr& other) {
+        if (!other.empty()) {
+            self.write(other.cStr(), other.size());
+        }
+        return self;
+    }
+
+    template<typename T>
+    friend BufStr& operator<<(BufStr& self, IntFormatSpec<T> data) {
+        FormatSaver fs {self};
+        self.format.radix = data.radix;
+        self << Fill(data.fill) << data.val;
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, DecModT) {
+        self.format.radix = DEC;
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, HexModT) {
+        self.format.radix = HEX;
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, BinModT) {
+        self.format.radix = BIN;
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, Fill mod) {
+        if (mod.fill) {
+            self.format.fill = mod.fill;
+        }
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, Prec mod) {
+        if (mod.precision) {
+            self.format.precision = mod.precision;
+        }
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, Pad mod) {
+        if (mod.padding) {
+            self.format.padding = mod.padding;
+        }
+        return self;
+    }
+
+    friend BufStr& operator<<(BufStr& self, DefaultModT) {
+        self.resetFormat();
+        return self;
+    }
+    /// \}
+
   protected:
 
     explicit BufStr(ETL_NAMESPACE::Vector<char>& d) noexcept :
-        data(d) {};
+        data(d) {}
 
     template<typename T>
     BufStr& putUNumber(T val) {
@@ -415,7 +432,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(const BufStr& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const BufStr& other) & {
         Base::operator=(other);
@@ -425,7 +442,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     BufStr(BufStr&& other) noexcept(noexcept(BufStr().operator=(std::move(other)))) :
         Base(data) {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<Data>::value) {
         // Direct move of members allow propagation of
@@ -438,7 +455,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(const Base& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const Base& other) {
         Base::operator=(other);
@@ -448,7 +465,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(Base&& other) :
         BufStr() {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(Base&& other) {
         Base::operator=(std::move(other));
@@ -502,8 +519,8 @@ class BufStr : public ETL_NAMESPACE::BufStr {
         setFormat(other.getFormat());
     }
 
-    BufStr&
-    operator=(BufStr&& other) noexcept(std::is_nothrow_move_assignable<BufStr::Data>::value) {
+    BufStr& operator=(BufStr&& other) noexcept(
+        std::is_nothrow_move_assignable<BufStr::Data>::value) {
         // Direct move of members allow propagation of
         // noexcept properties of the data container type
         data = std::move(other.data);
@@ -514,7 +531,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(const Base& other) :
         BufStr() {
         this->operator=(other);
-    };
+    }
 
     BufStr& operator=(const Base& other) {
         Base::operator=(other);
@@ -524,7 +541,7 @@ class BufStr : public ETL_NAMESPACE::BufStr {
     explicit BufStr(Base&& other) :
         BufStr() {
         this->operator=(std::move(other));
-    };
+    }
 
     BufStr& operator=(Base&& other) {
         Base::operator=(std::move(other));
@@ -561,11 +578,5 @@ struct BufStr::SizeTypeTrait<sizeof(uint64_t)> {
 };
 
 }  // namespace ETL_NAMESPACE
-
-
-inline ETL_NAMESPACE::BufStr& operator<<(ETL_NAMESPACE::BufStr& bs, const char* data) {
-
-    return bs.write(data);
-}
 
 #endif  // ETL_BUFSTR_H_
